@@ -1,9 +1,12 @@
 package life.shizune.mistinn;
 
 import life.shizune.mistinn.bell.BellService;
+import life.shizune.mistinn.grid.GridActionPayload;
+import life.shizune.mistinn.grid.GridService;
 import life.shizune.mistinn.registry.MistinnAttachments;
 import life.shizune.mistinn.registry.MistinnBlockEntities;
 import life.shizune.mistinn.registry.MistinnBlocks;
+import life.shizune.mistinn.registry.MistinnComponents;
 import life.shizune.mistinn.registry.MistinnItems;
 import life.shizune.mistinn.registry.MistinnSounds;
 import life.shizune.mistinn.registry.MistinnTab;
@@ -31,15 +34,18 @@ public class Mistinn implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		MistinnSounds.init();
+		MistinnComponents.init();
 		MistinnBlocks.init();
 		MistinnItems.init();
 		MistinnBlockEntities.init();
 		MistinnAttachments.init();
 		MistinnTab.init();
+		GridActionPayload.register();
 
 		// A fallen hunter leaves their salt as residue; a defeated creature gives salt.
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
 			if (entity instanceof ServerPlayer player) {
+				GridService.onDeath(player);
 				ResidueService.onDeath(player);
 			} else if (source.getEntity() instanceof ServerPlayer killer) {
 				SaltService.reward(killer, entity);
@@ -50,7 +56,9 @@ public class Mistinn implements ModInitializer {
 			if (!alive) {
 				BellService.queueRespawn(newPlayer);
 			}
+			GridService.applyWeight(newPlayer);
 		});
+		ServerPlayerEvents.JOIN.register(GridService::applyWeight);
 		ServerTickEvents.END_SERVER_TICK.register(BellService::tick);
 
 		// Left click opens a gravestone. Accepting on the client sends the hit to the server.

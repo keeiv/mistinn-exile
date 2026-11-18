@@ -24,6 +24,9 @@ public final class MistinnTab {
 				output.accept(MistinnItems.ORE_BELL);
 				output.accept(MistinnItems.SALT);
 				output.accept(MistinnItems.RUST_GOD_SALT);
+				MistinnItems.HELMETS.forEach(output::accept);
+				MistinnItems.ARMORS.forEach(output::accept);
+				MistinnItems.BACKPACKS.forEach(output::accept);
 			})
 			.build()
 	);

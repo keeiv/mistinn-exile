@@ -38,7 +38,7 @@ public final class MinimapHud implements HudElement {
 	public void extractRenderState(final GuiGraphicsExtractor g, final DeltaTracker deltaTracker) {
 		Minecraft minecraft = Minecraft.getInstance();
 		LocalPlayer player = minecraft.player;
-		if (player == null || minecraft.getDebugOverlay().showDebugScreen() || !MinimapTexture.ready()) {
+		if (player == null || minecraft.gui.screen() != null || minecraft.getDebugOverlay().showDebugScreen() || !MinimapTexture.ready()) {
 			return;
 		}
 		int size = MinimapTexture.SIZE;

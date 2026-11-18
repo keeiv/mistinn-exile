@@ -4,8 +4,10 @@ import com.mojang.blaze3d.platform.InputConstants;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.client.map.MinimapHud;
 import life.shizune.mistinn.client.map.MinimapTexture;
+import life.shizune.mistinn.client.tier.TierText;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.minecraft.client.KeyMapping;
@@ -26,6 +28,7 @@ public class MistinnClient implements ClientModInitializer {
 		);
 
 		HudElementRegistry.addLast(Mistinn.id("minimap"), new MinimapHud());
+		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> TierText.decorate(stack, lines));
 
 		ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
 			while (zoom.consumeClick()) {

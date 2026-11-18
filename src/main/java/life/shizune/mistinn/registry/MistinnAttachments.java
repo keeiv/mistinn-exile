@@ -2,6 +2,7 @@ package life.shizune.mistinn.registry;
 
 import com.mojang.serialization.Codec;
 import life.shizune.mistinn.Mistinn;
+import life.shizune.mistinn.grid.GridInventory;
 import life.shizune.mistinn.residue.DeathMark;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
@@ -37,6 +38,13 @@ public final class MistinnAttachments {
 		.syncWith(GlobalPos.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
 		.copyOnDeath()
 		.buildAndRegister(Mistinn.id("bell"));
+
+	/** Pockets, safe box and worn backpack. Copied on death; the death handler empties all but the safe box. */
+	public static final AttachmentType<GridInventory> GRID = AttachmentRegistry.<GridInventory>builder()
+		.persistent(GridInventory.CODEC)
+		.syncWith(GridInventory.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
+		.copyOnDeath()
+		.buildAndRegister(Mistinn.id("grid"));
 
 	private MistinnAttachments() {
 	}
