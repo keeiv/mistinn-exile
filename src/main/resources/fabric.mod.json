@@ -1,0 +1,26 @@
+{
+	"schemaVersion": 1,
+	"id": "mistinn",
+	"version": "${version}",
+	"name": "霧宿：追放",
+	"description": "Mistinn: Exile. A hunter from Rust Anchor Station enters the forbidden zone at the edge of the world.",
+	"authors": ["森之宿茶室 MoriTeahouse"],
+	"contact": { "homepage": "https://moriteahouse.shizune.life/" },
+	"license": "All-Rights-Reserved",
+	"icon": "assets/mistinn/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": ["life.shizune.mistinn.Mistinn"],
+		"client": ["life.shizune.mistinn.client.MistinnClient"]
+	},
+	"mixins": [
+		"mistinn.mixins.json",
+		{ "config": "mistinn.client.mixins.json", "environment": "client" }
+	],
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

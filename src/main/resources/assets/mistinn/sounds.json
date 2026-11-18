@@ -1,0 +1,97 @@
+{
+  "weapon.anchor_blade.swing": {
+    "sounds": [
+      "mistinn:weapon/anchor_blade/swing_1",
+      "mistinn:weapon/anchor_blade/swing_2",
+      "mistinn:weapon/anchor_blade/swing_3"
+    ],
+    "subtitle": "subtitles.mistinn.weapon.anchor_blade.swing"
+  },
+  "weapon.anchor_blade.hit": {
+    "sounds": [
+      "mistinn:weapon/anchor_blade/hit_1",
+      "mistinn:weapon/anchor_blade/hit_2",
+      "mistinn:weapon/anchor_blade/hit_3"
+    ],
+    "subtitle": "subtitles.mistinn.weapon.anchor_blade.hit"
+  },
+  "weapon.bell_greatsword.swing": {
+    "sounds": [
+      "mistinn:weapon/bell_greatsword/swing_1",
+      "mistinn:weapon/bell_greatsword/swing_2"
+    ],
+    "subtitle": "subtitles.mistinn.weapon.bell_greatsword.swing"
+  },
+  "weapon.bell_greatsword.hit": {
+    "sounds": [
+      "mistinn:weapon/bell_greatsword/hit_1",
+      "mistinn:weapon/bell_greatsword/hit_2"
+    ],
+    "subtitle": "subtitles.mistinn.weapon.bell_greatsword.hit"
+  },
+  "weapon.mist_spear.swing": {
+    "sounds": [
+      "mistinn:weapon/mist_spear/swing_1",
+      "mistinn:weapon/mist_spear/swing_2",
+      "mistinn:weapon/mist_spear/swing_3"
+    ],
+    "subtitle": "subtitles.mistinn.weapon.mist_spear.swing"
+  },
+  "weapon.mist_spear.hit": {
+    "sounds": [
+      "mistinn:weapon/mist_spear/hit_1",
+      "mistinn:weapon/mist_spear/hit_2",
+      "mistinn:weapon/mist_spear/hit_3"
+    ],
+    "subtitle": "subtitles.mistinn.weapon.mist_spear.hit"
+  },
+  "weapon.salt_fang.swing": {
+    "sounds": [
+      "mistinn:weapon/salt_fang/swing_1",
+      "mistinn:weapon/salt_fang/swing_2",
+      "mistinn:weapon/salt_fang/swing_3",
+      "mistinn:weapon/salt_fang/swing_4"
+    ],
+    "subtitle": "subtitles.mistinn.weapon.salt_fang.swing"
+  },
+  "weapon.salt_fang.hit": {
+    "sounds": [
+      "mistinn:weapon/salt_fang/hit_1",
+      "mistinn:weapon/salt_fang/hit_2",
+      "mistinn:weapon/salt_fang/hit_3"
+    ],
+    "subtitle": "subtitles.mistinn.weapon.salt_fang.hit"
+  },
+  "block.golden_bell.rest": {
+    "sounds": [
+      "mistinn:block/golden_bell/rest"
+    ],
+    "subtitle": "subtitles.mistinn.block.golden_bell.rest"
+  },
+  "block.ore_bell.break": {
+    "sounds": [
+      "mistinn:block/ore_bell/break"
+    ],
+    "subtitle": "subtitles.mistinn.block.ore_bell.break"
+  },
+  "residue.form": {
+    "sounds": [
+      "mistinn:residue/form"
+    ],
+    "subtitle": "subtitles.mistinn.residue.form"
+  },
+  "residue.recover": {
+    "sounds": [
+      "mistinn:residue/recover"
+    ],
+    "subtitle": "subtitles.mistinn.residue.recover"
+  },
+  "salt.gain": {
+    "sounds": [
+      "mistinn:salt/gain_1",
+      "mistinn:salt/gain_2",
+      "mistinn:salt/gain_3"
+    ],
+    "subtitle": "subtitles.mistinn.salt.gain"
+  }
+}

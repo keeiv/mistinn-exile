@@ -1,0 +1,8 @@
+{
+	"required": true,
+	"package": "life.shizune.mistinn.client.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": ["FirstPersonSwingMixin", "ThirdPersonSwingMixin"],
+	"injectors": { "defaultRequire": 1 },
+	"overwrites": { "requireAnnotations": true }
+}

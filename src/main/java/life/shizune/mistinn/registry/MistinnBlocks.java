@@ -1,0 +1,67 @@
+package life.shizune.mistinn.registry;
+
+import java.util.function.Function;
+import life.shizune.mistinn.Mistinn;
+import life.shizune.mistinn.block.GoldenBellBlock;
+import life.shizune.mistinn.block.GravestoneBlock;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
+
+public final class MistinnBlocks {
+	/** 金鐘: the save point. Made of a matter the border world does not have; it cannot be crafted. */
+	public static final Block GOLDEN_BELL = register(
+		"golden_bell",
+		p -> new GoldenBellBlock(p, false),
+		BlockBehaviour.Properties.of()
+			.mapColor(MapColor.GOLD)
+			.strength(-1.0F, 3600000.0F)
+			.sound(SoundType.ANVIL)
+			.lightLevel(state -> 7)
+			.noOcclusion()
+			.pushReaction(PushReaction.IMMOVEABLE)
+	);
+	/** 一次性金鐘: cast from ordinary gold ore; brings you back once, then cracks. */
+	public static final Block ORE_BELL = register(
+		"ore_bell",
+		p -> new GoldenBellBlock(p, true),
+		BlockBehaviour.Properties.of()
+			.mapColor(MapColor.GOLD)
+			.strength(3.0F, 6.0F)
+			.sound(SoundType.METAL)
+			.lightLevel(state -> 3)
+			.noOcclusion()
+			.pushReaction(PushReaction.POPPED)
+	);
+	/** The gravestone left where a hunter fell; it holds the residue of their salt. */
+	public static final Block GRAVESTONE = register(
+		"gravestone",
+		GravestoneBlock::new,
+		BlockBehaviour.Properties.of()
+			.mapColor(MapColor.QUARTZ)
+			.strength(-1.0F, 3600000.0F)
+			.sound(SoundType.STONE)
+			.lightLevel(state -> 4)
+			.noOcclusion()
+			.noLootTable()
+			.pushReaction(PushReaction.IMMOVEABLE)
+	);
+
+	private MistinnBlocks() {
+	}
+
+	private static Block register(final String name, final Function<BlockBehaviour.Properties, Block> factory, final BlockBehaviour.Properties properties) {
+		ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, Mistinn.id(name));
+		return Registry.register(BuiltInRegistries.BLOCK, key, factory.apply(properties.setId(key)));
+	}
+
+	public static void init() {
+		// Loading the class registers the fields above.
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"schemaVersion": 1,
+	"id": "mistinn-test",
+	"version": "1.0.0",
+	"name": "Mistinn: Exile tests",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-client-gametest": ["life.shizune.mistinn.test.MistinnClientGameTest"]
+	},
+	"depends": { "mistinn": "*" }
+}

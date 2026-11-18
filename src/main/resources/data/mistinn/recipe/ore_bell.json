@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "#mistinn:bell_gold",
+    "C": "minecraft:iron_chain"
+  },
+  "pattern": [
+    " C ",
+    "GGG",
+    "G G"
+  ],
+  "result": {
+    "id": "mistinn:ore_bell"
+  }
+}
