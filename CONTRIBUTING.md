@@ -37,6 +37,10 @@ cd MistinnExile
 - 一次提交只做一件事；附上你跑過的檢查。
 - 不要提交 `build/`、`run/`、`.gradle/` 或任何金鑰。
 
+## 授權
+
+本專案以 AGPL-3.0-only 授權。送出貢獻即表示你同意你的貢獻以相同授權發佈。
+
 ## 回報問題
 
 請到森之宿茶室官網回報：<https://moriteahouse.shizune.life/account>（作品選「霧宿：追放」）。附上遊戲版本、模組版本、重現步驟，以及 `logs/latest.log`。

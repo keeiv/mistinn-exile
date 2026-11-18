@@ -57,4 +57,6 @@ python tools/make_assets.py
 
 ## 授權
 
-目前保留所有權利（All Rights Reserved），尚未決定開源授權。
+本模組以 [GNU Affero General Public License v3.0](LICENSE)（`AGPL-3.0-only`）授權。你可以自由使用、修改與散佈；散佈修改後的版本時，必須以相同授權公開原始碼。
+
+所有貼圖與音效都由本倉庫的腳本產生，與程式碼使用相同授權。

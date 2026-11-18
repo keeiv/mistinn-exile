@@ -6,7 +6,7 @@
 	"description": "Mistinn: Exile. A hunter from Rust Anchor Station enters the forbidden zone at the edge of the world.",
 	"authors": ["森之宿茶室 MoriTeahouse"],
 	"contact": { "homepage": "https://moriteahouse.shizune.life/" },
-	"license": "All-Rights-Reserved",
+	"license": "AGPL-3.0-only",
 	"icon": "assets/mistinn/icon.png",
 	"environment": "*",
 	"entrypoints": {
