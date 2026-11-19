@@ -20,7 +20,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -378,7 +380,10 @@ public final class GridPanel {
 		g.outline(x, y, size, size, tier == null ? CELL_LINE : tier.color);
 	}
 
-	/** The item on its tier colour, drawn as large as its footprint allows, turned if rotated. */
+	/**
+	 * The item on its tier colour, drawn as large as its footprint allows, turned if rotated.
+	 * Items with a grid sprite fill their whole footprint with it.
+	 */
 	private static void drawPlaced(final GuiGraphicsExtractor g, final Font font, final Placed placed, final int x, final int y) {
 		int w = placed.width();
 		int h = placed.height();
@@ -389,20 +394,32 @@ public final class GridPanel {
 		pose.pushMatrix();
 		pose.translate(x + w * CELL / 2.0F, y + h * CELL / 2.0F);
 		int[] upright = ItemSizes.of(placed.stack());
-		if (upright[1] >= 2 * upright[0]) {
+		Identifier sprite = GridSprites.of(placed.stack().getItem());
+		if (sprite != null) {
+			// drawn upright, then turned with the footprint when the item lies on its side
+			if (placed.rotated()) {
+				pose.rotate((float) (Math.PI / 2));
+			}
+			int sw = upright[0] * CELL;
+			int sh = upright[1] * CELL;
+			int tw = upright[0] * GridSprites.TEXELS_PER_CELL;
+			int th = upright[1] * GridSprites.TEXELS_PER_CELL;
+			g.blit(RenderPipelines.GUI_TEXTURED, sprite, -sw / 2, -sh / 2, 0.0F, 0.0F, sw, sh, tw, th, tw, th);
+		} else if (upright[1] >= 2 * upright[0]) {
 			// long things (swords, sticks) are drawn corner to corner in vanilla: stand them up
 			// along the footprint's long side, as large as it allows
 			float scale = Math.min(upright[1] * 0.68F, upright[0] * 1.6F);
 			pose.rotate((float) (placed.rotated() ? Math.PI / 4 : -Math.PI / 4));
 			pose.scale(scale, scale);
+			g.item(placed.stack(), -8, -8);
 		} else {
 			float scale = Math.max(1, Math.min(w, h));
 			if (placed.rotated()) {
 				pose.rotate((float) (Math.PI / 2));
 			}
 			pose.scale(scale, scale);
+			g.item(placed.stack(), -8, -8);
 		}
-		g.item(placed.stack(), -8, -8);
 		pose.popMatrix();
 		if (placed.stack().getCount() > 1) {
 			String count = Integer.toString(placed.stack().getCount());
