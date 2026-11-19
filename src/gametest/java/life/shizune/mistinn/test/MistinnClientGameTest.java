@@ -652,6 +652,20 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			context.waitTicks(3);
 			float swung = world.getServer().computeOnServer(server -> life.shizune.mistinn.stamina.StaminaService.get(server.getPlayerList().getPlayers().getFirst()));
 			check(rested - swung >= 23.9F, "a hammer swing at the sky costs 24 stamina, it cost " + (rested - swung));
+
+			// after rolling, dying and coming back (a new player entity), a roll still costs stamina
+			world.getServer().runCommand("kill @a");
+			context.waitForScreen(DeathScreen.class);
+			context.clickScreenButton("deathScreen.respawn");
+			context.waitTicks(80);
+			context.getInput().pressKey(options -> java.util.Arrays.stream(options.keyMappings).filter(k -> k.getName().equals("key.mistinn.roll")).findFirst().orElseThrow());
+			context.waitTicks(2);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				check(life.shizune.mistinn.stamina.StaminaService.get(player) < life.shizune.mistinn.stamina.StaminaService.MAX - 1.0F, "a roll after respawning costs stamina, left " + life.shizune.mistinn.stamina.StaminaService.get(player));
+				check(life.shizune.mistinn.stamina.RollService.dodging(player), "and still dodges");
+			});
+			context.waitTicks(20);
 			world.getServer().runOnServer(server -> BodyService.restoreAll(server.getPlayerList().getPlayers().getFirst()));
 
 			// ── The lighthouse and its keeper ───────────────────────

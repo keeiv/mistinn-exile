@@ -53,6 +53,11 @@ public final class MistinnAttachments {
 		.syncWith(Body.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
 		.buildAndRegister(Mistinn.id("body"));
 
+	/** Tier index of the worn mask (-1 for none), sent to everyone so it can be drawn on the face. */
+	public static final AttachmentType<Integer> WORN_MASK = AttachmentRegistry.<Integer>builder()
+		.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all())
+		.buildAndRegister(Mistinn.id("worn_mask"));
+
 	/** Stamina, 0 to 100. Not saved: a hunter rejoins rested. */
 	public static final AttachmentType<Float> STAMINA = AttachmentRegistry.<Float>builder()
 		.syncWith(ByteBufCodecs.FLOAT, AttachmentSyncPredicate.targetOnly())

@@ -5,6 +5,7 @@ import java.util.List;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.gear.Gear;
 import life.shizune.mistinn.registry.MistinnAttachments;
+import life.shizune.mistinn.registry.MistinnItems;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Prediction;
@@ -35,6 +36,15 @@ public final class GridService {
 
 	public static void set(final ServerPlayer player, final GridInventory inventory) {
 		player.setAttached(MistinnAttachments.GRID, inventory);
+		showMask(player, inventory);
+	}
+
+	/** Everyone nearby sees the worn mask: its tier goes out to all, the rest of the grid only to its owner. */
+	public static void showMask(final ServerPlayer player, final GridInventory inventory) {
+		int tier = MistinnItems.MASKS.indexOf(inventory.mask().getItem());
+		if (player.getAttachedOrElse(MistinnAttachments.WORN_MASK, -1) != tier) {
+			player.setAttached(MistinnAttachments.WORN_MASK, tier);
+		}
 	}
 
 	/** Puts the stack into pockets, then the backpack. Returns true when any of it went in. */

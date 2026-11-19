@@ -48,6 +48,15 @@ public class MistinnClient implements ClientModInitializer {
 		// hunters see their body parts where the hearts were
 		HudElementRegistry.replaceElement(VanillaHudElements.HEALTH_BAR, BodyHud::new);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Mistinn.id("stamina"), new life.shizune.mistinn.client.body.StaminaHud());
+		// the mask over every player's face
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.gear.MaskLayer.LAYER, life.shizune.mistinn.client.gear.MaskLayer::definition);
+		net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
+			if (renderer instanceof net.minecraft.client.renderer.entity.player.AvatarRenderer<?> avatar) {
+				@SuppressWarnings("unchecked")
+				var parent = (net.minecraft.client.renderer.entity.RenderLayerParent<net.minecraft.client.renderer.entity.state.AvatarRenderState, net.minecraft.client.model.player.PlayerModel>) avatar;
+				helper.register(new life.shizune.mistinn.client.gear.MaskLayer(parent, context));
+			}
+		});
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SNUFFER, life.shizune.mistinn.client.keeper.SnufferRenderer::new);
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> TierText.decorate(stack, lines));
 
