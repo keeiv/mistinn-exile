@@ -445,5 +445,19 @@
   "item.mistinn.painkillers": "止疼片",
   "item.mistinn.painkillers.usage": "2 秒服下，90 秒內感覺不到壞死的部位：不減速、不虛弱，壞腿也能翻滾；但只要有部位壞死，每次翻滾或撲倒都要全身平分 18 點傷害。一瓶 4 次。",
   "item.mistinn.painkillers.lore.1": "小白瓶裡裝著苦得發麻的藥片，標籤早就被鹽水泡糊了。",
-  "item.mistinn.painkillers.lore.2": "痛還在，只是先寄放在別的地方。"
+  "item.mistinn.painkillers.lore.2": "痛還在，只是先寄放在別的地方。",
+  "subtitles.mistinn.treatment.inject.cap": "注射器拔蓋",
+  "subtitles.mistinn.treatment.inject.stab": "針頭刺入",
+  "subtitles.mistinn.treatment.inject.push": "藥液注入",
+  "subtitles.mistinn.treatment.inject.out": "針頭拔出",
+  "subtitles.mistinn.treatment.surgery.open": "手術包打開",
+  "subtitles.mistinn.treatment.surgery.cut": "剪刀剪開爛肉",
+  "subtitles.mistinn.treatment.surgery.stitch": "縫線穿過皮肉",
+  "subtitles.mistinn.treatment.surgery.tie": "縫線剪斷",
+  "subtitles.mistinn.treatment.repair.plate": "抽出夾板",
+  "subtitles.mistinn.treatment.repair.hammer": "鐵錘敲打",
+  "subtitles.mistinn.treatment.repair.ratchet": "棘輪鎖緊",
+  "subtitles.mistinn.treatment.pills.rattle": "藥瓶搖晃",
+  "subtitles.mistinn.treatment.pills.pour": "倒出藥片",
+  "subtitles.mistinn.treatment.pills.swallow": "吞下藥片"
 }

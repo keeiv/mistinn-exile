@@ -6,7 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 
-/** Every sound is synthesised by tools/make_assets.py; the ids match assets/mistinn/sounds.json. */
+/** Every sound is synthesised by the private art scripts; the ids match assets/mistinn/sounds.json. */
 public final class MistinnSounds {
 	public static final SoundEvent ANCHOR_BLADE_SWING = register("weapon.anchor_blade.swing");
 	public static final SoundEvent ANCHOR_BLADE_HIT = register("weapon.anchor_blade.hit");
@@ -28,6 +28,21 @@ public final class MistinnSounds {
 	public static final SoundEvent RESIDUE_FORM = register("residue.form");
 	public static final SoundEvent RESIDUE_RECOVER = register("residue.recover");
 	public static final SoundEvent SALT_GAIN = register("salt.gain");
+	// timed uses of the medical and repair items (MistinnArt/mod/make_treatment_sounds.py)
+	public static final SoundEvent INJECT_CAP = register("treatment.inject.cap");
+	public static final SoundEvent INJECT_STAB = register("treatment.inject.stab");
+	public static final SoundEvent INJECT_PUSH = register("treatment.inject.push");
+	public static final SoundEvent INJECT_OUT = register("treatment.inject.out");
+	public static final SoundEvent SURGERY_OPEN = register("treatment.surgery.open");
+	public static final SoundEvent SURGERY_CUT = register("treatment.surgery.cut");
+	public static final SoundEvent SURGERY_STITCH = register("treatment.surgery.stitch");
+	public static final SoundEvent SURGERY_TIE = register("treatment.surgery.tie");
+	public static final SoundEvent REPAIR_PLATE = register("treatment.repair.plate");
+	public static final SoundEvent REPAIR_HAMMER = register("treatment.repair.hammer");
+	public static final SoundEvent REPAIR_RATCHET = register("treatment.repair.ratchet");
+	public static final SoundEvent PILLS_RATTLE = register("treatment.pills.rattle");
+	public static final SoundEvent PILLS_POUR = register("treatment.pills.pour");
+	public static final SoundEvent PILLS_SWALLOW = register("treatment.pills.swallow");
 
 	private MistinnSounds() {
 	}

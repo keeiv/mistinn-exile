@@ -445,5 +445,19 @@
   "item.mistinn.painkillers": "Painkillers",
   "item.mistinn.painkillers.usage": "2 s to take; for 90 s destroyed parts are not felt: no slowing, no weakness, a roll even on dead legs. While any part is destroyed, each roll or dive costs 18 health shared over the whole body. 4 doses.",
   "item.mistinn.painkillers.lore.1": "A small white bottle of bitter, numbing tablets; brine has long since blurred the label.",
-  "item.mistinn.painkillers.lore.2": "The pain is still there. It is only kept somewhere else for now."
+  "item.mistinn.painkillers.lore.2": "The pain is still there. It is only kept somewhere else for now.",
+  "subtitles.mistinn.treatment.inject.cap": "Injector cap pops off",
+  "subtitles.mistinn.treatment.inject.stab": "Needle goes in",
+  "subtitles.mistinn.treatment.inject.push": "Serum injected",
+  "subtitles.mistinn.treatment.inject.out": "Needle pulled out",
+  "subtitles.mistinn.treatment.surgery.open": "Surgery kit opens",
+  "subtitles.mistinn.treatment.surgery.cut": "Scissors cut rotten flesh",
+  "subtitles.mistinn.treatment.surgery.stitch": "Thread drawn through",
+  "subtitles.mistinn.treatment.surgery.tie": "Thread snipped",
+  "subtitles.mistinn.treatment.repair.plate": "Splint drawn out",
+  "subtitles.mistinn.treatment.repair.hammer": "Hammer strikes",
+  "subtitles.mistinn.treatment.repair.ratchet": "Ratchet tightens",
+  "subtitles.mistinn.treatment.pills.rattle": "Pill bottle rattles",
+  "subtitles.mistinn.treatment.pills.pour": "Pills tipped out",
+  "subtitles.mistinn.treatment.pills.swallow": "Pills swallowed"
 }
