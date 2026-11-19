@@ -243,11 +243,8 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 			shot(context, "snuffer-dark", true);
 
 			// ── Struck down on the drop station's pad: the death scene, then the end ──
-			// (the lamp room is too tight for the scene's view; the keeper strikes from out of shot)
+			// (the lamp room is too tight for the scene's view)
 			world.getServer().runCommand("time set 12300");
-			// the keeper is only found while its lamp room is loaded: take hold of it first
-			Snuffer[] killer = new Snuffer[1];
-			world.getServer().runOnServer(server -> killer[0] = keeper(server, room));
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = player(server);
 				player.getAbilities().flying = false;
@@ -257,11 +254,23 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 				player.teleportTo(server.overworld(), station.getX() + 0.5, station.getY() + 1, station.getZ() - 3.5, Set.of(), 180.0F, 10.0F, true);
 			});
 			context.waitTicks(200);
+			// struck down by a creature beside the hunter, close enough for the client to know it
+			// (the scene hides it); the keeper's room is far off and unloaded by now
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				net.minecraft.world.entity.monster.zombie.Zombie zombie = net.minecraft.world.entity.EntityTypes.ZOMBIE.create(server.overworld(), net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+				// beyond the pad's north edge, so the blows push the hunter onto the pad, not off it
+				zombie.snapTo(player.getX(), player.getY(), player.getZ() - 1.5, 0.0F, 0.0F);
+				zombie.setNoAi(true);
+				server.overworld().addFreshEntity(zombie);
+			});
+			context.waitTicks(10);
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = player(server);
 				for (int i = 0; i < 12 && player.isAlive(); i++) {
 					player.damageCooldownTime = 0;
-					player.hurtServer(server.overworld(), player.damageSources().mobAttack(killer[0]), 60.0F);
+					var killer = server.overworld().getEntitiesOfClass(net.minecraft.world.entity.monster.zombie.Zombie.class, player.getBoundingBox().inflate(6.0)).getFirst();
+					player.hurtServer(server.overworld(), player.damageSources().mobAttack(killer), 60.0F);
 				}
 			});
 			context.waitTicks(16);
@@ -276,6 +285,7 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 			context.getInput().setCursorPos(back[0], back[1]);
 			context.waitTicks(2);
 			context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT);
+			world.getServer().runOnServer(server -> server.overworld().getEntities(net.minecraft.world.entity.EntityTypes.ZOMBIE, z -> true).forEach(net.minecraft.world.entity.Entity::discard));
 			// long enough for the respawn message to fade before the next photo
 			context.waitTicks(160);
 			world.getServer().runCommand("difficulty peaceful");

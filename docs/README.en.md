@@ -165,7 +165,7 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 
 ## Death and the end of the mission
 
-![Struck down by the Snuffer in the lamp room at night, a hunter on one knee, a hand on the floor](images/death.jpg)
+![Struck down on a drop station platform at dusk, a hunter on one knee, a hand on the floor, the pod behind](images/death.jpg)
 
 - **Killed by a creature** (keepers too): every other creature vanishes and the view swings out in front of and above the hunter, who drops to one knee, holds themselves up on a shaking hand, then topples onto one side and turns to smoke, leaving the residue.
 - **Any other death** (hunger, a fall, drowning, fire): a stagger, then a fall face down, and the same smoke.
