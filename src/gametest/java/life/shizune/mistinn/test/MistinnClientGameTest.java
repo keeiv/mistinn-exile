@@ -63,6 +63,10 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			mc.reloadResourcePacks().thenRun(() -> reloaded[0] = true);
 		});
 		context.waitFor(mc -> reloaded[0], 1200);
+		// the title screen is ours
+		context.waitTicks(40);
+		check(context.computeOnClient(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.title.MistinnTitleScreen), "the game opens on the Mistinn title screen");
+		context.takeScreenshot("title");
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			TestServerConnection connection = world.getConnection();
 			connection.waitForChunksRender();

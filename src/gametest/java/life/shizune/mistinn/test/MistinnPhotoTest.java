@@ -71,6 +71,17 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 			mc.reloadResourcePacks().thenRun(() -> reloaded[0] = true);
 		});
 		context.waitFor(mc -> reloaded[0], 6000);
+		// the title screen, with the pointer resting on the first entry
+		context.waitTicks(60);
+		double[] first = context.computeOnClient(mc -> {
+			double scale = mc.getWindow().getGuiScale();
+			int width = mc.getWindow().getGuiScaledWidth();
+			int height = mc.getWindow().getGuiScaledHeight();
+			return new double[] {(Math.max(24, width / 14) + 40) * scale, (height / 2.0 - 6 + 10) * scale};
+		});
+		context.getInput().setCursorPos(first[0], first[1]);
+		context.waitTicks(20);
+		context.takeScreenshot(TestScreenshotOptions.of("title").disableCounterPrefix().withDestinationDir(Path.of("photos")));
 
 		try (TestSingleplayerContext world = context.worldBuilder()
 			.setUseConsistentSettings(false)

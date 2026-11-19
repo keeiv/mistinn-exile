@@ -280,5 +280,7 @@
   "message.mistinn.swing_camera.on": "揮擊視角：開",
   "message.mistinn.swing_camera.off": "揮擊視角：關",
   "key.mistinn.roll": "翻滾／跳撲",
-  "message.mistinn.no_stamina": "沒力氣了。"
+  "message.mistinn.no_stamina": "沒力氣了。",
+  "menu.mistinn.mods": "模組",
+  "title.mistinn.tagline": "鏽錨站特派的追獵者，走進世界邊緣的禁區。"
 }

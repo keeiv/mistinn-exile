@@ -280,5 +280,7 @@
   "message.mistinn.swing_camera.on": "Swing view: on",
   "message.mistinn.swing_camera.off": "Swing view: off",
   "key.mistinn.roll": "Roll / dive",
-  "message.mistinn.no_stamina": "Out of stamina."
+  "message.mistinn.no_stamina": "Out of stamina.",
+  "menu.mistinn.mods": "Mods",
+  "title.mistinn.tagline": "A hunter sent by Rust Anchor walks into the zone at the world's edge."
 }
