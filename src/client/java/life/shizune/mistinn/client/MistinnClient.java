@@ -59,6 +59,7 @@ public class MistinnClient implements ClientModInitializer {
 				helper.register(new life.shizune.mistinn.client.gear.GearLayer(parent, context));
 			}
 		});
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.keeper.SnufferModel.LAYER, life.shizune.mistinn.client.keeper.SnufferModel::definition);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SNUFFER, life.shizune.mistinn.client.keeper.SnufferRenderer::new);
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> TierText.decorate(stack, lines));
 
