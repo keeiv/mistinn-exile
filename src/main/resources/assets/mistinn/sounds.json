@@ -145,5 +145,101 @@
       "mistinn:salt/gain_3"
     ],
     "subtitle": "subtitles.mistinn.salt.gain"
+  },
+  "treatment.inject.cap": {
+    "sounds": [
+      "mistinn:treatment/inject/cap"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.inject.cap"
+  },
+  "treatment.inject.stab": {
+    "sounds": [
+      "mistinn:treatment/inject/stab_1",
+      "mistinn:treatment/inject/stab_2"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.inject.stab"
+  },
+  "treatment.inject.push": {
+    "sounds": [
+      "mistinn:treatment/inject/push"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.inject.push"
+  },
+  "treatment.inject.out": {
+    "sounds": [
+      "mistinn:treatment/inject/out_1",
+      "mistinn:treatment/inject/out_2"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.inject.out"
+  },
+  "treatment.surgery.open": {
+    "sounds": [
+      "mistinn:treatment/surgery/open"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.surgery.open"
+  },
+  "treatment.surgery.cut": {
+    "sounds": [
+      "mistinn:treatment/surgery/cut_1",
+      "mistinn:treatment/surgery/cut_2",
+      "mistinn:treatment/surgery/cut_3"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.surgery.cut"
+  },
+  "treatment.surgery.stitch": {
+    "sounds": [
+      "mistinn:treatment/surgery/stitch_1",
+      "mistinn:treatment/surgery/stitch_2",
+      "mistinn:treatment/surgery/stitch_3"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.surgery.stitch"
+  },
+  "treatment.surgery.tie": {
+    "sounds": [
+      "mistinn:treatment/surgery/tie"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.surgery.tie"
+  },
+  "treatment.repair.plate": {
+    "sounds": [
+      "mistinn:treatment/repair/plate_1",
+      "mistinn:treatment/repair/plate_2"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.repair.plate"
+  },
+  "treatment.repair.hammer": {
+    "sounds": [
+      "mistinn:treatment/repair/hammer_1",
+      "mistinn:treatment/repair/hammer_2",
+      "mistinn:treatment/repair/hammer_3",
+      "mistinn:treatment/repair/hammer_4"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.repair.hammer"
+  },
+  "treatment.repair.ratchet": {
+    "sounds": [
+      "mistinn:treatment/repair/ratchet_1",
+      "mistinn:treatment/repair/ratchet_2"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.repair.ratchet"
+  },
+  "treatment.pills.rattle": {
+    "sounds": [
+      "mistinn:treatment/pills/rattle_1",
+      "mistinn:treatment/pills/rattle_2"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.pills.rattle"
+  },
+  "treatment.pills.pour": {
+    "sounds": [
+      "mistinn:treatment/pills/pour"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.pills.pour"
+  },
+  "treatment.pills.swallow": {
+    "sounds": [
+      "mistinn:treatment/pills/swallow"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.pills.swallow"
   }
 }
