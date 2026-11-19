@@ -28,7 +28,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 
 </div>
 
-![A hunter in the Rust God's Face, Skull and Scales and Bellkeeper greaves with a netherite hammer, standing on a drop station platform at dusk](images/hunter.jpg)
+![A hunter in the Rust God's Skull, Face and Scales, Bellkeeper greaves and iron boots, the Rust God's Harness on the chest and Reliquary on the back, with a netherite hammer, standing on a drop station platform at dusk](images/hunter.jpg)
 
 > [!NOTE]
 > This is a translation of the [Chinese README](../README.md), which remains the primary version. Pages marked (Chinese) are only available in Chinese for now.
@@ -37,8 +37,10 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 
 - [Features](#features)
 - [Playing](#playing)
+- [Story mode](#story-mode)
 - [World and structures](#world-and-structures)
 - [Body parts](#body-parts)
+- [Death and the end of the mission](#death-and-the-end-of-the-mission)
 - [Swings, stamina and rolls](#swings-stamina-and-rolls)
 - [The fog-shore lighthouse and the Snuffer](#the-fog-shore-lighthouse-and-the-snuffer)
 - [Controls](#controls)
@@ -55,6 +57,8 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | --- | --- |
 | Salt | The currency. Defeating a hostile creature gives salt equal to its maximum health; others give a fifth (at least 1). Salt found in structures is worth 10 each when used. |
 | Residue and gravestones | When you fall, all the salt you carry becomes residue held by a gravestone where you fell; hit it to take the salt back. Fall again first and the old residue fades. |
+| Death scene | Killed by a creature, every other creature vanishes; the hunter drops to one knee, topples onto one side and turns to smoke. Other deaths are a plain fall. Then the mission ends: the cause, a line from Rust Anchor, and the choice to return or to rest. |
+| Story mode | A new singleplayer world first asks for the story or free exploration. Story mode has a prologue and a first chapter: objectives, radio calls, pixel-art story cards and in-world scenes, with a mission journal on `K`. Later chapters are still being made. |
 | Golden bells | Save points. Rest at one to restore every body part (destroyed ones too), eat and set it as your respawn point. The border world has no such metal, so they cannot be crafted. |
 | Body parts | Hearts are replaced by six parts (head, torso, both arms, both legs), 80 health each; three destroyed parts kill. Each part is protected only by the gear that covers it, and a destroyed one has lasting effects. |
 | Bell Salve | Made from gold ore, salt and a honey bottle; away from a golden bell, the only cure for a destroyed part. |
@@ -68,7 +72,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V; each with its own durability, protection, capacity, layout and a two-line story. |
-| Grid inventory | Four pockets, the chest rig's and backpack's grids, and a safe box kept through death; every item takes a footprint by kind and can be rotated. In survival the inventory is the mod's own screen, and the 27 vanilla slots are sealed off. |
+| Grid inventory | Four pockets, the chest rig's and backpack's grids, and a safe box kept through death; every item takes a footprint by kind, can be rotated and shows its shape in the grid. The backpack and chest rig are worn on the body. In survival the inventory is the mod's own screen, and the 27 vanilla slots are sealed off. |
 | Fog-shore lighthouses | Dead lighthouses on the coast; the lamp room at the top is held by the first keeper, **the Snuffer**, whose every move strikes a set part of the body. |
 | Languages | Traditional Chinese and English. |
 
@@ -110,6 +114,22 @@ You need Minecraft Java Edition 26.3, [Fabric Loader](https://fabricmc.net/use/)
 > [!NOTE]
 > Only Minecraft 26.3 is supported. Creative mode keeps the vanilla inventory; the grid inventory is active in survival and adventure.
 
+## Story mode
+
+Creating a new world from the world list first asks for **story mode** or **free exploration**. Free exploration has no mission and otherwise plays the same; story mode has the prologue, *The Drop*, and chapter 1, *Lights Out*, so far.
+
+- **Guaranteed places**: when a story world first starts, it builds an intact drop station on level ground 150 to 240 blocks from spawn and a fog-shore lighthouse on the nearest coast, so the places the story leads to always exist.
+- **Objectives**: shown in the top-left corner with a hint and the distance, lit up when they change. The amber diamond on the minimap is where to go.
+- **The radio**: the drop station's radio has burned out. Mend it by using it with 4 redstone, and Helm, Rust Anchor's operator, starts calling; the lines appear as typed subtitles.
+- **Story cards**: chapters open and close on full-screen pixel art; click to continue, `Esc` to skip.
+- **Scenes**: when the Snuffer falls, black bars close in and the view leaves you to circle it while it says its last words; `Esc` skips.
+- **Mission journal** (`K`): the objectives so far and every call you have heard.
+
+| Chapter | Objectives |
+| --- | --- |
+| Prologue: The Drop | Gather 10 salt → find an intact drop station → repair its radio |
+| Chapter 1: Lights Out | Reach the fog-shore lighthouse → rest at the bell by its door → climb to the lamp room → bring down the Snuffer → hand the Rust God's salt block in at a drop station |
+
 ## World and structures
 
 Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake is not a real drop station but one of two: a long-abandoned **broken drop station**, or a **counterfeit drop station** someone built in Rust Anchor's image. You always start on its platform, never inside a wall, with a *Hunter's Guide* in your hotbar.
@@ -142,6 +162,15 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 - **Recovery**: slow and natural while your food is at 6 or more; potions and golden apples mend the most hurt parts first. Only a golden bell or Bell Salve brings a destroyed part back.
 - **Destroyed parts**: legs slow you and cut your jump; arms weaken blows, attack speed and mining; the torso makes you hungry faster; the head darkens the edges of your view and stops the minimap.
 - **HUD**: a small figure where the hearts were, each part green to red by its health.
+
+## Death and the end of the mission
+
+![Struck down by the Snuffer in the lamp room at night, a hunter on one knee, a hand on the floor](images/death.jpg)
+
+- **Killed by a creature** (keepers too): every other creature vanishes and the view swings out in front of and above the hunter, who drops to one knee, holds themselves up on a shaking hand, then topples onto one side and turns to smoke, leaving the residue.
+- **Any other death** (hunger, a fall, drowning, fire): a stagger, then a fall face down, and the same smoke.
+- **The end of the mission**: the view darkens to red words saying the mission is terminated, the cause of death and a line from Rust Anchor that fits it. *Return to the mission* respawns you at your golden bell; *Rest* saves and goes back to the title screen.
+- The gravestone rises as the body turns to smoke. If something was put down on that spot in the meantime, it rises nearby instead and the minimap mark follows.
 
 ## Swings, stamina and rolls
 
@@ -195,6 +224,8 @@ Rust Anchor says the coasts at the world's edge are lined with dead lighthouses,
 | `E` | Inventory (gear, chest rig, backpack and body) |
 | Right-click the helmet slot | Switch to the mask slot |
 | Right-click a lamp stand | Light it |
+| Use a drop station radio | Mend it with 4 redstone; in the story, hand in the Rust God's salt block |
+| `K` | Mission journal |
 | Left Alt | Roll; dive when both legs are destroyed |
 | `J` | Toggle the first-person swing view |
 | Click a cell | Pick up or put down |
@@ -239,7 +270,7 @@ Helmets last 70–640, masks 50–480, body armour 110–940, leggings 90–610,
 | V | 2×2 ×3 + 1×3 ×4 | 24 |
 | VI | 2×3 ×2, 2×2 + 1×3 ×4 | 28 |
 
-Pockets are four 1×1 cells and the safe box is 2×2. Pickups fill the pockets, then the chest rig, then the backpack. On death the pockets, chest rig, backpack and mask drop; the safe box stays. Footprints: gems and ingots 1×1, sticks 1×2, tools and swords 1×3, ore and other blocks 2×2, armour 2×2 or 2×3. A backpack's contents live in the backpack item, so they travel with it.
+Pockets are four 1×1 cells and the safe box is 2×2. Pickups fill the pockets, then the chest rig, then the backpack. On death the pockets, chest rig, backpack and mask drop; the safe box stays. Footprints: gems and ingots 1×1, sticks 1×2, tools and swords 1×3, ore and other blocks 2×2, armour 2×2 or 2×3. A backpack's contents live in the backpack item, so they travel with it. The backpack and chest rig you wear show on your body.
 
 ## Building from source
 
@@ -255,9 +286,10 @@ Textures, models and sounds are original work by MoriTeahouse; the repository ho
 
 ## What comes next
 
-1. **The rest of the forbidden zone**: fog that thickens near a lighthouse and on the minimap, the fog wall of the lamp room, creatures of the mist and the keeper's mist doubles ([design, in Chinese](phase2-design.md)).
-2. **More keepers**: the Sunken Bell and the Rust Wheel, and backpacks worn on the model.
-3. **Later**: levelling with salt at bells, more weapons and charged attacks, stamina and dodge rolls, co-op.
+1. **The rest of the story**: chapter 2, *The Salt Road*, then the keepers of the Sunken Bell and the Rust Wheel, and the Mist Inn with the endings.
+2. **The rest of the forbidden zone**: fog that thickens near a lighthouse and on the minimap, the fog wall of the lamp room, creatures of the mist and the keeper's mist doubles ([design, in Chinese](phase2-design.md)).
+3. **More keepers**: the Sunken Bell and the Rust Wheel.
+4. **Later**: levelling with salt at bells, more weapons and charged attacks, co-op.
 
 ## Contributing
 

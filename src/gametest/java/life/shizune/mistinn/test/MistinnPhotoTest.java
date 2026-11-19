@@ -112,10 +112,13 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 				ServerPlayer player = player(server);
 				player.setItemSlot(EquipmentSlot.HEAD, new ItemStack(MistinnItems.HELMETS.get(6)));
 				player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(MistinnItems.ARMORS.get(6)));
-				// leg gear stops at V; the bone face over the skull helm
+				// leg gear stops at V
 				player.setItemSlot(EquipmentSlot.LEGS, new ItemStack(MistinnItems.LEGGINGS.get(5)));
 				player.setItemSlot(EquipmentSlot.FEET, new ItemStack(MistinnItems.BOOTS.get(5)));
-				GridService.set(player, GridService.get(player).withMask(new ItemStack(MistinnItems.MASKS.get(6))));
+				// the bone face over the skull helm, the bone rig on the chest and its box on the back
+				GridService.set(player, GridService.get(player).withMask(new ItemStack(MistinnItems.MASKS.get(6)))
+					.withRig(new ItemStack(MistinnItems.RIGS.get(6)))
+					.withBackpack(new ItemStack(MistinnItems.BACKPACKS.get(6))));
 				player.getInventory().setItem(0, new ItemStack(MistinnItems.WEAPONS.get(WeaponStyle.SMASH).get(WeaponMaterial.NETHERITE)));
 				player.getInventory().setSelectedSlot(0);
 				player.getAbilities().flying = false;
@@ -238,8 +241,53 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 			});
 			frame(context, world, room.offset(-5, 2, -3), room.offset(0, 1, 4), false);
 			shot(context, "snuffer-dark", true);
+
+			// ── Struck down on the drop station's pad: the death scene, then the end ──
+			// (the lamp room is too tight for the scene's view; the keeper strikes from out of shot)
+			world.getServer().runCommand("time set 12300");
+			// the keeper is only found while its lamp room is loaded: take hold of it first
+			Snuffer[] killer = new Snuffer[1];
+			world.getServer().runOnServer(server -> killer[0] = keeper(server, room));
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				player.getAbilities().flying = false;
+				player.getAbilities().mayfly = false;
+				player.onUpdateAbilities();
+				// where the hunter photo stood: the view looks back at the hunter with the pod behind
+				player.teleportTo(server.overworld(), station.getX() + 0.5, station.getY() + 1, station.getZ() - 3.5, Set.of(), 180.0F, 10.0F, true);
+			});
+			context.waitTicks(200);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				for (int i = 0; i < 12 && player.isAlive(); i++) {
+					player.damageCooldownTime = 0;
+					player.hurtServer(server.overworld(), player.damageSources().mobAttack(killer[0]), 60.0F);
+				}
+			});
+			context.waitTicks(16);
+			shot(context, "death", true);
+			context.waitTicks(108);
+			shot(context, "mission-end", true);
+			double[] back = context.computeOnClient(mc -> {
+				double[] gui = ((life.shizune.mistinn.client.death.MissionEndScreen) mc.gui.screen()).choiceCentre(0);
+				double scale = mc.getWindow().getGuiScale();
+				return new double[] {gui[0] * scale, gui[1] * scale};
+			});
+			context.getInput().setCursorPos(back[0], back[1]);
+			context.waitTicks(2);
+			context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT);
+			// long enough for the respawn message to fade before the next photo
+			context.waitTicks(160);
 			world.getServer().runCommand("difficulty peaceful");
 			world.getServer().runCommand("time set 12450");
+
+			// ── A story card: the prologue's opening picture ─────────
+			context.setScreen(() -> new life.shizune.mistinn.client.story.StoryCardScreen(life.shizune.mistinn.story.StoryScript.DROP));
+			context.getInput().setCursorPos(4.0, 4.0);
+			context.waitTicks(70);
+			shot(context, "story-card", false);
+			context.setScreen(() -> null);
+			context.waitTicks(10);
 
 			// ── The hunter inventory over the world ──────────────────
 			world.getServer().runOnServer(server -> {
