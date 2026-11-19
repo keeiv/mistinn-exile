@@ -7,7 +7,9 @@ public enum Area {
 	/** The equipped backpack's grid; its contents live inside the backpack item. */
 	BACKPACK,
 	/** 安全箱: kept through death. */
-	SAFE;
+	SAFE,
+	/** The worn chest rig's pouches; like the backpack, its contents live inside the rig item. */
+	RIG;
 
 	public static Area byId(final int id) {
 		Area[] values = values();

@@ -23,6 +23,18 @@ public final class Gear {
 	public record Backpack(Tier tier, GridShape shape, int itemWidth, int itemHeight, double speedPenalty) {
 	}
 
+	/** 胸掛: quick-reach pouches worn on the chest; filled before the backpack. */
+	public record ChestRig(Tier tier, GridShape shape, int itemWidth, int itemHeight) {
+	}
+
+	/** 面罩: worn under the helmet, the only protection the face has. */
+	public record Mask(Tier tier, int durability, int armor) {
+	}
+
+	/** Leggings and boots both cover the legs. {@code speedPenalty} as for body armour. */
+	public record LegGear(Tier tier, int durability, int armor, float toughness, double speedPenalty) {
+	}
+
 	public static final List<Helmet> HELMETS = List.of(
 		new Helmet(Tier.N, 70, 1, 0.0F),
 		new Helmet(Tier.I, 130, 1, 0.0F),
@@ -43,14 +55,58 @@ public final class Gear {
 		new BodyArmor(Tier.VI, 940, 8, 3.0F, 0.15F, 0.06)
 	);
 
-	/** Capacity grows with the tier; the larger packs are split into compartments. */
+	/**
+	 * Capacity grows with the tier. From II on a pack has small top pockets over its main
+	 * compartment, laid out like the extraction-shooter packs the grid is modelled on.
+	 */
 	public static final List<Backpack> BACKPACKS = List.of(
 		new Backpack(Tier.N, GridShape.of(3, 2), 2, 2, 0.0),
 		new Backpack(Tier.I, GridShape.of(4, 3), 2, 2, 0.0),
-		new Backpack(Tier.II, GridShape.of(3, 5), 2, 3, 0.01),
-		new Backpack(Tier.III, GridShape.of(2, 2, 2, 2, 4, 3), 3, 3, 0.01),
-		new Backpack(Tier.IV, GridShape.of(4, 6), 3, 3, 0.01),
-		new Backpack(Tier.V, GridShape.of(2, 3, 2, 3, 4, 5), 3, 4, 0.02),
-		new Backpack(Tier.VI, GridShape.of(2, 4, 2, 4, 5, 6), 3, 4, 0.02)
+		new Backpack(Tier.II, GridShape.of(1, 2, 1, 2, 3, 4), 2, 3, 0.01),
+		new Backpack(Tier.III, GridShape.of(1, 2, 2, 2, 1, 2, 4, 4), 3, 3, 0.01),
+		new Backpack(Tier.IV, GridShape.of(1, 2, 2, 2, 1, 2, 4, 5), 3, 3, 0.01),
+		new Backpack(Tier.V, GridShape.of(1, 2, 3, 2, 1, 2, 5, 5), 3, 4, 0.02),
+		new Backpack(Tier.VI, GridShape.of(1, 2, 3, 2, 1, 2, 5, 6), 3, 4, 0.02)
+	);
+
+	/** Pouches by tier: two narrow ones at N, square pouches over long magazine pouches above. */
+	public static final List<ChestRig> RIGS = List.of(
+		new ChestRig(Tier.N, GridShape.of(1, 2, 1, 2), 2, 2),
+		new ChestRig(Tier.I, GridShape.of(1, 2, 1, 2, 1, 2, 1, 2), 2, 2),
+		new ChestRig(Tier.II, GridShape.of(2, 2, 1, 2, 1, 2, 1, 2, 1, 2), 2, 3),
+		new ChestRig(Tier.III, GridShape.of(2, 2, 2, 2, 1, 2, 1, 2, 1, 2, 1, 2), 2, 3),
+		new ChestRig(Tier.IV, GridShape.of(2, 2, 2, 2, 1, 3, 1, 3, 1, 3, 1, 3), 2, 3),
+		new ChestRig(Tier.V, GridShape.of(2, 2, 2, 2, 2, 2, 1, 3, 1, 3, 1, 3, 1, 3), 2, 3),
+		new ChestRig(Tier.VI, GridShape.of(2, 3, 2, 3, 2, 2, 1, 3, 1, 3, 1, 3, 1, 3), 2, 3)
+	);
+
+	public static final List<Mask> MASKS = List.of(
+		new Mask(Tier.N, 50, 1),
+		new Mask(Tier.I, 90, 1),
+		new Mask(Tier.II, 140, 2),
+		new Mask(Tier.III, 200, 2),
+		new Mask(Tier.IV, 270, 3),
+		new Mask(Tier.V, 360, 3),
+		new Mask(Tier.VI, 480, 4)
+	);
+
+	/** N to V only: there are no tier VI leggings. */
+	public static final List<LegGear> LEGGINGS = List.of(
+		new LegGear(Tier.N, 90, 1, 0.0F, 0.0),
+		new LegGear(Tier.I, 170, 2, 0.0F, 0.0),
+		new LegGear(Tier.II, 250, 3, 0.0F, 0.005),
+		new LegGear(Tier.III, 340, 4, 1.0F, 0.01),
+		new LegGear(Tier.IV, 460, 5, 1.5F, 0.015),
+		new LegGear(Tier.V, 610, 6, 2.0F, 0.02)
+	);
+
+	/** N to V only: there are no tier VI boots. */
+	public static final List<LegGear> BOOTS = List.of(
+		new LegGear(Tier.N, 60, 1, 0.0F, 0.0),
+		new LegGear(Tier.I, 120, 1, 0.0F, 0.0),
+		new LegGear(Tier.II, 180, 2, 0.0F, 0.0),
+		new LegGear(Tier.III, 250, 2, 0.5F, 0.0),
+		new LegGear(Tier.IV, 330, 3, 1.0F, 0.005),
+		new LegGear(Tier.V, 430, 3, 1.5F, 0.01)
 	);
 }

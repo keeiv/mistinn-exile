@@ -89,6 +89,11 @@ public class Mistinn implements ModInitializer {
 		ServerTickEvents.END_SERVER_TICK.register(BodyService::tick);
 		// nothing may live in the hidden vanilla storage slots, however it got there
 		ServerTickEvents.END_SERVER_TICK.register(server -> server.getPlayerList().getPlayers().forEach(GridService::sweepHiddenSlots));
+		ServerTickEvents.END_SERVER_TICK.register(server -> {
+			if (server.getTickCount() % 20 == 0) {
+				server.getPlayerList().getPlayers().forEach(GridService::tidy);
+			}
+		});
 
 		// Left click opens a gravestone. Accepting on the client sends the hit to the server.
 		AttackBlockCallback.EVENT.register((player, level, hand, pos, direction) -> {

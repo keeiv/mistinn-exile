@@ -19,6 +19,8 @@ public record GridActionPayload(int action, int area, int a, int b, int c, boole
 	public static final int DROP = 3;
 	public static final int HOTBAR = 4;
 	public static final int GRAB = 5;
+	public static final int RIG_SLOT = 6;
+	public static final int MASK_SLOT = 7;
 
 	public static final Type<GridActionPayload> TYPE = new Type<>(Mistinn.id("grid_action"));
 	public static final StreamCodec<RegistryFriendlyByteBuf, GridActionPayload> CODEC = StreamCodec.composite(
@@ -51,6 +53,8 @@ public record GridActionPayload(int action, int area, int a, int b, int c, boole
 				case DROP -> GridService.drop(player, area, payload.a());
 				case HOTBAR -> GridService.toHotbar(player, area, payload.a());
 				case GRAB -> GridService.grabSlot(player, payload.a());
+				case RIG_SLOT -> GridService.rigSlot(player);
+				case MASK_SLOT -> GridService.maskSlot(player);
 				default -> {
 				}
 			}

@@ -53,6 +53,13 @@ public final class ItemSizes {
 			Gear.Backpack pack = Gear.BACKPACKS.get(i);
 			put(pack.itemWidth(), pack.itemHeight(), MistinnItems.BACKPACKS.get(i));
 		}
+		for (int i = 0; i < Gear.RIGS.size(); i++) {
+			Gear.ChestRig rig = Gear.RIGS.get(i);
+			put(rig.itemWidth(), rig.itemHeight(), MistinnItems.RIGS.get(i));
+		}
+		MistinnItems.MASKS.forEach(item -> put(2, 2, item));
+		MistinnItems.LEGGINGS.forEach(item -> put(2, 3, item));
+		MistinnItems.BOOTS.forEach(item -> put(2, 2, item));
 	}
 
 	private ItemSizes() {

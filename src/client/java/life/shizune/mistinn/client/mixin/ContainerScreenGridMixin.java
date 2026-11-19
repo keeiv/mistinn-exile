@@ -1,6 +1,7 @@
 package life.shizune.mistinn.client.mixin;
 
 import life.shizune.mistinn.client.grid.GridPanel;
+import life.shizune.mistinn.client.grid.HunterScreen;
 import life.shizune.mistinn.grid.GridRules;
 import life.shizune.mistinn.tier.Tiers;
 import net.minecraft.client.Minecraft;
@@ -52,7 +53,8 @@ public abstract class ContainerScreenGridMixin {
 
 	@Inject(method = "extractContents", at = @At("TAIL"))
 	private void mistinn$panel(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a, final CallbackInfo ci) {
-		if (!GridPanel.active()) {
+		if (!GridPanel.active() || (Object) this instanceof HunterScreen) {
+			// the hunter screen lays the grid out itself
 			return;
 		}
 		// cover the frames of the vanilla storage slots the grid replaces

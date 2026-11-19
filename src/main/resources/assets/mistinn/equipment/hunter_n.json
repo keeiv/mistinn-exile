@@ -4,6 +4,11 @@
       {
         "texture": "mistinn:hunter_n"
       }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mistinn:hunter_n"
+      }
     ]
   }
 }

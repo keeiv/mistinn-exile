@@ -13,6 +13,9 @@ import life.shizune.mistinn.grid.GridInventory;
 import life.shizune.mistinn.grid.GridService;
 import life.shizune.mistinn.grid.Placed;
 import life.shizune.mistinn.client.grid.GridPanel;
+import life.shizune.mistinn.client.grid.HunterScreen;
+import life.shizune.mistinn.body.BodyGear;
+import life.shizune.mistinn.grid.GridLogic;
 import life.shizune.mistinn.registry.MistinnItems;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.world.item.ItemStack;
@@ -207,6 +210,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			context.setScreen(() -> new InventoryScreen(context.computeOnClient(mc -> mc.player)));
 			context.waitTicks(10);
 			context.takeScreenshot("grid-inventory");
+			check(context.computeOnClient(mc -> mc.gui.screen() instanceof HunterScreen), "the inventory key opens the hunter screen");
 
 			// pick the ore up and put it down turned elsewhere, through the menu's cursor
 			world.getServer().runOnServer(server -> {
@@ -225,10 +229,10 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			context.takeScreenshot("grid-carrying");
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
-				GridService.place(player, Area.BACKPACK, 2, 2, 1, false);
+				GridService.place(player, Area.BACKPACK, 3, 2, 1, false);
 				check(player.containerMenu.getCarried().isEmpty(), "the ore was put down");
 				Placed ore = GridService.get(player).items(Area.BACKPACK).stream().filter(p -> p.stack().is(Items.DIAMOND_ORE)).findFirst().orElseThrow();
-				check(ore.section() == 2 && ore.x() == 2 && ore.y() == 1, "the ore sits where it was put: " + ore);
+				check(ore.section() == 3 && ore.x() == 2 && ore.y() == 1, "the ore sits where it was put: " + ore);
 			});
 			context.waitTicks(5);
 			context.takeScreenshot("grid-moved");
@@ -268,7 +272,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			context.getInput().holdMouse(LEFT);
 			context.waitTicks(4);
 			double[] hotbar = context.computeOnClient(mc -> {
-				InventoryScreen screen = (InventoryScreen) mc.gui.screen();
+				var screen = (net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>) mc.gui.screen();
 				net.minecraft.world.inventory.Slot slot = screen.getMenu().slots.stream()
 					.filter(s -> s.container instanceof net.minecraft.world.entity.player.Inventory && s.getContainerSlot() == 8).findFirst().orElseThrow();
 				double[] gui = GridPanel.slotCentre(slot);
@@ -299,6 +303,98 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				check(player.getInventory().getItem(8).isEmpty(), "the hotbar slot was emptied");
 				check(player.containerMenu.getCarried().isEmpty(), "nothing is left on the cursor after the drag in");
 			});
+
+			// ── Chest rig, mask and leg gear ────────────────────────
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				GridService.set(player, GridService.get(player).withRig(new ItemStack(MistinnItems.RIGS.get(4))));
+				player.getInventory().setItem(7, new ItemStack(MistinnItems.RIGS.get(2)));
+				player.getInventory().setItem(6, new ItemStack(MistinnItems.MASKS.get(4)));
+				check(GridService.insert(player, new ItemStack(Items.IRON_INGOT, 3)), "ingots go in");
+				GridInventory inv = GridService.get(player);
+				check(inv.items(Area.RIG).stream().anyMatch(pl -> pl.stack().is(Items.IRON_INGOT)) || inv.pockets().stream().anyMatch(pl -> pl.stack().is(Items.IRON_INGOT)),
+					"pickups go to pockets, then the rig, before the backpack: " + inv.items(Area.RIG));
+				check(inv.items(Area.BACKPACK).stream().noneMatch(pl -> pl.stack().is(Items.IRON_INGOT)), "not into the backpack while the rig has room");
+			});
+			context.waitTicks(4);
+			context.takeScreenshot("hunter-rig");
+			// wear the tier II rig through the screen: pick it from the hotbar, click the rig socket
+			double[] slot7 = slotCentre(context, 7);
+			context.getInput().setCursorPos(slot7[0], slot7[1]);
+			context.waitTicks(2);
+			context.getInput().pressMouse(LEFT);
+			context.waitTicks(4);
+			carried(world, MistinnItems.RIGS.get(2), "the rig is on the cursor");
+			socket(context, GridPanel.Socket.RIG);
+			context.getInput().pressMouse(LEFT);
+			context.waitTicks(4);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				check(GridService.get(player).rig().is(MistinnItems.RIGS.get(2)), "the tier II rig is worn");
+				check(player.containerMenu.getCarried().is(MistinnItems.RIGS.get(4)), "the old rig, with what it held, is on the cursor");
+				check(GridService.get(player).items(Area.RIG).stream().noneMatch(pl -> pl.stack().is(Items.IRON_INGOT)), "its contents went with it");
+			});
+			context.getInput().setCursorPos(slot7[0], slot7[1]);
+			context.waitTicks(2);
+			context.getInput().pressMouse(LEFT);
+			context.waitTicks(4);
+
+			// right-click the helmet slot for the mask slot, then put the mask on
+			double[] head = context.computeOnClient(mc -> {
+				var screen = (net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>) mc.gui.screen();
+				double[] gui = GridPanel.slotCentre(screen.getMenu().slots.get(5));
+				double scale = mc.getWindow().getGuiScale();
+				return new double[] {gui[0] * scale, gui[1] * scale};
+			});
+			context.getInput().setCursorPos(head[0], head[1]);
+			context.waitTicks(2);
+			context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT);
+			context.waitTicks(2);
+			check(context.computeOnClient(mc -> ((HunterScreen) mc.gui.screen()).showsMask()), "right-clicking the helmet slot shows the mask slot");
+			double[] slot6 = slotCentre(context, 6);
+			context.getInput().setCursorPos(slot6[0], slot6[1]);
+			context.waitTicks(2);
+			context.getInput().pressMouse(LEFT);
+			context.waitTicks(4);
+			socket(context, GridPanel.Socket.MASK);
+			context.getInput().pressMouse(LEFT);
+			context.waitTicks(4);
+			context.takeScreenshot("hunter-mask");
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				check(GridService.get(player).mask().is(MistinnItems.MASKS.get(4)), "the mask is worn");
+				check(BodyGear.faceArmor(player) == 3.0F, "a tier IV mask gives the face 3 armour");
+				check(player.containerMenu.getCarried().isEmpty(), "nothing left on the cursor");
+			});
+
+			// a layout change leaves an item outside its compartment: it is placed again, not lost
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				GridInventory inv = GridService.get(player);
+				java.util.List<Placed> pack = new java.util.ArrayList<>(inv.items(Area.BACKPACK));
+				pack.add(new Placed(0, 9, 9, false, new ItemStack(Items.LAPIS_LAZULI, 7)));
+				GridService.set(player, inv.with(Area.BACKPACK, pack));
+			});
+			context.waitTicks(25);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				GridInventory inv = GridService.get(player);
+				int lapis = 0;
+				for (Area area : Area.values()) {
+					for (Placed placed : inv.items(area)) {
+						check(GridLogic.fits(inv.shape(area), java.util.List.of(), placed.section(), placed.x(), placed.y(), placed.width(), placed.height(), -1), "every item lies inside its compartment: " + placed);
+						if (placed.stack().is(Items.LAPIS_LAZULI)) {
+							lapis += placed.stack().getCount();
+						}
+					}
+				}
+				for (int i = 0; i < 9; i++) {
+					if (player.getInventory().getItem(i).is(Items.LAPIS_LAZULI)) {
+						lapis += player.getInventory().getItem(i).getCount();
+					}
+				}
+				check(lapis == 7, "all 7 lapis were placed again, found " + lapis);
+			});
 			context.setScreen(() -> null);
 
 			// the hidden vanilla storage slots never keep anything
@@ -320,6 +416,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
 				GridInventory inv = GridService.get(player);
 				check(inv.pockets().isEmpty() && inv.backpack().isEmpty(), "pockets and backpack were dropped");
+				check(inv.rig().isEmpty() && inv.mask().isEmpty(), "the rig and mask were dropped too");
 				check(inv.safe().size() == 1 && inv.safe().getFirst().stack().is(MistinnItems.RUST_GOD_SALT), "the safe box kept its salt block");
 			});
 			context.clickScreenButton("deathScreen.respawn");
@@ -334,6 +431,28 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				}
 				check(BodyService.get(player).equals(Body.FULL), "a respawned hunter is whole");
 
+				// a low blow from the side lands on a leg; leggings and boots soften it (a fall
+				// bypasses armour in vanilla and still does)
+				var blow = level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE)
+					.getOrThrow(net.minecraft.world.damagesource.DamageTypes.MOB_ATTACK);
+				player.snapTo(player.getX(), player.getY(), player.getZ(), 0.0F, 0.0F);
+				var low = player.position().add(-2.0, 0.2, 0.0);
+				player.hurtServer(level, new net.minecraft.world.damagesource.DamageSource(blow, low), 4.0F);
+				float bare = BodyService.get(player).get(BodyPart.RIGHT_LEG);
+				check(bare == 56.0F, "a low hit from the right takes 24 from the right leg: " + BodyService.get(player));
+				BodyService.restoreAll(player);
+				player.setItemSlot(EquipmentSlot.LEGS, new ItemStack(MistinnItems.LEGGINGS.get(5)));
+				player.setItemSlot(EquipmentSlot.FEET, new ItemStack(MistinnItems.BOOTS.get(5)));
+				player.damageCooldownTime = 0;
+				player.hurtServer(level, new net.minecraft.world.damagesource.DamageSource(blow, low), 4.0F);
+				float guarded = BodyService.get(player).get(BodyPart.RIGHT_LEG);
+				check(guarded > bare, "leggings and boots soften it: " + guarded + " against " + bare);
+				check(player.getItemBySlot(EquipmentSlot.LEGS).getDamageValue() > 0, "and wear down");
+				check(player.getItemBySlot(EquipmentSlot.CHEST).isEmpty() || player.getItemBySlot(EquipmentSlot.CHEST).getDamageValue() == 0, "a leg hit does not wear the body armour");
+				player.setItemSlot(EquipmentSlot.LEGS, ItemStack.EMPTY);
+				player.setItemSlot(EquipmentSlot.FEET, ItemStack.EMPTY);
+				BodyService.restoreAll(player);
+				player.damageCooldownTime = 0;
 				player.hurtServer(level, player.damageSources().fall(), 4.0F);
 				Body body = BodyService.get(player);
 				check(body.get(BodyPart.LEFT_LEG) == 68.0F && body.get(BodyPart.RIGHT_LEG) == 68.0F && body.get(BodyPart.TORSO) == 80.0F,
@@ -389,6 +508,30 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 
 	/** The left button as the game numbers it; GLFW's 0 is not the left button here. */
 	private static final int LEFT = com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT;
+
+	/** Window position of a hotbar slot of the open screen. */
+	private static double[] slotCentre(final ClientGameTestContext context, final int hotbarIndex) {
+		return context.computeOnClient(mc -> {
+			var screen = (net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>) mc.gui.screen();
+			net.minecraft.world.inventory.Slot slot = screen.getMenu().slots.stream()
+				.filter(s -> s.container instanceof net.minecraft.world.entity.player.Inventory && s.getContainerSlot() == hotbarIndex).findFirst().orElseThrow();
+			double[] gui = GridPanel.slotCentre(slot);
+			double scale = mc.getWindow().getGuiScale();
+			return new double[] {gui[0] * scale, gui[1] * scale};
+		});
+	}
+
+	/** Moves the real cursor over a socket. */
+	private static void socket(final ClientGameTestContext context, final GridPanel.Socket socket) {
+		double[] at = context.computeOnClient(mc -> {
+			double[] gui = GridPanel.socketCentre(socket);
+			check(gui != null, "the screen shows the " + socket + " socket");
+			double scale = mc.getWindow().getGuiScale();
+			return new double[] {gui[0] * scale, gui[1] * scale};
+		});
+		context.getInput().setCursorPos(at[0], at[1]);
+		context.waitTicks(2);
+	}
 
 	/** Moves the real cursor over a grid cell. */
 	private static void mouse(final ClientGameTestContext context, final Area area, final int section, final int cx, final int cy) {

@@ -41,7 +41,8 @@ public final class GridService {
 	public static boolean insert(final ServerPlayer player, final ItemStack stack) {
 		int before = stack.getCount();
 		GridInventory inv = get(player);
-		for (Area area : new Area[] {Area.POCKETS, Area.BACKPACK}) {
+		// pockets first, then the rig's quick-reach pouches, then the backpack
+		for (Area area : new Area[] {Area.POCKETS, Area.RIG, Area.BACKPACK}) {
 			if (stack.isEmpty()) {
 				break;
 			}
@@ -124,6 +125,63 @@ public final class GridService {
 		menu.setCarried(worn.copy());
 		menu.broadcastChanges();
 		applyWeight(player);
+	}
+
+	/** Clicking the rig slot: wear the rig on the cursor, or take the worn one off. */
+	public static void rigSlot(final ServerPlayer player) {
+		AbstractContainerMenu menu = player.containerMenu;
+		ItemStack carried = menu.getCarried();
+		if (!carried.isEmpty() && GridInventory.rigOf(carried) == null) {
+			return;
+		}
+		GridInventory inv = get(player);
+		ItemStack worn = inv.rig();
+		set(player, inv.withRig(carried.copy()));
+		menu.setCarried(worn.copy());
+		menu.broadcastChanges();
+	}
+
+	/** Clicking the mask slot: put on the mask on the cursor, or take the worn one off. */
+	public static void maskSlot(final ServerPlayer player) {
+		AbstractContainerMenu menu = player.containerMenu;
+		ItemStack carried = menu.getCarried();
+		if (!carried.isEmpty() && GridInventory.maskOf(carried) == null) {
+			return;
+		}
+		GridInventory inv = get(player);
+		ItemStack worn = inv.mask();
+		set(player, inv.withMask(carried.copy()));
+		menu.setCarried(worn.copy());
+		menu.broadcastChanges();
+	}
+
+	/**
+	 * Re-lays the backpack and rig when an item no longer fits where it lies (a layout changed
+	 * between versions). Items with no place left go to pockets or the hotbar, else the ground.
+	 */
+	public static void tidy(final ServerPlayer player) {
+		GridInventory inv = get(player);
+		List<ItemStack> loose = new ArrayList<>();
+		boolean changed = false;
+		for (Area area : new Area[] {Area.BACKPACK, Area.RIG}) {
+			GridLogic.Repacked repacked = GridLogic.repack(inv.shape(area), inv.items(area));
+			if (repacked.changed()) {
+				inv = inv.with(area, repacked.kept());
+				loose.addAll(repacked.loose());
+				changed = true;
+			}
+		}
+		if (!changed) {
+			return;
+		}
+		set(player, inv);
+		for (ItemStack stack : loose) {
+			insert(player, stack);
+			if (!stack.isEmpty() && !player.getInventory().add(stack)) {
+				player.drop(stack, false, Prediction.SERVER_ONLY);
+			}
+		}
+		player.containerMenu.broadcastChanges();
 	}
 
 	/** Throws an item from the grid onto the ground. */
@@ -211,7 +269,7 @@ public final class GridService {
 		}
 	}
 
-	/** On death everything but the safe box falls where the hunter fell, the backpack whole. */
+	/** On death everything but the safe box falls where the hunter fell; backpack and rig whole. */
 	public static void onDeath(final ServerPlayer player) {
 		if (player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
 			return;
@@ -220,10 +278,12 @@ public final class GridService {
 		for (Placed placed : inv.pockets()) {
 			Containers.dropItemStack(player.level(), player.getX(), player.getY(), player.getZ(), placed.stack().copy());
 		}
-		if (!inv.backpack().isEmpty()) {
-			Containers.dropItemStack(player.level(), player.getX(), player.getY(), player.getZ(), inv.backpack().copy());
+		for (ItemStack worn : new ItemStack[] {inv.backpack(), inv.rig(), inv.mask()}) {
+			if (!worn.isEmpty()) {
+				Containers.dropItemStack(player.level(), player.getX(), player.getY(), player.getZ(), worn.copy());
+			}
 		}
-		set(player, new GridInventory(List.of(), inv.safe(), ItemStack.EMPTY));
+		set(player, new GridInventory(List.of(), inv.safe(), ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY));
 	}
 
 	/** The worn backpack slows the hunter by its weight. */

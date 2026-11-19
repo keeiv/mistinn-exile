@@ -82,6 +82,12 @@ public final class MistinnItems {
 	public static final List<Item> HELMETS = Gear.HELMETS.stream().map(MistinnItems::helmet).toList();
 	public static final List<Item> ARMORS = Gear.ARMORS.stream().map(MistinnItems::bodyArmor).toList();
 	public static final List<Item> BACKPACKS = Gear.BACKPACKS.stream().map(MistinnItems::backpack).toList();
+	/** Chest rigs and masks, one per tier, indexed by {@link Tier#ordinal()}. */
+	public static final List<Item> RIGS = Gear.RIGS.stream().map(MistinnItems::rig).toList();
+	public static final List<Item> MASKS = Gear.MASKS.stream().map(MistinnItems::mask).toList();
+	/** Leggings and boots for tiers N to V, indexed by {@link Tier#ordinal()}. */
+	public static final List<Item> LEGGINGS = Gear.LEGGINGS.stream().map(g -> legGear(g, "leggings", EquipmentSlot.LEGS, EquipmentSlotGroup.LEGS)).toList();
+	public static final List<Item> BOOTS = Gear.BOOTS.stream().map(g -> legGear(g, "boots", EquipmentSlot.FEET, EquipmentSlotGroup.FEET)).toList();
 
 	private MistinnItems() {
 	}
@@ -133,6 +139,33 @@ public final class MistinnItems {
 
 	private static Item backpack(final Gear.Backpack gear) {
 		return register("backpack_" + gear.tier().id(), Item::new, new Item.Properties().stacksTo(1));
+	}
+
+	private static Item rig(final Gear.ChestRig gear) {
+		return register("rig_" + gear.tier().id(), Item::new, new Item.Properties().stacksTo(1));
+	}
+
+	/** Masks are worn in the grid's mask slot, not a vanilla one: no equippable component. */
+	private static Item mask(final Gear.Mask gear) {
+		return register("mask_" + gear.tier().id(), Item::new, new Item.Properties()
+			.durability(gear.durability())
+			.repairable(REPAIRS_GEAR));
+	}
+
+	private static Item legGear(final Gear.LegGear gear, final String kind, final EquipmentSlot slot, final EquipmentSlotGroup group) {
+		Identifier id = Mistinn.id(kind + "." + gear.tier().id());
+		ItemAttributeModifiers.Builder attributes = ItemAttributeModifiers.builder()
+			.add(Attributes.ARMOR, new AttributeModifier(id, gear.armor(), AttributeModifier.Operation.ADD_VALUE), group)
+			.add(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(id, gear.toughness(), AttributeModifier.Operation.ADD_VALUE), group);
+		if (gear.speedPenalty() > 0.0) {
+			attributes.add(Attributes.MOVEMENT_SPEED, new AttributeModifier(id, -gear.speedPenalty(), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), group);
+		}
+		return register(kind + "_" + gear.tier().id(), Item::new, new Item.Properties()
+			.durability(gear.durability())
+			.attributes(attributes.build())
+			.component(DataComponents.EQUIPPABLE, Equippable.builder(slot).setEquipSound(SoundEvents.ARMOR_EQUIP_IRON).setAsset(asset(gear.tier())).build())
+			.repairable(REPAIRS_GEAR)
+			.enchantable(10));
 	}
 
 	private static Map<WeaponStyle, Map<WeaponMaterial, Item>> materialWeapons() {

@@ -102,4 +102,36 @@ public final class GridLogic {
 		List<Placed> contents = stack.get(life.shizune.mistinn.registry.MistinnComponents.BACKPACK_CONTENTS);
 		return contents == null || contents.isEmpty();
 	}
+
+	/** What {@link #repack} kept in place and what it could not place again. */
+	public record Repacked(List<Placed> kept, List<ItemStack> loose, boolean changed) {
+	}
+
+	/**
+	 * Keeps every item that still fits where it lies and places the others again. Needed when a
+	 * container's layout changes between versions: an item may now lie outside its compartment
+	 * or on top of another. What finds no place at all is returned, never lost.
+	 */
+	public static Repacked repack(final GridShape shape, final List<Placed> items) {
+		List<Placed> kept = new ArrayList<>();
+		List<ItemStack> loose = new ArrayList<>();
+		for (Placed placed : items) {
+			if (fits(shape, kept, placed.section(), placed.x(), placed.y(), placed.width(), placed.height(), -1)) {
+				kept.add(placed);
+			} else {
+				loose.add(placed.stack().copy());
+			}
+		}
+		if (loose.isEmpty()) {
+			return new Repacked(items, List.of(), false);
+		}
+		List<ItemStack> left = new ArrayList<>();
+		for (ItemStack stack : loose) {
+			kept = insert(shape, kept, stack);
+			if (!stack.isEmpty()) {
+				left.add(stack);
+			}
+		}
+		return new Repacked(kept, left, true);
+	}
 }

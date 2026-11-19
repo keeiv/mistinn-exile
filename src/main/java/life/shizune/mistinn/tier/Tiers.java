@@ -23,6 +23,7 @@ public final class Tiers {
 		FIXED.put(MistinnItems.ANCHOR_BLADE, Tier.II);
 		FIXED.put(MistinnItems.MIST_SPEAR, Tier.II);
 		FIXED.put(MistinnItems.ORE_BELL, Tier.II);
+		FIXED.put(MistinnItems.BELL_SALVE, Tier.III);
 		FIXED.put(MistinnItems.BELL_GREATSWORD, Tier.III);
 		FIXED.put(MistinnItems.GOLDEN_BELL, Tier.V);
 		FIXED.put(MistinnItems.RUST_GOD_SALT, Tier.VI);
@@ -31,6 +32,12 @@ public final class Tiers {
 			FIXED.put(MistinnItems.HELMETS.get(tier.ordinal()), tier);
 			FIXED.put(MistinnItems.ARMORS.get(tier.ordinal()), tier);
 			FIXED.put(MistinnItems.BACKPACKS.get(tier.ordinal()), tier);
+			FIXED.put(MistinnItems.RIGS.get(tier.ordinal()), tier);
+			FIXED.put(MistinnItems.MASKS.get(tier.ordinal()), tier);
+			if (tier.ordinal() < MistinnItems.LEGGINGS.size()) {
+				FIXED.put(MistinnItems.LEGGINGS.get(tier.ordinal()), tier);
+				FIXED.put(MistinnItems.BOOTS.get(tier.ordinal()), tier);
+			}
 		}
 		for (Item item : new Item[] {Items.NETHER_STAR, Items.DRAGON_EGG, Items.BEACON, Items.ENCHANTED_GOLDEN_APPLE}) {
 			FIXED.put(item, Tier.VI);

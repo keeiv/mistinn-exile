@@ -185,6 +185,7 @@ public final class BodyService {
 			}
 			if (hit.face()) {
 				armor += BodyGear.faceArmor(player);
+				BodyGear.wearMask(player, damage);
 			}
 			if (slots.length > 0) {
 				((LivingEntityInvoker) player).mistinn$doHurtEquipment(source, damage, slots);
