@@ -65,6 +65,7 @@ public class MistinnClient implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
 			life.shizune.mistinn.client.move.RollClient.tick(minecraft, roll);
+			life.shizune.mistinn.client.death.DeathScene.tick(minecraft);
 			while (swingCamera.consumeClick()) {
 				life.shizune.mistinn.client.anim.CameraSwing.toggle();
 				if (minecraft.player != null) {

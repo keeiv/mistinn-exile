@@ -92,6 +92,7 @@ public class Mistinn implements ModInitializer {
 		});
 		ServerTickEvents.END_SERVER_TICK.register(BellService::tick);
 		ServerTickEvents.END_SERVER_TICK.register(BodyService::tick);
+		ServerTickEvents.END_SERVER_TICK.register(life.shizune.mistinn.residue.ResidueService::tick);
 		ServerTickEvents.END_SERVER_TICK.register(life.shizune.mistinn.stamina.StaminaService::tick);
 		ServerTickEvents.END_SERVER_TICK.register(life.shizune.mistinn.stamina.RollService::tick);
 		// nothing may live in the hidden vanilla storage slots, however it got there

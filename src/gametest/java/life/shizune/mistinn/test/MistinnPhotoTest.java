@@ -179,6 +179,7 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 				player.teleportTo(level, at.getX() + 0.5, y, at.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
 				SaltService.set(player, 2860);
 				ResidueService.onDeath(player);
+				ResidueService.placeNow();
 				return player.getAttached(life.shizune.mistinn.registry.MistinnAttachments.DEATH_MARK).pos().pos();
 			});
 			frame(context, world, grave.offset(-2, 1, -3), grave, false);

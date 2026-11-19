@@ -156,8 +156,34 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				player.teleportTo(bellPos.getX() + 20.5, player.level().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, bellPos.getX() + 20, bellPos.getZ() + 12), bellPos.getZ() + 12.5);
 			});
 			context.waitTicks(20);
-			world.getServer().runCommand("kill @a");
+			// killed by a creature: an iron golem beside the hunter, which the scene hides
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				net.minecraft.world.entity.animal.golem.IronGolem golem = net.minecraft.world.entity.EntityTypes.IRON_GOLEM.create(server.overworld(), net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+				golem.snapTo(player.getX() + 2.5, player.getY(), player.getZ() + 1.0, 0.0F, 0.0F);
+				server.overworld().addFreshEntity(golem);
+			});
+			context.waitTicks(10);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				var golem = server.overworld().getEntitiesOfClass(net.minecraft.world.entity.animal.golem.IronGolem.class, player.getBoundingBox().inflate(6.0)).getFirst();
+				for (int i = 0; i < 12 && player.isAlive(); i++) {
+					player.damageCooldownTime = 0;
+					player.hurtServer(server.overworld(), player.damageSources().mobAttack(golem), 60.0F);
+				}
+			});
 			context.waitForScreen(DeathScreen.class);
+			check(context.computeOnClient(mc -> life.shizune.mistinn.client.death.DeathScene.cause() == life.shizune.mistinn.client.death.DeathScene.Cause.CREATURE), "the scene knows a creature did it");
+			check(context.computeOnClient(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.death.MissionEndScreen), "death opens the mission-end screen");
+			context.waitTicks(20);
+			context.takeScreenshot("death-scene-kneel");
+			context.waitTicks(24);
+			context.takeScreenshot("death-scene-fallen");
+			context.waitTicks(14);
+			context.takeScreenshot("death-scene-smoke");
+			context.waitTicks(52);
+			context.takeScreenshot("mission-end");
+			world.getServer().runOnServer(server -> server.overworld().getEntities(net.minecraft.world.entity.EntityTypes.IRON_GOLEM, g -> true).forEach(net.minecraft.world.entity.Entity::discard));
 			DeathMark mark = context.computeOnClient(mc -> mc.player.getAttached(MistinnAttachments.DEATH_MARK));
 			check(mark != null, "the client knows where the hunter fell");
 			int residue = world.getServer().computeOnServer(server -> {
@@ -170,7 +196,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			});
 			check(residue == 1234, "the gravestone holds all 1234 salt, got " + residue);
 
-			context.clickScreenButton("deathScreen.respawn");
+			returnToMission(context);
 			context.waitTicks(40);
 			connection.waitForChunksRender();
 			double distanceToBell = context.computeOnClient(mc -> Math.sqrt(mc.player.blockPosition().distSqr(bellPos)));
@@ -563,7 +589,10 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				check(inv.rig().isEmpty() && inv.mask().isEmpty(), "the rig and mask were dropped too");
 				check(inv.safe().size() == 1 && inv.safe().getFirst().stack().is(MistinnItems.RUST_GOD_SALT), "the safe box kept its salt block");
 			});
-			context.clickScreenButton("deathScreen.respawn");
+			context.waitTicks(36);
+			context.takeScreenshot("death-scene-collapse");
+			context.waitTicks(74);
+			returnToMission(context);
 			context.waitTicks(20);
 
 			// ── Body parts ──────────────────────────────────────────
@@ -637,7 +666,8 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				check(player.isDeadOrDying(), "a third destroyed part kills: " + BodyService.get(player));
 			});
 			context.waitForScreen(DeathScreen.class);
-			context.clickScreenButton("deathScreen.respawn");
+			context.waitTicks(110);
+			returnToMission(context);
 			context.waitTicks(20);
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
@@ -703,7 +733,8 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			// after rolling, dying and coming back (a new player entity), a roll still costs stamina
 			world.getServer().runCommand("kill @a");
 			context.waitForScreen(DeathScreen.class);
-			context.clickScreenButton("deathScreen.respawn");
+			context.waitTicks(110);
+			returnToMission(context);
 			context.waitTicks(80);
 			context.getInput().pressKey(options -> java.util.Arrays.stream(options.keyMappings).filter(k -> k.getName().equals("key.mistinn.roll")).findFirst().orElseThrow());
 			context.waitTicks(2);
@@ -867,6 +898,18 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 	}
 
 	/** Moves the real cursor over a grid cell. */
+
+	/** Picks "> Return to the mission" on the mission-end screen with the real mouse. */
+	private static void returnToMission(final ClientGameTestContext context) {
+		double[] at = context.computeOnClient(mc -> {
+			double[] gui = ((life.shizune.mistinn.client.death.MissionEndScreen) mc.gui.screen()).choiceCentre(0);
+			double scale = mc.getWindow().getGuiScale();
+			return new double[] {gui[0] * scale, gui[1] * scale};
+		});
+		context.getInput().setCursorPos(at[0], at[1]);
+		context.waitTicks(2);
+		context.getInput().pressMouse(LEFT);
+	}
 	private static void mouse(final ClientGameTestContext context, final Area area, final int section, final int cx, final int cy) {
 		double[] at = context.computeOnClient(mc -> {
 			double[] gui = GridPanel.cellCentre(area, section, cx, cy);

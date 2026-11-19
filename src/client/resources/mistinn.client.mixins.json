@@ -2,7 +2,7 @@
 	"required": true,
 	"package": "life.shizune.mistinn.client.mixin",
 	"compatibilityLevel": "JAVA_25",
-	"client": ["AvatarRollMixin", "CameraSwingMixin", "ContainerScreenGridMixin", "CreateWorldMixin", "FirstPersonSwingMixin", "HeldNameMixin", "HumanoidRollMixin", "ScreenSwapMixin", "StaminaInputMixin", "StaminaSprintMixin", "ThirdPersonSwingMixin"],
+	"client": ["AvatarRollMixin", "CameraSwingMixin", "ContainerScreenGridMixin", "CreateWorldMixin", "DeathBodyMixin", "DeathPoofMixin", "DeathScreenAccessor", "FirstPersonSwingMixin", "HeldNameMixin", "HideCreaturesMixin", "HumanoidRollMixin", "ScreenSwapMixin", "StaminaInputMixin", "StaminaSprintMixin", "ThirdPersonSwingMixin"],
 	"injectors": { "defaultRequire": 1 },
 	"overwrites": { "requireAnnotations": true }
 }

@@ -34,14 +34,47 @@ public final class ResidueService {
 		int serial = player.getAttachedOrElse(MistinnAttachments.RESIDUE_SERIAL, 0) + 1;
 		BlockPos pos = findSpot(level, player.blockPosition());
 
-		level.setBlockAndUpdate(pos, MistinnBlocks.GRAVESTONE.defaultBlockState());
-		if (level.getBlockEntity(pos) instanceof GravestoneBlockEntity stone) {
-			stone.fill(player.getStringUUID(), player.getPlainTextName(), salt, serial);
-		}
 		player.setAttached(MistinnAttachments.RESIDUE_SERIAL, serial);
 		player.setAttached(MistinnAttachments.DEATH_MARK, new DeathMark(GlobalPos.of(level.dimension(), pos), serial, salt));
 		SaltService.set(player, 0);
+		// the stone rises once the body has turned to smoke, at the end of the death scene
+		PENDING.add(new Stone(level, pos, player.getStringUUID(), player.getPlainTextName(), salt, serial, STONE_DELAY));
+	}
 
+	/** Ticks from death to the gravestone: the length of the client's death scene, to the smoke. */
+	public static final int STONE_DELAY = 70;
+
+	private record Stone(ServerLevel level, BlockPos pos, String owner, String name, int salt, int serial, int ticks) {
+	}
+
+	private static final java.util.List<Stone> PENDING = new java.util.ArrayList<>();
+
+	/** Called every server tick: raises the stones whose time has come. */
+	public static void tick(final net.minecraft.server.MinecraftServer server) {
+		for (int i = PENDING.size() - 1; i >= 0; i--) {
+			Stone stone = PENDING.get(i);
+			if (stone.ticks() > 0) {
+				PENDING.set(i, new Stone(stone.level(), stone.pos(), stone.owner(), stone.name(), stone.salt(), stone.serial(), stone.ticks() - 1));
+				continue;
+			}
+			PENDING.remove(i);
+			place(stone);
+		}
+	}
+
+	/** Raises a pending stone at once (tests and photo scenes that cannot wait). */
+	public static void placeNow() {
+		PENDING.forEach(ResidueService::place);
+		PENDING.clear();
+	}
+
+	private static void place(final Stone stone) {
+		ServerLevel level = stone.level();
+		BlockPos pos = stone.pos();
+		level.setBlockAndUpdate(pos, MistinnBlocks.GRAVESTONE.defaultBlockState());
+		if (level.getBlockEntity(pos) instanceof GravestoneBlockEntity entity) {
+			entity.fill(stone.owner(), stone.name(), stone.salt(), stone.serial());
+		}
 		level.playSound(null, pos, MistinnSounds.RESIDUE_FORM, SoundSource.PLAYERS, 1.0F, 1.0F);
 		level.sendParticles(ParticleTypes.WHITE_SMOKE, pos.getX() + 0.5, pos.getY() + 0.8, pos.getZ() + 0.5, 40, 0.3, 0.6, 0.3, 0.02);
 	}

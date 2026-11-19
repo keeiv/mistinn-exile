@@ -31,6 +31,13 @@ public abstract class AvatarRollMixin {
 		state.setData(life.shizune.mistinn.client.gear.GearLayer.BACKPACK, pack >= 0 ? pack : null);
 		int rig = entity.getAttachedOrElse(life.shizune.mistinn.registry.MistinnAttachments.WORN_RIG, -1);
 		state.setData(life.shizune.mistinn.client.gear.GearLayer.RIG, rig >= 0 ? rig : null);
+		// the local hunter's death is the scene's to draw, not vanilla's red tilt
+		life.shizune.mistinn.client.death.DeathScene.Pose death = entity == net.minecraft.client.Minecraft.getInstance().player ? life.shizune.mistinn.client.death.DeathScene.pose() : null;
+		state.setData(life.shizune.mistinn.client.death.DeathScene.KEY, death);
+		if (death != null) {
+			state.deathTime = 0.0F;
+			state.hasRedOverlay = false;
+		}
 	}
 
 	@ModifyVariable(method = "setupRotations(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V", at = @At("HEAD"), argsOnly = true, ordinal = 0)
@@ -41,6 +48,11 @@ public abstract class AvatarRollMixin {
 
 	@Inject(method = "setupRotations(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V", at = @At("TAIL"))
 	private void mistinn$tumble(final AvatarRenderState state, final PoseStack pose, final float bodyRot, final float entityScale, final CallbackInfo ci) {
+		life.shizune.mistinn.client.death.DeathScene.Pose death = state.getData(life.shizune.mistinn.client.death.DeathScene.KEY);
+		if (death != null) {
+			mistinn$fall(death, pose);
+			return;
+		}
 		RollClient.Pose roll = state.getData(RollClient.KEY);
 		if (roll == null) {
 			return;
@@ -68,5 +80,36 @@ public abstract class AvatarRollMixin {
 			pose.translate(0.0F, 0.15F * entityScale, 0.0F);
 			pose.rotateDegrees(Axis.XP, 85.0F * down);
 		}
+	}
+
+	/**
+	 * The body in the death scene. Killed by a creature: down onto one knee, leaning on a hand,
+	 * then over onto its side. Any other death: a stagger, then face down. Gone with the smoke.
+	 */
+	private static void mistinn$fall(final life.shizune.mistinn.client.death.DeathScene.Pose death, final PoseStack pose) {
+		float s = death.seconds();
+		if (s >= life.shizune.mistinn.client.death.DeathScene.GONE) {
+			pose.scale(0.0F, 0.0F, 0.0F);
+			return;
+		}
+		float down = smooth(s / 0.6F);
+		float fall = smooth((s - life.shizune.mistinn.client.death.DeathScene.FALL) / 0.55F);
+		if (death.kneel()) {
+			// sunk onto the knee, then raised to lie on the ground rather than in it
+			pose.translate(0.0F, -0.42F * down * (1.0F - fall) + 0.3F * fall, 0.0F);
+			// over onto the side, pivoting where the body meets the ground
+			pose.rotateDegrees(Axis.ZP, death.side() * 88.0F * fall);
+			pose.rotateDegrees(Axis.XP, -14.0F * down * (1.0F - fall));
+		} else {
+			float stagger = s < 0.9F ? Mth.sin(s * 9.0F) * 7.0F * (1.0F - s / 0.9F) : 0.0F;
+			float forward = smooth((s - 0.9F) / 0.5F);
+			pose.rotateDegrees(Axis.ZP, stagger);
+			pose.rotateDegrees(Axis.XP, -88.0F * forward);
+		}
+	}
+
+	private static float smooth(final float t) {
+		float c = Mth.clamp(t, 0.0F, 1.0F);
+		return c * c * (3.0F - 2.0F * c);
 	}
 }

@@ -19,11 +19,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class HumanoidRollMixin {
 	@Inject(method = "setupAnim", at = @At("TAIL"))
 	private void mistinn$rollLimbs(final HumanoidRenderState state, final CallbackInfo ci) {
+		HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
+		life.shizune.mistinn.client.death.DeathScene.Pose death = state.getData(life.shizune.mistinn.client.death.DeathScene.KEY);
+		if (death != null) {
+			mistinn$dying(model, death);
+			return;
+		}
 		RollClient.Pose roll = state.getData(RollClient.KEY);
 		if (roll == null) {
 			return;
 		}
-		HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
 		float t = roll.t();
 		float arc = Mth.sin(t * Mth.PI);
 		if (roll.kind() == RollService.Kind.ROLL) {
@@ -63,5 +68,31 @@ public abstract class HumanoidRollMixin {
 			arm.xRot = 0.3F * out;
 			arm.zRot = side * 0.15F * out;
 		}
+	}
+
+	/** Kneeling: one knee down, a hand flat on the ground, the head bowed; or limp, face down. */
+	private static void mistinn$dying(final HumanoidModel<?> model, final life.shizune.mistinn.client.death.DeathScene.Pose death) {
+		float s = death.seconds();
+		float k = Mth.clamp(s / 0.6F, 0.0F, 1.0F);
+		k = k * k * (3.0F - 2.0F * k);
+		// it shakes while it holds itself up
+		float shake = s > 0.6F && s < life.shizune.mistinn.client.death.DeathScene.FALL ? Mth.sin(s * 38.0F) * 0.035F : 0.0F;
+		if (death.kneel()) {
+			model.leftLeg.xRot = -1.45F * k;
+			model.rightLeg.xRot = 0.5F * k;
+			model.rightArm.xRot = -0.35F * k + shake;
+			model.rightArm.zRot = 0.08F * k;
+			model.leftArm.xRot = -0.85F * k;
+			model.leftArm.zRot = -0.1F * k;
+			model.head.xRot = 0.6F * k;
+			model.body.xRot = 0.25F * k;
+		} else {
+			model.rightArm.xRot = -0.25F * k;
+			model.leftArm.xRot = -0.15F * k;
+			model.rightArm.zRot = 0.2F * k;
+			model.leftArm.zRot = -0.2F * k;
+			model.head.xRot = 0.3F * k;
+		}
+		model.head.yRot = 0.0F;
 	}
 }
