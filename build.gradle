@@ -11,20 +11,28 @@ repositories {
 	// for more information about repositories.
 }
 
-// Build output outside the synced source folder (see gradle.properties).
-layout.buildDirectory = new File(gradle.gradleUserHomeDir, "mistinn-build")
+// build.ps1 passes -PexternalBuild when the sources sit in a synced (OneDrive) folder: build
+// output, test worlds and logs then live under the Gradle user home instead. Elsewhere (and in
+// CI) the usual build/ and run/ folders are used.
+def external = project.hasProperty("externalBuild")
+if (external) {
+	layout.buildDirectory = new File(gradle.gradleUserHomeDir, "mistinn-build")
+}
 
 loom {
 	splitEnvironmentSourceSets()
 
-	// Test worlds, logs and options also stay out of the synced folder.
 	runs {
 		client {
-			runDir = new File(gradle.gradleUserHomeDir, "mistinn-run/client").absolutePath
+			if (external) {
+				runDir = new File(gradle.gradleUserHomeDir, "mistinn-run/client").absolutePath
+			}
 			programArgs "--username", "Hunter"
 		}
 		server {
-			runDir = new File(gradle.gradleUserHomeDir, "mistinn-run/server").absolutePath
+			if (external) {
+				runDir = new File(gradle.gradleUserHomeDir, "mistinn-run/server").absolutePath
+			}
 		}
 	}
 

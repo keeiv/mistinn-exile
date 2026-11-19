@@ -10,7 +10,7 @@ if (-not (Test-Path "$drive\gradlew.bat")) { subst $drive $PSScriptRoot }
 if (-not ($env:JAVA_HOME -match "jdk-?2[5-9]")) { $env:JAVA_HOME = "C:\Program Files\Java\jdk-25" }
 Push-Location "$drive\"
 try {
-    & "$drive\gradlew.bat" --project-cache-dir "$HOME\.gradle\mistinn-project-cache" @Tasks
+    & "$drive\gradlew.bat" --project-cache-dir "$HOME\.gradle\mistinn-project-cache" -PexternalBuild @Tasks
     exit $LASTEXITCODE
 } finally {
     Pop-Location
