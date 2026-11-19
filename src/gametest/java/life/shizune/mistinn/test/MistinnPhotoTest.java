@@ -14,6 +14,11 @@ import life.shizune.mistinn.weapon.WeaponMaterial;
 import life.shizune.mistinn.weapon.WeaponStyle;
 import life.shizune.mistinn.world.Builder;
 import life.shizune.mistinn.world.Structures;
+import life.shizune.mistinn.keeper.LampStandBlock;
+import life.shizune.mistinn.keeper.Snuffer;
+import life.shizune.mistinn.body.Body;
+import life.shizune.mistinn.body.BodyPart;
+import life.shizune.mistinn.body.BodyService;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
@@ -165,10 +170,55 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 			frame(context, world, cairn.offset(6, 3, 8), cairn.offset(0, 2, 0), true);
 			shot(context, "salt-cairn", true);
 
-			// ── The grid inventory over the world ────────────────────
+			// ── 霧岸燈塔 on the coast at dusk ────────────────────────
+			// the keeper is a monster: peaceful would remove it
+			world.getServer().runCommand("difficulty normal");
+			world.getServer().runCommand("time set 12450");
+			BlockPos base = build(world, find(world, spawn, Biomes.BEACH, Biomes.STONY_SHORE), Structures::lighthouse);
+			BlockPos room = base.offset(0, Structures.LAMP_ROOM + 1, 0);
+			frame(context, world, base.offset(-24, 12, 28), base.offset(0, 13, 0), true);
+			shot(context, "lighthouse", true);
+			// only now is the keeper's chunk loaded: hold it still at the far side of its room
+			world.getServer().runOnServer(server -> {
+				Snuffer keeper = keeper(server, room);
+				keeper.setNoAi(true);
+				keeper.snapTo(room.getX() + 0.5, room.getY(), room.getZ() + 4.5, 160.0F, 0.0F);
+				keeper.setYHeadRot(160.0F);
+				keeper.setYBodyRot(160.0F);
+			});
+
+			// ── The keeper in its lamp room ──────────────────────────
+			frame(context, world, room.offset(4, 1, -1), room.offset(0, 1, 4), false);
+			shot(context, "snuffer", true);
+
+			// ── The dark half: lamps lit against the night ───────────
+			world.getServer().runCommand("time set 15000");
+			world.getServer().runOnServer(server -> {
+				Snuffer keeper = keeper(server, room);
+				keeper.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new ItemStack(Items.SOUL_LANTERN));
+				ServerLevel level = server.overworld();
+				for (BlockPos lamp : keeper.lamps(level)) {
+					level.setBlockAndUpdate(lamp, level.getBlockState(lamp).setValue(LampStandBlock.LIT, true));
+				}
+			});
+			frame(context, world, room.offset(-5, 2, -3), room.offset(0, 1, 4), false);
+			shot(context, "snuffer-dark", true);
+			world.getServer().runCommand("difficulty peaceful");
+			world.getServer().runCommand("time set 12450");
+
+			// ── The hunter inventory over the world ──────────────────
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = player(server);
-				GridService.set(player, GridInventory.EMPTY.withBackpack(new ItemStack(MistinnItems.BACKPACKS.get(5))));
+				GridService.set(player, GridInventory.EMPTY
+					.withBackpack(new ItemStack(MistinnItems.BACKPACKS.get(5)))
+					.withRig(new ItemStack(MistinnItems.RIGS.get(4)))
+					.withMask(new ItemStack(MistinnItems.MASKS.get(4))));
+				player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.LEGS, new ItemStack(MistinnItems.LEGGINGS.get(4)));
+				player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET, new ItemStack(MistinnItems.BOOTS.get(4)));
+				GridService.insert(player, new ItemStack(MistinnItems.BELL_SALVE, 2));
+				GridService.insert(player, new ItemStack(Items.BREAD, 6));
+				// a hunter fresh from the lamp room: an arm hurt, a leg nearly gone
+				BodyService.set(player, Body.FULL.with(BodyPart.LEFT_ARM, 41.0F).with(BodyPart.RIGHT_LEG, 9.0F).with(BodyPart.TORSO, 66.0F));
 				GridService.insert(player, new ItemStack(Items.DIAMOND, 6));
 				GridService.insert(player, new ItemStack(Items.GOLDEN_APPLE, 2));
 				GridService.insert(player, new ItemStack(MistinnItems.WEAPONS.get(WeaponStyle.THRUST).get(WeaponMaterial.IRON)));
@@ -180,6 +230,8 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 				GridService.set(player, GridService.get(player).with(Area.SAFE, java.util.List.of(new life.shizune.mistinn.grid.Placed(0, 0, 0, false, new ItemStack(MistinnItems.RUST_GOD_SALT)))));
 			});
 			context.setScreen(() -> new InventoryScreen(context.computeOnClient(mc -> mc.player)));
+			// keep the mouse in a corner, clear of every slot, so no tooltip covers the screen
+			context.getInput().setCursorPos(4.0, 4.0);
 			context.waitTicks(10);
 			shot(context, "grid-inventory", false);
 			context.setScreen(() -> null);
@@ -188,6 +240,10 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 
 	private static ServerPlayer player(final MinecraftServer server) {
 		return server.getPlayerList().getPlayers().getFirst();
+	}
+
+	private static Snuffer keeper(final MinecraftServer server, final BlockPos room) {
+		return server.overworld().getEntitiesOfClass(Snuffer.class, new net.minecraft.world.phys.AABB(room).inflate(12)).getFirst();
 	}
 
 	/** The nearest place of one of the biomes, at least a little way from spawn. */

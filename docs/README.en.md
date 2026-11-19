@@ -12,7 +12,7 @@
 **A hunter sent by Rust Anchor Station walks into the forbidden zone at the edge of the world.**
 
 A souls-like Minecraft Java mod: salt for currency, residue where you fall, golden bells to rest at,<br>
-gear in seven tiers, and a grid inventory inspired by extraction shooters.
+damage by body part, gear in seven tiers, a grid inventory inspired by extraction shooters, and a keeper atop a lighthouse.
 
 [![CI](https://github.com/keeiv/mistinn-exile/actions/workflows/ci.yml/badge.svg)](https://github.com/keeiv/mistinn-exile/actions/workflows/ci.yml)
 ![Minecraft](https://img.shields.io/badge/minecraft-26.3-62B47A)
@@ -38,6 +38,8 @@ gear in seven tiers, and a grid inventory inspired by extraction shooters.
 - [Features](#features)
 - [Playing](#playing)
 - [World and structures](#world-and-structures)
+- [Body parts](#body-parts)
+- [The fog-shore lighthouse and the Snuffer](#the-fog-shore-lighthouse-and-the-snuffer)
 - [Controls](#controls)
 - [Tiers and gear](#tiers-and-gear)
 - [Grid inventory](#grid-inventory)
@@ -52,15 +54,18 @@ gear in seven tiers, and a grid inventory inspired by extraction shooters.
 | --- | --- |
 | Salt | The currency. Defeating a hostile creature gives salt equal to its maximum health; others give a fifth (at least 1). Salt found in structures is worth 10 each when used. |
 | Residue and gravestones | When you fall, all the salt you carry becomes residue held by a gravestone where you fell; hit it to take the salt back. Fall again first and the old residue fades. |
-| Golden bells | Save points. Rest at one to heal, eat and set it as your respawn point. The border world has no such metal, so they cannot be crafted. |
+| Golden bells | Save points. Rest at one to restore every body part (destroyed ones too), eat and set it as your respawn point. The border world has no such metal, so they cannot be crafted. |
+| Body parts | Hearts are replaced by six parts (head, torso, both arms, both legs), 80 health each; three destroyed parts kill. Each part is protected only by the gear that covers it, and a destroyed one has lasting effects. |
+| Bell Salve | Made from gold ore, salt and a honey bottle; away from a golden bell, the only cure for a destroyed part. |
 | One-time bells | Cast from gold ore (ore or raw gold) and an iron chain; brings you back once, then cracks. |
 | Minimap | Built in, north up; shows your heading, your bell and where you fell, pinned to the edge when off the map. |
 | Weapons | Five branches (blade, greatsword, spear, dagger, hammer) in five materials (wood, stone, iron, diamond, netherite), so there is something to fight with from day one; plus four named weapons: Anchor Blade, Sunken Bell Greatsword, Mistwalker Spear and Salt Fang. Each has vanilla-style art and a held model, its own swing and hit sounds, and its own first- and third-person swing. |
 | Hunter's Guide | Placed in your hotbar the first time you join; nine pages on the world, the mission and the rules. |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
-| Gear | A helmet, body armour and backpack per tier, each with its own durability, protection, capacity, layout and a two-line story. |
-| Grid inventory | Four pockets, a layout set by the backpack, and a safe box kept through death; every item takes a footprint by kind and can be rotated. |
+| Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V; each with its own durability, protection, capacity, layout and a two-line story. |
+| Grid inventory | Four pockets, the chest rig's and backpack's grids, and a safe box kept through death; every item takes a footprint by kind and can be rotated. In survival the inventory is the mod's own screen, and the 27 vanilla slots are sealed off. |
+| Fog-shore lighthouses | Dead lighthouses on the coast; the lamp room at the top is held by the first keeper, **the Snuffer**, whose every move strikes a set part of the body. |
 | Languages | Traditional Chinese and English. |
 
 > [!TIP]
@@ -120,14 +125,51 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 | ![An intact drop station on the plains at dusk](images/drop-station.jpg) | ![A mist watchpost at the forest's edge](images/watchpost.jpg) |
 | ![An anchor wreck half sunk in a beach at dawn](images/anchor-wreck.jpg) | ![A salt cairn in the badlands](images/salt-cairn.jpg) |
 
+## Body parts
+
+![The lamp room at night: the Snuffer's lantern burns cold blue, the lamp stands lit again](images/snuffer-dark.jpg)
+
+| Part | Health | Protected by |
+| --- | --- | --- |
+| Head (with the face) | 80 | Crown: helmet; face: mask |
+| Torso | 80 | Body armour |
+| Left and right arm | 80 each | Nothing |
+| Left and right leg | 80 each | Leggings and boots |
+
+- **Death**: any three parts destroyed. Damage to a destroyed part spreads, weakened, over the others, so you cannot become unkillable.
+- **Where hits land**: by height and direction. High from the front is the face, from behind the crown; the middle is the torso or the arm on that side; low is the leg on that side. Falls land on both legs, drowning and starving on the torso, fire and explosions over the whole body.
+- **Recovery**: slow and natural while your food is at 6 or more; potions and golden apples mend the most hurt parts first. Only a golden bell or Bell Salve brings a destroyed part back.
+- **Destroyed parts**: legs slow you and cut your jump; arms weaken blows, attack speed and mining; the torso makes you hungry faster; the head darkens the edges of your view and stops the minimap.
+- **HUD**: a small figure where the hearts were, each part green to red by its health.
+
+## The fog-shore lighthouse and the Snuffer
+
+Rust Anchor says the coasts at the world's edge are lined with dead lighthouses, each held by a keeper. Now and then a beach has a **fog-shore lighthouse**: a golden bell by the door, a ladder up past a supply floor, and at the top the lamp room where the Snuffer waits.
+
+| | |
+| --- | --- |
+| ![A fog-shore lighthouse on the coast at sunset](images/lighthouse.jpg) | ![The Snuffer with its long hook by the rail of the lamp room](images/snuffer.jpg) |
+
+| Move | Tell | Where it lands |
+| --- | --- | --- |
+| Sweep | The lantern flares, it leans back | Torso, or the arm on that side |
+| Slam | Salt grains rise where it will land | The shockwave takes both legs |
+| Hook | The hook is drawn back, the chain rattles | Drags you in, then strikes your face; only a mask helps |
+
+- 300 health, 8 armour, and a boss health bar.
+- Below half health every lamp in the room goes out and you are in darkness. Right-click the four lamp stands to light them; with all four lit it staggers for five seconds and takes half again as much damage, then snuffs them out one by one.
+- It drops **the Rust God's salt block**, 3000 salt, and a 30% chance of one piece of tier III–IV gear.
+
 ## Controls
 
 | Input | Action |
 | --- | --- |
-| Use a golden bell | Rest, set respawn point |
+| Use a golden bell | Rest, set respawn point, restore every body part |
 | Hit a gravestone | Take back the salt in the residue |
 | `M` | Minimap zoom (1, 2 or 4 blocks per pixel) |
-| `E` | Inventory and grid |
+| `E` | Inventory (gear, chest rig, backpack and body) |
+| Right-click the helmet slot | Switch to the mask slot |
+| Right-click a lamp stand | Light it |
 | Click a cell | Pick up or put down |
 | Drag | Move between cells, or between the grid and the hotbar or a chest |
 | `R` while carrying | Rotate |
@@ -136,31 +178,41 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 
 ## Tiers and gear
 
-| Tier | Colour | Helmet | Body armour | Backpack |
-| --- | --- | --- | --- | --- |
-| N | Rust brown | Rustleather Hood | Rustleather Vest | Rust-Buckle Sack |
-| I | Grey | Dockhand Helm | Dockhand Plate | Dock Canvas Bag |
-| II | Green | Tidewatch Helm | Tidewatch Cuirass | Tidewatch Pack |
-| III | Blue | Anchorguard Helm | Anchorguard Plate | Anchorguard Rucksack |
-| IV | Purple | Mistwalker Visor | Mistwalker Harness | Mistwalker Pack |
-| V | Gold | Bellkeeper Crown | Bellkeeper Mail | Bellkeeper Frame |
-| VI | Red | Rust God's Skull | Rust God's Scales | Rust God's Reliquary |
+| Tier | Colour | Helmet | Mask | Body armour | Leggings | Boots | Chest rig | Backpack |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| N | Rust brown | Rustleather Hood | Rustleather Face Wrap | Rustleather Vest | Rustleather Leg Wraps | Rustleather Boots | Rustleather Bandolier | Rust-Buckle Sack |
+| I | Grey | Dockhand Helm | Dockhand Goggle Mask | Dockhand Plate | Dockhand Leg Guards | Dockhand Work Boots | Dockhand Belt Rig | Dock Canvas Bag |
+| II | Green | Tidewatch Helm | Tidewatch Mask | Tidewatch Cuirass | Tidewatch Greaves | Tidewatch Waders | Tidewatch Chest Rig | Tidewatch Pack |
+| III | Blue | Anchorguard Helm | Anchorguard Jaw Guard | Anchorguard Plate | Anchorguard Greaves | Anchorguard War Boots | Anchorguard Chest Rig | Anchorguard Rucksack |
+| IV | Purple | Mistwalker Visor | Mistwalker Filter Mask | Mistwalker Harness | Mistwalker Greaves | Mistwalker Climbing Boots | Mistwalker Chest Rig | Mistwalker Pack |
+| V | Gold | Bellkeeper Crown | Bellkeeper Faceplate | Bellkeeper Mail | Bellkeeper Greaves | Bellkeeper Iron Boots | Bellkeeper Tactical Vest | Bellkeeper Frame |
+| VI | Red | Rust God's Skull | Rust God's Face | Rust God's Scales | — | — | Rust God's Harness | Rust God's Reliquary |
 
-Helmets last 70–640, body armour 110–940; higher tiers protect more and body armour gets heavier (0% to −6% movement speed). Vanilla items follow their material (iron I, gold II, emerald III, diamond IV, netherite V) or vanilla rarity. Salt repairs gear at an anvil.
+Helmets last 70–640, masks 50–480, body armour 110–940, leggings 90–610, boots 60–430; higher tiers protect more and armour and leggings get heavier. A helmet only covers the crown and a mask the face; body armour covers the torso, leggings and boots the legs, and nothing covers the arms. Vanilla items follow their material (iron I, gold II, emerald III, diamond IV, netherite V) or vanilla rarity. Salt repairs gear at an anvil.
 
 ## Grid inventory
 
-| Backpack | Layout | Cells | Speed |
+| Backpack | Layout (top pockets + main) | Cells | Speed |
 | --- | --- | --- | --- |
 | N | 3×2 | 6 | — |
 | I | 4×3 | 12 | — |
-| II | 3×5 | 15 | −1% |
-| III | 2×2, 2×2, 4×3 | 20 | −1% |
-| IV | 4×6 | 24 | −1% |
-| V | 2×3, 2×3, 4×5 | 32 | −2% |
-| VI | 2×4, 2×4, 5×6 | 46 | −2% |
+| II | 1×2, 1×2 + 3×4 | 16 | −1% |
+| III | 1×2, 2×2, 1×2 + 4×4 | 24 | −1% |
+| IV | 1×2, 2×2, 1×2 + 4×5 | 28 | −1% |
+| V | 1×2, 3×2, 1×2 + 5×5 | 35 | −2% |
+| VI | 1×2, 3×2, 1×2 + 5×6 | 40 | −2% |
 
-Pockets are four 1×1 cells and the safe box is 2×2. On death the pockets and the whole backpack drop; the safe box stays. Footprints: gems and ingots 1×1, sticks 1×2, tools and swords 1×3, ore and other blocks 2×2, armour 2×2 or 2×3. A backpack's contents live in the backpack item, so they travel with it.
+| Chest rig | Layout | Cells |
+| --- | --- | --- |
+| N | 1×2 ×2 | 4 |
+| I | 1×2 ×4 | 8 |
+| II | 2×2 + 1×2 ×4 | 12 |
+| III | 2×2 ×2 + 1×2 ×4 | 16 |
+| IV | 2×2 ×2 + 1×3 ×4 | 20 |
+| V | 2×2 ×3 + 1×3 ×4 | 24 |
+| VI | 2×3 ×2, 2×2 + 1×3 ×4 | 28 |
+
+Pockets are four 1×1 cells and the safe box is 2×2. Pickups fill the pockets, then the chest rig, then the backpack. On death the pockets, chest rig, backpack and mask drop; the safe box stays. Footprints: gems and ingots 1×1, sticks 1×2, tools and swords 1×3, ore and other blocks 2×2, armour 2×2 or 2×3. A backpack's contents live in the backpack item, so they travel with it.
 
 ## Building from source
 
@@ -176,8 +228,8 @@ Textures, models and sounds are original work by MoriTeahouse; the repository ho
 
 ## What comes next
 
-1. **Phase 2: the forbidden zone and the Lighthouse Keepers.** Fog-shore lighthouses, the first keeper, creatures of the mist and tiered loot ([design, in Chinese](phase2-design.md)).
-2. **More grid inventory**: chest rigs, side-by-side dragging with chests, backpacks worn on the model.
+1. **The rest of the forbidden zone**: fog that thickens near a lighthouse and on the minimap, the fog wall of the lamp room, creatures of the mist and the keeper's mist doubles ([design, in Chinese](phase2-design.md)).
+2. **More keepers**: the Sunken Bell and the Rust Wheel, and backpacks worn on the model.
 3. **Later**: levelling with salt at bells, more weapons and charged attacks, stamina and dodge rolls, co-op.
 
 ## Contributing
