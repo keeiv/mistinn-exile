@@ -107,11 +107,15 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 			frame(context, world, station.offset(-10, 6, 12), station.offset(0, 2, 0), true);
 			shot(context, "drop-station", true);
 
-			// ── The hunter in tier VI gear, standing on the pad ──────
+			// ── The hunter in full gear, standing on the pad ─────────
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = player(server);
 				player.setItemSlot(EquipmentSlot.HEAD, new ItemStack(MistinnItems.HELMETS.get(6)));
 				player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(MistinnItems.ARMORS.get(6)));
+				// leg gear stops at V; the bone face over the skull helm
+				player.setItemSlot(EquipmentSlot.LEGS, new ItemStack(MistinnItems.LEGGINGS.get(5)));
+				player.setItemSlot(EquipmentSlot.FEET, new ItemStack(MistinnItems.BOOTS.get(5)));
+				GridService.set(player, GridService.get(player).withMask(new ItemStack(MistinnItems.MASKS.get(6))));
 				player.getInventory().setItem(0, new ItemStack(MistinnItems.WEAPONS.get(WeaponStyle.SMASH).get(WeaponMaterial.NETHERITE)));
 				player.getInventory().setSelectedSlot(0);
 				player.getAbilities().flying = false;

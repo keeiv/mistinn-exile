@@ -28,7 +28,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 
 </div>
 
-![A hunter in the Rust God's Skull and Scales with a netherite hammer, standing on a drop station platform at dusk](images/hunter.jpg)
+![A hunter in the Rust God's Face, Skull and Scales and Bellkeeper greaves with a netherite hammer, standing on a drop station platform at dusk](images/hunter.jpg)
 
 > [!NOTE]
 > This is a translation of the [Chinese README](../README.md), which remains the primary version. Pages marked (Chinese) are only available in Chinese for now.
@@ -71,9 +71,6 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Grid inventory | Four pockets, the chest rig's and backpack's grids, and a safe box kept through death; every item takes a footprint by kind and can be rotated. In survival the inventory is the mod's own screen, and the 27 vanilla slots are sealed off. |
 | Fog-shore lighthouses | Dead lighthouses on the coast; the lamp room at the top is held by the first keeper, **the Snuffer**, whose every move strikes a set part of the body. |
 | Languages | Traditional Chinese and English. |
-
-> [!TIP]
-> The easiest way to play is the **Mistinn Launcher**: it installs the game, Java, Fabric, this mod and a performance pack, and tunes the settings to your computer as Smooth, Normal or Ultra.
 
 ### Weapons
 

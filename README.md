@@ -28,7 +28,7 @@
 
 </div>
 
-![穿著鏽神骸盔與鏽神鱗甲、手持獄髓戰鎚的追獵者，站在黃昏的投放站平台上](docs/images/hunter.jpg)
+![戴著鏽神骸面、穿著鏽神骸盔、鏽神鱗甲與鐘守腿甲，手持獄髓戰鎚的追獵者，站在黃昏的投放站平台上](docs/images/hunter.jpg)
 
 <details>
 <summary>主選單</summary>
@@ -80,9 +80,6 @@
 | | |
 | --- | --- |
 | ![倒下的地方留下墓碑，右上角的小地圖標出陣亡點](docs/images/gravestone.jpg) | ![夜色裡在金鐘旁歇息](docs/images/golden-bell.jpg) |
-
-> [!TIP]
-> 最簡單的玩法是使用**霧宿啟動器**：它會裝好遊戲、Java、Fabric、本模組與一整套優化模組，並依你的電腦調整成流暢、普通或超高。
 
 ### 武器
 
