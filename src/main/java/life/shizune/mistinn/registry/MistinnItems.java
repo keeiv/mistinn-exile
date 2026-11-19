@@ -49,6 +49,14 @@ public final class MistinnItems {
 	/** 鹽: the currency is a number on the player; a salt pouch found in the world adds to it when used. */
 	public static final Item SALT = register("salt", SaltItem::new, new Item.Properties());
 	/** 鏽神的鹽塊: what the Lighthouse Keepers guard. */
+	/** 鐘鳴膏: the only cure for a destroyed body part away from a golden bell. */
+	public static final Item BELL_SALVE = register("bell_salve", life.shizune.mistinn.body.BellSalveItem::new, new Item.Properties()
+		.stacksTo(8)
+		.rarity(Rarity.UNCOMMON)
+		.component(DataComponents.CONSUMABLE, net.minecraft.world.item.component.Consumables.defaultDrink()
+			.consumeSeconds(1.6F)
+			.sound(net.minecraft.sounds.SoundEvents.HONEY_DRINK)
+			.build()));
 	public static final Item RUST_GOD_SALT = register("rust_god_salt", Item::new, new Item.Properties().stacksTo(16).rarity(Rarity.EPIC).fireResistant());
 
 	/** The named weapons: each a branch's own, with sounds made for it. */

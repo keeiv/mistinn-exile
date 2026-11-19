@@ -1,6 +1,13 @@
 package life.shizune.mistinn.test;
 
 import life.shizune.mistinn.block.GravestoneBlockEntity;
+import life.shizune.mistinn.body.BellSalveItem;
+import life.shizune.mistinn.body.Body;
+import life.shizune.mistinn.body.BodyPart;
+import life.shizune.mistinn.body.BodyService;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import life.shizune.mistinn.grid.Area;
 import life.shizune.mistinn.grid.GridInventory;
 import life.shizune.mistinn.grid.GridService;
@@ -317,6 +324,66 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			});
 			context.clickScreenButton("deathScreen.respawn");
 			context.waitTicks(20);
+
+			// ── Body parts ──────────────────────────────────────────
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				ServerLevel level = server.overworld();
+				for (EquipmentSlot slot : new EquipmentSlot[] {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+					player.setItemSlot(slot, ItemStack.EMPTY);
+				}
+				check(BodyService.get(player).equals(Body.FULL), "a respawned hunter is whole");
+
+				player.hurtServer(level, player.damageSources().fall(), 4.0F);
+				Body body = BodyService.get(player);
+				check(body.get(BodyPart.LEFT_LEG) == 68.0F && body.get(BodyPart.RIGHT_LEG) == 68.0F && body.get(BodyPart.TORSO) == 80.0F,
+					"a fall lands on both legs, 4 x 6 split in two: " + body);
+				check(player.getHealth() > 0.0F && player.getHealth() < player.getMaxHealth(), "vanilla health follows the parts");
+
+				player.damageCooldownTime = 0;
+				player.hurtServer(level, player.damageSources().drown(), 1.0F);
+				check(BodyService.get(player).get(BodyPart.TORSO) == 74.0F, "drowning hurts the torso: " + BodyService.get(player));
+
+				player.heal(2.0F);
+				body = BodyService.get(player);
+				check(body.total() == 6 * 80.0F - 24 - 6 + 12, "healing mends 2 x 6 points: " + body);
+				check(body.get(BodyPart.LEFT_LEG) > 68.0F && body.get(BodyPart.RIGHT_LEG) > 68.0F, "most hurt parts mend first: " + body);
+
+				double speed = player.getAttributeValue(Attributes.MOVEMENT_SPEED);
+				BodyService.set(player, BodyService.get(player).with(BodyPart.LEFT_LEG, 0.0F));
+				check(player.getAttributeValue(Attributes.MOVEMENT_SPEED) < speed * 0.8, "a destroyed leg slows the hunter");
+				player.heal(20.0F);
+				check(BodyService.get(player).destroyed(BodyPart.LEFT_LEG), "ordinary healing cannot bring a destroyed part back");
+				BodyService.salve(player, BellSalveItem.REVIVE, 0.0F);
+				check(BodyService.get(player).get(BodyPart.LEFT_LEG) == BellSalveItem.REVIVE, "the bell salve brings it back");
+				check(player.getAttributeValue(Attributes.MOVEMENT_SPEED) >= speed * 0.99, "and the leg works again");
+
+				// where hits land: high from the front is the face, from behind the crown
+				player.snapTo(player.getX(), player.getY(), player.getZ(), 0.0F, 0.0F);
+				var front = player.position().add(0, 0, 2);
+				var behind = player.position().add(0, 0, -2);
+				var random = net.minecraft.util.RandomSource.create(1);
+				check(BodyService.locate(player, 0.9, front, random).face(), "a high hit from the front is the face");
+				check(!BodyService.locate(player, 0.9, behind, random).face(), "from behind it is the crown");
+				check(BodyService.locate(player, 0.2, player.position().add(-2, 0, 0), random).part() == BodyPart.RIGHT_LEG, "a low hit from the right side is the right leg");
+
+				// overflow: a destroyed torso passes drowning on to the rest
+				BodyService.set(player, Body.FULL.with(BodyPart.TORSO, 0.0F).with(BodyPart.HEAD, 0.0F));
+				player.damageCooldownTime = 0;
+				player.hurtServer(level, player.damageSources().drown(), 100.0F);
+				check(player.isDeadOrDying(), "a third destroyed part kills: " + BodyService.get(player));
+			});
+			context.waitForScreen(DeathScreen.class);
+			context.clickScreenButton("deathScreen.respawn");
+			context.waitTicks(20);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				check(BodyService.get(player).equals(Body.FULL), "whole again after respawning");
+				BodyService.set(player, Body.FULL.with(BodyPart.HEAD, 0.0F).with(BodyPart.LEFT_ARM, 30.0F).with(BodyPart.RIGHT_LEG, 12.0F));
+			});
+			context.waitTicks(5);
+			context.takeScreenshot("body-hud");
+			world.getServer().runOnServer(server -> BodyService.restoreAll(server.getPlayerList().getPlayers().getFirst()));
 		}
 	}
 

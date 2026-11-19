@@ -48,6 +48,11 @@
           "type": "minecraft:item",
           "name": "mistinn:mist_spear",
           "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:bell_salve",
+          "weight": 3
         }
       ]
     },

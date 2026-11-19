@@ -3,6 +3,7 @@ package life.shizune.mistinn;
 import life.shizune.mistinn.bell.BellService;
 import life.shizune.mistinn.grid.GridActionPayload;
 import life.shizune.mistinn.grid.GridService;
+import life.shizune.mistinn.body.BodyService;
 import life.shizune.mistinn.registry.MistinnAttachments;
 import life.shizune.mistinn.registry.MistinnBlockEntities;
 import life.shizune.mistinn.registry.MistinnBlocks;
@@ -60,9 +61,12 @@ public class Mistinn implements ModInitializer {
 				BellService.queueRespawn(newPlayer);
 			}
 			GridService.applyWeight(newPlayer);
+			BodyService.applyPenalties(newPlayer, BodyService.get(newPlayer));
 		});
 		ServerPlayerEvents.JOIN.register(player -> {
 			GridService.applyWeight(player);
+			// part penalties are transient attribute modifiers: put them back on every join
+			BodyService.applyPenalties(player, BodyService.get(player));
 			// every hunter arrives with the guide, once
 			if (!player.getAttachedOrElse(MistinnAttachments.GUIDE_GIVEN, false)) {
 				player.setAttached(MistinnAttachments.GUIDE_GIVEN, true);
@@ -82,6 +86,7 @@ public class Mistinn implements ModInitializer {
 			}
 		});
 		ServerTickEvents.END_SERVER_TICK.register(BellService::tick);
+		ServerTickEvents.END_SERVER_TICK.register(BodyService::tick);
 		// nothing may live in the hidden vanilla storage slots, however it got there
 		ServerTickEvents.END_SERVER_TICK.register(server -> server.getPlayerList().getPlayers().forEach(GridService::sweepHiddenSlots));
 

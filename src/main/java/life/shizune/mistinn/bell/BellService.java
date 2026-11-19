@@ -1,5 +1,6 @@
 package life.shizune.mistinn.bell;
 
+import life.shizune.mistinn.body.BodyService;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -30,6 +31,8 @@ public final class BellService {
 		ServerLevel level = player.level();
 		player.setAttached(MistinnAttachments.BELL, GlobalPos.of(level.dimension(), pos));
 		player.setHealth(player.getMaxHealth());
+		// only a golden bell brings destroyed body parts back
+		BodyService.restoreAll(player);
 		player.getFoodData().setFoodLevel(20);
 		player.getFoodData().setSaturation(5.0F);
 		player.clearFire();

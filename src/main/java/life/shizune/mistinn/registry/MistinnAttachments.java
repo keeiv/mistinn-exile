@@ -1,5 +1,6 @@
 package life.shizune.mistinn.registry;
 
+import life.shizune.mistinn.body.Body;
 import com.mojang.serialization.Codec;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.grid.GridInventory;
@@ -45,6 +46,12 @@ public final class MistinnAttachments {
 		.syncWith(GridInventory.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
 		.copyOnDeath()
 		.buildAndRegister(Mistinn.id("grid"));
+
+	/** Health of each body part. Not copied on death: a respawned hunter is whole. */
+	public static final AttachmentType<Body> BODY = AttachmentRegistry.<Body>builder()
+		.persistent(Body.CODEC)
+		.syncWith(Body.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
+		.buildAndRegister(Mistinn.id("body"));
 
 	/** Whether this hunter already received the guide; kept through death so it comes once. */
 	public static final AttachmentType<Boolean> GUIDE_GIVEN = AttachmentRegistry.<Boolean>builder()

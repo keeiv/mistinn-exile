@@ -173,5 +173,9 @@
   "subtitles.mistinn.weapon.hit.iron": "鐵器命中",
   "subtitles.mistinn.weapon.hit.diamond": "鑽石命中",
   "subtitles.mistinn.weapon.hit.netherite": "獄髓命中",
-  "subtitles.mistinn.item.guide.open": "翻開手冊"
+  "subtitles.mistinn.item.guide.open": "翻開手冊",
+  "item.mistinn.bell_salve": "鐘鳴膏",
+  "item.mistinn.bell_salve.lore.1": "用鑄一次性金鐘的金子調成的藥膏，帶著一點鐘聲。",
+  "item.mistinn.bell_salve.lore.2": "離開金鐘時，唯一能救回壞死部位的東西。",
+  "message.mistinn.bell_salve.used": "鐘聲在身體裡響了一下，壞死的地方又有了知覺。"
 }

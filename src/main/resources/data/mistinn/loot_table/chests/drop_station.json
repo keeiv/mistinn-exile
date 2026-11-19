@@ -48,6 +48,11 @@
           "type": "minecraft:item",
           "name": "mistinn:iron_dagger",
           "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:bell_salve",
+          "weight": 2
         }
       ]
     },

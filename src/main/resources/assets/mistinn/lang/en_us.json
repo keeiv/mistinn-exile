@@ -173,5 +173,9 @@
   "subtitles.mistinn.weapon.hit.iron": "Iron strikes",
   "subtitles.mistinn.weapon.hit.diamond": "Diamond strikes",
   "subtitles.mistinn.weapon.hit.netherite": "Netherite strikes",
-  "subtitles.mistinn.item.guide.open": "Guide opens"
+  "subtitles.mistinn.item.guide.open": "Guide opens",
+  "item.mistinn.bell_salve": "Bell Salve",
+  "item.mistinn.bell_salve.lore.1": "A salve worked from one-time bell gold; it still hums faintly.",
+  "item.mistinn.bell_salve.lore.2": "Away from a golden bell, the only cure for a destroyed body part.",
+  "message.mistinn.bell_salve.used": "A bell rings somewhere inside you; feeling returns to what was lost."
 }

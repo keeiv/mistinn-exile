@@ -36,6 +36,10 @@ public final class MinimapHud implements HudElement {
 
 	@Override
 	public void extractRenderState(final GuiGraphicsExtractor g, final DeltaTracker deltaTracker) {
+		if (life.shizune.mistinn.client.body.BodyHud.headDestroyed()) {
+			// a destroyed head cannot read the map
+			return;
+		}
 		Minecraft minecraft = Minecraft.getInstance();
 		LocalPlayer player = minecraft.player;
 		if (player == null || minecraft.gui.screen() != null || minecraft.getDebugOverlay().showDebugScreen() || !MinimapTexture.ready()) {
