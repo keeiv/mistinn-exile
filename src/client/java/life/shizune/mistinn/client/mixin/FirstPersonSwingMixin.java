@@ -45,7 +45,7 @@ public abstract class FirstPersonSwingMixin {
 	private void mistinn$swing(final float animation, final PoseStack poseStack, final int invert, final HumanoidArm arm, final CallbackInfo ci) {
 		WeaponStyle style = WeaponStyle.of(this.mistinn$drawing);
 		if (style != null) {
-			WeaponSwings.firstPerson(style, animation, poseStack, invert);
+			WeaponSwings.firstPerson(style, WeaponSwings.progress(animation), poseStack, invert);
 			ci.cancel();
 		}
 	}

@@ -63,6 +63,16 @@ fabricApi {
 	}
 }
 
+// Animation sheet (-PanimSheet): the client game test freezes each swing at its beats and
+// screenshots them in first and third person, to judge the animation frame by frame.
+if (project.hasProperty("animSheet")) {
+	loom.runs.configureEach {
+		if (name == "clientGameTest") {
+			vmArg "-Dmistinn.animsheet=true"
+		}
+	}
+}
+
 if (photoMode) {
 	loom.runs.configureEach {
 		if (name == "clientGameTest") {

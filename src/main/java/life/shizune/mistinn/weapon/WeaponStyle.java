@@ -12,15 +12,15 @@ import org.jspecify.annotations.Nullable;
  */
 public enum WeaponStyle {
 	/** 直刃: a balanced straight blade, diagonal slash. */
-	SLASH("blade", 3.0, 1.6, 0.0, 7),
+	SLASH("blade", 3.0, 1.6, 0.0, 11),
 	/** 大劍: slow and heavy, raised over the shoulder and brought down. */
-	CLEAVE("greatsword", 6.0, 0.7, 0.5, 15),
+	CLEAVE("greatsword", 6.0, 0.7, 0.5, 22),
 	/** 長槍: long reach, drawn back and thrust. */
-	THRUST("spear", 3.5, 1.1, 1.0, 9),
+	THRUST("spear", 3.5, 1.1, 1.0, 13),
 	/** 短刃: short reach, two quick crossing cuts. */
-	FLURRY("dagger", 1.5, 2.6, -0.4, 4),
+	FLURRY("dagger", 1.5, 2.6, -0.4, 7),
 	/** 戰鎚: a wide sideways swing that knocks foes back. */
-	SMASH("hammer", 5.0, 0.8, 0.0, 13);
+	SMASH("hammer", 5.0, 0.8, 0.0, 20);
 
 	/** Item id suffix: wooden_blade, iron_hammer, ... */
 	public final String id;

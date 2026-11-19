@@ -51,7 +51,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 
 	@Override
 	public void runTest(final ClientGameTestContext context) {
-		if (Boolean.getBoolean("mistinn.photo")) {
+		if (Boolean.getBoolean("mistinn.photo") || Boolean.getBoolean("mistinn.animsheet")) {
 			return; // photo mode only shoots pictures; see MistinnPhotoTest
 		}
 		// screenshots in Traditional Chinese, without chat lines over them

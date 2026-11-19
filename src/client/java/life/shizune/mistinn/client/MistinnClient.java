@@ -28,6 +28,16 @@ public class MistinnClient implements ClientModInitializer {
 		KeyMapping zoom = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.minimap_zoom", InputConstants.KEY_M, CATEGORY)
 		);
+		KeyMapping swingCamera = KeyMappingHelper.registerKeyMapping(
+			new KeyMapping("key.mistinn.swing_camera", InputConstants.KEY_J, CATEGORY)
+		);
+		// the view jolts when one's own blow lands
+		net.fabricmc.fabric.api.event.player.AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+			if (level.isClientSide()) {
+				life.shizune.mistinn.client.anim.CameraSwing.hit();
+			}
+			return net.minecraft.world.InteractionResult.PASS;
+		});
 
 		HudElementRegistry.addLast(Mistinn.id("minimap"), new MinimapHud());
 		// hunters see their body parts where the hearts were
@@ -36,6 +46,12 @@ public class MistinnClient implements ClientModInitializer {
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> TierText.decorate(stack, lines));
 
 		ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
+			while (swingCamera.consumeClick()) {
+				life.shizune.mistinn.client.anim.CameraSwing.toggle();
+				if (minecraft.player != null) {
+					minecraft.player.sendOverlayMessage(Component.translatable(life.shizune.mistinn.client.anim.CameraSwing.enabled() ? "message.mistinn.swing_camera.on" : "message.mistinn.swing_camera.off"));
+				}
+			}
 			while (zoom.consumeClick()) {
 				scaleIndex = (scaleIndex + 1) % SCALES.length;
 				refreshTimer = 0;

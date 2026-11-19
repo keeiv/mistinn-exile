@@ -275,5 +275,8 @@
   "entity.mistinn.snuffer": "熄燈人",
   "block.mistinn.lamp_stand": "燈台",
   "message.mistinn.snuffer.dark": "燈全熄了。點亮燈台。",
-  "message.mistinn.snuffer.stagger": "四座燈台都亮了，熄燈人站不穩！"
+  "message.mistinn.snuffer.stagger": "四座燈台都亮了，熄燈人站不穩！",
+  "key.mistinn.swing_camera": "揮擊時視角跟著動",
+  "message.mistinn.swing_camera.on": "揮擊視角：開",
+  "message.mistinn.swing_camera.off": "揮擊視角：關"
 }

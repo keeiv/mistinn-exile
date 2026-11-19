@@ -29,6 +29,6 @@ public abstract class ThirdPersonSwingMixin {
 		}
 		HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
 		HumanoidArm arm = swing.hand().asArm(state.mainArm);
-		WeaponSwings.thirdPerson(style, state.swingAnimation, model.getArm(arm), model.getArm(arm.getOpposite()), model.body, arm == HumanoidArm.RIGHT ? 1 : -1);
+		WeaponSwings.thirdPerson(style, WeaponSwings.progress(state.swingAnimation), model, model.getArm(arm), model.getArm(arm.getOpposite()), arm == HumanoidArm.RIGHT ? 1 : -1);
 	}
 }

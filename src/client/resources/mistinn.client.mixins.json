@@ -2,7 +2,7 @@
 	"required": true,
 	"package": "life.shizune.mistinn.client.mixin",
 	"compatibilityLevel": "JAVA_25",
-	"client": ["ContainerScreenGridMixin", "FirstPersonSwingMixin", "HeldNameMixin", "OpenHunterScreenMixin", "ThirdPersonSwingMixin"],
+	"client": ["CameraSwingMixin", "ContainerScreenGridMixin", "FirstPersonSwingMixin", "HeldNameMixin", "OpenHunterScreenMixin", "ThirdPersonSwingMixin"],
 	"injectors": { "defaultRequire": 1 },
 	"overwrites": { "requireAnnotations": true }
 }
