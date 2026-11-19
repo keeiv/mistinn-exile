@@ -28,13 +28,13 @@
 - 不會產生物品複製：任何把物品移進或移出格子背包的程式，都要確認來源確實扣除了同樣的數量。
 - 檔案路徑、網址與指令不使用未經檢查的輸入。
 - 新增的依賴是真實存在、仍在維護、沒有已知高風險通報的套件。工具有時會給出不存在的套件名稱，安裝前請自己查證。
-- **素材只能來自本倉庫的腳本。** 貼圖與音效由 `tools/` 裡的程式產生，不接受其他遊戲、材質包、AI 圖像產生器或網路上的素材。
+- **素材必須是原創。** 不接受其他遊戲、材質包、AI 圖像產生器或網路上的素材。只提交成品（PNG、OGG、JSON），繪製用的原始檔（專案檔、產生腳本、分層圖）不要放進倉庫。
 
 註解寫給之後維護的人看：說明程式為什麼這樣做，不要留下與工具的對話或修改過程。
 
 ## 開發環境
 
-需要 JDK 25；Gradle 由專案內的 wrapper 下載。改貼圖或音效時另外需要 Python 3.11 以上與 `numpy`、`Pillow`、`soundfile`。
+需要 JDK 25；Gradle 由專案內的 wrapper 下載。
 
 ```powershell
 git clone https://github.com/keeiv/mistinn-exile.git
@@ -52,7 +52,7 @@ cd mistinn-exile
 - Mixin 只在找不到事件可用時使用，注入點盡量小，並寫明為什麼需要。
 - 新物品要在 `Tiers` 給定品級、在 `ItemSizes` 給定佔格，並加進創造模式分頁。
 - 品級顏色固定：N 鏽褐、I 灰、II 綠、III 藍、IV 紫、V 金、VI 紅。
-- 畫風照原版物品：每個部件用自己最深的顏色描邊，光從左上方打，每種材質 4～5 個色階；手持模型使用原版的擠出式像素圖。新物品請在 `tools/vanilla_style.py` 加上繪製函式，再執行 `python tools/make_assets.py`。
+- 畫風照原版物品：每個部件用自己最深的顏色描邊，光從左上方打，每種材質 4～5 個色階；手持模型使用原版的擠出式像素圖。
 
 ## 測試
 
@@ -63,6 +63,14 @@ cd mistinn-exile
 客戶端遊戲測試會開啟一個真正的遊戲視窗，跑完武器揮擊、金鐘歇息與重生、死亡與殘香、格子背包與品級，並把截圖存到 `build/run/clientGameTest/screenshots`。所有檢查都要通過；改到畫面時，請打開截圖親眼確認。
 
 新功能請在測試裡加上可觀察的檢查（例如物品放進了哪一格、死亡後保留了什麼），而不是只截圖。
+
+README 與官網的照片用拍攝模式在遊戲裡擺好再拍：
+
+```powershell
+.uild.ps1 runClientGameTest -PphotoMode
+```
+
+拍攝模式會加入 Sodium 與 Iris，以最高畫質把每個場景拍成 1920×1080，存到 `build/run/clientGameTest/photos`。光影包不隨倉庫提供，請自行把 Complementary Reimagined r5.9.3 放進 `build/run/clientGameTest/shaderpacks`，並在同一個執行資料夾的 `config/iris.properties` 啟用。
 
 ## 格式與品質檢查
 
