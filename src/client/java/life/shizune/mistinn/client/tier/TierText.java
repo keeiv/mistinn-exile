@@ -5,6 +5,7 @@ import life.shizune.mistinn.gear.Gear;
 import life.shizune.mistinn.grid.GridInventory;
 import life.shizune.mistinn.grid.GridShape;
 import life.shizune.mistinn.grid.ItemSizes;
+import life.shizune.mistinn.registry.MistinnComponents;
 import life.shizune.mistinn.tier.Tier;
 import life.shizune.mistinn.tier.Tiers;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -35,6 +36,12 @@ public final class TierText {
 		int[] size = ItemSizes.of(stack);
 		lines.add(at++, Component.translatable("tooltip.mistinn.tier_size", tier.label, size[0], size[1]).withColor(0xFF9AA0A6));
 
+		Integer wear = stack.get(MistinnComponents.REPAIR_WEAR);
+		if (wear != null && wear > 0 && stack.isDamageableItem()) {
+			// repairs above the kit's tier (and every tier VI repair) wear the maximum down for good
+			lines.add(at++, Component.translatable("tooltip.mistinn.durability_worn", stack.getMaxDamage() - stack.getDamageValue(), stack.getMaxDamage(), wear).withColor(0xFFC58A42));
+		}
+
 		Gear.Backpack pack = GridInventory.backpackOf(stack);
 		if (pack != null) {
 			StringBuilder layout = new StringBuilder();
@@ -50,6 +57,10 @@ public final class TierText {
 			}
 		}
 		String base = "item." + BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace() + "." + BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+		String usage = base + ".usage";
+		if (Language.getInstance().has(usage)) {
+			lines.add(at++, Component.translatable(usage).withColor(0xFFE9E6EA));
+		}
 		for (int i = 1; i <= 3; i++) {
 			String key = base + ".lore." + i;
 			if (Language.getInstance().has(key)) {

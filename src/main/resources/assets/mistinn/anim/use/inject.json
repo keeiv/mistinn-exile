@@ -1,0 +1,24 @@
+{
+	"_comment": "注射 INJECT: the injector is brought up to the chest and driven down into the outer thigh (the leg brought forward to meet it, the torso dipping ~10° only at the stab), held while the dose goes in, and pulled out. Stretched over the whole use (InjectorItem.USE_TICKS, 3 s).",
+	"keys": [0.0, 0.15, 0.32, 0.4, 0.8, 0.9, 1.0],
+	"eases": ["out_cubic", "in_out_sine", "in_quart", "linear", "out_cubic", "in_out_sine"],
+	"limbs": {
+		"head_x": [0, 12, 15, 25, 22, 12, 0],
+		"body_x": [0, 2, 2, 10, 7, 3, 0],
+		"right_arm_x": [0, -40, -55, -18, -20, -25, 0],
+		"right_arm_y": [0, -15, -20, -5, -5, -5, 0],
+		"left_arm_x": [0, -10, -12, -20, -20, -8, 0],
+		"right_leg_x": [0, -5, -8, -15, -15, -6, 0]
+	},
+	"item": {
+		"x": [0, 30, 60, 100, 100, 60, 0]
+	},
+	"first_person": {
+		"tx": [0, -0.1, -0.14, -0.16, -0.16, -0.08, 0],
+		"ty": [0, 0.1, 0.16, -0.04, -0.06, 0.0, 0],
+		"tz": [0, -0.04, -0.06, -0.04, -0.04, -0.02, 0],
+		"rx": [0, 0, 0, 10, 10, 5, 0],
+		"ry": [0, 20, 30, 30, 30, 15, 0],
+		"rz": [0, 20, 30, 30, 30, 15, 0]
+	}
+}

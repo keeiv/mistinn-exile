@@ -382,8 +382,9 @@ public final class GridPanel {
 
 	/**
 	 * The item on its tier colour, drawn as large as its footprint allows, turned if rotated.
-	 * Backpacks and rigs with a grid sprite fill their whole footprint with it; every other item keeps
-	 * its square icon so it is never stretched.
+	 * Backpacks, rigs and the medical column items with a grid sprite fill their whole footprint with
+	 * it; every other item keeps its square icon so it is never stretched (a pouch upright, a sword
+	 * corner to corner).
 	 */
 	private static void drawPlaced(final GuiGraphicsExtractor g, final Font font, final Placed placed, final int x, final int y) {
 		int w = placed.width();
@@ -403,9 +404,16 @@ public final class GridPanel {
 			}
 			int sw = upright[0] * CELL;
 			int sh = upright[1] * CELL;
-			int tw = upright[0] * GridSprites.TEXELS_PER_CELL;
-			int th = upright[1] * GridSprites.TEXELS_PER_CELL;
+			int density = GridSprites.texelsPerCell(placed.stack().getItem());
+			int tw = upright[0] * density;
+			int th = upright[1] * density;
 			g.blit(RenderPipelines.GUI_TEXTURED, sprite, -sw / 2, -sh / 2, 0.0F, 0.0F, sw, sh, tw, th, tw, th);
+		} else if (GridSprites.uprightIcon(placed.stack().getItem())) {
+			// a pouch or a bottle without column art: upright, as large as the short side allows,
+			// centred, never past the footprint (whichever way the footprint lies)
+			float scale = Math.max(1, Math.min(w, h));
+			pose.scale(scale, scale);
+			g.item(placed.stack(), -8, -8);
 		} else if (upright[1] >= 2 * upright[0]) {
 			// long things (swords, sticks) are drawn corner to corner in vanilla: stand them up
 			// along the footprint's long side, as large as it allows

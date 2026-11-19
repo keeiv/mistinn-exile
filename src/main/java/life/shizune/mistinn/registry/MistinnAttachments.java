@@ -73,6 +73,12 @@ public final class MistinnAttachments {
 		.syncWith(ByteBufCodecs.FLOAT, AttachmentSyncPredicate.targetOnly())
 		.buildAndRegister(Mistinn.id("stamina"));
 
+	/** 止痛: the game time until which painkillers keep destroyed parts from being felt. */
+	public static final AttachmentType<Long> PAINKILLER = AttachmentRegistry.<Long>builder()
+		.persistent(Codec.LONG)
+		.syncWith(ByteBufCodecs.VAR_LONG, AttachmentSyncPredicate.targetOnly())
+		.buildAndRegister(Mistinn.id("painkiller"));
+
 	/** Whether this hunter already received the guide; kept through death so it comes once. */
 	public static final AttachmentType<Boolean> GUIDE_GIVEN = AttachmentRegistry.<Boolean>builder()
 		.persistent(Codec.BOOL)

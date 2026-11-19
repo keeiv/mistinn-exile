@@ -1,0 +1,69 @@
+package life.shizune.mistinn.medical;
+
+import life.shizune.mistinn.body.Body;
+import life.shizune.mistinn.body.BodyPart;
+import life.shizune.mistinn.body.BodyService;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
+
+/**
+ * 手術包: brings one destroyed part back, to {@link #REVIVE} health, the most needed first
+ * ({@link #ORDER}): head, torso, legs, then arms. Three operations to a kit.
+ */
+public class SurgeryKitItem extends TreatmentItem {
+	/** 8 s to use. */
+	public static final int USE_TICKS = 160;
+	/** Health the part comes back with: 30% of a whole part. */
+	public static final float REVIVE = 24.0F;
+	/** Operations in one kit (its durability). */
+	public static final int USES = 3;
+	/** Which destroyed part is operated on first. */
+	public static final BodyPart[] ORDER = {BodyPart.HEAD, BodyPart.TORSO, BodyPart.LEFT_LEG, BodyPart.RIGHT_LEG, BodyPart.RIGHT_ARM, BodyPart.LEFT_ARM};
+
+	public SurgeryKitItem(final Properties properties) {
+		super(properties);
+	}
+
+	/** The part an operation on this body would restore, or null when none is destroyed. */
+	public static @Nullable BodyPart next(final Body body) {
+		for (BodyPart part : ORDER) {
+			if (body.destroyed(part)) {
+				return part;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Treatment treatment(final ServerPlayer player, final ItemStack stack) {
+		return Treatment.SURGERY;
+	}
+
+	@Override
+	public @Nullable String refusal(final ServerPlayer player, final ItemStack stack) {
+		return next(BodyService.get(player)) == null ? "message.mistinn.surgery.none" : null;
+	}
+
+	@Override
+	public int ticks(final ServerPlayer player, final ItemStack stack) {
+		return USE_TICKS;
+	}
+
+	@Override
+	public void finish(final ServerPlayer player, final ItemStack stack, final InteractionHand hand) {
+		Body body = BodyService.get(player);
+		BodyPart part = next(body);
+		if (part == null) {
+			return;
+		}
+		BodyService.set(player, body.with(part, REVIVE));
+		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ARMOR_EQUIP_LEATHER.value(), SoundSource.PLAYERS, 0.8F, 0.8F);
+		player.sendSystemMessage(Component.translatable("message.mistinn.surgery.done", Component.translatable("gui.mistinn.part." + part.id)), true);
+		stack.hurtAndBreak(1, player, hand);
+	}
+}

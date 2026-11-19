@@ -79,6 +79,21 @@ public final class MistinnItems {
 	public static final Item ORE_BELL = block("ore_bell", MistinnBlocks.ORE_BELL, new Item.Properties());
 	public static final Item LAMP_STAND = block("lamp_stand", MistinnBlocks.LAMP_STAND, new Item.Properties());
 
+	/** 護甲維修包 / 頭盔維修包 for tiers III to VI, indexed by {@code tier.ordinal() - 3}. */
+	public static final List<Item> ARMOR_REPAIR_KITS = repairKits("armor_repair_kit", EquipmentSlot.CHEST);
+	public static final List<Item> HELMET_REPAIR_KITS = repairKits("helmet_repair_kit", EquipmentSlot.HEAD);
+	/** 強效注射器: one dose. */
+	public static final Item POTENT_INJECTOR = register("potent_injector", life.shizune.mistinn.medical.InjectorItem::new, new Item.Properties()
+		.stacksTo(3)
+		.rarity(Rarity.UNCOMMON));
+	/** 手術包: three operations. */
+	public static final Item SURGERY_KIT = register("surgery_kit", life.shizune.mistinn.medical.SurgeryKitItem::new, new Item.Properties()
+		.durability(life.shizune.mistinn.medical.SurgeryKitItem.USES)
+		.rarity(Rarity.RARE));
+	/** 止疼片: a bottle of four doses. */
+	public static final Item PAINKILLERS = register("painkillers", life.shizune.mistinn.medical.PainkillerItem::new, new Item.Properties()
+		.durability(life.shizune.mistinn.medical.PainkillerItem.DOSES));
+
 	/** Helmets, body armour and backpacks, one of each per tier, indexed by {@link Tier#ordinal()}. */
 	public static final List<Item> HELMETS = Gear.HELMETS.stream().map(MistinnItems::helmet).toList();
 	public static final List<Item> ARMORS = Gear.ARMORS.stream().map(MistinnItems::bodyArmor).toList();
@@ -103,6 +118,16 @@ public final class MistinnItems {
 
 	private static ResourceKey<EquipmentAsset> asset(final Tier tier) {
 		return ResourceKey.create(EquipmentAssets.ROOT_ID, Mistinn.id("hunter_" + tier.id()));
+	}
+
+	private static List<Item> repairKits(final String name, final EquipmentSlot slot) {
+		List<Item> kits = new java.util.ArrayList<>();
+		for (Tier tier : new Tier[] {Tier.III, Tier.IV, Tier.V, Tier.VI}) {
+			kits.add(register(name + "_" + tier.id(), p -> new life.shizune.mistinn.medical.RepairKitItem(p, tier, slot), new Item.Properties()
+				.stacksTo(1)
+				.rarity(tier == Tier.VI ? Rarity.EPIC : tier == Tier.V ? Rarity.RARE : Rarity.UNCOMMON)));
+		}
+		return List.copyOf(kits);
 	}
 
 	private static Item helmet(final Gear.Helmet gear) {

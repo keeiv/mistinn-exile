@@ -40,6 +40,16 @@ public final class ItemSizes {
 		put(1, 4, MistinnItems.BELL_GREATSWORD);
 		put(1, 5, MistinnItems.MIST_SPEAR);
 		put(1, 2, MistinnItems.SALT_FANG);
+		// repair kits grow with their tier (III, IV, V, VI); the surgery roll is long, the injector
+		// and the bottle fit a cell
+		int[][] armorKits = {{1, 2}, {1, 3}, {2, 2}, {2, 2}};
+		int[][] helmetKits = {{1, 2}, {1, 2}, {1, 3}, {2, 2}};
+		for (int i = 0; i < MistinnItems.ARMOR_REPAIR_KITS.size(); i++) {
+			put(armorKits[i][0], armorKits[i][1], MistinnItems.ARMOR_REPAIR_KITS.get(i));
+			put(helmetKits[i][0], helmetKits[i][1], MistinnItems.HELMET_REPAIR_KITS.get(i));
+		}
+		put(1, 2, MistinnItems.SURGERY_KIT);
+		put(1, 1, MistinnItems.POTENT_INJECTOR, MistinnItems.PAINKILLERS);
 		MistinnItems.WEAPONS.forEach((style, byMaterial) -> {
 			int[] size = switch (style) {
 				case SLASH -> new int[] {1, 3};

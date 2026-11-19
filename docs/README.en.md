@@ -270,7 +270,7 @@ Helmets last 70–640, masks 50–480, body armour 110–940, leggings 90–610,
 | V | 2×2 ×3 + 1×3 ×4 | 24 |
 | VI | 2×3 ×2, 2×2 + 1×3 ×4 | 28 |
 
-Pockets are four 1×1 cells and the safe box is 2×2. Pickups fill the pockets, then the chest rig, then the backpack. On death the pockets, chest rig, backpack and mask drop; the safe box stays. Footprints: gems and ingots 1×1, sticks 1×2, tools and swords 1×3, ore and other blocks 2×2, armour 2×2 or 2×3. A backpack's contents live in the backpack item, so they travel with it. The backpack and chest rig you wear show on your body.
+Pockets are four 1×1 cells and the safe box is 2×2. Pickups fill the pockets, then the chest rig, then the backpack. On death the pockets, chest rig, backpack and mask drop; the safe box stays. Footprints: gems and ingots 1×1, sticks 1×2, tools and swords 1×3, ore and other blocks 2×2, armour 2×2 or 2×3; the injector and painkillers 1×1, the surgery kit 1×2, and repair kits grow with their tier (armour: III 1×2, IV 1×3, V/VI 2×2; helmet: III/IV 1×2, V 1×3, VI 2×2). A backpack's contents live in the backpack item, so they travel with it. The backpack and chest rig you wear show on your body.
 
 ## Building from source
 

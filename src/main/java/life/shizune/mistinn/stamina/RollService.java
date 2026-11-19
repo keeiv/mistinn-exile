@@ -8,6 +8,7 @@ import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.body.Body;
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
+import life.shizune.mistinn.medical.TreatmentService;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -25,7 +26,9 @@ import net.minecraft.world.entity.player.Player;
  * long it protects depends on the legs, how it looks on the arms. With both legs destroyed a
  * hunter cannot roll, only throw themselves forward: the dive protects nothing, and the landing,
  * which the legs can no longer take, is shared out over head, torso and arms.
- * Movement is the client's, as in vanilla: the client moves the hunter and asks; the server
+ * Under painkillers the dead legs are not felt: the hunter rolls on them anyway, and while any
+ * part is destroyed each roll or dive lands {@link TreatmentService#NUMB_STRAIN} on the whole
+ * body instead, split evenly. Movement is the client's, as in vanilla: the client moves the hunter and asks; the server
  * charges stamina, grants the dodge and shows the move to everyone watching.
  */
 public final class RollService {
@@ -36,6 +39,8 @@ public final class RollService {
 	public static final float DIVE_IMPACT = 12.0F;
 	/** Ticks from the dive to its landing. */
 	public static final int DIVE_LANDING = 8;
+	/** Ticks from the roll to the moment its weight comes down on the body. */
+	public static final int ROLL_LANDING = 6;
 
 	public enum Kind {
 		ROLL,
@@ -43,7 +48,11 @@ public final class RollService {
 	}
 
 	private static final Map<UUID, Integer> DODGE = new HashMap<>();
-	private static final Map<UUID, Integer> LANDING = new HashMap<>();
+	/** 落地: ticks left to a landing that costs part health, and how it is shared. */
+	private record Landing(int ticks, float amount, boolean whole) {
+	}
+
+	private static final Map<UUID, Landing> LANDING = new HashMap<>();
 	private static final Map<UUID, Integer> LAST = new HashMap<>();
 
 	private RollService() {
@@ -53,7 +62,17 @@ public final class RollService {
 
 	/** Both legs destroyed: no roll, only the dive. */
 	public static Kind kind(final Body body) {
-		return body.destroyed(BodyPart.LEFT_LEG) && body.destroyed(BodyPart.RIGHT_LEG) ? Kind.DIVE : Kind.ROLL;
+		return kind(body, false);
+	}
+
+	/** As {@link #kind(Body)}; a numb hunter (painkillers) rolls even on two dead legs. */
+	public static Kind kind(final Body body, final boolean numb) {
+		return !numb && body.destroyed(BodyPart.LEFT_LEG) && body.destroyed(BodyPart.RIGHT_LEG) ? Kind.DIVE : Kind.ROLL;
+	}
+
+	/** The hunter's own roll kind, painkillers counted. */
+	public static Kind kind(final Player player) {
+		return kind(BodyService.get(player), TreatmentService.numb(player));
 	}
 
 	/** How much of the legs is left, 0 to 1. */
@@ -91,16 +110,23 @@ public final class RollService {
 			return;
 		}
 		Body body = BodyService.get(player);
-		Kind kind = kind(body);
+		boolean numb = TreatmentService.numb(player);
+		Kind kind = kind(body, numb);
 		if (!StaminaService.has(player, cost(kind))) {
 			return;
 		}
 		StaminaService.spend(player, cost(kind));
 		LAST.put(player.getUUID(), now);
+		// a roll breaks off any treatment in hand
+		TreatmentService.interrupt(player);
 		if (kind == Kind.ROLL) {
 			DODGE.put(player.getUUID(), dodgeTicks(body));
-		} else {
-			LANDING.put(player.getUUID(), DIVE_LANDING);
+		}
+		if (numb && body.destroyedCount() > 0) {
+			// the body pays for what it cannot feel, all over and heavier
+			LANDING.put(player.getUUID(), new Landing(kind == Kind.ROLL ? ROLL_LANDING : DIVE_LANDING, TreatmentService.NUMB_STRAIN, true));
+		} else if (kind == Kind.DIVE) {
+			LANDING.put(player.getUUID(), new Landing(DIVE_LANDING, DIVE_IMPACT, false));
 		}
 		player.level().playSound(null, player.blockPosition(), kind == Kind.ROLL ? SoundEvents.ARMOR_EQUIP_LEATHER.value() : SoundEvents.PLAYER_ATTACK_WEAK, SoundSource.PLAYERS, 0.8F, kind == Kind.ROLL ? 1.2F : 0.7F);
 		RollAnimPayload anim = new RollAnimPayload(player.getId(), kind.ordinal(), payload.yaw(),
@@ -114,17 +140,21 @@ public final class RollService {
 	public static void tick(final MinecraftServer server) {
 		DODGE.replaceAll((id, ticks) -> ticks - 1);
 		DODGE.values().removeIf(ticks -> ticks <= 0);
-		for (Map.Entry<UUID, Integer> entry : Map.copyOf(LANDING).entrySet()) {
-			int left = entry.getValue() - 1;
-			if (left > 0) {
-				LANDING.put(entry.getKey(), left);
+		for (Map.Entry<UUID, Landing> entry : Map.copyOf(LANDING).entrySet()) {
+			Landing landing = entry.getValue();
+			if (landing.ticks() > 1) {
+				LANDING.put(entry.getKey(), new Landing(landing.ticks() - 1, landing.amount(), landing.whole()));
 				continue;
 			}
 			LANDING.remove(entry.getKey());
 			ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
 			if (player != null && player.isAlive()) {
 				player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_SMALL_FALL, SoundSource.PLAYERS, 1.0F, 0.8F);
-				BodyService.strainUpper(player, DIVE_IMPACT);
+				if (landing.whole()) {
+					BodyService.strainWhole(player, landing.amount());
+				} else {
+					BodyService.strainUpper(player, landing.amount());
+				}
 			}
 		}
 	}

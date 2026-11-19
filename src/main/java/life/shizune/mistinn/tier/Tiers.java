@@ -25,6 +25,14 @@ public final class Tiers {
 		FIXED.put(MistinnItems.ORE_BELL, Tier.II);
 		FIXED.put(MistinnItems.BELL_SALVE, Tier.III);
 		FIXED.put(MistinnItems.BELL_GREATSWORD, Tier.III);
+		FIXED.put(MistinnItems.PAINKILLERS, Tier.III);
+		FIXED.put(MistinnItems.POTENT_INJECTOR, Tier.IV);
+		FIXED.put(MistinnItems.SURGERY_KIT, Tier.V);
+		for (int i = 0; i < MistinnItems.ARMOR_REPAIR_KITS.size(); i++) {
+			Tier kit = Tier.values()[Tier.III.ordinal() + i];
+			FIXED.put(MistinnItems.ARMOR_REPAIR_KITS.get(i), kit);
+			FIXED.put(MistinnItems.HELMET_REPAIR_KITS.get(i), kit);
+		}
 		FIXED.put(MistinnItems.GOLDEN_BELL, Tier.V);
 		FIXED.put(MistinnItems.RUST_GOD_SALT, Tier.VI);
 		MistinnItems.WEAPONS.values().forEach(byMaterial -> byMaterial.forEach((material, item) -> FIXED.put(item, material.tier)));

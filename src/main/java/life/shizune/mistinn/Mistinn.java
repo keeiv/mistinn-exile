@@ -45,6 +45,7 @@ public class Mistinn implements ModInitializer {
 		MistinnTab.init();
 		GridActionPayload.register();
 		life.shizune.mistinn.stamina.RollService.register();
+		life.shizune.mistinn.medical.TreatmentService.register();
 		life.shizune.mistinn.registry.MistinnEntities.init();
 		MistinnWorld.init();
 		life.shizune.mistinn.story.WorldMode.init();
@@ -65,6 +66,7 @@ public class Mistinn implements ModInitializer {
 				BellService.queueRespawn(newPlayer);
 			}
 			GridService.applyWeight(newPlayer);
+			life.shizune.mistinn.medical.TreatmentService.reset(newPlayer);
 			BodyService.applyPenalties(newPlayer, BodyService.get(newPlayer));
 		});
 		ServerPlayerEvents.JOIN.register(player -> {
@@ -97,6 +99,7 @@ public class Mistinn implements ModInitializer {
 		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPING.register(server -> life.shizune.mistinn.residue.ResidueService.placeNow());
 		ServerTickEvents.END_SERVER_TICK.register(life.shizune.mistinn.stamina.StaminaService::tick);
 		ServerTickEvents.END_SERVER_TICK.register(life.shizune.mistinn.stamina.RollService::tick);
+		ServerTickEvents.END_SERVER_TICK.register(life.shizune.mistinn.medical.TreatmentService::tick);
 		// nothing may live in the hidden vanilla storage slots, however it got there
 		ServerTickEvents.END_SERVER_TICK.register(server -> server.getPlayerList().getPlayers().forEach(GridService::sweepHiddenSlots));
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
@@ -118,6 +121,10 @@ public class Mistinn implements ModInitializer {
 
 		// Each weapon branch has its own impact sound.
 		AttackEntityCallback.EVENT.register((player, level, hand, target, hitResult) -> {
+			// striking breaks off a treatment in progress
+			if (player instanceof ServerPlayer striker) {
+				life.shizune.mistinn.medical.TreatmentService.interrupt(striker);
+			}
 			Weapons.Profile weapon = Weapons.profile(player.getItemInHand(hand));
 			if (weapon != null && !level.isClientSide()) {
 				float pitch = weapon.pitch() * (0.92F + level.getRandom().nextFloat() * 0.16F);

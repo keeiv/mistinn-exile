@@ -1,0 +1,19 @@
+{
+	"_comment": "手術 SURGERY: standing near upright, head down to the hands, the work brought up to the chest; the left hand holds it closed while the right draws the needle and thread up and out, stitch after stitch. Loops every 2 s for the whole use.",
+	"loop": 2.0,
+	"first_person_loop": 0.5,
+	"keys": [0.0, 0.3, 0.55, 0.8, 1.0],
+	"eases": ["in_out_sine", "out_cubic", "in_out_sine", "linear"],
+	"limbs": {
+		"head_x": [22, 22, 24, 22, 22],
+		"body_x": [5, 5, 5, 5, 5],
+		"right_arm_x": [-26, -42, -34, -26, -26],
+		"right_arm_y": [-32, -15, -26, -32, -32],
+		"right_arm_z": [0, 10, 4, 0, 0],
+		"left_arm_x": [-26, -26, -28, -26, -26],
+		"left_arm_y": [36, 36, 38, 36, 36]
+	},
+	"item": {
+		"x": [0, -30, -10, 0, 0]
+	}
+}

@@ -33,6 +33,8 @@ public class MistinnClient implements ClientModInitializer {
 		);
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.stamina.RollService.RollAnimPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.move.RollClient.received(payload));
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.medical.TreatmentService.TreatmentPayload.TYPE,
+			(payload, context) -> life.shizune.mistinn.client.medical.TreatmentClient.received(payload));
 		KeyMapping journal = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.journal", InputConstants.KEY_K, CATEGORY)
 		);
@@ -50,6 +52,8 @@ public class MistinnClient implements ClientModInitializer {
 
 		HudElementRegistry.addLast(Mistinn.id("minimap"), new MinimapHud());
 		HudElementRegistry.addLast(Mistinn.id("story"), new life.shizune.mistinn.client.story.StoryHud());
+		// "正在使用 …" and its progress bar above the hotbar
+		HudElementRegistry.addLast(Mistinn.id("treatment"), new life.shizune.mistinn.client.medical.TreatmentHud());
 		// hunters see their body parts where the hearts were
 		HudElementRegistry.replaceElement(VanillaHudElements.HEALTH_BAR, BodyHud::new);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Mistinn.id("stamina"), new life.shizune.mistinn.client.body.StaminaHud());
@@ -70,6 +74,7 @@ public class MistinnClient implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
 			life.shizune.mistinn.client.move.RollClient.tick(minecraft, roll);
+			life.shizune.mistinn.client.medical.TreatmentClient.tick(minecraft);
 			life.shizune.mistinn.client.death.DeathScene.tick(minecraft);
 			life.shizune.mistinn.client.story.StoryClient.tick(minecraft);
 			while (journal.consumeClick()) {

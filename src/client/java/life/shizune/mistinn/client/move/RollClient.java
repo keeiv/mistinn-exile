@@ -107,7 +107,7 @@ public final class RollClient {
 			return;
 		}
 		Body body = BodyService.get(player);
-		RollService.Kind kind = RollService.kind(body);
+		RollService.Kind kind = RollService.kind(player);
 		if (!StaminaService.has(player, RollService.cost(kind))) {
 			player.sendOverlayMessage(Component.translatable("message.mistinn.no_stamina"));
 			return;

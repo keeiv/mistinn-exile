@@ -1,0 +1,18 @@
+{
+	"_comment": "修護甲 ARMOR_REPAIR: head down over the chest, the left hand holds the plate while the right taps and tightens it. Loops every 1.2 s for the whole use.",
+	"loop": 1.2,
+	"first_person_loop": 0.6,
+	"keys": [0.0, 0.35, 0.5, 0.75, 1.0],
+	"eases": ["in_out_sine", "in_cubic", "out_quad", "linear"],
+	"limbs": {
+		"head_x": [20, 20, 22, 20, 20],
+		"body_x": [3, 3, 4, 3, 3],
+		"right_arm_x": [-28, -40, -24, -28, -28],
+		"right_arm_y": [-38, -34, -42, -38, -38],
+		"left_arm_x": [-26, -26, -28, -26, -26],
+		"left_arm_y": [38, 38, 38, 38, 38]
+	},
+	"item": {
+		"x": [0, -25, 15, 0, 0]
+	}
+}

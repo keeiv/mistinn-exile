@@ -2,6 +2,7 @@ package life.shizune.mistinn.body;
 
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.grid.GridRules;
+import life.shizune.mistinn.medical.TreatmentService;
 import life.shizune.mistinn.mixin.LivingEntityInvoker;
 import life.shizune.mistinn.registry.MistinnAttachments;
 import net.minecraft.core.Holder;
@@ -220,6 +221,8 @@ public final class BodyService {
 			return;
 		}
 		player.causeFoodExhaustion(source.getFoodExhaustion());
+		// a heavy blow breaks off whatever the hunter was treating or mending
+		TreatmentService.hurt(player, damage);
 		player.getCombatTracker().recordDamage(source, damage);
 		player.awardStat(Stats.DAMAGE_TAKEN, Math.round(Math.min(damage, 1.0E5F) * 10.0F));
 		hurting = true;
@@ -326,6 +329,27 @@ public final class BodyService {
 		set(player, body);
 	}
 
+	/**
+	 * Strain spread evenly over every living part: a roll on destroyed parts the hunter
+	 * cannot feel under painkillers.
+	 */
+	public static void strainWhole(final ServerPlayer player, final float amount) {
+		Body body = get(player);
+		java.util.List<BodyPart> living = new java.util.ArrayList<>();
+		for (BodyPart part : BodyPart.values()) {
+			if (!body.destroyed(part)) {
+				living.add(part);
+			}
+		}
+		if (living.isEmpty()) {
+			return;
+		}
+		for (BodyPart part : living) {
+			body = damage(body, part, amount / living.size());
+		}
+		set(player, body);
+	}
+
 	// ── Healing ───────────────────────────────────────────────────
 
 	/** Vanilla healing (potions, golden apples) mends living parts, most hurt first; never a destroyed one. */
@@ -385,7 +409,7 @@ public final class BodyService {
 				set(player, body);
 				continue;
 			}
-			if (body.destroyed(BodyPart.TORSO)) {
+			if (body.destroyed(BodyPart.TORSO) && !TreatmentService.numb(player)) {
 				player.causeFoodExhaustion(TORSO_HUNGER);
 			}
 			if (regenTick && player.getFoodData().getFoodLevel() >= REGEN_FOOD) {
@@ -411,10 +435,14 @@ public final class BodyService {
 
 	// ── Destroyed parts ───────────────────────────────────────────
 
-	/** Each dead leg slows and weighs down; each dead arm weakens blows and work. */
+	/**
+	 * Each dead leg slows and weighs down; each dead arm weakens blows and work. Painkillers
+	 * hide all of it while they last.
+	 */
 	public static void applyPenalties(final ServerPlayer player, final Body body) {
-		int legs = (body.destroyed(BodyPart.LEFT_LEG) ? 1 : 0) + (body.destroyed(BodyPart.RIGHT_LEG) ? 1 : 0);
-		int arms = (body.destroyed(BodyPart.LEFT_ARM) ? 1 : 0) + (body.destroyed(BodyPart.RIGHT_ARM) ? 1 : 0);
+		boolean numb = TreatmentService.numb(player);
+		int legs = numb ? 0 : (body.destroyed(BodyPart.LEFT_LEG) ? 1 : 0) + (body.destroyed(BodyPart.RIGHT_LEG) ? 1 : 0);
+		int arms = numb ? 0 : (body.destroyed(BodyPart.LEFT_ARM) ? 1 : 0) + (body.destroyed(BodyPart.RIGHT_ARM) ? 1 : 0);
 		penalty(player, Attributes.MOVEMENT_SPEED, LEGS_ID, -0.25 * legs);
 		penalty(player, Attributes.JUMP_STRENGTH, LEGS_ID, -0.25 * legs);
 		penalty(player, Attributes.ATTACK_DAMAGE, ARMS_ID, -0.25 * arms);

@@ -37,7 +37,7 @@ import net.minecraft.world.phys.Vec3;
 public class MistinnStoryTest implements FabricClientGameTest {
 	@Override
 	public void runTest(final ClientGameTestContext context) {
-		if (Boolean.getBoolean("mistinn.photo") || Boolean.getBoolean("mistinn.animsheet")) {
+		if (Boolean.getBoolean("mistinn.photo") || Boolean.getBoolean("mistinn.animsheet") || Boolean.getBoolean("mistinn.medreel")) {
 			return;
 		}
 		boolean[] reloaded = {false};

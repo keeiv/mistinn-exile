@@ -53,6 +53,26 @@
           "type": "minecraft:item",
           "name": "mistinn:bell_salve",
           "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_repair_kit_3",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_repair_kit_3",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:painkillers",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:potent_injector",
+          "weight": 1
         }
       ]
     },

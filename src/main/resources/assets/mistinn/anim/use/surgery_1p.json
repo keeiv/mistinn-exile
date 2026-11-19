@@ -1,0 +1,13 @@
+{
+	"_comment": "手術包 第一人稱工作拍 SURGERY, own view: the kit held up in view, a short stitch — dip forward and twist — then back, every 0.5 s (first_person_loop in surgery.json).",
+	"keys": [0.0, 0.22, 0.42, 1.0],
+	"eases": ["in_quad", "out_quad", "in_out_sine"],
+	"first_person": {
+		"tx": [-0.16, -0.15, -0.17, -0.16],
+		"ty": [0.04, 0.01, 0.03, 0.04],
+		"tz": [-0.08, -0.13, -0.09, -0.08],
+		"rx": [-8, -20, -11, -8],
+		"ry": [55, 55, 55, 55],
+		"rz": [2, -9, 5, 2]
+	}
+}

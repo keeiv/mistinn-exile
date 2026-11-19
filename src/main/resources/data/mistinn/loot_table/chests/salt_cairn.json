@@ -53,6 +53,21 @@
           "type": "minecraft:item",
           "name": "mistinn:salt_fang",
           "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_repair_kit_5",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_repair_kit_5",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:potent_injector",
+          "weight": 1
         }
       ]
     }

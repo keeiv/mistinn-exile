@@ -82,6 +82,15 @@ if (project.hasProperty("motionReel")) {
 	}
 }
 
+// Medical reel (-PmedicalReel): every medical and repair use filmed as frame runs, with its HUD.
+if (project.hasProperty("medicalReel")) {
+	loom.runs.configureEach {
+		if (name == "clientGameTest") {
+			vmArg "-Dmistinn.medreel=true"
+		}
+	}
+}
+
 if (photoMode) {
 	loom.runs.configureEach {
 		if (name == "clientGameTest") {

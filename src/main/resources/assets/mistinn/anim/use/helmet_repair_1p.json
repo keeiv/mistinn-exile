@@ -1,0 +1,13 @@
+{
+	"_comment": "頭盔維修包 第一人稱工作拍 HELMET REPAIR, own view: the same press-and-ease tap as the armor kit, held higher, every 0.6 s (first_person_loop in helmet_repair.json).",
+	"keys": [0.0, 0.14, 0.3, 0.65, 1.0],
+	"eases": ["in_cubic", "out_quad", "in_out_sine", "in_out_sine"],
+	"first_person": {
+		"tx": [-0.1, -0.11, -0.1, -0.1, -0.1],
+		"ty": [-0.02, -0.1, -0.05, 0.01, -0.02],
+		"tz": [-0.3, -0.3, -0.3, -0.3, -0.3],
+		"rx": [8, -6, 4, 10, 8],
+		"ry": [45, 45, 45, 45, 45],
+		"rz": [0, 5, 2, -2, 0]
+	}
+}

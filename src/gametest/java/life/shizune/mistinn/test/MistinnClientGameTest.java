@@ -51,7 +51,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 
 	@Override
 	public void runTest(final ClientGameTestContext context) {
-		if (Boolean.getBoolean("mistinn.photo") || Boolean.getBoolean("mistinn.animsheet")) {
+		if (Boolean.getBoolean("mistinn.photo") || Boolean.getBoolean("mistinn.animsheet") || Boolean.getBoolean("mistinn.medreel")) {
 			return; // photo mode only shoots pictures; see MistinnPhotoTest
 		}
 		// screenshots in Traditional Chinese, without chat lines over them
@@ -285,6 +285,68 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			context.runOnClient(mc -> check(life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.RIGS.get(5)) != null
 				&& life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.ARMORS.get(3)) == null
 				&& life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.ANCHOR_BLADE) == null, "a rig has a grid sprite, a chestplate and a blade keep their icons"));
+
+			// the medical and repair items in the main bag: repair kits grow with their tier
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				java.util.List<net.minecraft.world.item.Item> armorKits = MistinnItems.ARMOR_REPAIR_KITS;
+				java.util.List<net.minecraft.world.item.Item> helmetKits = MistinnItems.HELMET_REPAIR_KITS;
+				int[][] expected = {{1, 2}, {1, 3}, {2, 2}, {2, 2}, {1, 2}, {1, 2}, {1, 3}, {2, 2}};
+				for (int i = 0; i < 4; i++) {
+					int[] armor = life.shizune.mistinn.grid.ItemSizes.of(new ItemStack(armorKits.get(i)));
+					int[] helmet = life.shizune.mistinn.grid.ItemSizes.of(new ItemStack(helmetKits.get(i)));
+					check(armor[0] == expected[i][0] && armor[1] == expected[i][1], "armor repair kit " + i + " footprint " + armor[0] + "x" + armor[1]);
+					check(helmet[0] == expected[4 + i][0] && helmet[1] == expected[4 + i][1], "helmet repair kit " + i + " footprint " + helmet[0] + "x" + helmet[1]);
+				}
+				int[] surgery = life.shizune.mistinn.grid.ItemSizes.of(new ItemStack(MistinnItems.SURGERY_KIT));
+				check(surgery[0] == 1 && surgery[1] == 2, "the surgery kit takes 1x2");
+				check(java.util.Arrays.equals(life.shizune.mistinn.grid.ItemSizes.of(new ItemStack(MistinnItems.POTENT_INJECTOR)), new int[] {1, 1})
+					&& java.util.Arrays.equals(life.shizune.mistinn.grid.ItemSizes.of(new ItemStack(MistinnItems.PAINKILLERS)), new int[] {1, 1}), "the injector and painkillers take one cell");
+				java.util.List<Placed> kit = java.util.List.of(
+					new Placed(3, 0, 0, false, new ItemStack(armorKits.get(3))),
+					new Placed(3, 2, 0, false, new ItemStack(armorKits.get(2))),
+					new Placed(3, 4, 0, false, new ItemStack(armorKits.get(1))),
+					new Placed(3, 0, 2, false, new ItemStack(helmetKits.get(3))),
+					new Placed(3, 2, 2, false, new ItemStack(helmetKits.get(2))),
+					new Placed(3, 3, 2, false, new ItemStack(armorKits.get(0))),
+					new Placed(3, 4, 3, false, new ItemStack(helmetKits.get(1))),
+					new Placed(3, 0, 4, false, new ItemStack(helmetKits.get(0))),
+					new Placed(3, 1, 4, false, new ItemStack(MistinnItems.SURGERY_KIT)),
+					new Placed(3, 2, 5, false, new ItemStack(MistinnItems.POTENT_INJECTOR)),
+					new Placed(3, 3, 4, false, new ItemStack(MistinnItems.PAINKILLERS)));
+				life.shizune.mistinn.grid.GridShape shape = GridInventory.EMPTY.withBackpack(new ItemStack(MistinnItems.BACKPACKS.get(6))).shape(Area.BACKPACK);
+				for (int i = 0; i < kit.size(); i++) {
+					Placed placed = kit.get(i);
+					check(GridLogic.fits(shape, kit, placed.section(), placed.x(), placed.y(), placed.width(), placed.height(), i), "medical item " + i + " fits where it is laid out");
+				}
+				GridService.set(player, GridInventory.EMPTY.withBackpack(new ItemStack(MistinnItems.BACKPACKS.get(6))).with(Area.BACKPACK, kit));
+			});
+			context.waitTicks(10);
+			context.takeScreenshot("grid-medical");
+			context.runOnClient(mc -> check(life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.SURGERY_KIT) != null
+				&& life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.ARMOR_REPAIR_KITS.get(1)) != null
+				&& life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.HELMET_REPAIR_KITS.get(2)) != null
+				&& life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.ARMOR_REPAIR_KITS.get(3)) == null
+				&& life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.POTENT_INJECTOR) == null
+				&& life.shizune.mistinn.client.grid.GridSprites.uprightIcon(MistinnItems.ARMOR_REPAIR_KITS.get(3))
+				&& !life.shizune.mistinn.client.grid.GridSprites.uprightIcon(MistinnItems.ANCHOR_BLADE),
+				"column kits and the surgery roll have grid art; square kits stay upright icons; a blade keeps the diagonal"));
+			// the same column items lying on their side
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				GridService.set(player, GridInventory.EMPTY.withBackpack(new ItemStack(MistinnItems.BACKPACKS.get(6))).with(Area.BACKPACK, java.util.List.of(
+					new Placed(3, 0, 0, true, new ItemStack(MistinnItems.ARMOR_REPAIR_KITS.get(0))),
+					new Placed(3, 2, 0, true, new ItemStack(MistinnItems.HELMET_REPAIR_KITS.get(2))),
+					new Placed(3, 0, 1, true, new ItemStack(MistinnItems.SURGERY_KIT)),
+					new Placed(3, 2, 1, true, new ItemStack(MistinnItems.HELMET_REPAIR_KITS.get(0))),
+					new Placed(3, 0, 2, true, new ItemStack(MistinnItems.ARMOR_REPAIR_KITS.get(1))),
+					new Placed(3, 3, 2, true, new ItemStack(MistinnItems.HELMET_REPAIR_KITS.get(1))),
+					new Placed(3, 0, 3, false, new ItemStack(MistinnItems.ARMOR_REPAIR_KITS.get(2))),
+					new Placed(3, 2, 3, true, new ItemStack(MistinnItems.ARMOR_REPAIR_KITS.get(3)))
+				)));
+			});
+			context.waitTicks(10);
+			context.takeScreenshot("grid-medical-rotated");
 			context.setScreen(() -> null);
 			world.getServer().runOnServer(server -> GridService.set(server.getPlayerList().getPlayers().getFirst(), saved[0].withRig(ItemStack.EMPTY)));
 			context.waitTicks(4);
@@ -734,6 +796,9 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				check(body.destroyed(BodyPart.LEFT_LEG) && body.destroyed(BodyPart.RIGHT_LEG), "the dead legs take none of it");
 				BodyService.restoreAll(player);
 			});
+			// ── Medical and repair: timed uses, their HUD, the repair rules ──
+			medical(context, world);
+
 			// a real swing, even at nothing, is paid for
 			context.waitTicks(80);
 			world.getServer().runCommand("item replace entity @a weapon.mainhand with mistinn:iron_hammer");
@@ -901,6 +966,142 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 	}
 
 	/** Moves the real cursor over a socket. */
+	/**
+	 * Repair kits mend by the rules (matched, above the kit's tier, tier VI), the injector mends
+	 * over time, surgery brings back the head first, painkillers numb and make a roll cost the
+	 * whole body, and switching slots breaks a use off. Uses are started with the real use key.
+	 */
+	private static void medical(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		// the rules in numbers
+		life.shizune.mistinn.medical.RepairRules.Plan matched = life.shizune.mistinn.medical.RepairRules.plan(life.shizune.mistinn.tier.Tier.III, life.shizune.mistinn.tier.Tier.II, 400, 400);
+		check(matched.ticks() == 100 && matched.restore() == 200 && matched.newMax() == 400 && !matched.poor(), "a kit on lower gear restores half in 5 s at no cost: " + matched);
+		int[] poorTicks = {300, 200, 140};
+		life.shizune.mistinn.tier.Tier[] kits = {life.shizune.mistinn.tier.Tier.III, life.shizune.mistinn.tier.Tier.IV, life.shizune.mistinn.tier.Tier.V};
+		for (int i = 0; i < kits.length; i++) {
+			life.shizune.mistinn.medical.RepairRules.Plan poor = life.shizune.mistinn.medical.RepairRules.plan(kits[i], life.shizune.mistinn.tier.Tier.VI, 940, 940);
+			check(poor.poor() && poor.ticks() == poorTicks[i] && poor.newMax() == 846 && poor.restore() == 212, "a " + kits[i] + " kit on tier VI gear is slow, weak and wears it: " + poor);
+		}
+		life.shizune.mistinn.medical.RepairRules.Plan red = life.shizune.mistinn.medical.RepairRules.plan(life.shizune.mistinn.tier.Tier.VI, life.shizune.mistinn.tier.Tier.I, 200, 200);
+		check(red.ticks() == 100 && red.newMax() == 190 && red.restore() == 190, "a red kit mends fully but always wears: " + red);
+		life.shizune.mistinn.medical.RepairRules.Plan floor = life.shizune.mistinn.medical.RepairRules.plan(life.shizune.mistinn.tier.Tier.III, life.shizune.mistinn.tier.Tier.VI, 940, 290);
+		check(floor.newMax() == 282, "wear stops at 30% of the original maximum: " + floor);
+
+		// a matched repair, started with the use key; the HUD shows it
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			BodyService.restoreAll(player);
+			ItemStack armor = new ItemStack(MistinnItems.ARMORS.get(3));
+			armor.setDamageValue(300);
+			player.setItemSlot(EquipmentSlot.CHEST, armor);
+		});
+		world.getServer().runCommand("item replace entity @a weapon.mainhand with mistinn:armor_repair_kit_3");
+		context.runOnClient(mc -> mc.player.snapTo(mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.getYRot(), -60.0F));
+		context.waitTicks(5);
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(40);
+		check(world.getServer().computeOnServer(server -> life.shizune.mistinn.medical.TreatmentService.active(server.getPlayerList().getPlayers().getFirst())), "the repair kit starts a timed use");
+		check(context.computeOnClient(mc -> life.shizune.mistinn.client.medical.TreatmentClient.busy()), "the client knows a use is running");
+		context.takeScreenshot("treatment-hud");
+		context.waitTicks(70);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			ItemStack armor = player.getItemBySlot(EquipmentSlot.CHEST);
+			check(armor.getDamageValue() == 100 && armor.getMaxDamage() == 400, "a III kit mends III armour by half its maximum: " + armor.getDamageValue() + "/" + armor.getMaxDamage());
+			check(player.getMainHandItem().isEmpty(), "the kit is spent");
+			// above its tier: a V kit on VI armour is slower and wears the armour down
+			ItemStack best = new ItemStack(MistinnItems.ARMORS.get(6));
+			best.setDamageValue(500);
+			player.setItemSlot(EquipmentSlot.CHEST, best);
+		});
+		world.getServer().runCommand("item replace entity @a weapon.mainhand with mistinn:armor_repair_kit_5");
+		context.waitTicks(5);
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(110);
+		check(world.getServer().computeOnServer(server -> life.shizune.mistinn.medical.TreatmentService.active(server.getPlayerList().getPlayers().getFirst())), "a repair above the kit's tier takes longer than 5 s");
+		context.waitTicks(40);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			ItemStack armor = player.getItemBySlot(EquipmentSlot.CHEST);
+			check(armor.getMaxDamage() == 846 && armor.getDamageValue() == 288, "a V kit on VI armour wears 10% off the maximum and restores a quarter: " + armor.getDamageValue() + "/" + armor.getMaxDamage());
+			check(armor.getOrDefault(life.shizune.mistinn.registry.MistinnComponents.REPAIR_WEAR, 0) == 94, "and the wear is kept on the item");
+			// the red kit on a helmet: whole again, a little worn
+			ItemStack helmet = new ItemStack(MistinnItems.HELMETS.get(6));
+			helmet.setDamageValue(600);
+			player.setItemSlot(EquipmentSlot.HEAD, helmet);
+		});
+		world.getServer().runCommand("item replace entity @a weapon.mainhand with mistinn:helmet_repair_kit_6");
+		context.waitTicks(5);
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(110);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
+			check(helmet.getDamageValue() == 0 && helmet.getMaxDamage() == 608, "a VI kit mends fully but wears 5%: " + helmet.getDamageValue() + "/" + helmet.getMaxDamage());
+			player.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
+			player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+			BodyService.set(player, Body.FULL.with(BodyPart.TORSO, 10.0F));
+		});
+
+		// the injector: switching slots breaks the use off; a full use mends over time
+		world.getServer().runCommand("item replace entity @a weapon.mainhand with mistinn:potent_injector 2");
+		context.waitTicks(5);
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(10);
+		int selected = context.computeOnClient(mc -> mc.player.getInventory().getSelectedSlot());
+		context.runOnClient(mc -> mc.player.getInventory().setSelectedSlot((selected + 1) % 9));
+		context.waitTicks(5);
+		check(!world.getServer().computeOnServer(server -> life.shizune.mistinn.medical.TreatmentService.active(server.getPlayerList().getPlayers().getFirst())), "switching slots breaks the use off");
+		context.runOnClient(mc -> mc.player.getInventory().setSelectedSlot(selected));
+		context.waitTicks(5);
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(life.shizune.mistinn.medical.InjectorItem.USE_TICKS + life.shizune.mistinn.medical.InjectorItem.HEAL_TICKS + 10);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			float torso = BodyService.get(player).get(BodyPart.TORSO);
+			check(torso >= 69.0F && torso <= 72.0F, "the injector gives 60 back over time: torso " + torso);
+			check(player.getMainHandItem().getCount() == 1, "one dose is spent");
+			// surgery brings back the head first
+			BodyService.set(player, Body.FULL.with(BodyPart.HEAD, 0.0F).with(BodyPart.LEFT_LEG, 0.0F));
+		});
+		world.getServer().runCommand("item replace entity @a weapon.mainhand with mistinn:surgery_kit");
+		context.waitTicks(5);
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(life.shizune.mistinn.medical.SurgeryKitItem.USE_TICKS + 10);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			Body body = BodyService.get(player);
+			check(body.get(BodyPart.HEAD) >= life.shizune.mistinn.medical.SurgeryKitItem.REVIVE && body.destroyed(BodyPart.LEFT_LEG), "surgery brings the head back first: " + body);
+			check(player.getMainHandItem().getDamageValue() == 1, "one of three operations is used");
+			BodyService.set(player, Body.FULL.with(BodyPart.LEFT_LEG, 0.0F).with(BodyPart.RIGHT_LEG, 0.0F));
+		});
+		// painkillers: dead legs roll again, and the roll costs the whole body
+		world.getServer().runCommand("item replace entity @a weapon.mainhand with mistinn:painkillers");
+		context.waitTicks(5);
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(life.shizune.mistinn.medical.PainkillerItem.USE_TICKS + 10);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			check(life.shizune.mistinn.medical.TreatmentService.numb(player), "the painkillers numb");
+			check(life.shizune.mistinn.stamina.RollService.kind(player) == life.shizune.mistinn.stamina.RollService.Kind.ROLL, "a numb hunter rolls on dead legs");
+			check(player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).getModifier(life.shizune.mistinn.Mistinn.id("body_legs")) == null, "and is not slowed by them");
+			life.shizune.mistinn.stamina.RollService.request(player, 0.0F);
+		});
+		context.waitTicks(life.shizune.mistinn.stamina.RollService.ROLL_LANDING + 3);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			Body body = BodyService.get(player);
+			float each = life.shizune.mistinn.medical.TreatmentService.NUMB_STRAIN / 4.0F;
+			for (BodyPart part : new BodyPart[] {BodyPart.HEAD, BodyPart.TORSO, BodyPart.LEFT_ARM, BodyPart.RIGHT_ARM}) {
+				check(Math.abs(body.get(part) - (80.0F - each)) < 0.6F, "a numb roll on dead legs costs the whole body evenly: " + body);
+			}
+			player.removeAttached(MistinnAttachments.PAINKILLER);
+			BodyService.restoreAll(player);
+		});
+		context.waitTicks(5);
+		world.getServer().runCommand("item replace entity @a weapon.mainhand with minecraft:air");
+		context.runOnClient(mc -> mc.player.snapTo(mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.getYRot(), 0.0F));
+	}
+
 	private static void socket(final ClientGameTestContext context, final GridPanel.Socket socket) {
 		double[] at = context.computeOnClient(mc -> {
 			double[] gui = GridPanel.socketCentre(socket);
