@@ -58,25 +58,57 @@ public final class ResidueService {
 				continue;
 			}
 			PENDING.remove(i);
-			place(stone);
+			if (!place(stone)) {
+				// nowhere safe to stand yet; try again in a second
+				PENDING.add(new Stone(stone.level(), stone.pos(), stone.owner(), stone.name(), stone.salt(), stone.serial(), RETRY));
+			}
 		}
 	}
 
-	/** Raises a pending stone at once (tests and photo scenes that cannot wait). */
+	private static final int RETRY = 20;
+
+	/**
+	 * Raises the pending stones at once: for tests and photo scenes that cannot wait, and when
+	 * the server stops, so no salt is lost with the queue.
+	 */
 	public static void placeNow() {
-		PENDING.forEach(ResidueService::place);
-		PENDING.clear();
+		PENDING.removeIf(ResidueService::place);
 	}
 
-	private static void place(final Stone stone) {
+	/**
+	 * Raises one stone. The spot was chosen at death; if something has been put there since,
+	 * a new spot is found and the owner's map mark follows it. Never replaces a solid block or
+	 * one holding contents. Returns false when there is no safe spot yet.
+	 */
+	private static boolean place(final Stone stone) {
 		ServerLevel level = stone.level();
 		BlockPos pos = stone.pos();
+		if (!canHold(level, pos)) {
+			pos = findSpot(level, pos);
+			if (!canHold(level, pos)) {
+				return false;
+			}
+			moveMark(level, stone, pos);
+		}
 		level.setBlockAndUpdate(pos, MistinnBlocks.GRAVESTONE.defaultBlockState());
 		if (level.getBlockEntity(pos) instanceof GravestoneBlockEntity entity) {
 			entity.fill(stone.owner(), stone.name(), stone.salt(), stone.serial());
 		}
 		level.playSound(null, pos, MistinnSounds.RESIDUE_FORM, SoundSource.PLAYERS, 1.0F, 1.0F);
 		level.sendParticles(ParticleTypes.WHITE_SMOKE, pos.getX() + 0.5, pos.getY() + 0.8, pos.getZ() + 0.5, 40, 0.3, 0.6, 0.3, 0.02);
+		return true;
+	}
+
+	/** Points the owner's map mark at the stone's new spot, if it still marks this stone. */
+	private static void moveMark(final ServerLevel level, final Stone stone, final BlockPos pos) {
+		ServerPlayer owner = level.getServer().getPlayerList().getPlayer(java.util.UUID.fromString(stone.owner()));
+		if (owner == null) {
+			return;
+		}
+		DeathMark mark = owner.getAttached(MistinnAttachments.DEATH_MARK);
+		if (mark != null && mark.serial() == stone.serial()) {
+			owner.setAttached(MistinnAttachments.DEATH_MARK, new DeathMark(GlobalPos.of(level.dimension(), pos), mark.serial(), mark.salt()));
+		}
 	}
 
 	/**
@@ -155,6 +187,6 @@ public final class ResidueService {
 
 	private static boolean canHold(final ServerLevel level, final BlockPos pos) {
 		BlockState state = level.getBlockState(pos);
-		return (state.isAir() || state.canBeReplaced()) && !state.getFluidState().is(net.minecraft.tags.FluidTags.LAVA);
+		return (state.isAir() || state.canBeReplaced()) && level.getBlockEntity(pos) == null && !state.getFluidState().is(net.minecraft.tags.FluidTags.LAVA);
 	}
 }

@@ -589,9 +589,24 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				check(inv.rig().isEmpty() && inv.mask().isEmpty(), "the rig and mask were dropped too");
 				check(inv.safe().size() == 1 && inv.safe().getFirst().stack().is(MistinnItems.RUST_GOD_SALT), "the safe box kept its salt block");
 			});
+			// something set down where the stone would rise is kept; the stone finds another spot
+			BlockPos taken = world.getServer().computeOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				BlockPos at = player.getAttached(MistinnAttachments.DEATH_MARK).pos().pos();
+				server.overworld().setBlockAndUpdate(at, net.minecraft.world.level.block.Blocks.CHEST.defaultBlockState());
+				((net.minecraft.world.level.block.entity.ChestBlockEntity) server.overworld().getBlockEntity(at)).setItem(0, new net.minecraft.world.item.ItemStack(Items.DIAMOND, 3));
+				return at;
+			});
 			context.waitTicks(36);
 			context.takeScreenshot("death-scene-collapse");
 			context.waitTicks(74);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				check(server.overworld().getBlockEntity(taken) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chest && chest.getItem(0).is(Items.DIAMOND), "the chest on the stone's spot was left alone");
+				BlockPos moved = player.getAttached(MistinnAttachments.DEATH_MARK).pos().pos();
+				check(!moved.equals(taken) && server.overworld().getBlockState(moved).is(MistinnBlocks.GRAVESTONE), "the stone rose beside it and the mark followed: " + moved);
+				server.overworld().setBlockAndUpdate(taken, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+			});
 			returnToMission(context);
 			context.waitTicks(20);
 
