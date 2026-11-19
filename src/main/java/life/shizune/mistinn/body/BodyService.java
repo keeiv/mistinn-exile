@@ -100,15 +100,35 @@ public final class BodyService {
 
 	/** A hit on one part (with the face as a zone of the head), on both legs, or on the whole body. */
 	public record Hit(@Nullable BodyPart part, boolean face, boolean legs, boolean whole) {
-		static Hit on(final BodyPart part, final boolean face) {
+		public static Hit on(final BodyPart part, final boolean face) {
 			return new Hit(part, face, false, false);
 		}
 
-		static final Hit LEGS = new Hit(null, false, true, false);
-		static final Hit WHOLE = new Hit(null, false, false, true);
+		public static final Hit LEGS = new Hit(null, false, true, false);
+		public static final Hit WHOLE = new Hit(null, false, false, true);
+	}
+
+	/** Hits aimed by an attacker that knows where it strikes; used once, by the next hit on that hunter. */
+	private static final java.util.Map<java.util.UUID, Hit> AIMED = new java.util.HashMap<>();
+
+	/**
+	 * Aims the next hit on this hunter at a part. A tall keeper would otherwise land every blow
+	 * on the head; its moves choose their target (a sweep at the body, a slam at the legs).
+	 */
+	public static void aim(final ServerPlayer player, final Hit hit) {
+		AIMED.put(player.getUUID(), hit);
+	}
+
+	/** Drops an aim that was not used (the hit was blocked or ignored). */
+	public static void clearAim(final ServerPlayer player) {
+		AIMED.remove(player.getUUID());
 	}
 
 	public static Hit locate(final ServerPlayer player, final DamageSource source) {
+		Hit aimed = AIMED.remove(player.getUUID());
+		if (aimed != null) {
+			return aimed;
+		}
 		if (source.is(DamageTypeTags.IS_FALL) || source.is(DamageTypes.STALAGMITE)) {
 			return Hit.LEGS;
 		}

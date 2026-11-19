@@ -77,6 +77,7 @@ public final class MistinnItems {
 
 	public static final Item GOLDEN_BELL = block("golden_bell", MistinnBlocks.GOLDEN_BELL, new Item.Properties().rarity(Rarity.RARE));
 	public static final Item ORE_BELL = block("ore_bell", MistinnBlocks.ORE_BELL, new Item.Properties());
+	public static final Item LAMP_STAND = block("lamp_stand", MistinnBlocks.LAMP_STAND, new Item.Properties());
 
 	/** Helmets, body armour and backpacks, one of each per tier, indexed by {@link Tier#ordinal()}. */
 	public static final List<Item> HELMETS = Gear.HELMETS.stream().map(MistinnItems::helmet).toList();

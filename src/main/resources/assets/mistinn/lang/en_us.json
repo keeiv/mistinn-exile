@@ -271,5 +271,9 @@
   "gui.mistinn.part.left_arm": "Left arm",
   "gui.mistinn.part.right_arm": "Right arm",
   "gui.mistinn.part.left_leg": "Left leg",
-  "gui.mistinn.part.right_leg": "Right leg"
+  "gui.mistinn.part.right_leg": "Right leg",
+  "entity.mistinn.snuffer": "The Snuffer",
+  "block.mistinn.lamp_stand": "Lamp Stand",
+  "message.mistinn.snuffer.dark": "Every lamp is out. Light the lamp stands.",
+  "message.mistinn.snuffer.stagger": "All four lamps burn: the Snuffer staggers!"
 }

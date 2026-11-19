@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "mistinn:block/lamp_stand"
+    },
+    "lit=true": {
+      "model": "mistinn:block/lamp_stand_lit"
+    }
+  }
+}

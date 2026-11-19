@@ -36,6 +36,17 @@ public final class Builder {
 		return this.random;
 	}
 
+	/** Adds an entity at a relative block position (centred on the block), facing {@code yaw}. */
+	public void spawn(final net.minecraft.world.entity.EntityType<?> type, final int x, final int y, final int z, final float yaw) {
+		net.minecraft.world.entity.Entity entity = type.create(this.level.getLevel(), net.minecraft.world.entity.EntitySpawnReason.STRUCTURE);
+		if (entity == null) {
+			return;
+		}
+		BlockPos pos = this.at(x, y, z);
+		entity.snapTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, yaw, 0.0F);
+		this.level.addFreshEntityWithPassengers(entity);
+	}
+
 	public BlockPos at(final int x, final int y, final int z) {
 		return this.origin.offset(x, y, z);
 	}

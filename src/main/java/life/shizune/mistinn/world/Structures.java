@@ -1,6 +1,7 @@
 package life.shizune.mistinn.world;
 
 import life.shizune.mistinn.registry.MistinnBlocks;
+import life.shizune.mistinn.registry.MistinnEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
@@ -200,5 +201,86 @@ public final class Structures {
 		}
 		b.set(1, top + 1, -1, Blocks.SOUL_LANTERN);
 		b.container(-1, top + 1, -1, Blocks.CHEST, Direction.SOUTH, "chests/watchpost");
+	}
+
+	// ── 霧岸燈塔 ──────────────────────────────────────────────────
+
+	/** Height of the lamp room floor above the ground. */
+	public static final int LAMP_ROOM = 21;
+
+	/**
+	 * 霧岸燈塔: a dead lighthouse on the shore. A golden bell waits by the door; a ladder climbs the
+	 * tower past a supply floor; at the top, the lamp room is the first keeper's arena, ringed by
+	 * iron bars, with a lamp stand in each corner. Returns the room's floor centre.
+	 */
+	public static BlockPos lighthouse(final Builder b) {
+		for (int x = -7; x <= 7; x++) {
+			for (int z = -7; z <= 7; z++) {
+				double r = Math.sqrt(x * x + z * z);
+				if (r <= 5.5) {
+					b.footing(x, z, Blocks.STONE_BRICKS, 12);
+					b.set(x, 0, z, (x + z) % 3 == 0 ? Blocks.MOSSY_STONE_BRICKS : Blocks.STONE_BRICKS);
+				}
+			}
+		}
+		b.clear(-6, 1, -6, 6, LAMP_ROOM + 4, 6);
+		// the tower: a ring of weathered stone with pale bands, hollow inside
+		for (int y = 1; y < LAMP_ROOM; y++) {
+			for (int x = -4; x <= 4; x++) {
+				for (int z = -4; z <= 4; z++) {
+					double r = Math.sqrt(x * x + z * z);
+					if (r > 3.4 && r <= 4.4) {
+						Block wall = y % 6 == 0 ? Blocks.CALCITE : b.random().nextFloat() < 0.18F ? Blocks.CRACKED_STONE_BRICKS : b.random().nextFloat() < 0.15F ? Blocks.MOSSY_STONE_BRICKS : Blocks.STONE_BRICKS;
+						b.set(x, y, z, wall);
+					}
+				}
+			}
+			// narrow windows on the east and west walls
+			if (y % 5 == 3) {
+				b.set(4, y, 0, Blocks.AIR);
+				b.set(-4, y, 0, Blocks.AIR);
+			}
+		}
+		// door to the south, the golden bell by it
+		b.clear(0, 1, 3, 0, 2, 4);
+		b.set(0, 1, 7, MistinnBlocks.GOLDEN_BELL);
+		b.footing(0, 7, Blocks.STONE_BRICKS, 12);
+		// the ladder up the north wall, through both floors
+		for (int y = 1; y <= LAMP_ROOM + 1; y++) {
+			b.set(0, y, -3, Blocks.STONE_BRICKS);
+			b.facing(0, y, -2, Blocks.LADDER, Direction.SOUTH);
+		}
+		// the supply floor halfway up
+		int mid = 11;
+		for (int x = -3; x <= 3; x++) {
+			for (int z = -3; z <= 3; z++) {
+				if (Math.sqrt(x * x + z * z) <= 3.4 && !(x == 0 && z == -2)) {
+					b.set(x, mid, z, Blocks.SPRUCE_PLANKS);
+				}
+			}
+		}
+		b.container(2, mid + 1, 1, Blocks.CHEST, Direction.WEST, "chests/lighthouse");
+		b.container(-2, mid + 1, 1, Blocks.BARREL, Direction.UP, "chests/lighthouse");
+		b.set(-2, mid + 1, -1, Blocks.LANTERN);
+		// the lamp room: a broad floor, a ring of bars, four lamp stands and the great dead lamp
+		for (int x = -7; x <= 7; x++) {
+			for (int z = -7; z <= 7; z++) {
+				double r = Math.sqrt(x * x + z * z);
+				if (r <= 7.4 && !(x == 0 && z == -2)) {
+					b.set(x, LAMP_ROOM, z, r <= 2.4 ? Blocks.POLISHED_DEEPSLATE : Blocks.STONE_BRICKS);
+				}
+				if (r > 6.4 && r <= 7.4) {
+					b.set(x, LAMP_ROOM + 1, z, Blocks.IRON_BARS);
+				}
+			}
+		}
+		for (int[] corner : new int[][] {{4, 4}, {-4, 4}, {4, -4}, {-4, -4}}) {
+			b.set(corner[0], LAMP_ROOM + 1, corner[1], MistinnBlocks.LAMP_STAND);
+		}
+		b.set(0, LAMP_ROOM + 1, 0, Blocks.COPPER_BLOCK.waxed().oxidized());
+		b.set(0, LAMP_ROOM + 2, 0, Blocks.COPPER_GRATE.waxed().oxidized());
+		b.set(0, LAMP_ROOM + 3, 0, Blocks.COPPER_BULB.waxed().oxidized());
+		b.spawn(MistinnEntities.SNUFFER, 0, LAMP_ROOM + 1, 3, 180.0F);
+		return b.at(0, LAMP_ROOM + 1, 0);
 	}
 }

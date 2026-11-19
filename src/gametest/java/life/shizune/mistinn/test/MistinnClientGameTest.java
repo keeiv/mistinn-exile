@@ -13,6 +13,10 @@ import life.shizune.mistinn.grid.GridInventory;
 import life.shizune.mistinn.grid.GridService;
 import life.shizune.mistinn.grid.Placed;
 import life.shizune.mistinn.client.grid.GridPanel;
+import life.shizune.mistinn.keeper.LampStandBlock;
+import life.shizune.mistinn.keeper.Snuffer;
+import life.shizune.mistinn.world.Builder;
+import life.shizune.mistinn.world.Structures;
 import life.shizune.mistinn.client.grid.HunterScreen;
 import life.shizune.mistinn.body.BodyGear;
 import life.shizune.mistinn.grid.GridLogic;
@@ -503,8 +507,120 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			context.waitTicks(5);
 			context.takeScreenshot("body-hud");
 			world.getServer().runOnServer(server -> BodyService.restoreAll(server.getPlayerList().getPlayers().getFirst()));
+
+			// ── The lighthouse and its keeper ───────────────────────
+			// peaceful removes monsters and zeroes their blows: fight on normal
+			world.getServer().runCommand("difficulty normal");
+			BlockPos room = world.getServer().computeOnServer(server -> {
+				ServerLevel level = server.overworld();
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				BlockPos at = player.blockPosition().offset(30, 0, 0);
+				int y = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, at.getX(), at.getZ());
+				return Structures.lighthouse(new Builder(level, new BlockPos(at.getX(), y, at.getZ()), level.getRandom()));
+			});
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				var keepers = level.getEntitiesOfClass(Snuffer.class, new net.minecraft.world.phys.AABB(room).inflate(8));
+				check(keepers.size() == 1, "the lamp room holds one keeper, found " + keepers.size());
+				Snuffer keeper = keepers.getFirst();
+				check(keeper.lamps(level).size() == 4, "four lamp stands around the room");
+				check(level.getBlockState(room.offset(0, -LAMP_DROP, 7)).is(MistinnBlocks.GOLDEN_BELL), "a golden bell waits by the door");
+				player.teleportTo(level, room.getX() + 0.5, room.getY(), room.getZ() - 3.5, java.util.Set.of(), 0.0F, 10.0F, true);
+				for (EquipmentSlot slot : new EquipmentSlot[] {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+					player.setItemSlot(slot, ItemStack.EMPTY);
+				}
+				GridService.set(player, GridService.get(player).withMask(ItemStack.EMPTY));
+
+				BodyService.restoreAll(player);
+				player.damageCooldownTime = 0;
+				keeper.strikeNow(level, player, Snuffer.Move.SWEEP);
+				Body body = BodyService.get(player);
+				check(body.get(BodyPart.TORSO) < 80.0F || body.get(BodyPart.LEFT_ARM) < 80.0F || body.get(BodyPart.RIGHT_ARM) < 80.0F, "the sweep cuts the torso or an arm: " + body);
+				check(body.get(BodyPart.HEAD) == 80.0F && body.get(BodyPart.LEFT_LEG) == 80.0F && body.get(BodyPart.RIGHT_LEG) == 80.0F, "and nothing else: " + body);
+
+				BodyService.restoreAll(player);
+				player.damageCooldownTime = 0;
+				keeper.strikeNow(level, player, Snuffer.Move.SLAM);
+				body = BodyService.get(player);
+				check(body.get(BodyPart.LEFT_LEG) < 80.0F && body.get(BodyPart.RIGHT_LEG) < 80.0F && body.get(BodyPart.TORSO) == 80.0F, "the slam takes the legs: " + body);
+
+				BodyService.restoreAll(player);
+				player.damageCooldownTime = 0;
+				keeper.strikeNow(level, player, Snuffer.Move.HOOK);
+				body = BodyService.get(player);
+				float bareFace = body.get(BodyPart.HEAD);
+				check(bareFace < 80.0F && body.get(BodyPart.TORSO) == 80.0F, "the hook strikes the face: " + body);
+				BodyService.restoreAll(player);
+				GridService.set(player, GridService.get(player).withMask(new ItemStack(MistinnItems.MASKS.get(6))));
+				player.damageCooldownTime = 0;
+				keeper.strikeNow(level, player, Snuffer.Move.HOOK);
+				check(BodyService.get(player).get(BodyPart.HEAD) > bareFace, "a mask softens the blow to the face: " + BodyService.get(player).get(BodyPart.HEAD) + " against " + bareFace);
+				BodyService.restoreAll(player);
+			});
+			// look at it from across the room
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				Snuffer keeper = level.getEntitiesOfClass(Snuffer.class, new net.minecraft.world.phys.AABB(room).inflate(16)).getFirst();
+				// hold it still in the middle of the room, seen from the side, clear of the great lamp
+				keeper.setNoAi(true);
+				keeper.snapTo(room.getX() + 0.5, room.getY(), room.getZ() + 3.5, 90.0F, 0.0F);
+				keeper.setYHeadRot(90.0F);
+				player.teleportTo(level, room.getX() - 4.5, room.getY(), room.getZ() + 3.5, java.util.Set.of(), -90.0F, -12.0F, true);
+			});
+			context.waitTicks(20);
+			context.takeScreenshot("snuffer");
+			world.getServer().runOnServer(server -> server.overworld().getEntitiesOfClass(Snuffer.class, new net.minecraft.world.phys.AABB(room).inflate(16)).getFirst().setNoAi(false));
+
+			// below half health the room goes dark; four lit lamps throw it off balance
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				Snuffer keeper = level.getEntitiesOfClass(Snuffer.class, new net.minecraft.world.phys.AABB(room).inflate(16)).getFirst();
+				keeper.setHealth(Snuffer.MAX_HEALTH * 0.45F);
+			});
+			context.waitTicks(5);
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				Snuffer keeper = level.getEntitiesOfClass(Snuffer.class, new net.minecraft.world.phys.AABB(room).inflate(16)).getFirst();
+				check(keeper.dark(), "below half health the keeper goes dark");
+				check(player.hasEffect(net.minecraft.world.effect.MobEffects.DARKNESS), "and the hunter is in darkness");
+				for (BlockPos lamp : keeper.lamps(level)) {
+					check(!level.getBlockState(lamp).getValue(LampStandBlock.LIT), "every lamp stand is out");
+					level.setBlockAndUpdate(lamp, level.getBlockState(lamp).setValue(LampStandBlock.LIT, true));
+				}
+			});
+			context.waitTicks(3);
+			context.takeScreenshot("snuffer-dark");
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				Snuffer keeper = level.getEntitiesOfClass(Snuffer.class, new net.minecraft.world.phys.AABB(room).inflate(16)).getFirst();
+				check(keeper.staggered(), "four lit lamps stagger the keeper");
+				float before = keeper.getHealth();
+				keeper.damageCooldownTime = 0;
+				keeper.hurtServer(level, level.damageSources().generic(), 10.0F);
+				check(Math.abs(before - keeper.getHealth() - 15.0F) < 0.01F, "a staggered keeper takes half again as much: " + (before - keeper.getHealth()));
+
+				int salt = SaltService.get(player);
+				keeper.damageCooldownTime = 0;
+				keeper.hurtServer(level, player.damageSources().playerAttack(player), 10000.0F);
+				check(keeper.isDeadOrDying(), "the keeper falls");
+				check(SaltService.get(player) >= salt + 3000, "and leaves 3000 salt to the hunter");
+			});
+			context.waitTicks(5);
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				var drops = level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new net.minecraft.world.phys.AABB(room).inflate(10));
+				check(drops.stream().anyMatch(e -> e.getItem().is(MistinnItems.RUST_GOD_SALT)), "the Rust God's salt block drops");
+			});
+			world.getServer().runCommand("difficulty peaceful");
 		}
 	}
+
+	/** The golden bell stands on the ground; the lamp room floor is this far above it. */
+	private static final int LAMP_DROP = Structures.LAMP_ROOM;
 
 	/** The left button as the game numbers it; GLFW's 0 is not the left button here. */
 	private static final int LEFT = com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT;

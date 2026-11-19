@@ -32,6 +32,7 @@ public class MistinnClient implements ClientModInitializer {
 		HudElementRegistry.addLast(Mistinn.id("minimap"), new MinimapHud());
 		// hunters see their body parts where the hearts were
 		HudElementRegistry.replaceElement(VanillaHudElements.HEALTH_BAR, BodyHud::new);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SNUFFER, life.shizune.mistinn.client.keeper.SnufferRenderer::new);
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> TierText.decorate(stack, lines));
 
 		ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {

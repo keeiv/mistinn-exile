@@ -86,6 +86,7 @@ public final class MistinnWorld {
 		feature("salt_cairn", 2, true, Structures::saltCairn);
 		feature("anchor_wreck", 3, true, Structures::anchorWreck);
 		feature("watchpost", 2, false, Structures::watchpost);
+		feature("lighthouse", 3, true, Structures::lighthouse);
 
 		GenerationStep.Decoration step = GenerationStep.Decoration.SURFACE_STRUCTURES;
 		BiomeModifications.addFeature(
@@ -100,6 +101,9 @@ public final class MistinnWorld {
 			step,
 			placed("watchpost")
 		);
+
+		// the forbidden zone's lighthouses stand on the coast
+		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_BEACH), step, placed("lighthouse"));
 
 		ServerLifecycleEvents.SERVER_STARTED.register(MistinnWorld::ensureSpawnStation);
 	}

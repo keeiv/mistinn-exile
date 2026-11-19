@@ -31,6 +31,7 @@ public final class MistinnTab {
 				output.accept(MistinnItems.GOLDEN_BELL);
 				output.accept(MistinnItems.ORE_BELL);
 				output.accept(MistinnItems.BELL_SALVE);
+				output.accept(MistinnItems.LAMP_STAND);
 				output.accept(MistinnItems.SALT);
 				output.accept(MistinnItems.RUST_GOD_SALT);
 				MistinnItems.HELMETS.forEach(output::accept);

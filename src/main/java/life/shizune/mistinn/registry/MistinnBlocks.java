@@ -53,6 +53,20 @@ public final class MistinnBlocks {
 			.pushReaction(PushReaction.IMMOVEABLE)
 	);
 
+	/** 燈台: lamp stands around a lamp room; lit by hand, snuffed by the keeper. */
+	public static final Block LAMP_STAND = register(
+		"lamp_stand",
+		life.shizune.mistinn.keeper.LampStandBlock::new,
+		BlockBehaviour.Properties.of()
+			.mapColor(MapColor.METAL)
+			.strength(-1.0F, 3600000.0F)
+			.sound(SoundType.LANTERN)
+			.lightLevel(state -> state.getValue(life.shizune.mistinn.keeper.LampStandBlock.LIT) ? 15 : 0)
+			.noOcclusion()
+			.noLootTable()
+			.pushReaction(PushReaction.IMMOVEABLE)
+	);
+
 	private MistinnBlocks() {
 	}
 

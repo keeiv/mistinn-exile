@@ -44,6 +44,7 @@ public class Mistinn implements ModInitializer {
 		MistinnAttachments.init();
 		MistinnTab.init();
 		GridActionPayload.register();
+		life.shizune.mistinn.registry.MistinnEntities.init();
 		MistinnWorld.init();
 
 		// A fallen hunter leaves their salt as residue; a defeated creature gives salt.

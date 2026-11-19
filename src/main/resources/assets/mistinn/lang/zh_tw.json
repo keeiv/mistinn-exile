@@ -271,5 +271,9 @@
   "gui.mistinn.part.left_arm": "左手",
   "gui.mistinn.part.right_arm": "右手",
   "gui.mistinn.part.left_leg": "左腿",
-  "gui.mistinn.part.right_leg": "右腿"
+  "gui.mistinn.part.right_leg": "右腿",
+  "entity.mistinn.snuffer": "熄燈人",
+  "block.mistinn.lamp_stand": "燈台",
+  "message.mistinn.snuffer.dark": "燈全熄了。點亮燈台。",
+  "message.mistinn.snuffer.stagger": "四座燈台都亮了，熄燈人站不穩！"
 }
