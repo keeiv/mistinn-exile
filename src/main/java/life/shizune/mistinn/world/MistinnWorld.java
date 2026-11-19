@@ -39,8 +39,11 @@ public final class MistinnWorld {
 	private MistinnWorld() {
 	}
 
-	/** A world-generation feature that builds one structure where the ground allows. */
-	private record StructureFeature(String name, int maxSlope, boolean allowSand, Consumer<Builder> build) implements Feature {
+	/**
+	 * A world-generation feature that builds one structure where the ground allows: dry, above
+	 * the sea, and roughly level out to {@code reach} blocks from the centre.
+	 */
+	private record StructureFeature(String name, int maxSlope, int reach, boolean allowSand, Consumer<Builder> build) implements Feature {
 		@Override
 		public MapCodec<? extends Feature> codec() {
 			return CODECS.get(this.name);
@@ -55,9 +58,10 @@ public final class MistinnWorld {
 			if (!this.allowSand && level.getBlockState(floor).is(net.minecraft.tags.BlockTags.SAND)) {
 				return false;
 			}
-			// only on ground that is roughly level: compare the corners with the centre
-			int[][] corners = {{-4, -4}, {4, -4}, {-4, 4}, {4, 4}};
-			for (int[] c : corners) {
+			// only on ground that is roughly level: compare the corners and edges with the centre
+			int r = this.reach;
+			int[][] samples = {{-r, -r}, {r, -r}, {-r, r}, {r, r}, {0, -r}, {0, r}, {-r, 0}, {r, 0}};
+			for (int[] c : samples) {
 				int y = level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, floor.getX() + c[0], floor.getZ() + c[1]) - 1;
 				if (Math.abs(y - floor.getY()) > this.maxSlope) {
 					return false;
@@ -70,8 +74,8 @@ public final class MistinnWorld {
 
 	private static final java.util.Map<String, MapCodec<StructureFeature>> CODECS = new java.util.HashMap<>();
 
-	private static void feature(final String name, final int maxSlope, final boolean allowSand, final Consumer<Builder> build) {
-		StructureFeature feature = new StructureFeature(name, maxSlope, allowSand, build);
+	private static void feature(final String name, final int maxSlope, final int reach, final boolean allowSand, final Consumer<Builder> build) {
+		StructureFeature feature = new StructureFeature(name, maxSlope, reach, allowSand, build);
 		MapCodec<StructureFeature> codec = MapCodec.unit(feature);
 		CODECS.put(name, codec);
 		Registry.register(BuiltInRegistries.FEATURE_TYPE, Mistinn.id(name), codec);
@@ -82,11 +86,11 @@ public final class MistinnWorld {
 	}
 
 	public static void init() {
-		feature("drop_station", 2, false, b -> Structures.station(b, Structures.Station.INTACT));
-		feature("salt_cairn", 2, true, Structures::saltCairn);
-		feature("anchor_wreck", 3, true, Structures::anchorWreck);
-		feature("watchpost", 2, false, Structures::watchpost);
-		feature("lighthouse", 3, true, Structures::lighthouse);
+		feature("drop_station", 2, 5, false, b -> Structures.station(b, Structures.Station.INTACT));
+		feature("salt_cairn", 2, 4, true, Structures::saltCairn);
+		feature("anchor_wreck", 3, 6, true, Structures::anchorWreck);
+		feature("watchpost", 2, 4, false, Structures::watchpost);
+		feature("lighthouse", 3, 6, true, Structures::lighthouse);
 
 		GenerationStep.Decoration step = GenerationStep.Decoration.SURFACE_STRUCTURES;
 		BiomeModifications.addFeature(
