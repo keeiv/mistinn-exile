@@ -382,7 +382,8 @@ public final class GridPanel {
 
 	/**
 	 * The item on its tier colour, drawn as large as its footprint allows, turned if rotated.
-	 * Items with a grid sprite fill their whole footprint with it.
+	 * Backpacks and rigs with a grid sprite fill their whole footprint with it; every other item keeps
+	 * its square icon so it is never stretched.
 	 */
 	private static void drawPlaced(final GuiGraphicsExtractor g, final Font font, final Placed placed, final int x, final int y) {
 		int w = placed.width();

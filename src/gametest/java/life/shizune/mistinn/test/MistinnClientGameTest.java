@@ -239,7 +239,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			context.waitTicks(10);
 			context.takeScreenshot("gear-worn-back");
 
-			// items that are not square fill their footprint with a grid sprite
+			// a rig fills its footprint with a grid sprite; other items keep their square icons
 			GridInventory[] saved = new GridInventory[1];
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
@@ -256,8 +256,9 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			context.setScreen(() -> new InventoryScreen(context.computeOnClient(mc -> mc.player)));
 			context.waitTicks(10);
 			context.takeScreenshot("grid-previews");
-			context.runOnClient(mc -> check(life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.ARMORS.get(3)) != null
-				&& life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.ANCHOR_BLADE) == null, "a chestplate has a grid sprite, a blade keeps its icon"));
+			context.runOnClient(mc -> check(life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.RIGS.get(5)) != null
+				&& life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.ARMORS.get(3)) == null
+				&& life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.ANCHOR_BLADE) == null, "a rig has a grid sprite, a chestplate and a blade keep their icons"));
 			context.setScreen(() -> null);
 			world.getServer().runOnServer(server -> GridService.set(server.getPlayerList().getPlayers().getFirst(), saved[0].withRig(ItemStack.EMPTY)));
 			context.waitTicks(4);
