@@ -28,6 +28,11 @@ public class MistinnClient implements ClientModInitializer {
 		KeyMapping zoom = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.minimap_zoom", InputConstants.KEY_M, CATEGORY)
 		);
+		KeyMapping roll = KeyMappingHelper.registerKeyMapping(
+			new KeyMapping("key.mistinn.roll", InputConstants.KEY_LALT, CATEGORY)
+		);
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.stamina.RollService.RollAnimPayload.TYPE,
+			(payload, context) -> life.shizune.mistinn.client.move.RollClient.received(payload));
 		KeyMapping swingCamera = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.swing_camera", InputConstants.KEY_J, CATEGORY)
 		);
@@ -42,10 +47,12 @@ public class MistinnClient implements ClientModInitializer {
 		HudElementRegistry.addLast(Mistinn.id("minimap"), new MinimapHud());
 		// hunters see their body parts where the hearts were
 		HudElementRegistry.replaceElement(VanillaHudElements.HEALTH_BAR, BodyHud::new);
+		HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Mistinn.id("stamina"), new life.shizune.mistinn.client.body.StaminaHud());
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SNUFFER, life.shizune.mistinn.client.keeper.SnufferRenderer::new);
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> TierText.decorate(stack, lines));
 
 		ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
+			life.shizune.mistinn.client.move.RollClient.tick(minecraft, roll);
 			while (swingCamera.consumeClick()) {
 				life.shizune.mistinn.client.anim.CameraSwing.toggle();
 				if (minecraft.player != null) {

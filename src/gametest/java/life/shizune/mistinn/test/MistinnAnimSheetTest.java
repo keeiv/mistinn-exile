@@ -2,6 +2,8 @@ package life.shizune.mistinn.test;
 
 import java.nio.file.Path;
 import life.shizune.mistinn.client.anim.WeaponSwings;
+import life.shizune.mistinn.client.move.RollClient;
+import life.shizune.mistinn.stamina.RollService;
 import life.shizune.mistinn.weapon.WeaponStyle;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -59,6 +61,29 @@ public class MistinnAnimSheetTest implements FabricClientGameTest {
 						context.runOnClient(mc -> WeaponSwings.preview = -1.0F);
 						context.waitTicks(25);
 					}
+				}
+			}
+			// rolls: whole arms, a destroyed right arm, both arms destroyed; and the dive
+			world.getServer().runCommand("item replace entity @a weapon.mainhand with minecraft:air");
+			// out in the open, clear of the test house, so the camera sees the whole body
+			world.getServer().runCommand("tp @a ~ ~ ~12");
+			context.waitTicks(20);
+			context.runOnClient(mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT));
+			float[][] arms = {{1.0F, 1.0F}, {1.0F, 0.0F}, {0.0F, 0.0F}};
+			String[] names = {"roll", "roll-right-arm-gone", "roll-armless", "dive"};
+			for (int n = 0; n < names.length; n++) {
+				int kind = n == 3 ? 1 : 0;
+				float[] a = n == 3 ? arms[0] : arms[n];
+				for (int i = 0; i < 3; i++) {
+					float at = 0.25F * (i + 1);
+					context.runOnClient(mc -> {
+						RollClient.received(new RollService.RollAnimPayload(mc.player.getId(), kind, mc.player.getYRot() + 90.0F, a[0], a[1]));
+						RollClient.preview = at;
+					});
+					context.waitTicks(2);
+					context.takeScreenshot(TestScreenshotOptions.of(names[n] + "-" + i).disableCounterPrefix().withDestinationDir(Path.of("animsheet")));
+					context.runOnClient(mc -> RollClient.preview = -1.0F);
+					context.waitTicks(20);
 				}
 			}
 			context.runOnClient(mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));

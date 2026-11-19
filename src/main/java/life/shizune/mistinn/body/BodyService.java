@@ -305,6 +305,27 @@ public final class BodyService {
 		return body;
 	}
 
+	/**
+	 * Strain the legs cannot take any more (a dive on destroyed legs) is shared equally over the
+	 * living parts of the upper body: head, torso and arms.
+	 */
+	public static void strainUpper(final ServerPlayer player, final float amount) {
+		Body body = get(player);
+		java.util.List<BodyPart> upper = new java.util.ArrayList<>();
+		for (BodyPart part : BodyPart.values()) {
+			if (!part.isLeg() && !body.destroyed(part)) {
+				upper.add(part);
+			}
+		}
+		if (upper.isEmpty()) {
+			upper.add(BodyPart.TORSO);
+		}
+		for (BodyPart part : upper) {
+			body = damage(body, part, amount / upper.size());
+		}
+		set(player, body);
+	}
+
 	// ── Healing ───────────────────────────────────────────────────
 
 	/** Vanilla healing (potions, golden apples) mends living parts, most hurt first; never a destroyed one. */

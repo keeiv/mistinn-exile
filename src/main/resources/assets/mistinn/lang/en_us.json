@@ -278,5 +278,7 @@
   "message.mistinn.snuffer.stagger": "All four lamps burn: the Snuffer staggers!",
   "key.mistinn.swing_camera": "View follows the swing",
   "message.mistinn.swing_camera.on": "Swing view: on",
-  "message.mistinn.swing_camera.off": "Swing view: off"
+  "message.mistinn.swing_camera.off": "Swing view: off",
+  "key.mistinn.roll": "Roll / dive",
+  "message.mistinn.no_stamina": "Out of stamina."
 }

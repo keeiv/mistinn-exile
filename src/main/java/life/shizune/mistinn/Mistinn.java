@@ -44,6 +44,7 @@ public class Mistinn implements ModInitializer {
 		MistinnAttachments.init();
 		MistinnTab.init();
 		GridActionPayload.register();
+		life.shizune.mistinn.stamina.RollService.register();
 		life.shizune.mistinn.registry.MistinnEntities.init();
 		MistinnWorld.init();
 
@@ -88,6 +89,8 @@ public class Mistinn implements ModInitializer {
 		});
 		ServerTickEvents.END_SERVER_TICK.register(BellService::tick);
 		ServerTickEvents.END_SERVER_TICK.register(BodyService::tick);
+		ServerTickEvents.END_SERVER_TICK.register(life.shizune.mistinn.stamina.StaminaService::tick);
+		ServerTickEvents.END_SERVER_TICK.register(life.shizune.mistinn.stamina.RollService::tick);
 		// nothing may live in the hidden vanilla storage slots, however it got there
 		ServerTickEvents.END_SERVER_TICK.register(server -> server.getPlayerList().getPlayers().forEach(GridService::sweepHiddenSlots));
 		ServerTickEvents.END_SERVER_TICK.register(server -> {

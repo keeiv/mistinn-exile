@@ -506,6 +506,59 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			});
 			context.waitTicks(5);
 			context.takeScreenshot("body-hud");
+
+			// ── Stamina, rolls and dives ────────────────────────────
+			world.getServer().runOnServer(server -> BodyService.restoreAll(server.getPlayerList().getPlayers().getFirst()));
+			context.waitTicks(80);
+			check(context.computeOnClient(mc -> life.shizune.mistinn.stamina.StaminaService.get(mc.player)) == life.shizune.mistinn.stamina.StaminaService.MAX, "a rested hunter has full stamina");
+			// a real roll from the key
+			context.getInput().pressKey(options -> java.util.Arrays.stream(options.keyMappings).filter(k -> k.getName().equals("key.mistinn.roll")).findFirst().orElseThrow());
+			context.waitTicks(2);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				float stamina = life.shizune.mistinn.stamina.StaminaService.get(player);
+				check(stamina <= life.shizune.mistinn.stamina.StaminaService.MAX - life.shizune.mistinn.stamina.StaminaService.ROLL + 0.01F, "a roll costs stamina, left " + stamina);
+				check(life.shizune.mistinn.stamina.RollService.dodging(player), "and blows pass through mid-roll");
+				player.damageCooldownTime = 0;
+				player.hurtServer(server.overworld(), player.damageSources().drown(), 4.0F);
+				check(BodyService.get(player).equals(Body.FULL), "a hit during the roll does nothing: " + BodyService.get(player));
+			});
+			context.waitTicks(15);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				check(!life.shizune.mistinn.stamina.RollService.dodging(player), "the dodge ends with the roll");
+				// both legs gone: no roll, only the dive, and its landing falls on the upper body
+				BodyService.set(player, Body.FULL.with(BodyPart.LEFT_LEG, 0.0F).with(BodyPart.RIGHT_LEG, 0.0F));
+			});
+			context.waitTicks(60);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				float before = life.shizune.mistinn.stamina.StaminaService.get(player);
+				life.shizune.mistinn.stamina.RollService.request(player, 0.0F);
+				check(Math.abs(before - life.shizune.mistinn.stamina.StaminaService.get(player) - life.shizune.mistinn.stamina.StaminaService.DIVE) < 0.01F, "a dive costs more stamina than a roll");
+				check(!life.shizune.mistinn.stamina.RollService.dodging(player), "and dodges nothing");
+			});
+			context.waitTicks(12);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				Body body = BodyService.get(player);
+				float each = life.shizune.mistinn.stamina.RollService.DIVE_IMPACT / 4.0F;
+				for (BodyPart part : new BodyPart[] {BodyPart.HEAD, BodyPart.TORSO, BodyPart.LEFT_ARM, BodyPart.RIGHT_ARM}) {
+					check(Math.abs(body.get(part) - (80.0F - each)) < 0.6F, "the landing is shared over the upper body: " + body);
+				}
+				check(body.destroyed(BodyPart.LEFT_LEG) && body.destroyed(BodyPart.RIGHT_LEG), "the dead legs take none of it");
+				BodyService.restoreAll(player);
+			});
+			// a real swing, even at nothing, is paid for
+			context.waitTicks(80);
+			world.getServer().runCommand("item replace entity @a weapon.mainhand with mistinn:iron_hammer");
+			context.runOnClient(mc -> mc.player.snapTo(mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.getYRot(), -80.0F));
+			context.waitTicks(5);
+			float rested = context.computeOnClient(mc -> life.shizune.mistinn.stamina.StaminaService.get(mc.player));
+			context.getInput().pressKey(options -> options.keyAttack);
+			context.waitTicks(3);
+			float swung = world.getServer().computeOnServer(server -> life.shizune.mistinn.stamina.StaminaService.get(server.getPlayerList().getPlayers().getFirst()));
+			check(rested - swung >= 23.9F, "a hammer swing at the sky costs 24 stamina, it cost " + (rested - swung));
 			world.getServer().runOnServer(server -> BodyService.restoreAll(server.getPlayerList().getPlayers().getFirst()));
 
 			// ── The lighthouse and its keeper ───────────────────────

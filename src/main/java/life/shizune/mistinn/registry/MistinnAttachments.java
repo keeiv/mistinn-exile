@@ -53,6 +53,11 @@ public final class MistinnAttachments {
 		.syncWith(Body.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
 		.buildAndRegister(Mistinn.id("body"));
 
+	/** Stamina, 0 to 100. Not saved: a hunter rejoins rested. */
+	public static final AttachmentType<Float> STAMINA = AttachmentRegistry.<Float>builder()
+		.syncWith(ByteBufCodecs.FLOAT, AttachmentSyncPredicate.targetOnly())
+		.buildAndRegister(Mistinn.id("stamina"));
+
 	/** Whether this hunter already received the guide; kept through death so it comes once. */
 	public static final AttachmentType<Boolean> GUIDE_GIVEN = AttachmentRegistry.<Boolean>builder()
 		.persistent(Codec.BOOL)

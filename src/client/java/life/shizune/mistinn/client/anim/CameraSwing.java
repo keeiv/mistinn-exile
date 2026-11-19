@@ -16,7 +16,7 @@ import net.minecraft.world.entity.HumanoidArm;
 /**
  * The first-person view follows the swing: it is pulled round with the wind-up, thrown along
  * with the strike and carried past it, as if the weapon's weight dragged the head with it.
- * A hit jolts the view. The roll and dive add their own motion through {@link #extra}.
+ * A hit jolts the view. Rolls and dives add their own motion.
  * Hunters can turn the swing motion off; the setting is kept in the config folder.
  */
 public final class CameraSwing {
@@ -25,9 +25,6 @@ public final class CameraSwing {
 	private static boolean loaded;
 	/** Time of the last hit, for the jolt. */
 	private static long hitAt = Long.MIN_VALUE;
-
-	/** Extra view motion from moves other than swings (the roll), in degrees: yaw, pitch, roll. */
-	public static float[] extra = new float[3];
 
 	private CameraSwing() {
 	}
@@ -93,6 +90,8 @@ public final class CameraSwing {
 		if (player == null || !mc.options.getCameraType().isFirstPerson()) {
 			return;
 		}
+		// rolls and dives move the view whatever the swing setting: it is where the body goes
+		float[] extra = life.shizune.mistinn.client.move.RollClient.viewOffsets();
 		float yaw = extra[0];
 		float pitch = extra[1];
 		float roll = extra[2];
