@@ -67,6 +67,17 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 		context.waitTicks(40);
 		check(context.computeOnClient(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.title.MistinnTitleScreen), "the game opens on the Mistinn title screen");
 		context.takeScreenshot("title");
+		// a new world first asks for the mode; free exploration then shows the world settings
+		// with no world yet, the world list goes straight to creating one, which asks first
+		context.runOnClient(mc -> mc.gui.setScreen(new net.minecraft.client.gui.screens.worldselection.SelectWorldScreen(mc.gui.screen())));
+		context.waitFor(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.title.ModeSelectScreen, 400);
+		context.waitTicks(10);
+		context.takeScreenshot("mode-select");
+		context.runOnClient(mc -> ((life.shizune.mistinn.client.title.ModeSelectScreen) mc.gui.screen()).pick(life.shizune.mistinn.story.WorldMode.FREE));
+		// the settings load their data packs first
+		context.waitFor(mc -> mc.gui.screen() instanceof net.minecraft.client.gui.screens.worldselection.CreateWorldScreen, 1200);
+		context.runOnClient(mc -> mc.gui.setScreen(new net.minecraft.client.gui.screens.TitleScreen()));
+		context.waitTicks(5);
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			TestServerConnection connection = world.getConnection();
 			connection.waitForChunksRender();

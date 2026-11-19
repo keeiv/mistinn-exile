@@ -282,5 +282,11 @@
   "key.mistinn.roll": "Roll / dive",
   "message.mistinn.no_stamina": "Out of stamina.",
   "menu.mistinn.mods": "Mods",
-  "title.mistinn.tagline": "A hunter sent by Rust Anchor walks into the zone at the world's edge."
+  "title.mistinn.tagline": "A hunter sent by Rust Anchor walks into the zone at the world's edge.",
+  "mode.mistinn.title": "How will this exile go?",
+  "mode.mistinn.story": "Story",
+  "mode.mistinn.story.desc": "Follow Rust Anchor's orders into the zone and uncover, chapter by chapter, what hunters really are. Hours of story, scenes and keepers.",
+  "mode.mistinn.free": "Free exploration",
+  "mode.mistinn.free.desc": "No orders and no end. The world is just as dangerous, and the lighthouses still wait on the coast.",
+  "mode.mistinn.hint": "This cannot be changed once the world exists."
 }

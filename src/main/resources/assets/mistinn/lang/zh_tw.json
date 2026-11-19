@@ -282,5 +282,11 @@
   "key.mistinn.roll": "翻滾／跳撲",
   "message.mistinn.no_stamina": "沒力氣了。",
   "menu.mistinn.mods": "模組",
-  "title.mistinn.tagline": "鏽錨站特派的追獵者，走進世界邊緣的禁區。"
+  "title.mistinn.tagline": "鏽錨站特派的追獵者，走進世界邊緣的禁區。",
+  "mode.mistinn.title": "這趟追放，要怎麼走？",
+  "mode.mistinn.story": "故事模式",
+  "mode.mistinn.story.desc": "跟著鏽錨站的命令走進禁區，一章一章揭開追獵者的真相。有劇情、過場與燈守，長達數小時。",
+  "mode.mistinn.free": "自由探索",
+  "mode.mistinn.free.desc": "沒有命令，也沒有終點。世界照樣危險，燈塔照樣在海岸上等你。",
+  "mode.mistinn.hint": "建立世界之後就不能更改。"
 }
