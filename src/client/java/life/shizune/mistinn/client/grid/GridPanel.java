@@ -109,8 +109,13 @@ public final class GridPanel {
 		}
 	}
 
-	/** Where everything is; {@code panels} are the rectangles {x0, y0, x1, y1} the panel owns. */
-	public record Layout(List<Box> boxes, List<SocketBox> sockets, List<int[]> panels) {
+	/**
+	 * Where everything is; {@code panels} are the rectangles {x0, y0, x1, y1} the panel covers.
+	 * With {@code claimsPanels} every click in them is the panel's (beside a container, where the
+	 * screen has nothing there); without it only clicks on cells and sockets are, and the screen's
+	 * own slots in the same area (the hunter screen's armour and crafting) keep theirs.
+	 */
+	public record Layout(List<Box> boxes, List<SocketBox> sockets, List<int[]> panels, boolean claimsPanels) {
 		boolean inside(final double mx, final double my) {
 			for (int[] p : this.panels) {
 				if (mx >= p[0] && mx < p[2] && my >= p[1] && my < p[3]) {
@@ -243,7 +248,7 @@ public final class GridPanel {
 		return new Layout(List.copyOf(boxes), List.copyOf(sockets), List.of(
 			new int[] {lx - 4, topPos, lx + colWidth + 4, leftBottom},
 			new int[] {rx - 4, topPos, right + 4, Math.max(bottom, topPos + 30) + 6}
-		));
+		), true);
 	}
 
 	/** Where the backpack title goes in the beside layout (below the rig, if one is worn). */
@@ -461,6 +466,10 @@ public final class GridPanel {
 			return false;
 		}
 		Hover h = hover;
+		if (h == null && !l.claimsPanels()) {
+			// not on a cell: the screen's own slot (armour, crafting) or nothing
+			return false;
+		}
 		if (button == LEFT) {
 			pressedOnPanel = true;
 			pressedAt = h;
@@ -498,8 +507,9 @@ public final class GridPanel {
 		pressedOnPanel = false;
 		pressedAt = null;
 		ItemStack carried = menu.getCarried();
-		boolean overPanel = l.inside(mx, my) || l.socketAt(mx, my) != null;
-		Hover now = overPanel ? hover : null;
+		boolean onCell = hover != null && l.inside(mx, my);
+		boolean overPanel = l.claimsPanels() ? l.inside(mx, my) || l.socketAt(mx, my) != null : onCell || l.socketAt(mx, my) != null;
+		Hover now = onCell ? hover : null;
 		if (!fromPanel) {
 			// a drag from a menu slot that ends on a grid cell puts the item there
 			boolean moved = !Double.isNaN(pressX) && (Math.abs(mx - pressX) >= 2 || Math.abs(my - pressY) >= 2);

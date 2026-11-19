@@ -375,6 +375,95 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				check(player.containerMenu.getCarried().isEmpty(), "nothing left on the cursor");
 			});
 
+			// ── The hunter screen with the largest gear: nothing overlaps the hotbar ──
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				GridService.set(player, GridService.get(player).withRig(new ItemStack(MistinnItems.RIGS.get(6))).withBackpack(new ItemStack(MistinnItems.BACKPACKS.get(6))));
+			});
+			context.waitTicks(4);
+			context.takeScreenshot("hunter-largest");
+			context.runOnClient(mc -> {
+				var screen = (net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>) mc.gui.screen();
+				double lowest = 0;
+				for (Area area : new Area[] {Area.RIG, Area.BACKPACK}) {
+					var inv = GridPanel.inventory(mc.player);
+					for (int section = 0; section < inv.shape(area).sections().size(); section++) {
+						int h = inv.shape(area).sections().get(section).height();
+						double[] centre = GridPanel.cellCentre(area, section, 0, h - 1);
+						check(centre != null, "every " + area + " section is shown");
+						lowest = Math.max(lowest, centre[1] + GridPanel.CELL / 2.0);
+					}
+				}
+				for (int i = 36; i < 45; i++) {
+					double top = GridPanel.slotCentre(screen.getMenu().slots.get(i))[1] - GridPanel.CELL / 2.0;
+					check(top >= lowest, "the hotbar sits below the backpack: slot top " + top + ", grid bottom " + lowest);
+				}
+			});
+
+			// with all four pockets full: a pocket item into the (emptied) safe box by clicking, and
+			// back by dragging; the safe box's salt block goes back afterwards for the death check
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				GridInventory inv = GridService.get(player);
+				GridService.set(player, inv.with(Area.POCKETS, java.util.List.of(
+					new Placed(0, 0, 0, false, new ItemStack(Items.BREAD, 3)),
+					new Placed(1, 0, 0, false, new ItemStack(Items.DANDELION)),
+					new Placed(2, 0, 0, false, new ItemStack(Items.COPPER_INGOT, 2)),
+					new Placed(3, 0, 0, false, new ItemStack(Items.FEATHER)))).with(Area.SAFE, java.util.List.of()));
+			});
+			context.waitTicks(4);
+			mouse(context, Area.POCKETS, 1, 0, 0);
+			context.getInput().holdMouse(LEFT);
+			context.waitTicks(4);
+			context.getInput().releaseMouse(LEFT);
+			context.waitTicks(3);
+			carried(world, Items.DANDELION, "a slow click picks up a pocket item");
+			mouse(context, Area.SAFE, 0, 1, 1);
+			context.getInput().holdMouse(LEFT);
+			context.waitTicks(4);
+			context.getInput().releaseMouse(LEFT);
+			context.waitTicks(3);
+			at(world, Area.SAFE, 0, Items.DANDELION, "and a slow click puts it in the safe box");
+			mouse(context, Area.SAFE, 0, 1, 1);
+			context.getInput().holdMouse(LEFT);
+			context.waitTicks(4);
+			mouse(context, Area.POCKETS, 1, 0, 0);
+			context.getInput().releaseMouse(LEFT);
+			context.waitTicks(4);
+			at(world, Area.POCKETS, 1, Items.DANDELION, "dragged back from the safe box to the pocket");
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				GridService.set(player, GridService.get(player).with(Area.SAFE, java.util.List.of(new Placed(0, 0, 0, false, new ItemStack(MistinnItems.RUST_GOD_SALT)))));
+			});
+
+			// crafting in the hunter screen: a log in with the left button, the planks out the same way
+			world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst().getInventory().setItem(5, new ItemStack(Items.OAK_LOG)));
+			context.waitTicks(3);
+			double[] logSlot = slotCentre(context, 5);
+			context.getInput().setCursorPos(logSlot[0], logSlot[1]);
+			context.waitTicks(2);
+			context.getInput().pressMouse(LEFT);
+			context.waitTicks(3);
+			double[] craft = menuSlot(context, 1);
+			context.getInput().setCursorPos(craft[0], craft[1]);
+			context.waitTicks(2);
+			context.getInput().holdMouse(LEFT);
+			context.waitTicks(4);
+			context.getInput().releaseMouse(LEFT);
+			context.waitTicks(3);
+			double[] result = menuSlot(context, 0);
+			context.getInput().setCursorPos(result[0], result[1]);
+			context.waitTicks(2);
+			context.getInput().holdMouse(LEFT);
+			context.waitTicks(4);
+			context.getInput().releaseMouse(LEFT);
+			context.waitTicks(3);
+			carried(world, Items.OAK_PLANKS, "the crafted planks come out with a left click");
+			context.getInput().setCursorPos(logSlot[0], logSlot[1]);
+			context.waitTicks(2);
+			context.getInput().pressMouse(LEFT);
+			context.waitTicks(3);
+
 			// a layout change leaves an item outside its compartment: it is placed again, not lost
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
@@ -412,7 +501,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
 				check(player.getInventory().getItem(20).isEmpty(), "a hidden slot was emptied");
 				GridInventory inv = GridService.get(player);
-				boolean inGrid = java.util.stream.Stream.of(Area.POCKETS, Area.BACKPACK).flatMap(a -> inv.items(a).stream()).anyMatch(pl -> pl.stack().is(Items.EMERALD));
+				boolean inGrid = java.util.stream.Stream.of(Area.POCKETS, Area.RIG, Area.BACKPACK).flatMap(a -> inv.items(a).stream()).anyMatch(pl -> pl.stack().is(Items.EMERALD));
 				boolean onHotbar = java.util.stream.IntStream.range(0, 9).anyMatch(i -> player.getInventory().getItem(i).is(Items.EMERALD));
 				check(inGrid || onHotbar, "the emeralds moved somewhere the hunter can reach");
 			});
@@ -689,6 +778,16 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			net.minecraft.world.inventory.Slot slot = screen.getMenu().slots.stream()
 				.filter(s -> s.container instanceof net.minecraft.world.entity.player.Inventory && s.getContainerSlot() == hotbarIndex).findFirst().orElseThrow();
 			double[] gui = GridPanel.slotCentre(slot);
+			double scale = mc.getWindow().getGuiScale();
+			return new double[] {gui[0] * scale, gui[1] * scale};
+		});
+	}
+
+	/** Window position of any slot of the open screen's menu, by menu index. */
+	private static double[] menuSlot(final ClientGameTestContext context, final int index) {
+		return context.computeOnClient(mc -> {
+			var screen = (net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>) mc.gui.screen();
+			double[] gui = GridPanel.slotCentre(screen.getMenu().slots.get(index));
 			double scale = mc.getWindow().getGuiScale();
 			return new double[] {gui[0] * scale, gui[1] * scale};
 		});

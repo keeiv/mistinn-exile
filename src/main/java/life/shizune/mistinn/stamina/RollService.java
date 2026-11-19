@@ -85,7 +85,8 @@ public final class RollService {
 		if (!StaminaService.applies(player) || player.isDeadOrDying()) {
 			return;
 		}
-		int now = player.tickCount;
+		// the server's clock, not the player's: a respawned player is a new entity counting from zero
+		int now = player.level().getServer().getTickCount();
 		if (now - LAST.getOrDefault(player.getUUID(), -COOLDOWN) < COOLDOWN) {
 			return;
 		}

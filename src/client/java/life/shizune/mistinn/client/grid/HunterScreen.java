@@ -56,9 +56,14 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 
 	private final Map<Slot, int[]> original = new HashMap<>();
 	private boolean showMask;
-	private GridPanel.Layout gridLayout = new GridPanel.Layout(List.of(), List.of(), List.of());
+	private GridPanel.Layout gridLayout = new GridPanel.Layout(List.of(), List.of(), List.of(), false);
 	private int rigTitleY;
 	private int packTitleY;
+	/** Height of the three columns and the row of the hotbar, from the worn rig and backpack. */
+	private int panelHeight = HEIGHT;
+	private int hotbarY = HEIGHT - 19;
+	/** The left column needs this much for gear, pockets, safe box and crafting. */
+	private static final int LEFT_MIN = 214;
 
 	public HunterScreen(final Player player) {
 		super(player.inventoryMenu, player.getInventory(), Component.translatable("container.inventory"), WIDTH, HEIGHT);
@@ -72,6 +77,15 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 		for (Slot slot : this.menu.slots) {
 			this.original.putIfAbsent(slot, new int[] {slot.x, slot.y});
 		}
+		this.relayout();
+	}
+
+	/** Lays the screen out for what is worn now; runs every frame, since gear can change while open. */
+	private void relayout() {
+		if (this.minecraft == null || this.minecraft.player == null) {
+			return;
+		}
+		this.gridLayout = this.layoutGrid(GridPanel.inventory(this.minecraft.player));
 		this.placeSlots();
 	}
 
@@ -94,7 +108,7 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 		move(this.menu.slots.get(RESULT), 57, 180);
 		int hotbarX = CENTRE_X + (CENTRE_W - 9 * SLOT) / 2 + 1;
 		for (int i = 0; i < 9; i++) {
-			move(this.menu.slots.get(HOTBAR_FIRST + i), hotbarX + i * SLOT, HEIGHT - 19);
+			move(this.menu.slots.get(HOTBAR_FIRST + i), hotbarX + i * SLOT, this.hotbarY);
 		}
 	}
 
@@ -113,31 +127,60 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 
 	// ── Grid layout ───────────────────────────────────────────────
 
-	/** Lays the grid out for the worn rig and backpack, as faithfully as the screen height allows. */
+	/**
+	 * Lays the grid out for the worn rig and backpack, as faithfully as the screen allows: the
+	 * first arrangement whose columns fit the screen's height, else the most compact one. The
+	 * hotbar always goes below the backpack, and the screen is centred on what it needs.
+	 */
 	private GridPanel.Layout layoutGrid(final GridInventory inv) {
-		int x = this.leftPos;
-		int y = this.topPos;
-		int limit = y + HEIGHT - 24;
 		GridPanel.Arrange[][] attempts = {
 			{GridPanel.Arrange.SMALL_ABOVE, GridPanel.Arrange.SMALL_ABOVE},
 			{GridPanel.Arrange.SMALL_ABOVE, GridPanel.Arrange.SMALL_BESIDE},
 			{GridPanel.Arrange.FLOW, GridPanel.Arrange.SMALL_BESIDE}
 		};
-		List<GridPanel.Box> boxes = new ArrayList<>();
+		int available = this.height - 8;
+		List<GridPanel.Box> chosen = null;
+		int chosenHeight = Integer.MAX_VALUE;
+		int chosenRigTitle = 0;
+		int chosenPackTitle = 0;
+		int chosenBottom = 0;
 		for (GridPanel.Arrange[] attempt : attempts) {
-			boxes.clear();
-			int cy = y + 15;
-			this.rigTitleY = y + 4;
+			// laid out from (0, 0); moved to the screen's corner below
+			List<GridPanel.Box> boxes = new ArrayList<>();
+			int cy = 15;
 			if (!inv.shape(Area.RIG).sections().isEmpty()) {
-				cy = GridPanel.placeSections(boxes, Area.RIG, inv.shape(Area.RIG), x + CENTRE_X + 4, cy, CENTRE_W - 8, attempt[0])[1] + 4;
+				cy = GridPanel.placeSections(boxes, Area.RIG, inv.shape(Area.RIG), CENTRE_X + 4, cy, CENTRE_W - 8, attempt[0])[1] + 4;
 			} else {
 				cy += GridPanel.CELL;
 			}
-			this.packTitleY = cy;
-			int bottom = GridPanel.placeSections(boxes, Area.BACKPACK, inv.shape(Area.BACKPACK), x + CENTRE_X + 4, cy + 11, CENTRE_W - 8, attempt[1])[1];
-			if (bottom <= limit) {
+			int packTitle = cy;
+			int bottom = GridPanel.placeSections(boxes, Area.BACKPACK, inv.shape(Area.BACKPACK), CENTRE_X + 4, cy + 11, CENTRE_W - 8, attempt[1])[1];
+			int needed = Math.max(LEFT_MIN, bottom + 6 + SLOT + 4);
+			if (chosen == null || needed < chosenHeight) {
+				chosen = boxes;
+				chosenHeight = needed;
+				chosenRigTitle = 4;
+				chosenPackTitle = packTitle;
+				chosenBottom = bottom;
+			}
+			if (needed <= available) {
+				chosen = boxes;
+				chosenHeight = needed;
+				chosenPackTitle = packTitle;
+				chosenBottom = bottom;
 				break;
 			}
+		}
+		this.panelHeight = chosenHeight;
+		this.hotbarY = Math.max(chosenBottom + 6, chosenHeight - SLOT - 3);
+		this.topPos = Math.max(4, (this.height - this.panelHeight) / 2);
+		int x = this.leftPos;
+		int y = this.topPos;
+		this.rigTitleY = y + chosenRigTitle;
+		this.packTitleY = y + chosenPackTitle;
+		List<GridPanel.Box> boxes = new ArrayList<>();
+		for (GridPanel.Box box : chosen) {
+			boxes.add(new GridPanel.Box(box.area(), box.section(), x + box.x(), y + box.y(), box.width(), box.height()));
 		}
 		for (int i = 0; i < 4; i++) {
 			boxes.add(new GridPanel.Box(Area.POCKETS, i, x + 9 + i * (GridPanel.CELL + GridPanel.GAP), y + 83, 1, 1));
@@ -150,21 +193,28 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 			sockets.add(new GridPanel.SocketBox(GridPanel.Socket.MASK, x + 9, y + 17, GridPanel.CELL));
 		}
 		return new GridPanel.Layout(List.copyOf(boxes), List.copyOf(sockets), List.of(
-			new int[] {x, y, x + LEFT_W, y + HEIGHT},
-			new int[] {x + CENTRE_X, y, x + CENTRE_X + CENTRE_W, y + HEIGHT - 22}
-		));
+			new int[] {x, y, x + LEFT_W, y + this.panelHeight},
+			new int[] {x + CENTRE_X, y, x + CENTRE_X + CENTRE_W, y + this.panelHeight}
+		), false);
 	}
 
 	// ── Drawing ───────────────────────────────────────────────────
+
+	@Override
+	public void extractRenderState(final GuiGraphicsExtractor g, final int mouseX, final int mouseY, final float a) {
+		// before anything is drawn: what is worn decides where everything goes, slots included
+		this.relayout();
+		super.extractRenderState(g, mouseX, mouseY, a);
+	}
 
 	@Override
 	public void extractBackground(final GuiGraphicsExtractor g, final int mouseX, final int mouseY, final float a) {
 		super.extractBackground(g, mouseX, mouseY, a);
 		int x = this.leftPos;
 		int y = this.topPos;
-		panel(g, x, y, LEFT_W, HEIGHT);
-		panel(g, x + CENTRE_X, y, CENTRE_W, HEIGHT);
-		panel(g, x + RIGHT_X, y, RIGHT_W, HEIGHT);
+		panel(g, x, y, LEFT_W, this.panelHeight);
+		panel(g, x + CENTRE_X, y, CENTRE_W, this.panelHeight);
+		panel(g, x + RIGHT_X, y, RIGHT_W, this.panelHeight);
 		for (Slot slot : this.menu.slots) {
 			if (slot.isActive() && slot.x > AWAY / 2) {
 				g.fill(x + slot.x - 1, y + slot.y - 1, x + slot.x + 17, y + slot.y + 17, GridPanel.CELL_LINE);
@@ -190,12 +240,11 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 			return;
 		}
 		GridInventory inv = GridPanel.inventory(this.minecraft.player);
-		this.gridLayout = this.layoutGrid(inv);
 		this.labels(g, inv);
 		GridPanel.draw(g, this.menu, this.gridLayout, this.leftPos, this.topPos, mouseX, mouseY);
 		this.body(g);
 		if (!this.menu.getCarried().isEmpty()) {
-			g.text(this.font, Component.translatable("gui.mistinn.rotate_hint"), this.leftPos + CENTRE_X + 4, this.topPos + HEIGHT + 3, GridPanel.LABEL_DIM, true);
+			g.text(this.font, Component.translatable("gui.mistinn.rotate_hint"), this.leftPos + CENTRE_X + 4, this.topPos + this.panelHeight + 3, GridPanel.LABEL_DIM, true);
 		}
 	}
 
