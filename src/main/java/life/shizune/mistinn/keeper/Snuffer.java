@@ -10,6 +10,9 @@ import life.shizune.mistinn.salt.SaltService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -69,6 +72,38 @@ public class Snuffer extends Monster {
 		}
 	}
 
+	/**
+	 * 動作: what the keeper's body is doing, for the client to animate. A move has more than
+	 * one: the slam gathers, flies and lands. Each lasts {@code ticks} (0: until the next one),
+	 * and the client plays the clip {@code anim/keeper/<id>} over it.
+	 */
+	public enum Action {
+		NONE("none", 0),
+		/** The tell (leaning back, the pole drawn round), the sweep at tick 16, the follow-through. */
+		SWEEP("sweep", 40),
+		/** Sinking into a crouch to spring; held until the leap. */
+		SLAM_GATHER("slam_gather", 0),
+		/** In the air, the pole raised point down; held until it lands. */
+		SLAM_AIR("slam_air", 0),
+		/** The landing, the pole driven into the floor, and rising from it. */
+		SLAM_LAND("slam_land", 26),
+		/** Drawn back (the tell), thrown at tick 14, the hunter yanked in, struck at about 25. */
+		HOOK("hook", 40),
+		/** Thrown off balance by the lit lamps: hunched and swaying. */
+		STAGGER("stagger", STAGGER_TICKS);
+
+		public final String id;
+		public final int ticks;
+
+		Action(final String id, final int ticks) {
+			this.id = id;
+			this.ticks = ticks;
+		}
+	}
+
+	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(Snuffer.class, EntityDataSerializers.BYTE);
+	private static final EntityDataAccessor<Integer> DATA_ACTION_TICKS = SynchedEntityData.defineId(Snuffer.class, EntityDataSerializers.INT);
+
 	private final ServerBossEvent bar = new ServerBossEvent(java.util.UUID.randomUUID(), Component.translatable("entity.mistinn.snuffer"), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.NOTCHED_10);
 	private @Nullable Move move;
 	private int moveTimer;
@@ -114,7 +149,48 @@ public class Snuffer extends Monster {
 		return false;
 	}
 
+	@Override
+	protected void defineSynchedData(final SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(DATA_ACTION, (byte) 0);
+		builder.define(DATA_ACTION_TICKS, 0);
+	}
+
 	// ── State, for tests and the client ───────────────────────────
+
+	/** What the body is doing, as the client sees it. */
+	public Action action() {
+		Action[] all = Action.values();
+		int i = this.entityData.get(DATA_ACTION);
+		return i >= 0 && i < all.length ? all[i] : Action.NONE;
+	}
+
+	/** Ticks since the current action began. */
+	public int actionTicks() {
+		return this.entityData.get(DATA_ACTION_TICKS);
+	}
+
+	private void act(final Action action) {
+		this.entityData.set(DATA_ACTION, (byte) action.ordinal());
+		this.entityData.set(DATA_ACTION_TICKS, 0);
+	}
+
+	/** Counts the action on, and lets it go once its time is up. */
+	private void tickAction() {
+		Action action = this.action();
+		if (action == Action.NONE) {
+			return;
+		}
+		int ticks = this.actionTicks() + 1;
+		if (action.ticks > 0 && ticks >= action.ticks) {
+			this.act(Action.NONE);
+		} else if (action.ticks == 0 && ticks > 100) {
+			// a held pose never outlives its move by long, whatever went wrong
+			this.act(Action.NONE);
+		} else {
+			this.entityData.set(DATA_ACTION_TICKS, ticks);
+		}
+	}
 
 	public @Nullable Move move() {
 		return this.move;
@@ -133,6 +209,7 @@ public class Snuffer extends Monster {
 	@Override
 	protected void customServerAiStep(final ServerLevel level) {
 		super.customServerAiStep(level);
+		this.tickAction();
 		this.bar.setProgress(this.getHealth() / this.getMaxHealth());
 		this.updateBarViewers(level);
 		if (!this.dark && this.getHealth() <= this.getMaxHealth() / 2.0F) {
@@ -193,6 +270,11 @@ public class Snuffer extends Monster {
 		this.move = chosen;
 		this.moveTimer = 0;
 		this.leaping = false;
+		this.act(switch (chosen) {
+			case SWEEP -> Action.SWEEP;
+			case SLAM -> Action.SLAM_GATHER;
+			case HOOK -> Action.HOOK;
+		});
 		if (this.level() instanceof ServerLevel level) {
 			switch (chosen) {
 				case SWEEP -> level.playSound(null, this.blockPosition(), SoundEvents.CHAIN_PLACE, SoundSource.HOSTILE, 1.4F, 0.6F);
@@ -282,12 +364,14 @@ public class Snuffer extends Monster {
 			Vec3 push = flat.lengthSqr() < 1.0E-4 ? Vec3.ZERO : flat.normalize().scale(0.9 * reach);
 			this.setDeltaMovement(push.x, 0.75, push.z);
 			this.needsSync = true;
+			this.act(Action.SLAM_AIR);
 			return;
 		}
 		// wait to come down, then strike on landing (or give up after a few seconds)
 		if (!this.onGround() && this.moveTimer < this.move.windup + 60) {
 			return;
 		}
+		this.act(Action.SLAM_LAND);
 		level.playSound(null, this.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 1.0F, 1.4F);
 		level.sendParticles(ParticleTypes.WHITE_ASH, this.getX(), this.getY() + 0.1, this.getZ(), 80, 2.5, 0.1, 2.5, 0.05);
 		level.sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY() + 0.2, this.getZ(), 1, 0, 0, 0, 0);
@@ -394,6 +478,7 @@ public class Snuffer extends Monster {
 
 	private void stagger(final ServerLevel level) {
 		this.staggered = STAGGER_TICKS;
+		this.act(Action.STAGGER);
 		this.snuffTimer = STAGGER_TICKS + 40;
 		this.move = null;
 		this.hookFollowUp = -1;

@@ -95,13 +95,18 @@ public class StoryCardScreen extends Screen {
 		int h = ART_H * scale;
 		int x = (this.width - w) / 2;
 		int y = Math.max(22, (this.height - h - 48) / 2);
-		float fade = Mth.clamp((this.ticks + a) / 24.0F, 0.0F, 1.0F);
-		int tint = (int) (255 * fade) << 24 | 0xFFFFFF;
-		g.blit(RenderPipelines.GUI_TEXTURED, this.image, x, y, 0.0F, 0.0F, w, h, ART_W, ART_H, ART_W, ART_H, tint);
+		// the picture surfaces out of the dark and settles a few pixels up; the title follows it
+		float time = this.ticks + a;
+		float fade = Mth.clamp(time / 24.0F, 0.0F, 1.0F);
+		float rise = 1.0F - life.shizune.mistinn.client.anim.Motion.outCubic(time / 30.0F);
+		int tint = Math.max(4, (int) (255 * fade * fade * (3.0F - 2.0F * fade))) << 24 | 0xFFFFFF;
+		g.blit(RenderPipelines.GUI_TEXTURED, this.image, x, y + Math.round(6.0F * rise), 0.0F, 0.0F, w, h, ART_W, ART_H, ART_W, ART_H, tint);
 
 		if (!this.card.title().isEmpty()) {
 			Component title = Component.translatable(this.card.title());
-			g.text(font, title, (this.width - font.width(title)) / 2, y - 14, (int) (255 * fade) << 24 | (TITLE & 0xFFFFFF), true);
+			float titleIn = life.shizune.mistinn.client.anim.Motion.outCubic(life.shizune.mistinn.client.anim.Motion.progress(time, 8.0F, 18.0F));
+			int titleAlpha = Math.max(4, (int) (255 * titleIn));
+			g.text(font, title, (this.width - font.width(title)) / 2, y - 14 + Math.round(3.0F * (1.0F - titleIn)), titleAlpha << 24 | (TITLE & 0xFFFFFF), true);
 		}
 
 		if (this.line < this.card.lines() && fade >= 1.0F) {

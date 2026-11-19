@@ -1,0 +1,20 @@
+{
+	"_comment": "撲 DIVE: loaded in a crouch, thrown forward flat with the arms out ahead, landed on hands and chest, pushed back up to the feet. Played over RollService.DIVE_TICKS; the body is airborne until about 0.6.",
+	"keys": [0.0, 0.12, 0.30, 0.55, 0.62, 0.80, 0.92, 1.0],
+	"eases": ["out_quad", "out_cubic", "in_quad", "out_quad", "in_out_sine", "in_out_sine", "in_out_sine"],
+	"pivot": 0.9,
+	"root": {
+		"pitch": [0, 15, 80, 88, 90, 55, 15, 0],
+		"y": [0, -0.15, 0.0, -0.45, -0.72, -0.40, -0.10, 0]
+	},
+	"limbs": {
+		"head_x": [0, 10, -60, -60, -55, -30, -5, 0],
+		"body_x": [0, 10, 0, 0, 0, 15, 5, 0],
+		"right_arm_x": [0, 40, -170, -170, -150, -80, -20, 0],
+		"right_arm_z": [0, 10, -10, -10, 15, 20, 5, 0],
+		"left_arm_x": [0, 40, -170, -170, -150, -80, -20, 0],
+		"left_arm_z": [0, -10, 10, 10, -15, -20, -5, 0],
+		"right_leg_x": [0, -45, 10, 15, 10, -50, -30, 0],
+		"left_leg_x": [0, -30, 20, 20, 15, -70, -20, 0]
+	}
+}

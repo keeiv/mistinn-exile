@@ -1,0 +1,34 @@
+{
+	"_comment": "長槍 THRUST: drawn back to the hip, driven straight out along the line of sight, held a beat, drawn back in.",
+	"keys": [0.0, 0.08, 0.16, 0.34, 0.56, 1.0],
+	"eases": ["out_quad", "in_cubic", "out_quad", "in_out_sine", "in_out_sine"],
+	"contact": 0.16,
+	"two_handed": false,
+	"pitch_follow": 0.9,
+	"first_person": {
+		"tx": [0, 0.04, -0.20, -0.22, -0.06, 0],
+		"ty": [0, -0.04, 0.06, 0.06, 0.02, 0],
+		"tz": [0, 0.22, -0.55, -0.60, -0.15, 0],
+		"rx": [0, -10, -70, -72, -20, 0],
+		"ry": [0, 0, 20, 22, 6, 0],
+		"rz": [0, 0, 0, 0, 0, 0]
+	},
+	"camera": {
+		"yaw": [0, 0.5, -0.8, -0.8, -0.2, 0],
+		"pitch": [0, 0, 0.8, 0.8, 0.2, 0],
+		"roll": [0, 0, 0, 0, 0, 0]
+	},
+	"third_person": {
+		"arm_x": [-18, 10, -75, -78, -40, -18],
+		"arm_y": [0, 10, -8, -8, -4, 0],
+		"arm_z": [0, 5, 0, 0, 0, 0],
+		"other_x": [0, -30, 20, 22, 8, 0],
+		"other_y": [0, 15, 0, 0, 0, 0],
+		"other_z": [0, 0, 0, 0, 0, 0],
+		"body_y": [0, 30, -20, -22, -8, 0],
+		"body_x": [0, -4, 8, 8, 3, 0],
+		"front_leg": [0, 0, -30, -30, -12, 0],
+		"back_leg": [0, 0, 22, 22, 8, 0],
+		"item_x": [0, 10, -80, -82, -40, 0]
+	}
+}

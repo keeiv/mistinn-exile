@@ -2,6 +2,8 @@ package life.shizune.mistinn.client.keeper;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import life.shizune.mistinn.Mistinn;
+import life.shizune.mistinn.client.anim.Clip;
+import life.shizune.mistinn.client.anim.Poser;
 import life.shizune.mistinn.keeper.Snuffer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -39,8 +41,21 @@ public class SnufferRenderer extends HumanoidMobRenderer<Snuffer, SnufferRenderS
 	public void extractRenderState(final Snuffer entity, final SnufferRenderState state, final float partialTicks) {
 		super.extractRenderState(entity, state, partialTicks);
 		state.soulFlame = entity.getItemBySlot(EquipmentSlot.HEAD).is(Items.SOUL_LANTERN);
+		state.action = entity.action();
+		state.actionTicks = entity.actionTicks() + partialTicks;
+		state.turnSpeed = net.minecraft.util.Mth.wrapDegrees(entity.yBodyRot - entity.yBodyRotO);
 		// the model already is the lantern
 		state.headItem.clear();
+	}
+
+	/** The whole body sinks into the slam's crouch and the stagger's hunch. */
+	@Override
+	protected void setupRotations(final SnufferRenderState state, final PoseStack poseStack, final float bodyRot, final float entityScale) {
+		super.setupRotations(state, poseStack, bodyRot, entityScale);
+		Clip clip = SnufferModel.clip(state);
+		if (clip != null) {
+			Poser.root(clip, SnufferModel.progress(state), poseStack, 1, entityScale);
+		}
 	}
 
 	@Override

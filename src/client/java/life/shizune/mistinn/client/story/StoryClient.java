@@ -21,7 +21,7 @@ public final class StoryClient {
 	/** Characters typed per second in subtitles and cards. */
 	public static final float TYPE_SPEED = 26.0F;
 	/** How long a new objective stays highlighted, in ticks. */
-	private static final int FLASH_TICKS = 100;
+	public static final int FLASH_TICKS = 100;
 
 	/** A sequence being played: its lines, and the entity a scene holds the view on (-1 for none). */
 	public record Playing(List<StoryScript.Line> lines, int focus, String cardAfter) {

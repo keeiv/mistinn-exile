@@ -1,0 +1,18 @@
+{
+	"_comment": "鉤 HOOK (40 ticks): the tell draws the pole back high over the shoulder; at tick 14 (0.35) it is thrown out, then hauled back to the hip to drag the hunter in, and driven forward into the face at about tick 25 (0.62).",
+	"keys": [0.0, 0.30, 0.35, 0.40, 0.55, 0.60, 0.66, 0.80, 1.0],
+	"eases": ["in_out_sine", "in_cubic", "out_quad", "in_out_sine", "in_cubic", "out_quad", "in_out_sine", "in_out_sine"],
+	"limbs": {
+		"head_x": [0, -10, 5, 5, -5, 10, 10, 3, 0],
+		"body_x": [0, -8, 8, 10, -10, 12, 14, 5, 0],
+		"body_y": [0, 30, -10, -15, 20, -20, -22, -8, 0],
+		"right_arm_x": [0, -150, -95, -82, 15, -85, -90, -40, 0],
+		"right_arm_y": [0, 20, -5, -10, 10, -5, -5, 0, 0],
+		"left_arm_x": [0, -50, -20, -10, -40, 10, 15, 5, 0],
+		"right_leg_x": [0, -10, 15, 15, 20, 20, 20, 8, 0],
+		"left_leg_x": [0, 10, -20, -25, -10, -30, -30, -10, 0]
+	},
+	"item": {
+		"x": [0, 0, -60, -70, 0, -75, -75, -20, 0]
+	}
+}

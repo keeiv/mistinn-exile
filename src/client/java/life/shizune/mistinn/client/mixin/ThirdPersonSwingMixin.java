@@ -6,17 +6,21 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.LivingEntity.SwingDescription;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Drives the arms of humanoid models with each weapon branch's swing, seen from outside. */
+/**
+ * Drives humanoid models through each weapon branch's swing, seen from outside. Vanilla's
+ * attack animation is skipped for these weapons rather than drawn over, so its own arm swing
+ * and torso wobble do not leak into the pose.
+ */
 @Mixin(HumanoidModel.class)
 public abstract class ThirdPersonSwingMixin {
-	@Inject(method = "setupAttackAnimation", at = @At("TAIL"))
+	@Inject(method = "setupAttackAnimation", at = @At("HEAD"), cancellable = true)
 	private void mistinn$swing(final HumanoidRenderState state, final CallbackInfo ci) {
 		SwingDescription swing = state.currentSwing;
 		if (swing == null || state.swingAnimation <= 0.0F) {
@@ -29,6 +33,7 @@ public abstract class ThirdPersonSwingMixin {
 		}
 		HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
 		HumanoidArm arm = swing.hand().asArm(state.mainArm);
-		WeaponSwings.thirdPerson(style, WeaponSwings.progress(state.swingAnimation), model, model.getArm(arm), model.getArm(arm.getOpposite()), arm == HumanoidArm.RIGHT ? 1 : -1);
+		WeaponSwings.thirdPerson(style, WeaponSwings.progress(state.swingAnimation), model, model.getArm(arm), model.getArm(arm.getOpposite()), arm == HumanoidArm.RIGHT ? 1 : -1, state.ageScale);
+		ci.cancel();
 	}
 }

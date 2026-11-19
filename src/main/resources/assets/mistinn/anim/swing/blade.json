@@ -1,0 +1,34 @@
+{
+	"_comment": "直刃 SLASH: raised over the right shoulder, a diagonal cut down through the target, carried past to the left hip.",
+	"keys": [0.0, 0.10, 0.20, 0.38, 0.60, 1.0],
+	"eases": ["out_quad", "in_cubic", "out_cubic", "in_out_sine", "in_out_sine"],
+	"contact": 0.20,
+	"two_handed": false,
+	"pitch_follow": 0.5,
+	"first_person": {
+		"tx": [0, 0.10, -0.30, -0.42, -0.18, 0],
+		"ty": [0, 0.16, -0.06, -0.22, -0.10, 0],
+		"tz": [0, 0.04, -0.12, -0.04, 0.0, 0],
+		"rx": [0, 20, -45, -70, -30, 0],
+		"ry": [0, 10, -15, -25, -10, 0],
+		"rz": [0, 30, -35, -60, -25, 0]
+	},
+	"camera": {
+		"yaw": [0, 1.0, -1.5, -2.5, -1.0, 0],
+		"pitch": [0, -0.8, 1.0, 1.6, 0.6, 0],
+		"roll": [0, 1.0, -1.5, -2.0, -0.8, 0]
+	},
+	"third_person": {
+		"arm_x": [-18, -150, -80, -35, -28, -18],
+		"arm_y": [0, 10, -30, -55, -25, 0],
+		"arm_z": [0, 30, -5, -20, -8, 0],
+		"other_x": [0, 20, -15, -25, -10, 0],
+		"other_y": [0, 0, 10, 15, 5, 0],
+		"other_z": [0, 0, 0, 0, 0, 0],
+		"body_y": [0, 25, -15, -35, -15, 0],
+		"body_x": [0, -4, 6, 10, 4, 0],
+		"front_leg": [0, 0, -20, -25, -10, 0],
+		"back_leg": [0, 0, 15, 18, 8, 0],
+		"item_x": [0, 0, 0, 0, 0, 0]
+	}
+}

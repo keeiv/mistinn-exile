@@ -1,0 +1,20 @@
+{
+	"_comment": "翻滾 ROLL: a dip into a crouch, then a forward roll over the curled back, rolling along the ground, and up out of a crouch. Played over RollService.ROLL_TICKS.",
+	"keys": [0.0, 0.10, 0.25, 0.50, 0.72, 0.88, 1.0],
+	"eases": ["out_quad", "in_quad", "linear", "out_quad", "in_out_sine", "in_out_sine"],
+	"pivot": 1.05,
+	"root": {
+		"pitch": [0, 25, 120, 235, 335, 360, 360],
+		"y": [0, -0.30, -0.42, -0.45, -0.38, -0.15, 0]
+	},
+	"limbs": {
+		"head_x": [0, 25, 50, 50, 40, 10, 0],
+		"body_x": [0, 15, 30, 30, 25, 10, 0],
+		"right_arm_x": [-5, -70, -95, -100, -85, -35, 0],
+		"right_arm_z": [0, 10, -20, -20, -15, 0, 0],
+		"left_arm_x": [-5, -70, -95, -100, -85, -35, 0],
+		"left_arm_z": [0, -10, 20, 20, 15, 0, 0],
+		"right_leg_x": [0, -40, -110, -120, -95, -40, 0],
+		"left_leg_x": [0, -30, -100, -115, -80, -20, 0]
+	}
+}

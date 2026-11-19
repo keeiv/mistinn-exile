@@ -1,0 +1,24 @@
+{
+	"_comment": "跳斬・空 SLAM_AIR: springs up with both hands raising the pole overhead, point down, legs drawn up under it. Held until it lands.",
+	"length": 10,
+	"keys": [0.0, 0.4, 1.0],
+	"eases": ["out_cubic", "in_out_sine"],
+	"pivot": 0.0,
+	"root": {
+		"y": [-0.3, 0.0, 0.0]
+	},
+	"limbs": {
+		"head_x": [10, -15, -10],
+		"body_x": [20, -12, -8],
+		"right_arm_x": [40, -165, -170],
+		"right_arm_z": [10, 5, 5],
+		"left_arm_x": [40, -160, -165],
+		"left_arm_y": [0, 20, 25],
+		"left_arm_z": [-10, -5, -5],
+		"right_leg_x": [-40, -35, -40],
+		"left_leg_x": [-30, -15, -20]
+	},
+	"item": {
+		"x": [0, 80, 90]
+	}
+}

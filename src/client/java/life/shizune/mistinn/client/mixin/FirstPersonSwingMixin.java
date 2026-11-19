@@ -16,7 +16,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Replaces the vanilla first-person swing with each weapon branch's own swing. */
+/**
+ * Replaces the vanilla first-person swing with each weapon branch's own swing. Vanilla's
+ * swing (a quick dip and flick) is cancelled for these weapons, not layered under the clip.
+ */
 @Mixin(FirstPersonHandsAndItemsRenderer.class)
 public abstract class FirstPersonSwingMixin {
 	/** The item in the hand being drawn; swingArm does not receive it. Render thread only. */

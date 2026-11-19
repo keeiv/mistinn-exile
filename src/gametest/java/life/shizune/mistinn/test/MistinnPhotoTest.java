@@ -132,8 +132,8 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 			// the hammer carried past the line of the blow, frozen at the overshoot
 			context.runOnClient(mc -> {
 				mc.player.swing(net.minecraft.world.InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getAttackAnimation(), false);
-				life.shizune.mistinn.client.anim.WeaponSwings.Beat beat = life.shizune.mistinn.client.anim.WeaponSwings.beat(WeaponStyle.SMASH);
-				life.shizune.mistinn.client.anim.WeaponSwings.preview = beat.strikeEnd() + (beat.overEnd() - beat.strikeEnd()) * 0.45F;
+				life.shizune.mistinn.client.anim.Clip clip = life.shizune.mistinn.client.anim.WeaponSwings.clip(WeaponStyle.SMASH);
+				life.shizune.mistinn.client.anim.WeaponSwings.preview = clip.key(2) + (clip.key(3) - clip.key(2)) * 0.45F;
 			});
 			context.waitTicks(3);
 			shot(context, "swing", true);

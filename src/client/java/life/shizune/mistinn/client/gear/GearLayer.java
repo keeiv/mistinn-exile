@@ -24,8 +24,9 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * 背包與胸掛: the worn backpack on the back and the chest rig over the front of the chest,
- * drawn on every player. Both hang from the body part, so they lean and crouch with it, and sit
- * just outside a chestplate (which stands one pixel off the body). Each tier has its own shape:
+ * drawn on every player. Both hang from the body part, so they lean, twist and crouch with it
+ * (through swings, rolls and falls too), and sit just outside a chestplate (which stands one
+ * pixel off the body). The backpack bounces with the stride. Each tier has its own shape:
  * the backpack grows and gains pockets, a bedroll and a frame; the rig goes from a bandolier and
  * a work belt to a harness with a row of magazine pouches.
  */
@@ -160,6 +161,14 @@ public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 			for (int t = 0; t < TIERS; t++) {
 				this.own[t].visible = tier != null && tier == t;
 				this.other[t].visible = false;
+			}
+			if (this.key == BACKPACK && tier != null && tier >= 0 && tier < TIERS) {
+				// 晃動: the pack is thrown up off the back with each footfall and lands again; it
+				// only ever swings away from the back, never into it
+				float speed = Math.min(state.walkAnimationSpeed, 1.0F);
+				float step = Math.abs(net.minecraft.util.Mth.sin(state.walkAnimationPos * 0.6662F - 0.4F));
+				this.own[tier].xRot = 0.06F * step * speed;
+				this.own[tier].y = -0.6F * step * speed;
 			}
 			this.head.visible = false;
 			this.hat.visible = false;

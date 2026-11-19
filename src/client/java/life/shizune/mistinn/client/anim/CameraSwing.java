@@ -14,9 +14,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 
 /**
- * The first-person view follows the swing: it is pulled round with the wind-up, thrown along
- * with the strike and carried past it, as if the weapon's weight dragged the head with it.
- * A hit jolts the view. Rolls and dives add their own motion.
+ * The first-person view follows the swing a little: it leans into the strike and is carried
+ * a few degrees past it by the follow-through (each clip's {@code camera} tracks), and a blow
+ * that lands knocks it once, at the moment the weapon meets the target. Rolls and dives add
+ * their own motion.
  * Hunters can turn the swing motion off; the setting is kept in the config folder.
  */
 public final class CameraSwing {
@@ -27,19 +28,6 @@ public final class CameraSwing {
 	private static long hitAt = Long.MIN_VALUE;
 
 	private CameraSwing() {
-	}
-
-	private record View(WeaponSwings.Channel yaw, WeaponSwings.Channel pitch, WeaponSwings.Channel roll) {
-	}
-
-	private static View view(final WeaponStyle style) {
-		return switch (style) {
-			case SLASH -> new View(new WeaponSwings.Channel(6.0F, -9.0F, -3.0F), new WeaponSwings.Channel(-4.0F, 6.0F, 2.0F), new WeaponSwings.Channel(6.0F, -8.0F, -3.0F));
-			case CLEAVE -> new View(new WeaponSwings.Channel(0.0F, 0.0F, 0.0F), new WeaponSwings.Channel(-9.0F, 13.0F, 4.0F), new WeaponSwings.Channel(2.0F, -3.0F, -1.0F));
-			case THRUST -> new View(new WeaponSwings.Channel(3.0F, -4.0F, -1.0F), new WeaponSwings.Channel(2.0F, -3.0F, -1.0F), new WeaponSwings.Channel(2.0F, -3.0F, -1.0F));
-			case FLURRY -> new View(new WeaponSwings.Channel(3.0F, -5.0F, -1.5F), new WeaponSwings.Channel(-1.0F, 2.0F, 0.5F), new WeaponSwings.Channel(3.0F, -4.0F, -1.5F));
-			case SMASH -> new View(new WeaponSwings.Channel(12.0F, -16.0F, -6.0F), new WeaponSwings.Channel(-2.0F, 4.0F, 1.5F), new WeaponSwings.Channel(6.0F, -9.0F, -4.0F));
-		};
 	}
 
 	public static boolean enabled() {
@@ -78,9 +66,19 @@ public final class CameraSwing {
 		}
 	}
 
-	/** Called when the local player's blow lands. */
+	/**
+	 * Called when the local player's blow lands. The hit is dealt on the click, but the weapon
+	 * only meets the target at the swing's contact beat: the jolt waits for it.
+	 */
 	public static void hit() {
-		hitAt = System.nanoTime();
+		long delay = 0L;
+		LocalPlayer player = Minecraft.getInstance().player;
+		WeaponStyle style = player == null ? null : WeaponStyle.of(player.getMainHandItem());
+		if (style != null) {
+			float ticks = WeaponSwings.contact(style) * player.getMainHandItem().getAttackAnimation().duration();
+			delay = (long) (ticks * 50_000_000L);
+		}
+		hitAt = System.nanoTime() + delay;
 	}
 
 	/** Adds the swing and jolt to the view; called while vanilla tilts the view for damage. */
@@ -99,24 +97,19 @@ public final class CameraSwing {
 		float p = WeaponSwings.progress(player.getSwingAnimation(partialTicks));
 		if (enabled() && style != null && p > 0.0F) {
 			int side = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
-			float local = p;
-			if (style == WeaponStyle.FLURRY) {
-				local = p < 0.5F ? p * 2.0F : p * 2.0F - 1.0F;
-				side = p < 0.5F ? side : -side;
-			}
-			WeaponSwings.Beat beat = WeaponSwings.beat(style);
-			View view = view(style);
-			yaw += side * view.yaw().at(beat, local, 0.0F);
-			pitch += view.pitch().at(beat, local, 0.0F);
-			roll += side * view.roll().at(beat, local, 0.0F);
+			float[] sway = {0.0F, 0.0F, 0.0F};
+			WeaponSwings.camera(style, p, side, sway);
+			yaw += sway[0];
+			pitch += sway[1];
+			roll += sway[2];
 		}
 		float since = (System.nanoTime() - hitAt) / 1.0E9F;
-		if (enabled() && since >= 0.0F && since < 0.3F) {
-			// a sharp jolt that dies away fast
-			float k = (1.0F - since / 0.3F);
-			k *= k;
-			pitch += 2.6F * k * Mth.sin(since * 70.0F);
-			roll += 1.8F * k * Mth.cos(since * 55.0F);
+		if (enabled() && since >= 0.0F && since < 0.25F) {
+			// the blade bites: the view is knocked down once and settles, without ringing
+			float k = 1.0F - since / 0.25F;
+			float kick = Mth.sin(Math.min(since / 0.04F, 1.0F) * Mth.HALF_PI) * k * k;
+			pitch += 1.6F * kick;
+			roll += 0.6F * kick;
 		}
 		if (yaw != 0.0F || pitch != 0.0F || roll != 0.0F) {
 			pose.rotateDegrees(Axis.ZP, roll);

@@ -35,18 +35,14 @@ public class MistinnAnimSheetTest implements FabricClientGameTest {
 				// let the new item finish rising into the hand first
 				context.waitTicks(25);
 				WeaponStyle style = context.computeOnClient(mc -> WeaponStyle.of(mc.player.getMainHandItem()));
-				WeaponSwings.Beat beat = WeaponSwings.beat(style);
+				// the top of the anticipation, the contact, mid follow-through, the recovery
+				life.shizune.mistinn.client.anim.Clip clip = WeaponSwings.clip(style);
 				float[] beats = {
-					beat.windEnd() * 0.98F,
-					beat.windEnd() + (beat.strikeEnd() - beat.windEnd()) * 0.75F,
-					beat.strikeEnd() + (beat.overEnd() - beat.strikeEnd()) * 0.5F,
-					beat.overEnd() + (1.0F - beat.overEnd()) * 0.4F
+					clip.key(1),
+					clip.key(2),
+					(clip.key(2) + clip.key(3)) / 2.0F,
+					(clip.key(clip.keyCount() - 2) + 1.0F) / 2.0F
 				};
-				if (style == WeaponStyle.FLURRY) {
-					for (int i = 0; i < beats.length; i++) {
-						beats[i] = beats[i] / 2.0F;
-					}
-				}
 				for (CameraType camera : new CameraType[] {CameraType.FIRST_PERSON, CameraType.THIRD_PERSON_BACK}) {
 					context.runOnClient(mc -> mc.options.setCameraType(camera));
 					for (int i = 0; i < beats.length; i++) {

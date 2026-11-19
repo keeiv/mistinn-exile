@@ -73,6 +73,15 @@ if (project.hasProperty("animSheet")) {
 	}
 }
 
+// Motion reel (-PmotionReel): every body animation filmed as dense frame runs, for strips and GIFs.
+if (project.hasProperty("motionReel")) {
+	loom.runs.configureEach {
+		if (name == "clientGameTest") {
+			vmArg "-Dmistinn.reel=true"
+		}
+	}
+}
+
 if (photoMode) {
 	loom.runs.configureEach {
 		if (name == "clientGameTest") {

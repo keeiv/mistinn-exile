@@ -1,0 +1,22 @@
+{
+	"_comment": "倒下（其他死因）: a stagger back, a stumbling step forward, the knees go, and the body falls on its face and lies still. Progress is seconds over DeathScene.GONE (3 s); the sway is written to the right.",
+	"keys": [0.0, 0.10, 0.20, 0.30, 0.45, 0.58, 0.62, 0.66, 1.0],
+	"eases": ["out_quad", "in_out_sine", "in_out_sine", "in_out_sine", "in_quad", "out_quad", "in_out_sine", "linear"],
+	"pivot": 0.0,
+	"root": {
+		"pitch": [0, -8, 8, 4, 10, 90, 84, 90, 90],
+		"roll": [0, 2, -3, 6, 4, 2, 2, 2, 2],
+		"y": [0, 0, 0, 0, -0.25, 0.13, 0.17, 0.13, 0.13]
+	},
+	"limbs": {
+		"head_x": [0, -15, 15, 10, 25, -10, -20, -15, -15],
+		"head_y": [0, 0, 0, 0, 0, 50, 60, 60, 60],
+		"body_x": [0, -5, 10, 5, 15, 0, 0, 0, 0],
+		"right_arm_x": [0, 20, -25, -15, -40, -150, -160, -155, -155],
+		"right_arm_z": [0, 25, 10, 15, 10, 20, 25, 22, 22],
+		"left_arm_x": [0, 15, -35, -10, -45, -140, -150, -145, -145],
+		"left_arm_z": [0, -25, -10, -15, -10, -20, -25, -22, -22],
+		"right_leg_x": [0, 10, -30, 15, -30, 5, 0, 0, 0],
+		"left_leg_x": [0, -5, 25, -10, 20, 5, 0, 0, 0]
+	}
+}

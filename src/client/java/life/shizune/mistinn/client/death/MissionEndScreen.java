@@ -164,8 +164,9 @@ public class MissionEndScreen extends DeathScreen {
 			choice.extractRenderState(g, mouseX, mouseY, a);
 		}
 
-		// a heart run through, beating faintly
-		float beat = 1.0F + 0.04F * Math.max(0.0F, Mth.sin(since * 5.0F));
+		// a heart run through, still beating: lub-dub, fainter and slower as it gives out
+		float slowing = Mth.clamp(since / 12.0F, 0.0F, 1.0F);
+		float beat = 1.0F + (0.06F - 0.03F * slowing) * life.shizune.mistinn.client.anim.Motion.heartbeat(since, 1.1F + 0.9F * slowing);
 		int size = Math.round(this.heartSize() * beat);
 		int hy = top + HEART_AT + (this.heartSize() - size) / 2;
 		g.blit(RenderPipelines.GUI_TEXTURED, HEART, cx - size / 2, hy, 0.0F, 0.0F, size, size, HEART_SIZE, HEART_SIZE, HEART_SIZE, HEART_SIZE, alpha << 24 | 0xFFFFFF);
@@ -176,9 +177,11 @@ public class MissionEndScreen extends DeathScreen {
 		return this.shown && this.shownFor() > 1.4F;
 	}
 
-	/** A choice written as "> words": brightens and steps forward under the pointer. */
+	/** A choice written as "> words": brightens and eases forward under the pointer. */
 	private final class Choice extends AbstractButton {
 		private final Runnable action;
+		private float hover;
+		private long last = System.nanoTime();
 
 		Choice(final int x, final int y, final int width, final Component message, final Runnable action) {
 			super(x, y, width, 20, message);
@@ -197,11 +200,21 @@ public class MissionEndScreen extends DeathScreen {
 			if (!MissionEndScreen.this.ready()) {
 				return;
 			}
-			boolean hot = this.isHoveredOrFocused();
+			long now = System.nanoTime();
+			float dt = Math.min(0.1F, (now - this.last) / 1.0E9F);
+			this.last = now;
+			this.hover = life.shizune.mistinn.client.anim.Motion.approach(this.hover, this.isHoveredOrFocused() ? 1.0F : 0.0F, dt, 16.0F);
+			// the choices rise into place and fade in once the screen is ready
+			float in = life.shizune.mistinn.client.anim.Motion.outCubic(life.shizune.mistinn.client.anim.Motion.progress(MissionEndScreen.this.shownFor(), 1.4F, 0.5F));
+			int alpha = Math.max(8, (int) (255 * in));
 			Font font = MissionEndScreen.this.font;
 			Component text = Component.literal("> ").append(this.getMessage());
-			int x = this.getX() + (this.getWidth() - font.width(text)) / 2 + (hot ? 3 : 0);
-			g.text(font, text, x, this.getY() + 6, hot ? 0xFFF2CC80 : 0xFFB8B0A0, true);
+			int x = this.getX() + (this.getWidth() - font.width(text)) / 2 + Math.round(3.0F * this.hover);
+			int y = this.getY() + 6 + Math.round(4.0F * (1.0F - in));
+			int r = (int) Mth.lerp(this.hover, 0xB8, 0xF2);
+			int gr = (int) Mth.lerp(this.hover, 0xB0, 0xCC);
+			int b = (int) Mth.lerp(this.hover, 0xA0, 0x80);
+			g.text(font, text, x, y, alpha << 24 | r << 16 | gr << 8 | b, true);
 		}
 
 		@Override

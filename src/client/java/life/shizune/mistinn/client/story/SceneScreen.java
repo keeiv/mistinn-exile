@@ -100,7 +100,11 @@ public class SceneScreen extends Screen {
 		if (Float.isNaN(this.baseYaw)) {
 			return null;
 		}
-		double angle = Math.toRadians(this.baseYaw + (this.ticks + partial) * ORBIT);
+		// the orbit gathers pace over its first second and a half instead of starting at speed
+		float time = this.ticks + partial;
+		float ramp = 30.0F;
+		float travelled = time < ramp ? time * time * time / (ramp * ramp) - time * time * time * time / (2.0F * ramp * ramp * ramp) : time - ramp / 2.0F;
+		double angle = Math.toRadians(this.baseYaw + travelled * ORBIT);
 		return this.target.add(Math.cos(angle) * DISTANCE, RISE, Math.sin(angle) * DISTANCE);
 	}
 

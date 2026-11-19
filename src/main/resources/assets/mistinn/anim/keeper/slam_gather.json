@@ -1,0 +1,20 @@
+{
+	"_comment": "跳斬・蓄 SLAM_GATHER: sinks into a deep crouch, the pole swept back low behind it, the lantern bowed. Held until the leap.",
+	"length": 20,
+	"keys": [0.0, 0.5, 1.0],
+	"eases": ["out_quad", "in_out_sine"],
+	"pivot": 0.0,
+	"root": {
+		"y": [0, -0.35, -0.42]
+	},
+	"limbs": {
+		"head_x": [0, 15, 20],
+		"body_x": [0, 25, 32],
+		"right_arm_x": [0, 40, 55],
+		"right_arm_z": [0, 10, 12],
+		"left_arm_x": [0, 40, 55],
+		"left_arm_z": [0, -10, -12],
+		"right_leg_x": [0, -40, -48],
+		"left_leg_x": [0, -30, -38]
+	}
+}
