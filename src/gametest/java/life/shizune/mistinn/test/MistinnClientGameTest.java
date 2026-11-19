@@ -225,7 +225,42 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			context.runOnClient(mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT));
 			context.waitTicks(10);
 			context.takeScreenshot("gear-worn");
+
+			// the worn backpack on the back and the rig on the chest, for everyone to see
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				GridService.set(player, GridService.get(player).withRig(new ItemStack(MistinnItems.RIGS.get(3))));
+			});
+			context.waitTicks(10);
+			context.runOnClient(mc -> check(mc.player.getAttachedOrElse(MistinnAttachments.WORN_BACKPACK, -1) == 3
+				&& mc.player.getAttachedOrElse(MistinnAttachments.WORN_RIG, -1) == 3, "the client knows which backpack and rig are worn"));
+			context.takeScreenshot("gear-worn-rig");
+			context.runOnClient(mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
+			context.waitTicks(10);
+			context.takeScreenshot("gear-worn-back");
+
+			// items that are not square fill their footprint with a grid sprite
+			GridInventory[] saved = new GridInventory[1];
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				saved[0] = GridService.get(player);
+				GridService.set(player, GridInventory.EMPTY.withBackpack(new ItemStack(MistinnItems.BACKPACKS.get(6))).with(Area.BACKPACK, java.util.List.of(
+					new Placed(3, 0, 0, false, new ItemStack(MistinnItems.WEAPONS.get(life.shizune.mistinn.weapon.WeaponStyle.SMASH).get(life.shizune.mistinn.weapon.WeaponMaterial.IRON))),
+					new Placed(3, 2, 0, false, new ItemStack(MistinnItems.ARMORS.get(3))),
+					new Placed(3, 0, 3, false, new ItemStack(MistinnItems.LEGGINGS.get(4))),
+					new Placed(3, 2, 3, false, new ItemStack(MistinnItems.RIGS.get(5))),
+					new Placed(3, 4, 0, false, new ItemStack(MistinnItems.ANCHOR_BLADE))
+				)));
+			});
 			context.runOnClient(mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
+			context.setScreen(() -> new InventoryScreen(context.computeOnClient(mc -> mc.player)));
+			context.waitTicks(10);
+			context.takeScreenshot("grid-previews");
+			context.runOnClient(mc -> check(life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.ARMORS.get(3)) != null
+				&& life.shizune.mistinn.client.grid.GridSprites.of(MistinnItems.ANCHOR_BLADE) == null, "a chestplate has a grid sprite, a blade keeps its icon"));
+			context.setScreen(() -> null);
+			world.getServer().runOnServer(server -> GridService.set(server.getPlayerList().getPlayers().getFirst(), saved[0].withRig(ItemStack.EMPTY)));
+			context.waitTicks(4);
 			context.setScreen(() -> new InventoryScreen(context.computeOnClient(mc -> mc.player)));
 			context.waitTicks(10);
 			context.takeScreenshot("grid-inventory");
