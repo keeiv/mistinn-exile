@@ -122,6 +122,25 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 			context.runOnClient(mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT));
 			context.waitTicks(20);
 			shot(context, "hunter", true);
+			// the hammer carried past the line of the blow, frozen at the overshoot
+			context.runOnClient(mc -> {
+				mc.player.swing(net.minecraft.world.InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getAttackAnimation(), false);
+				life.shizune.mistinn.client.anim.WeaponSwings.Beat beat = life.shizune.mistinn.client.anim.WeaponSwings.beat(WeaponStyle.SMASH);
+				life.shizune.mistinn.client.anim.WeaponSwings.preview = beat.strikeEnd() + (beat.overEnd() - beat.strikeEnd()) * 0.45F;
+			});
+			context.waitTicks(3);
+			shot(context, "swing", true);
+			context.runOnClient(mc -> life.shizune.mistinn.client.anim.WeaponSwings.preview = -1.0F);
+			context.waitTicks(30);
+			// halfway through a roll to the side
+			context.runOnClient(mc -> {
+				life.shizune.mistinn.client.move.RollClient.received(new life.shizune.mistinn.stamina.RollService.RollAnimPayload(mc.player.getId(), 0, mc.player.getYRot() - 90.0F, 1.0F, 1.0F));
+				life.shizune.mistinn.client.move.RollClient.preview = 0.42F;
+			});
+			context.waitTicks(3);
+			shot(context, "roll", true);
+			context.runOnClient(mc -> life.shizune.mistinn.client.move.RollClient.preview = -1.0F);
+			context.waitTicks(25);
 			context.runOnClient(mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
 
 			// ── First person with the HUD, a diamond greatsword ──────

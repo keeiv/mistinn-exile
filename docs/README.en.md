@@ -39,6 +39,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 - [Playing](#playing)
 - [World and structures](#world-and-structures)
 - [Body parts](#body-parts)
+- [Swings, stamina and rolls](#swings-stamina-and-rolls)
 - [The fog-shore lighthouse and the Snuffer](#the-fog-shore-lighthouse-and-the-snuffer)
 - [Controls](#controls)
 - [Tiers and gear](#tiers-and-gear)
@@ -60,6 +61,9 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | One-time bells | Cast from gold ore (ore or raw gold) and an iron chain; brings you back once, then cracks. |
 | Minimap | Built in, north up; shows your heading, your bell and where you fell, pinned to the edge when off the map. |
 | Weapons | Five branches (blade, greatsword, spear, dagger, hammer) in five materials (wood, stone, iron, diamond, netherite), so there is something to fight with from day one; plus four named weapons: Anchor Blade, Sunken Bell Greatsword, Mistwalker Spear and Salt Fang. Each has vanilla-style art and a held model, its own swing and hit sounds, and its own first- and third-person swing. |
+| Swings | Every blow has a wind-up, a strike, an overshoot and a recovery: the arms strain and shake as it winds up, the weapon breaks loose, and its weight carries the body past the line. Third person twists and steps into it; in first person the view swings with the blow and jolts on a hit. |
+| Stamina and rolls | Swings, sprints and rolls cost stamina. A roll passes through blows; how far it goes depends on the legs, how it looks on the arms. With both legs destroyed you can only dive, and the landing falls on the upper body. |
+| Title screen | An original misty shore with a dead lighthouse: drifting fog, glinting water and a last ember in the lamp room. |
 | Hunter's Guide | Placed in your hotbar the first time you join; nine pages on the world, the mission and the rules. |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
@@ -142,6 +146,30 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 - **Destroyed parts**: legs slow you and cut your jump; arms weaken blows, attack speed and mining; the torso makes you hungry faster; the head darkens the edges of your view and stops the minimap.
 - **HUD**: a small figure where the hearts were, each part green to red by its health.
 
+## Swings, stamina and rolls
+
+| | |
+| --- | --- |
+| ![A hunter swings a netherite hammer, the body dragged round by its weight](images/swing.jpg) | ![A hunter halfway through a sideways roll on a drop station platform](images/roll.jpg) |
+
+- **Swings**: every blow has four beats: the wind-up strains harder towards its end and the arms shake, the strike breaks loose and accelerates, the weapon's weight carries the body past the line, and the recovery hauls it back. Heavy weapons wind up and recover longer.
+- **View**: in first person the view turns, dips and tilts with the swing and jolts on a hit. Press `J` to turn this off; the setting is kept in `config/mistinn-client.properties`.
+- **Stamina**: 100 at most. Swings (misses too), sprinting and rolls cost it, and it starts coming back a second after you stop spending. At zero you cannot sprint or swing.
+
+| Weapon | Stamina per swing |
+| --- | --- |
+| Dagger | 7 |
+| Blade | 11 |
+| Spear | 13 |
+| Greatsword | 22 |
+| Hammer | 24 |
+| Anything else | 4 |
+
+- **Roll** (Left Alt): 22 stamina, in the direction you are moving, or a step back if you are not. You cannot be hit for 10 ticks on whole legs, fewer as they are hurt, and the roll gets shorter too.
+- **The arms shape the roll**: a whole arm tucks in and pushes off; a destroyed arm hangs and is flung about, and the roll leans to that side; with both arms destroyed you roll over a shoulder.
+- **Dive**: with both legs destroyed you cannot roll, only throw yourself forward. 28 stamina, no protection, and the landing (12 points) is shared over head, torso and arms, so every dive costs you.
+- A destroyed torso slows stamina recovery; destroyed legs make sprinting cost more.
+
 ## The fog-shore lighthouse and the Snuffer
 
 Rust Anchor says the coasts at the world's edge are lined with dead lighthouses, each held by a keeper. Now and then a beach has a **fog-shore lighthouse**: a golden bell by the door, a ladder up past a supply floor, and at the top the lamp room where the Snuffer waits.
@@ -170,6 +198,8 @@ Rust Anchor says the coasts at the world's edge are lined with dead lighthouses,
 | `E` | Inventory (gear, chest rig, backpack and body) |
 | Right-click the helmet slot | Switch to the mask slot |
 | Right-click a lamp stand | Light it |
+| Left Alt | Roll; dive when both legs are destroyed |
+| `J` | Toggle the first-person swing view |
 | Click a cell | Pick up or put down |
 | Drag | Move between cells, or between the grid and the hotbar or a chest |
 | `R` while carrying | Rotate |
