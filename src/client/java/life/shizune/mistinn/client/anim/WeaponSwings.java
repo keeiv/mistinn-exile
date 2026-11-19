@@ -66,6 +66,15 @@ public final class WeaponSwings {
 				pose.rotateDegrees(Axis.ZP, side * dir * 45.0F * out);
 				pose.rotateDegrees(Axis.XP, -35.0F * out);
 			}
+			case SMASH -> {
+				// wind the hammer back to the side, then sweep it hard across the body
+				float wind = smooth(0.0F, 0.35F, p) * (1.0F - smooth(0.35F, 0.5F, p));
+				float sweep = smooth(0.35F, 0.62F, p) * (1.0F - smooth(0.75F, 1.0F, p));
+				pose.translate(side * (0.25F * wind - 0.5F * sweep), 0.1F * wind - 0.05F * sweep, -0.25F * sweep);
+				pose.rotateDegrees(Axis.YP, side * (40.0F * wind - 80.0F * sweep));
+				pose.rotateDegrees(Axis.ZP, side * -30.0F * sweep);
+				pose.rotateDegrees(Axis.XP, -20.0F * (wind + sweep));
+			}
 		}
 	}
 
@@ -114,6 +123,16 @@ public final class WeaponSwings {
 				arm.yRot = side * dir * (0.6F - 1.2F * local) * out;
 				arm.zRot = side * dir * 0.5F * out;
 				body.yRot = side * dir * 0.25F * out;
+			}
+			case SMASH -> {
+				float wind = smooth(0.0F, 0.35F, p) * (1.0F - smooth(0.35F, 0.5F, p));
+				float sweep = smooth(0.35F, 0.62F, p) * (1.0F - smooth(0.75F, 1.0F, p));
+				// both hands on the haft, the whole body turning with the swing
+				arm.xRot = -1.0F - 0.6F * (wind + sweep);
+				arm.yRot = side * (1.0F * wind - 1.4F * sweep);
+				otherArm.xRot = arm.xRot;
+				otherArm.yRot = side * (1.3F * wind - 1.0F * sweep);
+				body.yRot = side * (0.45F * wind - 0.6F * sweep);
 			}
 		}
 	}

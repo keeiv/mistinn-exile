@@ -6,6 +6,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
+import life.shizune.mistinn.weapon.WeaponMaterial;
+import life.shizune.mistinn.weapon.WeaponStyle;
 import net.minecraft.world.item.ItemStack;
 
 public final class MistinnTab {
@@ -20,6 +22,12 @@ public final class MistinnTab {
 				output.accept(MistinnItems.BELL_GREATSWORD);
 				output.accept(MistinnItems.MIST_SPEAR);
 				output.accept(MistinnItems.SALT_FANG);
+				for (WeaponMaterial material : WeaponMaterial.values()) {
+					for (WeaponStyle style : WeaponStyle.values()) {
+						output.accept(MistinnItems.WEAPONS.get(style).get(material));
+					}
+				}
+				output.accept(MistinnItems.HUNTER_GUIDE);
 				output.accept(MistinnItems.GOLDEN_BELL);
 				output.accept(MistinnItems.ORE_BELL);
 				output.accept(MistinnItems.SALT);

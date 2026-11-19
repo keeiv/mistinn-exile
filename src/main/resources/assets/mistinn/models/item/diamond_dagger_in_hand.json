@@ -1,0 +1,76 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "mistinn:item/diamond_dagger"
+  },
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        -90,
+        55
+      ],
+      "translation": [
+        0,
+        3.55,
+        0.5
+      ],
+      "scale": [
+        0.7224999999999999,
+        0.7224999999999999,
+        0.7224999999999999
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -55
+      ],
+      "translation": [
+        0,
+        3.55,
+        0.5
+      ],
+      "scale": [
+        0.7224999999999999,
+        0.7224999999999999,
+        0.7224999999999999
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -90,
+        25
+      ],
+      "translation": [
+        1.13,
+        2.9000000000000004,
+        1.13
+      ],
+      "scale": [
+        0.5780000000000001,
+        0.5780000000000001,
+        0.5780000000000001
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        1.13,
+        2.9000000000000004,
+        1.13
+      ],
+      "scale": [
+        0.5780000000000001,
+        0.5780000000000001,
+        0.5780000000000001
+      ]
+    }
+  }
+}

@@ -40,6 +40,15 @@ public final class ItemSizes {
 		put(1, 4, MistinnItems.BELL_GREATSWORD);
 		put(1, 5, MistinnItems.MIST_SPEAR);
 		put(1, 2, MistinnItems.SALT_FANG);
+		MistinnItems.WEAPONS.forEach((style, byMaterial) -> {
+			int[] size = switch (style) {
+				case SLASH -> new int[] {1, 3};
+				case CLEAVE, THRUST -> new int[] {1, 4};
+				case FLURRY -> new int[] {1, 2};
+				case SMASH -> new int[] {2, 3};
+			};
+			byMaterial.values().forEach(item -> put(size[0], size[1], item));
+		});
 		for (int i = 0; i < Gear.BACKPACKS.size(); i++) {
 			Gear.Backpack pack = Gear.BACKPACKS.get(i);
 			put(pack.itemWidth(), pack.itemHeight(), MistinnItems.BACKPACKS.get(i));

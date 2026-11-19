@@ -1,0 +1,60 @@
+{
+  "type": "minecraft:chest",
+  "random_sequence": "mistinn:chests/salt_cairn",
+  "pools": [
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 3,
+        "max": 5
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:salt",
+          "weight": 6,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 4,
+                "max": 12
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:quartz",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 2,
+                "max": 6
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_n",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_1",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:salt_fang",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

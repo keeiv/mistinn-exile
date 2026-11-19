@@ -1,6 +1,6 @@
 package life.shizune.mistinn.mixin;
 
-import life.shizune.mistinn.weapon.WeaponStyle;
+import life.shizune.mistinn.weapon.Weapons;
 import net.minecraft.network.protocol.game.ServerboundPunchPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -25,8 +25,8 @@ public abstract class PunchSoundMixin {
 		if (!this.player.level().getServer().isSameThread()) {
 			return;
 		}
-		WeaponStyle style = WeaponStyle.of(this.player.getMainHandItem());
-		if (style == null) {
+		Weapons.Profile weapon = Weapons.profile(this.player.getMainHandItem());
+		if (weapon == null) {
 			return;
 		}
 		float charge = this.player.getAttackStrengthScale(0.5F);
@@ -38,10 +38,10 @@ public abstract class PunchSoundMixin {
 			this.player.getX(),
 			this.player.getEyeY() - 0.3,
 			this.player.getZ(),
-			style.swingSound(),
+			weapon.swing(),
 			SoundSource.PLAYERS,
 			0.45F + 0.55F * charge,
-			0.95F + this.player.getRandom().nextFloat() * 0.1F
+			weapon.pitch() * (0.95F + this.player.getRandom().nextFloat() * 0.1F)
 		);
 	}
 }

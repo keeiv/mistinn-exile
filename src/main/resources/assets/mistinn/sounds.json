@@ -1,4 +1,56 @@
 {
+  "weapon.hammer.swing": {
+    "sounds": [
+      "mistinn:weapon/hammer/swing_1",
+      "mistinn:weapon/hammer/swing_2"
+    ],
+    "subtitle": "subtitles.mistinn.weapon.hammer.swing"
+  },
+  "weapon.hit.wood": {
+    "sounds": [
+      "mistinn:weapon/hit/wood_1",
+      "mistinn:weapon/hit/wood_2",
+      "mistinn:weapon/hit/wood_3"
+    ],
+    "subtitle": "subtitles.mistinn.weapon.hit.wood"
+  },
+  "weapon.hit.stone": {
+    "sounds": [
+      "mistinn:weapon/hit/stone_1",
+      "mistinn:weapon/hit/stone_2",
+      "mistinn:weapon/hit/stone_3"
+    ],
+    "subtitle": "subtitles.mistinn.weapon.hit.stone"
+  },
+  "weapon.hit.iron": {
+    "sounds": [
+      "mistinn:weapon/hit/iron_1",
+      "mistinn:weapon/hit/iron_2",
+      "mistinn:weapon/hit/iron_3"
+    ],
+    "subtitle": "subtitles.mistinn.weapon.hit.iron"
+  },
+  "weapon.hit.diamond": {
+    "sounds": [
+      "mistinn:weapon/hit/diamond_1",
+      "mistinn:weapon/hit/diamond_2",
+      "mistinn:weapon/hit/diamond_3"
+    ],
+    "subtitle": "subtitles.mistinn.weapon.hit.diamond"
+  },
+  "weapon.hit.netherite": {
+    "sounds": [
+      "mistinn:weapon/hit/netherite_1",
+      "mistinn:weapon/hit/netherite_2"
+    ],
+    "subtitle": "subtitles.mistinn.weapon.hit.netherite"
+  },
+  "item.guide.open": {
+    "sounds": [
+      "mistinn:item/guide/open"
+    ],
+    "subtitle": "subtitles.mistinn.item.guide.open"
+  },
   "weapon.anchor_blade.swing": {
     "sounds": [
       "mistinn:weapon/anchor_blade/swing_1",

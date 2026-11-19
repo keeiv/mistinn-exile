@@ -32,10 +32,13 @@ import net.minecraft.world.InteractionHand;
  */
 @SuppressWarnings("UnstableApiUsage")
 public class MistinnClientGameTest implements FabricClientGameTest {
-	private static final String[] WEAPONS = {"anchor_blade", "bell_greatsword", "mist_spear", "salt_fang"};
+	private static final String[] WEAPONS = {"anchor_blade", "bell_greatsword", "mist_spear", "salt_fang", "iron_hammer", "stone_blade"};
 
 	@Override
 	public void runTest(final ClientGameTestContext context) {
+		if (Boolean.getBoolean("mistinn.photo")) {
+			return; // photo mode only shoots pictures; see MistinnPhotoTest
+		}
 		// screenshots in Traditional Chinese, without chat lines over them
 		boolean[] reloaded = {false};
 		context.runOnClient(mc -> {
@@ -51,6 +54,37 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			world.getServer().runCommand("time set noon");
 			world.getServer().runCommand("weather clear");
 			context.waitTicks(40);
+
+			// ── Arrival: spawn station, clear air, the guide ────────
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				net.minecraft.server.level.ServerLevel level = server.overworld();
+				check(level.getAttachedOrElse(life.shizune.mistinn.world.MistinnWorld.SPAWN_STATION, false), "a drop station was built at the world spawn");
+				BlockPos feet = player.blockPosition();
+				check(level.getBlockState(feet).getCollisionShape(level, feet).isEmpty()
+					&& level.getBlockState(feet.above()).getCollisionShape(level, feet.above()).isEmpty(), "the hunter does not spawn inside a wall: " + feet);
+				BlockPos under = feet.below();
+				net.minecraft.world.level.block.state.BlockState floor = level.getBlockState(under);
+				check(floor.is(net.minecraft.world.level.block.Blocks.POLISHED_DEEPSLATE) || floor.is(net.minecraft.world.level.block.Blocks.CRACKED_DEEPSLATE_BRICKS)
+					|| floor.is(net.minecraft.world.level.block.Blocks.COBBLED_DEEPSLATE) || floor.is(net.minecraft.world.level.block.Blocks.OAK_PLANKS)
+					|| floor.is(net.minecraft.world.level.block.Blocks.MOSS_CARPET), "the hunter stands on the station's pad, found " + floor);
+				boolean hasGuide = false;
+				for (int i = 0; i < 9; i++) {
+					hasGuide |= player.getInventory().getItem(i).is(MistinnItems.HUNTER_GUIDE);
+				}
+				hasGuide |= GridService.get(player).pockets().stream().anyMatch(p -> p.stack().is(MistinnItems.HUNTER_GUIDE));
+				check(hasGuide, "every hunter arrives with the guide");
+			});
+			context.takeScreenshot("arrival");
+
+			// ── Every material weapon exists, with its branch and sounds ──
+			for (life.shizune.mistinn.weapon.WeaponStyle style : life.shizune.mistinn.weapon.WeaponStyle.values()) {
+				for (life.shizune.mistinn.weapon.WeaponMaterial material : life.shizune.mistinn.weapon.WeaponMaterial.values()) {
+					net.minecraft.world.item.Item item = MistinnItems.WEAPONS.get(style).get(material);
+					life.shizune.mistinn.weapon.Weapons.Profile profile = life.shizune.mistinn.weapon.Weapons.profile(item);
+					check(profile != null && profile.style() == style && profile.material() == material, "profile of " + item);
+				}
+			}
 
 			// ── Weapons: held models and swings ─────────────────────
 			for (String weapon : WEAPONS) {

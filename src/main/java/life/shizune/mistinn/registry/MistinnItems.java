@@ -1,9 +1,12 @@
 package life.shizune.mistinn.registry;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.gear.Gear;
+import life.shizune.mistinn.salt.SaltItem;
 import life.shizune.mistinn.tier.Tier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
@@ -11,7 +14,15 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.item.equipment.EquipmentAssets;
 import net.minecraft.world.item.equipment.Equippable;
+import life.shizune.mistinn.weapon.WeaponMaterial;
 import life.shizune.mistinn.weapon.WeaponStyle;
+import life.shizune.mistinn.weapon.Weapons;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.item.SwingAnimationType;
+import net.minecraft.world.item.WrittenBookItem;
+import net.minecraft.world.item.component.WrittenBookContent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.network.Filterable;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -31,18 +42,30 @@ import net.minecraft.world.level.block.Block;
 
 public final class MistinnItems {
 	private static final Identifier REACH_ID = Mistinn.id("weapon_reach");
+	private static final Identifier KNOCKBACK_ID = Mistinn.id("weapon_knockback");
 	/** Salt mends the hunter's gear at an anvil. */
 	private static final TagKey<Item> REPAIRS_GEAR = TagKey.create(Registries.ITEM, Mistinn.id("repairs_hunter_gear"));
 
-	/** 鹽: the currency. Kept as a number on the player; the item is what a pouch of it looks like. */
-	public static final Item SALT = register("salt", Item::new, new Item.Properties());
+	/** 鹽: the currency is a number on the player; a salt pouch found in the world adds to it when used. */
+	public static final Item SALT = register("salt", SaltItem::new, new Item.Properties());
 	/** 鏽神的鹽塊: what the Lighthouse Keepers guard. */
 	public static final Item RUST_GOD_SALT = register("rust_god_salt", Item::new, new Item.Properties().stacksTo(16).rarity(Rarity.EPIC).fireResistant());
 
-	public static final Item ANCHOR_BLADE = weapon("anchor_blade", WeaponStyle.SLASH, 750);
-	public static final Item BELL_GREATSWORD = weapon("bell_greatsword", WeaponStyle.CLEAVE, 1100);
-	public static final Item MIST_SPEAR = weapon("mist_spear", WeaponStyle.THRUST, 800);
-	public static final Item SALT_FANG = weapon("salt_fang", WeaponStyle.FLURRY, 600);
+	/** The named weapons: each a branch's own, with sounds made for it. */
+	public static final Item ANCHOR_BLADE = named("anchor_blade", WeaponStyle.SLASH, 6.0, 0.0, 750, MistinnSounds.ANCHOR_BLADE_SWING, MistinnSounds.ANCHOR_BLADE_HIT);
+	public static final Item BELL_GREATSWORD = named("bell_greatsword", WeaponStyle.CLEAVE, 11.0, 0.5, 1100, MistinnSounds.BELL_GREATSWORD_SWING, MistinnSounds.BELL_GREATSWORD_HIT);
+	public static final Item MIST_SPEAR = named("mist_spear", WeaponStyle.THRUST, 7.0, 1.5, 800, MistinnSounds.MIST_SPEAR_SWING, MistinnSounds.MIST_SPEAR_HIT);
+	public static final Item SALT_FANG = named("salt_fang", WeaponStyle.FLURRY, 4.0, -0.4, 600, MistinnSounds.SALT_FANG_SWING, MistinnSounds.SALT_FANG_HIT);
+
+	/** Every branch in every material: wooden_blade ... netherite_hammer. */
+	public static final Map<WeaponStyle, Map<WeaponMaterial, Item>> WEAPONS = materialWeapons();
+
+	/** 追獵者手冊: the world's story and the rules of the hunt, given to every hunter on arrival. */
+	public static final int GUIDE_PAGES = 9;
+	public static final Item HUNTER_GUIDE = register("hunter_guide", WrittenBookItem::new, new Item.Properties()
+		.stacksTo(1)
+		.component(DataComponents.WRITTEN_BOOK_CONTENT, guideContent())
+		.component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false));
 
 	public static final Item GOLDEN_BELL = block("golden_bell", MistinnBlocks.GOLDEN_BELL, new Item.Properties().rarity(Rarity.RARE));
 	public static final Item ORE_BELL = block("ore_bell", MistinnBlocks.ORE_BELL, new Item.Properties());
@@ -53,6 +76,14 @@ public final class MistinnItems {
 	public static final List<Item> BACKPACKS = Gear.BACKPACKS.stream().map(MistinnItems::backpack).toList();
 
 	private MistinnItems() {
+	}
+
+	private static WrittenBookContent guideContent() {
+		List<Filterable<Component>> pages = new java.util.ArrayList<>();
+		for (int i = 1; i <= GUIDE_PAGES; i++) {
+			pages.add(Filterable.passThrough(Component.translatable("item.mistinn.hunter_guide.page." + i)));
+		}
+		return new WrittenBookContent(Filterable.passThrough("追獵者手冊"), "鏽錨站", 0, pages, true);
 	}
 
 	private static ResourceKey<EquipmentAsset> asset(final Tier tier) {
@@ -96,11 +127,36 @@ public final class MistinnItems {
 		return register("backpack_" + gear.tier().id(), Item::new, new Item.Properties().stacksTo(1));
 	}
 
-	private static Item weapon(final String name, final WeaponStyle style, final int durability) {
+	private static Map<WeaponStyle, Map<WeaponMaterial, Item>> materialWeapons() {
+		Map<WeaponStyle, Map<WeaponMaterial, Item>> all = new EnumMap<>(WeaponStyle.class);
+		for (WeaponStyle style : WeaponStyle.values()) {
+			Map<WeaponMaterial, Item> byMaterial = new EnumMap<>(WeaponMaterial.class);
+			for (WeaponMaterial material : WeaponMaterial.values()) {
+				Item.Properties properties = weaponProperties(style, style.baseDamage + material.bonus, style.reach, material.durability)
+					.repairable(material.repair);
+				if (material == WeaponMaterial.NETHERITE) {
+					properties.fireResistant();
+				}
+				Item item = register(material.prefix + "_" + style.id, Item::new, properties);
+				Weapons.add(item, new Weapons.Profile(style, material, style.swingSound(), material.hitSound(), material.pitch));
+				byMaterial.put(material, item);
+			}
+			all.put(style, Map.copyOf(byMaterial));
+		}
+		return all;
+	}
+
+	private static Item named(final String name, final WeaponStyle style, final double damage, final double reach, final int durability, final SoundEvent swing, final SoundEvent hit) {
+		Item item = register(name, Item::new, weaponProperties(style, damage, reach, durability));
+		Weapons.add(item, new Weapons.Profile(style, null, swing, hit, 1.0F));
+		return item;
+	}
+
+	private static Item.Properties weaponProperties(final WeaponStyle style, final double damage, final double reach, final int durability) {
 		ItemAttributeModifiers.Builder attributes = ItemAttributeModifiers.builder()
 			.add(
 				Attributes.ATTACK_DAMAGE,
-				new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, style.damage, AttributeModifier.Operation.ADD_VALUE),
+				new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, damage, AttributeModifier.Operation.ADD_VALUE),
 				EquipmentSlotGroup.MAINHAND
 			)
 			.add(
@@ -108,20 +164,28 @@ public final class MistinnItems {
 				new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, style.attacksPerSecond - 4.0, AttributeModifier.Operation.ADD_VALUE),
 				EquipmentSlotGroup.MAINHAND
 			);
-		if (style.reach != 0.0) {
+		if (reach != 0.0) {
 			attributes.add(
 				Attributes.ENTITY_INTERACTION_RANGE,
-				new AttributeModifier(REACH_ID, style.reach, AttributeModifier.Operation.ADD_VALUE),
+				new AttributeModifier(REACH_ID, reach, AttributeModifier.Operation.ADD_VALUE),
 				EquipmentSlotGroup.MAINHAND
 			);
 		}
-		Item.Properties properties = new Item.Properties()
+		if (style == WeaponStyle.SMASH) {
+			// the hammer's weight is in the knockback, not just the damage
+			attributes.add(
+				Attributes.ATTACK_KNOCKBACK,
+				new AttributeModifier(KNOCKBACK_ID, 1.0, AttributeModifier.Operation.ADD_VALUE),
+				EquipmentSlotGroup.MAINHAND
+			);
+		}
+		// the client mixins draw each branch's own swing; WHACK only sets the shared timing
+		return new Item.Properties()
 			.durability(durability)
 			.attributes(attributes.build())
-			.component(DataComponents.WEAPON, new Weapon(1, style == WeaponStyle.CLEAVE ? 3.0F : 0.0F))
-			.component(DataComponents.ATTACK_ANIMATION, new SwingAnimation(style.animation, style.swingTicks))
+			.component(DataComponents.WEAPON, new Weapon(1, style == WeaponStyle.CLEAVE || style == WeaponStyle.SMASH ? 3.0F : 0.0F))
+			.component(DataComponents.ATTACK_ANIMATION, new SwingAnimation(SwingAnimationType.WHACK, style.swingTicks))
 			.enchantable(14);
-		return register(name, Item::new, properties);
 	}
 
 	private static Item block(final String name, final Block block, final Item.Properties properties) {

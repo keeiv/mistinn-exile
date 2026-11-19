@@ -46,6 +46,12 @@ public final class MistinnAttachments {
 		.copyOnDeath()
 		.buildAndRegister(Mistinn.id("grid"));
 
+	/** Whether this hunter already received the guide; kept through death so it comes once. */
+	public static final AttachmentType<Boolean> GUIDE_GIVEN = AttachmentRegistry.<Boolean>builder()
+		.persistent(Codec.BOOL)
+		.copyOnDeath()
+		.buildAndRegister(Mistinn.id("guide_given"));
+
 	private MistinnAttachments() {
 	}
 

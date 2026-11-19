@@ -1,0 +1,139 @@
+{
+  "type": "minecraft:chest",
+  "random_sequence": "mistinn:chests/watchpost",
+  "pools": [
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 2
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:iron_blade",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:iron_greatsword",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:iron_spear",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:iron_dagger",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:iron_hammer",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:diamond_blade",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:diamond_spear",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:mist_spear",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 3,
+        "max": 5
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:salt",
+          "weight": 3,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 4,
+                "max": 10
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_2",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_3",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_3",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_4",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_2",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_3",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_4",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:ore_bell",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:golden_apple",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:diamond",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 2
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

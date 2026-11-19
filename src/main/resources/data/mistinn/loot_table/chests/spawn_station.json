@@ -1,0 +1,109 @@
+{
+  "type": "minecraft:chest",
+  "random_sequence": "mistinn:chests/spawn_station",
+  "pools": [
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 2,
+        "max": 2
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:wooden_blade",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:wooden_dagger",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:wooden_spear",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 3,
+        "max": 4
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bread",
+          "weight": 3,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 2,
+                "max": 4
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:torch",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 3,
+                "max": 8
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:salt",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 3
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_n",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_n",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:apple",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 3
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

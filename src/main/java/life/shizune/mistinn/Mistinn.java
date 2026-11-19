@@ -12,7 +12,8 @@ import life.shizune.mistinn.registry.MistinnSounds;
 import life.shizune.mistinn.registry.MistinnTab;
 import life.shizune.mistinn.residue.ResidueService;
 import life.shizune.mistinn.salt.SaltService;
-import life.shizune.mistinn.weapon.WeaponStyle;
+import life.shizune.mistinn.weapon.Weapons;
+import life.shizune.mistinn.world.MistinnWorld;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
@@ -23,6 +24,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +43,7 @@ public class Mistinn implements ModInitializer {
 		MistinnAttachments.init();
 		MistinnTab.init();
 		GridActionPayload.register();
+		MistinnWorld.init();
 
 		// A fallen hunter leaves their salt as residue; a defeated creature gives salt.
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
@@ -58,7 +61,26 @@ public class Mistinn implements ModInitializer {
 			}
 			GridService.applyWeight(newPlayer);
 		});
-		ServerPlayerEvents.JOIN.register(GridService::applyWeight);
+		ServerPlayerEvents.JOIN.register(player -> {
+			GridService.applyWeight(player);
+			// every hunter arrives with the guide, once
+			if (!player.getAttachedOrElse(MistinnAttachments.GUIDE_GIVEN, false)) {
+				player.setAttached(MistinnAttachments.GUIDE_GIVEN, true);
+				ItemStack guide = new ItemStack(MistinnItems.HUNTER_GUIDE);
+				// on the hotbar where it is seen at once, else wherever it fits
+				int slot = -1;
+				for (int i = 0; i < net.minecraft.world.entity.player.Inventory.getSelectionSize() && slot < 0; i++) {
+					if (player.getInventory().getItem(i).isEmpty()) {
+						slot = i;
+					}
+				}
+				if (slot >= 0) {
+					player.getInventory().setItem(slot, guide);
+				} else if (!player.getInventory().add(guide)) {
+					player.drop(guide, false, net.minecraft.util.Prediction.SERVER_ONLY);
+				}
+			}
+		});
 		ServerTickEvents.END_SERVER_TICK.register(BellService::tick);
 
 		// Left click opens a gravestone. Accepting on the client sends the hit to the server.
@@ -74,9 +96,10 @@ public class Mistinn implements ModInitializer {
 
 		// Each weapon branch has its own impact sound.
 		AttackEntityCallback.EVENT.register((player, level, hand, target, hitResult) -> {
-			WeaponStyle style = WeaponStyle.of(player.getItemInHand(hand));
-			if (style != null && !level.isClientSide()) {
-				level.playSound(null, target.getX(), target.getY(0.5), target.getZ(), style.hitSound(), SoundSource.PLAYERS, 1.0F, 0.92F + level.getRandom().nextFloat() * 0.16F);
+			Weapons.Profile weapon = Weapons.profile(player.getItemInHand(hand));
+			if (weapon != null && !level.isClientSide()) {
+				float pitch = weapon.pitch() * (0.92F + level.getRandom().nextFloat() * 0.16F);
+				level.playSound(null, target.getX(), target.getY(0.5), target.getZ(), weapon.hit(), SoundSource.PLAYERS, 1.0F, pitch);
 			}
 			return InteractionResult.PASS;
 		});

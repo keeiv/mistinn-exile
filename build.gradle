@@ -3,12 +3,18 @@ plugins {
 	id 'maven-publish'
 }
 
+// Photo mode (-PphotoMode): the client game test shoots the screenshots for the website and
+// README at ultra quality with shaders. Sodium and Iris join only that run; the shader pack and
+// its settings are placed in the run folder by hand (they are not part of this repository).
+def photoMode = project.hasProperty("photoMode")
+
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
+	if (photoMode) {
+		exclusiveContent {
+			forRepository { maven { url = "https://api.modrinth.com/maven" } }
+			filter { includeGroup "maven.modrinth" }
+		}
+	}
 }
 
 // build.ps1 passes -PexternalBuild when the sources sit in a synced (OneDrive) folder: build
@@ -52,6 +58,16 @@ fabricApi {
 		modId = "mistinn-test"
 		enableGameTests = false
 		enableClientGameTests = true
+		// photo mode keeps the run folder: the shader pack lives there
+		clearRunDirectory = !photoMode
+	}
+}
+
+if (photoMode) {
+	loom.runs.configureEach {
+		if (name == "clientGameTest") {
+			vmArg "-Dmistinn.photo=true"
+		}
 	}
 }
 
@@ -62,6 +78,11 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	if (photoMode) {
+		runtimeOnly "maven.modrinth:sodium:mc26.3-0.9.2-fabric"
+		runtimeOnly "maven.modrinth:iris:1.11.7+26.3-fabric"
+	}
 }
 
 processResources {
