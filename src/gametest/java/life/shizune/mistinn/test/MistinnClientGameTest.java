@@ -36,6 +36,15 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 
 	@Override
 	public void runTest(final ClientGameTestContext context) {
+		// screenshots in Traditional Chinese, without chat lines over them
+		boolean[] reloaded = {false};
+		context.runOnClient(mc -> {
+			mc.options.chatVisibility().set(net.minecraft.world.entity.player.ChatVisiblity.HIDDEN);
+			mc.options.languageCode = "zh_tw";
+			mc.getLanguageManager().setSelected("zh_tw");
+			mc.reloadResourcePacks().thenRun(() -> reloaded[0] = true);
+		});
+		context.waitFor(mc -> reloaded[0], 1200);
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			TestServerConnection connection = world.getConnection();
 			connection.waitForChunksRender();
