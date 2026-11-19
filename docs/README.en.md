@@ -129,6 +129,7 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 | `M` | Minimap zoom (1, 2 or 4 blocks per pixel) |
 | `E` | Inventory and grid |
 | Click a cell | Pick up or put down |
+| Drag | Move between cells, or between the grid and the hotbar or a chest |
 | `R` while carrying | Rotate |
 | `Q` over an item | Drop it |
 | Shift-click | Grid item to the hotbar; chest item into the grid |

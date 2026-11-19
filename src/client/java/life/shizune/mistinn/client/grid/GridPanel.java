@@ -29,8 +29,9 @@ import org.jspecify.annotations.Nullable;
 /**
  * The hunter's grid storage drawn beside any container screen: pockets, backpack slot and safe
  * box on the left, the backpack's compartments on the right. Each item sits on its tier colour.
- * Click to pick up or put down (the game's own cursor carries the item), R turns what you carry,
- * Q throws the item under the mouse, shift-click sends it to the hotbar.
+ * Click to pick up or put down (the game's own cursor carries the item), or drag: press on an
+ * item and release over another cell, a menu slot, or from a menu slot onto the grid. R turns
+ * what you carry, Q throws the item under the mouse, shift-click sends it to the hotbar.
  */
 public final class GridPanel {
 	public static final int CELL = 16;
@@ -41,11 +42,32 @@ public final class GridPanel {
 	private static final int CELL_LINE = 0xFF45403A;
 	private static final int LABEL = 0xFFE9E6EA;
 	private static final int LABEL_DIM = 0xFF9A938A;
+	/** The left mouse button as screens see it (26.3 numbers buttons from 1, not as GLFW does). */
+	private static final int LEFT = InputConstants.MOUSE_BUTTON_LEFT;
 
 	/** Whether the carried item is turned on its side; reset when the cursor is empty. */
 	private static boolean rotated;
 	private static @Nullable Layout layout;
 	private static @Nullable Hover hover;
+	/** Where the open container screen sits, for {@link #slotCentre}. */
+	private static int screenLeft;
+	private static int screenTop;
+	/** The cell a left press on the panel started on, until the button is released. */
+	private static @Nullable Hover pressedAt;
+	private static boolean pressedOnPanel;
+	/** Where the last left press happened anywhere on the screen, to tell drags from clicks. */
+	private static double pressX = Double.NaN;
+	private static double pressY = Double.NaN;
+
+	/** What the screen should do with a mouse release. */
+	public enum Release {
+		/** Not ours: let the screen handle it. */
+		PASS,
+		/** Handled by the panel: the screen must not act on it (it would throw the carried item). */
+		HANDLED,
+		/** Released over a menu slot while carrying from the grid: click that slot. */
+		TO_SLOT
+	}
 
 	private GridPanel() {
 	}
@@ -130,6 +152,8 @@ public final class GridPanel {
 		GridInventory inv = inventory(player);
 		Layout l = layout(inv, leftPos, topPos, imageWidth, g.guiWidth());
 		layout = l;
+		screenLeft = leftPos;
+		screenTop = topPos;
 		ItemStack carried = menu.getCarried();
 		if (carried.isEmpty()) {
 			rotated = false;
@@ -268,20 +292,33 @@ public final class GridPanel {
 
 	/** Returns true when the click belonged to the panel. */
 	public static boolean click(final AbstractContainerMenu menu, final double mx, final double my, final int button, final boolean shift) {
+		if (button == LEFT) {
+			pressX = mx;
+			pressY = my;
+			pressedOnPanel = false;
+		}
 		Layout l = layout;
 		Minecraft mc = Minecraft.getInstance();
 		if (l == null || mc.player == null || !active()) {
 			return false;
 		}
 		if (mx >= l.packX() && my >= l.packY() && mx < l.packX() + CELL && my < l.packY() + CELL) {
-			send(GridActionPayload.BACKPACK, Area.POCKETS, 0, 0, 0);
+			if (button == LEFT) {
+				send(GridActionPayload.BACKPACK, Area.POCKETS, 0, 0, 0);
+			}
+			pressedOnPanel = button == LEFT;
+			pressedAt = null;
 			return true;
 		}
 		if (!l.inside(mx, my)) {
 			return false;
 		}
 		Hover h = hover;
-		if (h == null || button != 0) {
+		if (button == LEFT) {
+			pressedOnPanel = true;
+			pressedAt = h;
+		}
+		if (h == null || button != LEFT) {
 			return true;
 		}
 		ItemStack carried = menu.getCarried();
@@ -291,6 +328,54 @@ public final class GridPanel {
 			send(GridActionPayload.PLACE, h.area(), h.section(), h.cx(), h.cy());
 		}
 		return true;
+	}
+
+	/** A drag that started on the panel is the panel's; the screen must not spread the stack. */
+	public static boolean dragging() {
+		return pressedOnPanel;
+	}
+
+	/**
+	 * A mouse release. The screen would treat a release beside its window as a click outside and
+	 * throw the carried item, and the panel is beside the window, so every release that touches
+	 * the panel is decided here.
+	 */
+	public static Release release(final AbstractContainerMenu menu, final double mx, final double my, final int button) {
+		Layout l = layout;
+		if (l == null || !active()) {
+			pressedOnPanel = false;
+			return Release.PASS;
+		}
+		boolean fromPanel = pressedOnPanel;
+		Hover start = pressedAt;
+		pressedOnPanel = false;
+		pressedAt = null;
+		ItemStack carried = menu.getCarried();
+		boolean overPanel = l.inside(mx, my) || (mx >= l.packX() && my >= l.packY() && mx < l.packX() + CELL && my < l.packY() + CELL);
+		Hover now = overPanel ? hover : null;
+		if (!fromPanel) {
+			// a drag from a menu slot that ends on a grid cell puts the item there
+			boolean moved = !Double.isNaN(pressX) && (Math.abs(mx - pressX) >= 2 || Math.abs(my - pressY) >= 2);
+			if (!overPanel || button != LEFT) {
+				return Release.PASS;
+			}
+			if (moved && now != null && !carried.isEmpty()) {
+				send(GridActionPayload.PLACE, now.area(), now.section(), now.cx(), now.cy());
+			}
+			return Release.HANDLED;
+		}
+		if (button != LEFT || carried.isEmpty()) {
+			// a plain click: the pick-up may still be on its way from the server
+			return Release.HANDLED;
+		}
+		if (now != null) {
+			boolean sameCell = start != null && start.area() == now.area() && start.section() == now.section() && start.cx() == now.cx() && start.cy() == now.cy();
+			if (!sameCell) {
+				send(GridActionPayload.PLACE, now.area(), now.section(), now.cx(), now.cy());
+			}
+			return Release.HANDLED;
+		}
+		return overPanel ? Release.HANDLED : Release.TO_SLOT;
 	}
 
 	/** R turns the carried item; Q throws the hovered one. Returns true when handled. */
@@ -308,6 +393,18 @@ public final class GridPanel {
 			return true;
 		}
 		return false;
+	}
+
+	/** Screen (GUI) position of the centre of a cell, for the client game test; null when not shown. */
+	public static double @Nullable [] cellCentre(final Area area, final int section, final int cx, final int cy) {
+		Layout l = layout;
+		Box box = l == null ? null : boxFor(l, area, section);
+		return box == null ? null : new double[] {box.x() + cx * CELL + CELL / 2.0, box.y() + cy * CELL + CELL / 2.0};
+	}
+
+	/** Screen (GUI) position of the centre of a menu slot, for the client game test. */
+	public static double[] slotCentre(final net.minecraft.world.inventory.Slot slot) {
+		return new double[] {screenLeft + slot.x + CELL / 2.0, screenTop + slot.y + CELL / 2.0};
 	}
 
 	public static void grab(final int slotIndex) {

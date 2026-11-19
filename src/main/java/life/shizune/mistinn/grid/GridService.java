@@ -176,6 +176,41 @@ public final class GridService {
 		}
 	}
 
+	/**
+	 * Empties the 27 hidden vanilla storage slots into the grid. Anything that reaches them by a
+	 * route the grid does not cover (commands, other mods, a switch out of creative) is moved
+	 * into pockets and backpack, then an empty hotbar slot, and what still does not fit is
+	 * dropped at the hunter's feet, so no item ever sits where the hunter cannot reach it.
+	 */
+	public static void sweepHiddenSlots(final ServerPlayer player) {
+		if (!GridRules.usesGrid(player) || !player.isAlive()) {
+			return;
+		}
+		Inventory inventory = player.getInventory();
+		boolean changed = false;
+		for (int slot = Inventory.getSelectionSize(); slot < Inventory.INVENTORY_SIZE; slot++) {
+			ItemStack stack = inventory.getItem(slot);
+			if (stack.isEmpty()) {
+				continue;
+			}
+			ItemStack moving = stack.copy();
+			inventory.setItem(slot, ItemStack.EMPTY);
+			insert(player, moving);
+			if (!moving.isEmpty()) {
+				int free = inventory.getFreeSlot();
+				if (free >= 0) {
+					inventory.setItem(free, moving);
+				} else {
+					player.drop(moving, false, Prediction.SERVER_ONLY);
+				}
+			}
+			changed = true;
+		}
+		if (changed) {
+			player.containerMenu.broadcastChanges();
+		}
+	}
+
 	/** On death everything but the safe box falls where the hunter fell, the backpack whole. */
 	public static void onDeath(final ServerPlayer player) {
 		if (player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {

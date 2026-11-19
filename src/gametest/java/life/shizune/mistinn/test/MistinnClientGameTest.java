@@ -5,6 +5,7 @@ import life.shizune.mistinn.grid.Area;
 import life.shizune.mistinn.grid.GridInventory;
 import life.shizune.mistinn.grid.GridService;
 import life.shizune.mistinn.grid.Placed;
+import life.shizune.mistinn.client.grid.GridPanel;
 import life.shizune.mistinn.registry.MistinnItems;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.world.item.ItemStack;
@@ -224,7 +225,86 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			});
 			context.waitTicks(5);
 			context.takeScreenshot("grid-moved");
+
+			// the same moves with the real mouse: click to pick up and put down, drag to move,
+			// drag onto the hotbar
+			mouse(context, Area.POCKETS, 0, 0, 0);
+			context.getInput().pressMouse(LEFT);
+			context.waitTicks(4);
+			carried(world, Items.DIAMOND, "a left click picks the diamonds up");
+			mouse(context, Area.POCKETS, 2, 0, 0);
+			context.getInput().pressMouse(LEFT);
+			context.waitTicks(4);
+			at(world, Area.POCKETS, 2, Items.DIAMOND, "a left click puts them down in the third pocket");
+
+			// a click as a hand makes it: the button stays down for a few ticks, long enough for the
+			// pick-up to reach the cursor before the release; the release must not throw it away
+			mouse(context, Area.POCKETS, 2, 0, 0);
+			context.getInput().holdMouse(LEFT);
+			context.waitTicks(4);
+			context.getInput().releaseMouse(LEFT);
+			context.waitTicks(4);
+			carried(world, Items.DIAMOND, "a slow click keeps the diamonds on the cursor");
+			context.getInput().pressMouse(LEFT);
+			context.waitTicks(4);
+			at(world, Area.POCKETS, 2, Items.DIAMOND, "a second click puts them back");
+
+			mouse(context, Area.POCKETS, 2, 0, 0);
+			context.getInput().holdMouse(LEFT);
+			context.waitTicks(4);
+			mouse(context, Area.POCKETS, 3, 0, 0);
+			context.getInput().releaseMouse(LEFT);
+			context.waitTicks(4);
+			at(world, Area.POCKETS, 3, Items.DIAMOND, "dragging moves them to the fourth pocket");
+
+			mouse(context, Area.POCKETS, 3, 0, 0);
+			context.getInput().holdMouse(LEFT);
+			context.waitTicks(4);
+			double[] hotbar = context.computeOnClient(mc -> {
+				InventoryScreen screen = (InventoryScreen) mc.gui.screen();
+				net.minecraft.world.inventory.Slot slot = screen.getMenu().slots.stream()
+					.filter(s -> s.container instanceof net.minecraft.world.entity.player.Inventory && s.getContainerSlot() == 8).findFirst().orElseThrow();
+				double[] gui = GridPanel.slotCentre(slot);
+				double scale = mc.getWindow().getGuiScale();
+				return new double[] {gui[0] * scale, gui[1] * scale};
+			});
+			context.getInput().setCursorPos(hotbar[0], hotbar[1]);
+			context.waitTicks(2);
+			context.getInput().releaseMouse(LEFT);
+			context.waitTicks(4);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				check(player.getInventory().getItem(8).is(Items.DIAMOND), "dragging out of the grid onto the hotbar: " + player.getInventory().getItem(8));
+				check(player.containerMenu.getCarried().isEmpty(), "nothing is left on the cursor");
+			});
+
+			// and back: from the hotbar slot onto the first pocket
+			context.getInput().setCursorPos(hotbar[0], hotbar[1]);
+			context.waitTicks(2);
+			context.getInput().holdMouse(LEFT);
+			context.waitTicks(4);
+			mouse(context, Area.POCKETS, 0, 0, 0);
+			context.getInput().releaseMouse(LEFT);
+			context.waitTicks(4);
+			at(world, Area.POCKETS, 0, Items.DIAMOND, "dragging from the hotbar onto a pocket");
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				check(player.getInventory().getItem(8).isEmpty(), "the hotbar slot was emptied");
+				check(player.containerMenu.getCarried().isEmpty(), "nothing is left on the cursor after the drag in");
+			});
 			context.setScreen(() -> null);
+
+			// the hidden vanilla storage slots never keep anything
+			world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst().getInventory().setItem(20, new ItemStack(Items.EMERALD, 4)));
+			context.waitTicks(3);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				check(player.getInventory().getItem(20).isEmpty(), "a hidden slot was emptied");
+				GridInventory inv = GridService.get(player);
+				boolean inGrid = java.util.stream.Stream.of(Area.POCKETS, Area.BACKPACK).flatMap(a -> inv.items(a).stream()).anyMatch(pl -> pl.stack().is(Items.EMERALD));
+				boolean onHotbar = java.util.stream.IntStream.range(0, 9).anyMatch(i -> player.getInventory().getItem(i).is(Items.EMERALD));
+				check(inGrid || onHotbar, "the emeralds moved somewhere the hunter can reach");
+			});
 
 			// death: pockets and backpack fall, the safe box stays
 			world.getServer().runCommand("kill @a");
@@ -238,6 +318,36 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			context.clickScreenButton("deathScreen.respawn");
 			context.waitTicks(20);
 		}
+	}
+
+	/** The left button as the game numbers it; GLFW's 0 is not the left button here. */
+	private static final int LEFT = com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT;
+
+	/** Moves the real cursor over a grid cell. */
+	private static void mouse(final ClientGameTestContext context, final Area area, final int section, final int cx, final int cy) {
+		double[] at = context.computeOnClient(mc -> {
+			double[] gui = GridPanel.cellCentre(area, section, cx, cy);
+			check(gui != null, "the grid panel shows " + area + " " + section);
+			double scale = mc.getWindow().getGuiScale();
+			return new double[] {gui[0] * scale, gui[1] * scale};
+		});
+		context.getInput().setCursorPos(at[0], at[1]);
+		context.waitTicks(2);
+	}
+
+	private static void carried(final TestSingleplayerContext world, final net.minecraft.world.item.Item item, final String what) {
+		world.getServer().runOnServer(server -> {
+			ItemStack carried = server.getPlayerList().getPlayers().getFirst().containerMenu.getCarried();
+			check(carried.is(item), what + ", cursor holds " + carried);
+		});
+	}
+
+	private static void at(final TestSingleplayerContext world, final Area area, final int section, final net.minecraft.world.item.Item item, final String what) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			GridInventory inv = GridService.get(player);
+			check(inv.items(area).stream().anyMatch(p -> p.section() == section && p.stack().is(item)), what + ": " + inv.items(area) + ", cursor " + player.containerMenu.getCarried());
+		});
 	}
 
 	private static void check(final boolean condition, final String what) {

@@ -22,8 +22,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Puts the grid panel beside every container screen, gives every slot its tier colour, and
- * routes shift-clicks on chest (and, in the inventory, hotbar) slots into the grid.
+ * Puts the grid panel beside every container screen, gives every slot its tier colour, routes
+ * shift-clicks on chest (and, in the inventory, hotbar) slots into the grid, and keeps the screen
+ * from throwing the carried item when a click or drag ends on the panel beside its window.
  */
 @Mixin(AbstractContainerScreen.class)
 public abstract class ContainerScreenGridMixin {
@@ -40,6 +41,14 @@ public abstract class ContainerScreenGridMixin {
 	@Shadow
 	@Final
 	protected int imageWidth;
+
+	@Shadow
+	private @org.jspecify.annotations.Nullable Slot getHoveredSlot(final double x, final double y) {
+		throw new AssertionError("shadowed");
+	}
+
+	@Shadow
+	protected abstract void slotClicked(Slot slot, int slotId, int buttonNum, ContainerInput containerInput);
 
 	@Inject(method = "extractContents", at = @At("TAIL"))
 	private void mistinn$panel(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a, final CallbackInfo ci) {
@@ -66,6 +75,29 @@ public abstract class ContainerScreenGridMixin {
 	@Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
 	private void mistinn$click(final MouseButtonEvent event, final boolean doubleClick, final CallbackInfoReturnable<Boolean> cir) {
 		if (GridPanel.click(this.menu, event.x(), event.y(), event.button(), event.hasShiftDown())) {
+			cir.setReturnValue(true);
+		}
+	}
+
+	@Inject(method = "mouseReleased", at = @At("HEAD"), cancellable = true)
+	private void mistinn$release(final MouseButtonEvent event, final CallbackInfoReturnable<Boolean> cir) {
+		switch (GridPanel.release(this.menu, event.x(), event.y(), event.button())) {
+			case PASS -> {
+			}
+			case HANDLED -> cir.setReturnValue(true);
+			case TO_SLOT -> {
+				Slot slot = this.getHoveredSlot(event.x(), event.y());
+				if (slot != null) {
+					this.slotClicked(slot, slot.index, 0, ContainerInput.PICKUP);
+				}
+				cir.setReturnValue(true);
+			}
+		}
+	}
+
+	@Inject(method = "mouseDragged", at = @At("HEAD"), cancellable = true)
+	private void mistinn$drag(final MouseButtonEvent event, final double dx, final double dy, final CallbackInfoReturnable<Boolean> cir) {
+		if (GridPanel.dragging()) {
 			cir.setReturnValue(true);
 		}
 	}
