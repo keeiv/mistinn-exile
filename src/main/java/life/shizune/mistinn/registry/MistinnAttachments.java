@@ -58,6 +58,16 @@ public final class MistinnAttachments {
 		.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all())
 		.buildAndRegister(Mistinn.id("worn_mask"));
 
+	/** Tier index of the worn backpack (-1 for none), sent to everyone so it can be drawn on the back. */
+	public static final AttachmentType<Integer> WORN_BACKPACK = AttachmentRegistry.<Integer>builder()
+		.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all())
+		.buildAndRegister(Mistinn.id("worn_backpack"));
+
+	/** Tier index of the worn chest rig (-1 for none), sent to everyone so it can be drawn on the chest. */
+	public static final AttachmentType<Integer> WORN_RIG = AttachmentRegistry.<Integer>builder()
+		.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all())
+		.buildAndRegister(Mistinn.id("worn_rig"));
+
 	/** Stamina, 0 to 100. Not saved: a hunter rejoins rested. */
 	public static final AttachmentType<Float> STAMINA = AttachmentRegistry.<Float>builder()
 		.syncWith(ByteBufCodecs.FLOAT, AttachmentSyncPredicate.targetOnly())

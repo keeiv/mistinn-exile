@@ -68,8 +68,8 @@ public class Mistinn implements ModInitializer {
 		});
 		ServerPlayerEvents.JOIN.register(player -> {
 			GridService.applyWeight(player);
-			// the worn mask's tier is not saved on its own: show it again from the grid
-			GridService.showMask(player, GridService.get(player));
+			// the worn mask, backpack and rig tiers are not saved on their own: show them again from the grid
+			GridService.showWorn(player, GridService.get(player));
 			// part penalties are transient attribute modifiers: put them back on every join
 			BodyService.applyPenalties(player, BodyService.get(player));
 			// every hunter arrives with the guide, once

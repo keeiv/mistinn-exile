@@ -17,7 +17,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * Turns a rolling player's whole body: it faces the way it rolls and tumbles forward about the
  * hips. Weak arms make the roll lopsided; with both arms gone it cannot complete the turn and
- * rolls over a shoulder. A dive throws the body flat. Also carries the worn mask to the renderer.
+ * rolls over a shoulder. A dive throws the body flat. Also carries the worn mask, backpack and
+ * rig to the renderer.
  */
 @Mixin(AvatarRenderer.class)
 public abstract class AvatarRollMixin {
@@ -26,6 +27,10 @@ public abstract class AvatarRollMixin {
 		state.setData(RollClient.KEY, RollClient.sample(entity.getId()));
 		int mask = entity.getAttachedOrElse(life.shizune.mistinn.registry.MistinnAttachments.WORN_MASK, -1);
 		state.setData(life.shizune.mistinn.client.gear.MaskLayer.KEY, mask >= 0 ? mask : null);
+		int pack = entity.getAttachedOrElse(life.shizune.mistinn.registry.MistinnAttachments.WORN_BACKPACK, -1);
+		state.setData(life.shizune.mistinn.client.gear.GearLayer.BACKPACK, pack >= 0 ? pack : null);
+		int rig = entity.getAttachedOrElse(life.shizune.mistinn.registry.MistinnAttachments.WORN_RIG, -1);
+		state.setData(life.shizune.mistinn.client.gear.GearLayer.RIG, rig >= 0 ? rig : null);
 	}
 
 	@ModifyVariable(method = "setupRotations(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V", at = @At("HEAD"), argsOnly = true, ordinal = 0)

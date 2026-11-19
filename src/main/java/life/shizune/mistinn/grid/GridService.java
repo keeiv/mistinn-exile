@@ -6,6 +6,7 @@ import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.gear.Gear;
 import life.shizune.mistinn.registry.MistinnAttachments;
 import life.shizune.mistinn.registry.MistinnItems;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Prediction;
@@ -36,14 +37,23 @@ public final class GridService {
 
 	public static void set(final ServerPlayer player, final GridInventory inventory) {
 		player.setAttached(MistinnAttachments.GRID, inventory);
-		showMask(player, inventory);
+		showWorn(player, inventory);
 	}
 
-	/** Everyone nearby sees the worn mask: its tier goes out to all, the rest of the grid only to its owner. */
-	public static void showMask(final ServerPlayer player, final GridInventory inventory) {
-		int tier = MistinnItems.MASKS.indexOf(inventory.mask().getItem());
-		if (player.getAttachedOrElse(MistinnAttachments.WORN_MASK, -1) != tier) {
-			player.setAttached(MistinnAttachments.WORN_MASK, tier);
+	/**
+	 * Everyone nearby sees the worn mask, backpack and rig: their tiers go out to all, the rest of
+	 * the grid only to its owner.
+	 */
+	public static void showWorn(final ServerPlayer player, final GridInventory inventory) {
+		show(player, MistinnAttachments.WORN_MASK, MistinnItems.MASKS.indexOf(inventory.mask().getItem()));
+		show(player, MistinnAttachments.WORN_BACKPACK, MistinnItems.BACKPACKS.indexOf(inventory.backpack().getItem()));
+		show(player, MistinnAttachments.WORN_RIG, MistinnItems.RIGS.indexOf(inventory.rig().getItem()));
+	}
+
+	/** Only sends when the tier changed, so moving items around inside the grid costs nothing. */
+	private static void show(final ServerPlayer player, final AttachmentType<Integer> type, final int tier) {
+		if (player.getAttachedOrElse(type, -1) != tier) {
+			player.setAttached(type, tier);
 		}
 	}
 
