@@ -152,7 +152,7 @@ public final class DeathScene {
 		player.setYHeadRot(yaw);
 		player.yHeadRotO = yaw;
 		// seen from the front, the view sits where the hunter looks: up, so it looks down on them
-		player.setXRot(-42.0F);
+		player.setXRot(-28.0F);
 		if (s >= SMOKE - 0.1F && s < GONE + 0.6F && mc.level != null) {
 			// smoke off the body where it lies, rising into the residue
 			double x = player.getX() + side * (s < GONE ? 0.6 : 0.3);

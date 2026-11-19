@@ -67,6 +67,19 @@ public final class MistinnBlocks {
 			.pushReaction(PushReaction.IMMOVEABLE)
 	);
 
+	/** 投放站無線電: every intact drop station's radio; mended with redstone, it carries the story's calls. */
+	public static final Block RADIO = register(
+		"radio",
+		life.shizune.mistinn.story.RadioBlock::new,
+		BlockBehaviour.Properties.of()
+			.mapColor(MapColor.METAL)
+			.strength(-1.0F, 3600000.0F)
+			.sound(SoundType.METAL)
+			.lightLevel(state -> state.getValue(life.shizune.mistinn.story.RadioBlock.LIT) ? 6 : 0)
+			.noLootTable()
+			.pushReaction(PushReaction.IMMOVEABLE)
+	);
+
 	private MistinnBlocks() {
 	}
 

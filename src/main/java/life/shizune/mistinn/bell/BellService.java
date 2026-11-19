@@ -39,6 +39,7 @@ public final class BellService {
 		level.playSound(null, pos, MistinnSounds.GOLDEN_BELL_REST, SoundSource.BLOCKS, 1.0F, oneTime ? 1.12F : 1.0F);
 		level.sendParticles(ParticleTypes.END_ROD, pos.getX() + 0.5, pos.getY() + 0.8, pos.getZ() + 0.5, 24, 0.4, 0.5, 0.4, 0.02);
 		player.sendSystemMessage(Component.translatable(oneTime ? "message.mistinn.bell.rest_once" : "message.mistinn.bell.rest"), true);
+		life.shizune.mistinn.story.StoryService.rested(player);
 	}
 
 	/** Respawned players waiting to be moved to their bell, with the ticks left to wait. */

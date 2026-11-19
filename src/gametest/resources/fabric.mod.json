@@ -5,7 +5,7 @@
 	"name": "Mistinn: Exile tests",
 	"environment": "*",
 	"entrypoints": {
-		"fabric-client-gametest": ["life.shizune.mistinn.test.MistinnClientGameTest", "life.shizune.mistinn.test.MistinnPhotoTest", "life.shizune.mistinn.test.MistinnAnimSheetTest"]
+		"fabric-client-gametest": ["life.shizune.mistinn.test.MistinnClientGameTest", "life.shizune.mistinn.test.MistinnStoryTest", "life.shizune.mistinn.test.MistinnPhotoTest", "life.shizune.mistinn.test.MistinnAnimSheetTest"]
 	},
 	"depends": { "mistinn": "*" }
 }

@@ -458,6 +458,22 @@ public class Snuffer extends Monster {
 		this.bar.removeAllPlayers();
 	}
 
+	/** How long the fallen keeper lies before it is gone, in a story world: its last words play over it. */
+	public static final int STORY_DEATH_TICKS = 220;
+
+	@Override
+	protected void tickDeath() {
+		if (!(this.level() instanceof ServerLevel level) || !life.shizune.mistinn.story.StoryService.active(level.getServer())) {
+			super.tickDeath();
+			return;
+		}
+		this.deathTime++;
+		if (this.deathTime >= STORY_DEATH_TICKS && !this.isRemoved()) {
+			level.broadcastEntityEvent(this, (byte) 60);
+			this.remove(RemovalReason.KILLED);
+		}
+	}
+
 	/** One piece of tier III or IV gear. */
 	private net.minecraft.world.item.Item gearDrop() {
 		int tier = 3 + this.random.nextInt(2);

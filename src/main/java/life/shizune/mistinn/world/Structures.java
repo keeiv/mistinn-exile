@@ -26,6 +26,9 @@ public final class Structures {
 		COUNTERFEIT
 	}
 
+	/** Where an intact station keeps its radio, relative to the station's origin. */
+	public static final BlockPos RADIO = new BlockPos(2, 1, -3);
+
 	/**
 	 * A 9x9 landing pad with a drop pod in the middle, a signal mast and a supply barrel.
 	 *
@@ -109,6 +112,8 @@ public final class Structures {
 		b.container(-3, 1, 3, Blocks.BARREL, Direction.UP, kind == Station.INTACT ? "chests/drop_station" : "chests/spawn_station");
 		if (kind == Station.INTACT) {
 			b.set(-3, 1, -3, MistinnBlocks.ORE_BELL);
+			// the radio, burned out, facing the hunter's spot on the pad
+			b.set(RADIO.getX(), RADIO.getY(), RADIO.getZ(), MistinnBlocks.RADIO.defaultBlockState().setValue(life.shizune.mistinn.story.RadioBlock.FACING, Direction.WEST));
 		} else if (fake) {
 			// a vanilla bell where the golden one should be: it rings, but it will not call you back
 			b.set(-3, 1, -3, Blocks.BELL.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.SOUTH));

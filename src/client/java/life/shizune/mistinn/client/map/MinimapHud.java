@@ -70,6 +70,14 @@ public final class MinimapHud implements HudElement {
 			g.fill(at[0] - 1, at[1] - 1, at[0] + 2, at[1] + 2, BELL);
 		}
 
+		// the story's next place: an amber diamond, pinned to the edge when it is far
+		life.shizune.mistinn.story.StoryProgress story = player.getAttached(life.shizune.mistinn.story.StoryService.PROGRESS);
+		if (story != null && story.target().isPresent() && player.level().dimension() == net.minecraft.world.level.Level.OVERWORLD) {
+			net.minecraft.core.BlockPos goal = story.target().get();
+			int[] at = place(goal.getX() + 0.5 - originX, goal.getZ() + 0.5 - originZ, scale, cx, cy, size);
+			drawGoal(g, at[0], at[1]);
+		}
+
 		DeathMark mark = player.getAttached(MistinnAttachments.DEATH_MARK);
 		Font font = minecraft.font;
 		int textY = y + size + 6;
@@ -107,6 +115,18 @@ public final class MinimapHud implements HudElement {
 			mz *= k;
 		}
 		return new int[] {cx + (int) Math.round(mx), cy + (int) Math.round(mz), inside ? 1 : 0};
+	}
+
+	/** The story's goal: a small amber diamond with a dark rim. */
+	private static void drawGoal(final GuiGraphicsExtractor g, final int x, final int y) {
+		for (int i = 0; i <= 3; i++) {
+			g.fill(x - (3 - i) - 1, y - i - 1, x + (3 - i) + 2, y - i + 1, 0xFF2A1E0E);
+			g.fill(x - (3 - i) - 1, y + i - 1, x + (3 - i) + 2, y + i + 1, 0xFF2A1E0E);
+		}
+		for (int i = 0; i <= 2; i++) {
+			g.fill(x - (2 - i), y - i, x + (2 - i) + 1, y - i + 1, 0xFFE0A050);
+			g.fill(x - (2 - i), y + i, x + (2 - i) + 1, y + i + 1, 0xFFE0A050);
+		}
 	}
 
 	/** The residue marker: a small salt-white X with a rust rim. */
