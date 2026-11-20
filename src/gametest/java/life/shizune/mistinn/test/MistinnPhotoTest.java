@@ -168,7 +168,7 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 			BlockPos bell = station.offset(2, 1, -2);
 			world.getServer().runOnServer(server -> server.overworld().setBlockAndUpdate(bell, MistinnBlocks.GOLDEN_BELL.defaultBlockState()));
 			frame(context, world, bell.offset(-2, 1, -3), bell, false);
-			world.getServer().runOnServer(server -> BellService.rest(player(server), bell, false));
+			world.getServer().runOnServer(server -> BellService.rest(player(server), bell));
 			context.waitTicks(8);
 			shot(context, "golden-bell", false);
 

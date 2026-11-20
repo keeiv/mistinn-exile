@@ -2,6 +2,7 @@ package life.shizune.mistinn.training;
 
 import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -35,6 +36,12 @@ public enum TrainingLesson implements StringRepresentable {
 
 	public static final Codec<TrainingLesson> CODEC = StringRepresentable.fromEnum(TrainingLesson::values);
 	public static final StreamCodec<ByteBuf, TrainingLesson> STREAM_CODEC = ByteBufCodecs.fromCodec(CODEC);
+	public static final BlockPos KIT = new BlockPos(-3, 65, -4);
+	public static final BlockPos CRAFTING_TABLE = new BlockPos(4, 65, -50);
+	public static final BlockPos BOARD_BUTTON = new BlockPos(0, 66, -131);
+	public static final List<BlockPos> LAMP_POSITIONS = List.of(
+		new BlockPos(-4, 65, -103), new BlockPos(4, 65, -103),
+		new BlockPos(-4, 65, -113), new BlockPos(4, 65, -113));
 
 	public final String id;
 	public final BlockPos target;

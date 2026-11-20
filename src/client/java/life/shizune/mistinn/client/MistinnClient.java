@@ -2,17 +2,23 @@ package life.shizune.mistinn.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import life.shizune.mistinn.Mistinn;
+import life.shizune.mistinn.client.anim.SwingTrails;
 import life.shizune.mistinn.client.body.BodyHud;
+import life.shizune.mistinn.client.enemy.ExecutionView;
 import life.shizune.mistinn.client.map.MinimapHud;
 import life.shizune.mistinn.client.map.MinimapTexture;
+import life.shizune.mistinn.client.multiplayer.HostRoomScreen;
 import life.shizune.mistinn.client.tier.TierText;
 import life.shizune.mistinn.client.training.TrainingClient;
+import life.shizune.mistinn.client.training.TrainingGuide;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 
@@ -26,6 +32,7 @@ public class MistinnClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		HostRoomScreen.register();
 		KeyMapping zoom = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.minimap_zoom", InputConstants.KEY_M, CATEGORY)
 		);
@@ -57,6 +64,10 @@ public class MistinnClient implements ClientModInitializer {
 		HudElementRegistry.addLast(Mistinn.id("minimap"), new MinimapHud());
 		HudElementRegistry.addLast(Mistinn.id("story"), new life.shizune.mistinn.client.story.StoryHud());
 		HudElementRegistry.addLast(Mistinn.id("training"), TrainingClient::draw);
+		LevelExtractionEvents.END_EXTRACTION.register(TrainingGuide::extract);
+		LevelExtractionEvents.END_EXTRACTION.register(SwingTrails::extract);
+		LevelRenderEvents.COLLECT_SUBMITS.register(TrainingGuide::submit);
+		LevelRenderEvents.COLLECT_SUBMITS.register(SwingTrails::submit);
 		// "正在使用 …" and its progress bar above the hotbar
 		HudElementRegistry.addLast(Mistinn.id("treatment"), new life.shizune.mistinn.client.medical.TreatmentHud());
 		// hunters see their body parts where the hearts were
@@ -82,6 +93,7 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.medical.TreatmentClient.tick(minecraft);
 			life.shizune.mistinn.client.medical.TreatmentSounds.tick(minecraft);
 			life.shizune.mistinn.client.music.KeeperMusic.tick(minecraft);
+			ExecutionView.tick(minecraft);
 			life.shizune.mistinn.client.death.DeathScene.tick(minecraft);
 			life.shizune.mistinn.client.story.StoryClient.tick(minecraft);
 			TrainingClient.tick(minecraft);

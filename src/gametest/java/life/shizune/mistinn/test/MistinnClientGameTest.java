@@ -4,6 +4,8 @@ import life.shizune.mistinn.block.GravestoneBlockEntity;
 import life.shizune.mistinn.body.Body;
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
+import life.shizune.mistinn.body.WoundService;
+import life.shizune.mistinn.body.Wounds;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -35,11 +37,17 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContex
 import net.minecraft.client.CameraType;
 import net.minecraft.client.gui.screens.DeathScreen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Plays the core loop in a real client: hold each weapon and swing it (screenshots in first and
@@ -153,8 +161,9 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			context.waitTicks(5);
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				bellRules(player, bellPos.offset(0, 8, 0));
 				player.teleportTo(player.level(), bellPos.getX() - 1.5, bellPos.getY(), bellPos.getZ() + 0.5, java.util.Set.of(), -90.0F, 20.0F, true);
-				life.shizune.mistinn.bell.BellService.rest(player, bellPos, false);
+				ringBell(player, bellPos);
 				SaltService.set(player, 1234);
 				// carried into death: worn gear, a hotbar item, a pocket, a backpack with something in it
 				player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new ItemStack(MistinnItems.HELMETS.get(2)));
@@ -1174,12 +1183,62 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 		context.waitTicks(2);
 	}
 
-	/** Moves the real cursor over a grid cell. */
+	private static void bellRules(final ServerPlayer player, final BlockPos first) {
+		ServerLevel level = player.level();
+		BlockPos second = first.east(2);
+		BlockPos ore = first.east(4);
+		level.setBlockAndUpdate(first, MistinnBlocks.GOLDEN_BELL.defaultBlockState());
+		level.setBlockAndUpdate(second, MistinnBlocks.GOLDEN_BELL.defaultBlockState());
+		level.setBlockAndUpdate(ore, MistinnBlocks.ORE_BELL.defaultBlockState());
+		Body injured = BodyService.damage(Body.FULL, BodyPart.LEFT_LEG, 24.0F);
+		Wounds wounded = Wounds.NONE.with(BodyPart.LEFT_LEG, Wounds.Wound.NONE.fractured(true));
+		BodyService.set(player, injured);
+		WoundService.set(player, wounded);
+		float health = player.getHealth();
+		player.getFoodData().setFoodLevel(11);
+		player.getFoodData().setSaturation(2.0F);
+		ringBell(player, first);
+		check(GlobalPos.of(level.dimension(), first).equals(player.getAttached(MistinnAttachments.BELL)), "ringing a ready golden bell binds it");
+		check(injured.equals(BodyService.get(player)) && wounded.equals(WoundService.get(player)) && player.getHealth() == health
+			&& player.getFoodData().getFoodLevel() == 11 && player.getFoodData().getSaturationLevel() == 2.0F, "normal bells preserve injuries, health, and hunger");
+		ringBell(player, second);
+		GlobalPos secondBell = GlobalPos.of(level.dimension(), second);
+		check(secondBell.equals(player.getAttached(MistinnAttachments.BELL)), "a different golden bell can be rung immediately");
+		ringBell(player, first);
+		check(secondBell.equals(player.getAttached(MistinnAttachments.BELL)), "ringing a cooling bell does not change the hunter's checkpoint");
+		BlockEntity bell = level.getBlockEntity(first);
+		check(bell != null, "the physical bell holds its own cooldown");
+		CompoundTag saved = bell.saveWithFullMetadata(level.registryAccess());
+		level.removeBlockEntity(first);
+		level.setBlockEntity(java.util.Objects.requireNonNull(BlockEntity.loadStatic(first, level.getBlockState(first), saved, level.registryAccess())));
+		ringBell(player, first);
+		check(secondBell.equals(player.getAttached(MistinnAttachments.BELL)), "a cooling bell stays on cooldown after reloading its saved data");
+		check(!Block.getDrops(level.getBlockState(ore), level, ore, level.getBlockEntity(ore)).isEmpty(), "an unclaimed one-time bell drops when broken");
+		ringBell(player, ore);
+		check(GlobalPos.of(level.dimension(), ore).equals(player.getAttached(MistinnAttachments.BELL)), "a one-time bell binds on its first ring");
+		check(injured.equals(BodyService.get(player)) && wounded.equals(WoundService.get(player)), "a one-time bell preserves injuries");
+		check(Block.getDrops(level.getBlockState(ore), level, ore, level.getBlockEntity(ore)).isEmpty(), "a claimed one-time bell cannot be picked up to reset it");
+		player.setAttached(MistinnAttachments.BELL, secondBell);
+		ringBell(player, ore);
+		check(secondBell.equals(player.getAttached(MistinnAttachments.BELL)), "a one-time bell cannot be rung again, even by its owner");
+		level.setBlockAndUpdate(first, Blocks.AIR.defaultBlockState());
+		level.setBlockAndUpdate(second, Blocks.AIR.defaultBlockState());
+		level.setBlockAndUpdate(ore, Blocks.AIR.defaultBlockState());
+		BodyService.restoreAll(player);
+		WoundService.clearAll(player);
+		player.getFoodData().setFoodLevel(20);
+		player.getFoodData().setSaturation(5.0F);
+	}
+
+	private static void ringBell(final ServerPlayer player, final BlockPos pos) {
+		ServerLevel level = player.level();
+		level.getBlockState(pos).useWithoutItem(level, player, new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false));
+	}
 
 	/**
 	 * Bleeding drains a part until a tourniquet stops it; a tourniquet left on too long kills the
 	 * part; a broken leg allows only the dive until a splint holds it, and again once the splint
-	 * loosens; surgery deals with the worst first; a golden bell clears everything; heavy falls
+	 * loosens; surgery deals with the worst first; bells preserve injuries; heavy falls
 	 * break legs. The items are used with the real use key.
 	 */
 	private static void wounds(final ClientGameTestContext context, final TestSingleplayerContext world) {
@@ -1267,9 +1326,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
 			life.shizune.mistinn.body.Wounds wounds = life.shizune.mistinn.body.WoundService.get(player);
 			check(!wounds.get(BodyPart.LEFT_LEG).fractured() && wounds.get(BodyPart.TORSO).tied(), "surgery sets the broken bone first: " + wounds);
-			// a golden bell deals with the rest
-			life.shizune.mistinn.bell.BellService.rest(player, player.blockPosition(), false);
-			check(!life.shizune.mistinn.body.WoundService.get(player).any(), "resting at a bell clears every wound");
+			life.shizune.mistinn.body.WoundService.clearAll(player);
 			player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 			// heavy falls break legs: within a few the bone goes
 			boolean broke = false;

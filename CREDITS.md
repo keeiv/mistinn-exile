@@ -1,6 +1,6 @@
 # Credits
 
-Mistinn: Exile is AGPL-3.0-only. Its textures and models are original. Its sound effects are made from the CC0 recordings below, some layered with noise synthesis made for the project. The score is arranged from CC0 instrument and metal percussion samples. Credits are listed so each file can be traced.
+Mistinn: Exile is AGPL-3.0-only. Its textures and models are original. Its sound effects use original synthesis and the CC0 recordings below. The score is arranged from CC0 instrument and metal percussion samples. Credits are listed so each file can be traced.
 
 ## Sources
 
@@ -18,7 +18,7 @@ Licence text: CC0 1.0 Universal, <https://creativecommons.org/publicdomain/zero/
 
 ## Files
 
-Every file under `src/main/resources/assets/mistinn/sounds/`, with what went into it (`pack:file` names the original recording).
+Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. `pack:file` names the original recording.
 
 | File | Made from | License |
 | --- | --- | --- |
@@ -188,3 +188,66 @@ Every file under `src/main/resources/assets/mistinn/sounds/`, with what went int
 | `weapon/salt_fang/swing_2.ogg` | `synth:moving-band noise whoosh and salt grit grains` | project synthesis |
 | `weapon/salt_fang/swing_3.ogg` | `synth:moving-band noise whoosh and salt grit grains` | project synthesis |
 | `weapon/salt_fang/swing_4.ogg` | `synth:moving-band noise whoosh and salt grit grains` | project synthesis |
+
+## Vanilla creature voices and effects
+
+Every Ogg in `entity/vanilla/` is original `synth` and distributed under the project's AGPL-3.0-only license. Each directory contains the creature's own performances and effects. The numbered suffix identifies takes of the action in the filename.
+
+| Directory under `entity/vanilla/` | Synthesis |
+| --- | --- |
+| `bee/` | Wing harmonics under a rough buzz, with a sharp sting transient |
+| `blaze/` | Breathing embers, hollow flame and scattered hot grit |
+| `bogged/` | Damp bone knocks and a muffled bow snap |
+| `breeze/` | Turbulence around a rising pressure whistle |
+| `camel_husk/` | Dry low throat with a lurching cadence |
+| `cave_spider/` | Close, sharp mandible clicks and higher shell friction |
+| `creaking/` | Splintered wood under torsion |
+| `creeper/` | A tearing hiss with an accelerating fuse |
+| `dolphin/` | Sharp, fluttering attack chirp |
+| `dragon_fireball/` | A burst of hot grit with a deep pressure wave |
+| `drowned/` | Choked low voice cut by bubbling water |
+| `elder_guardian/` | Slow subharmonic pressure and an underwater curse |
+| `enderman/` | Unevenly beating, inharmonic vocal fragments |
+| `endermite/` | Rapid brittle mandible chatter |
+| `ender_dragon/` | Expanding chest resonance, wing turbulence and a falling bellow |
+| `evoker/` | Low, breath-led incantations |
+| `evoker_fangs/` | A brittle jaw snap with resonant aftershocks |
+| `ghast/` | Distant, fluttering wails with a long upward bend |
+| `giant/` | A low vibrating throat and slow, heavy ground contacts |
+| `goat/`, `goat/screaming/` | Strained warning bleats and a horn impact |
+| `guardian/` | Short, pointed bursts of underwater resonance |
+| `hoglin/` | Broad tusked snorts with fast breath pulses |
+| `husk/` | Dry grit carried on a receding whisper |
+| `illusioner/` | Offset spectral pulses and reflected calls |
+| `iron_golem/` | A low resonant strike under a harder surface ring |
+| `llama/` | Throaty warning and a short breath-driven spit |
+| `magma_cube/` | Low hot crackle and dense landing bursts |
+| `panda/` | Chesty warning and a short, weighted bite |
+| `parched/` | Dry, bright bone strikes and a brittle bow release |
+| `phantom/` | A shredded rising screech with wing and dive rushes |
+| `piglin/` | Nasal snorts with a quick rise |
+| `piglin_brute/` | Dense chest resonance and an abrupt double grunt |
+| `pillager/` | Short, breathy throat pulses |
+| `polar_bear/` | A deep warning bellow that breaks into breath |
+| `ravager/` | A slow, spacious bellow and heavy impacts |
+| `shulker/` | Hollow shell taps and a few abruptly closing resonances |
+| `silverfish/` | Fast rasping scrapes and dry clicks |
+| `skeleton/` | Loose clacking bones and a short bow release |
+| `slime/` | Elastic, descending gel pops |
+| `small_sulfur_cube/` | Higher, quick bubble pops |
+| `spider/` | Lower shell scrape with a dragging hiss |
+| `stray/` | Brittle, high rattle and a ringing bow release |
+| `sulfur_cube/` | Thick suction, springy gel and material-specific contacts |
+| `vex/` | Narrow, piercing calls with fast flutter |
+| `vindicator/` | Abrupt, tightly constricted throat sounds |
+| `warden/` | Low chest pulses, double heartbeat and a rising sonic charge |
+| `witch/` | Hoarse, rising breath and broken cackles |
+| `wither/` | Trembling overlapping voices with a low pressure bed |
+| `wither_skeleton/` | Slow, hollow bone knocks |
+| `wolf/`, `wolf_angry/`, `wolf_big/`, `wolf_cute/`, `wolf_grumpy/`, `wolf_puglin/`, `wolf_sad/` | Distinct breathing growls for each voice set |
+| `zoglin/` | Unsteady low guff with breath breaking at the ends |
+| `zombie/` | Long rattling throat with uneven breathing |
+| `zombie_horse/` | Twisted nasal whinny that falls into a cough |
+| `zombie_nautilus/` | Bubbling head cavity with short higher resonances |
+| `zombie_villager/` | Nasal, broken groans with short stops |
+| `zombified_piglin/` | A wet snort with a steep, then falling pitch |

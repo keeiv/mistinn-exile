@@ -74,13 +74,7 @@ public final class TrainingService {
 		.buildAndRegister(Mistinn.id("training_lesson"));
 
 	private static final BlockPos ENTRY = new BlockPos(0, 65, 10);
-	private static final BlockPos KIT = new BlockPos(-3, 65, -4);
 	private static final BlockPos SEAT = TrainingLesson.DEPLOY.target;
-	private static final BlockPos BOARD_BUTTON = new BlockPos(0, 66, -131);
-	private static final BlockPos[] LAMPS = {
-		new BlockPos(-4, 65, -103), new BlockPos(4, 65, -103),
-		new BlockPos(-4, 65, -113), new BlockPos(4, 65, -113)
-	};
 	private static final String STRIKE_TARGET = "mistinn.training_target";
 	private static final String KEEPER_TARGET = "mistinn.training_keeper";
 	private static final String POD_SEAT = "mistinn.training_seat";
@@ -104,7 +98,7 @@ public final class TrainingService {
 		ServerTickEvents.END_SERVER_TICK.register(TrainingService::tick);
 		ServerLivingEntityEvents.AFTER_DEATH.register(TrainingService::fallen);
 		UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
-			if (!level.dimension().equals(TrainingGround.KEY) || !hit.getBlockPos().equals(BOARD_BUTTON)) {
+			if (!level.dimension().equals(TrainingGround.KEY) || !hit.getBlockPos().equals(TrainingLesson.BOARD_BUTTON)) {
 				return InteractionResult.PASS;
 			}
 			if (player instanceof ServerPlayer hunter && at(hunter, TrainingLesson.BOARD)) {
@@ -275,7 +269,7 @@ public final class TrainingService {
 		Item backpack = MistinnItems.BACKPACKS.get(2);
 		Item rig = MistinnItems.RIGS.getFirst();
 		Item mask = MistinnItems.MASKS.getFirst();
-		if (level.getBlockEntity(KIT) instanceof Container chest) {
+		if (level.getBlockEntity(TrainingLesson.KIT) instanceof Container chest) {
 			stock(player, chest, 0, armor);
 			stock(player, chest, 2, backpack);
 			stock(player, chest, 4, rig);
@@ -394,7 +388,7 @@ public final class TrainingService {
 	}
 
 	private static boolean allLampsLit(final ServerLevel level) {
-		for (BlockPos pos : LAMPS) {
+		for (BlockPos pos : TrainingLesson.LAMP_POSITIONS) {
 			var lamp = level.getBlockState(pos);
 			if (!lamp.is(MistinnBlocks.LAMP_STAND) || !lamp.getValue(LampStandBlock.LIT)) {
 				return false;
@@ -499,6 +493,7 @@ public final class TrainingService {
 		player.getInventory().setItem(0, new ItemStack(MistinnItems.HUNTER_GUIDE));
 		GridService.set(player, GridInventory.EMPTY);
 		player.removeAttached(MistinnAttachments.BELL);
+		player.removeAttached(MistinnAttachments.ONE_TIME_BELL);
 		player.removeAttached(MistinnAttachments.DEATH_MARK);
 		player.removeAttached(MistinnAttachments.PAINKILLER);
 		SaltService.set(player, 0);

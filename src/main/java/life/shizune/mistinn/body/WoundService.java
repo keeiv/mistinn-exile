@@ -17,11 +17,11 @@ import net.minecraft.world.entity.player.Player;
  * <li><b>Bleeding</b> comes from blows and shots. A bleeding part loses
  * {@link #BLEED_PER_SECOND} a second until it is destroyed. A tourniquet stops it, but a
  * tourniquet left on longer than {@link #TOURNIQUET_SAFE} starves the part, which then dies
- * at {@link #NECROSIS_PER_SECOND} a second. Only surgery (or a golden bell) takes it off.</li>
+ * at {@link #NECROSIS_PER_SECOND} a second. Surgery takes the tourniquet off.</li>
  * <li><b>A broken bone</b> (arms and legs only) comes from falls, explosions and crushing blows.
  * Until it is set, the limb works as if it were destroyed: a broken leg means no rolling, only
- * the dive; a broken arm weakens blows and work. A splint holds it for {@link #SPLINT_TICKS};
- * only surgery (or a golden bell) mends it.</li>
+ * the dive; a broken arm weakens blows and work. A splint holds it for {@link #SPLINT_TICKS}.
+ * Surgery sets the bone.</li>
  * </ul>
  * A destroyed part has nothing left to bleed or break: its wounds are gone with it.
  */
@@ -56,7 +56,7 @@ public final class WoundService {
 		BodyService.applyPenalties(player, BodyService.get(player));
 	}
 
-	/** Golden bells and surgery's full care: no wounds left. */
+	/** Clear every wound. */
 	public static void clearAll(final ServerPlayer player) {
 		set(player, Wounds.NONE);
 	}
