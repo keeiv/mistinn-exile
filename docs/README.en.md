@@ -56,12 +56,15 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Area | What it does |
 | --- | --- |
 | Salt | The currency. Defeating a hostile creature gives salt equal to its maximum health; others give a fifth (at least 1). Salt found in structures is worth 10 each when used. |
-| Residue and gravestones | When you fall, all the salt you carry becomes residue held by a gravestone where you fell; hit it to take the salt back. Fall again first and the old residue fades. |
+| Residue and gravestones | When you fall, all the salt you carry becomes residue, and everything else you carry (gear, hotbar, pockets, chest rig and backpack; not the safe box) goes into the same gravestone instead of onto the ground; hit it to take it all back. Fall again first and the old residue fades: the salt is lost and the things spill where the stone stood. |
 | Death scene | Killed by a creature, every other creature vanishes; the hunter drops to one knee, topples onto one side and turns to smoke. Other deaths are a plain fall. Then the mission ends: the cause, a line from Rust Anchor, and the choice to return or to rest. |
 | Story mode | A new singleplayer world first asks for the story or free exploration. Story mode has a prologue and a first chapter: objectives, radio calls, pixel-art story cards and in-world scenes, with a mission journal on `K`. Later chapters are still being made. |
 | Golden bells | Save points. Rest at one to restore every body part (destroyed ones too), eat and set it as your respawn point. The border world has no such metal, so they cannot be crafted. |
 | Body parts | Hearts are replaced by six parts (head, torso, both arms, both legs), 80 health each; three destroyed parts kill. Each part is protected only by the gear that covers it, and a destroyed one has lasting effects. |
+| Bleeding and broken bones | Blows can open a bleeding wound that slowly kills the part until a tourniquet stops it; falls, explosions and crushing blows can break a limb, which then works as if destroyed (a broken leg only dives) until surgery sets it; a splint holds it for a while. |
+| Medicine and repair | Potent injector, surgery kit, painkillers, tourniquet, splint, and tier III–VI armour and helmet repair kits; each takes a few seconds with its own motion and sounds, and a heavy hit or a roll breaks it off. |
 | Bell Salve | Made from gold ore, salt and a honey bottle; away from a golden bell, the only cure for a destroyed part. |
+| Crafting | Every medical item, repair kit, piece of gear and weapon can be crafted; only golden bells and the Rust God's salt block cannot, and tier VI gear needs the salt block. |
 | One-time bells | Cast from gold ore (ore or raw gold) and an iron chain; brings you back once, then cracks. |
 | Minimap | Built in, north up; shows your heading, your bell and where you fell, pinned to the edge when off the map. |
 | Weapons | Five branches (blade, greatsword, spear, dagger, hammer) in five materials (wood, stone, iron, diamond, netherite), so there is something to fight with from day one; plus four named weapons: Anchor Blade, Sunken Bell Greatsword, Mistwalker Spear and Salt Fang. Each has vanilla-style art and a held model, its own swing and hit sounds, and its own first- and third-person swing. |
@@ -73,7 +76,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V; each with its own durability, protection, capacity, layout and a two-line story. |
 | Grid inventory | Four pockets, the chest rig's and backpack's grids, and a safe box kept through death; every item takes a footprint by kind, can be rotated and shows its shape in the grid. The backpack and chest rig are worn on the body. In survival the inventory is the mod's own screen, and the 27 vanilla slots are sealed off. |
-| Fog-shore lighthouses | Dead lighthouses on the coast; the lamp room at the top is held by the first keeper, **the Snuffer**, whose every move strikes a set part of the body. |
+| Fog-shore lighthouses | Dead lighthouses on the coast; the lamp room at the top is held by the first keeper, **the Snuffer**, whose every move strikes a set part of the body. The fight has its own music, which turns more frantic in its dark half. |
 | Languages | Traditional Chinese and English. |
 
 ### Weapons
@@ -161,7 +164,17 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 - **Where hits land**: by height and direction. High from the front is the face, from behind the crown; the middle is the torso or the arm on that side; low is the leg on that side. Falls land on both legs, drowning and starving on the torso, fire and explosions over the whole body.
 - **Recovery**: slow and natural while your food is at 6 or more; potions and golden apples mend the most hurt parts first. Only a golden bell or Bell Salve brings a destroyed part back.
 - **Destroyed parts**: legs slow you and cut your jump; arms weaken blows, attack speed and mining; the torso makes you hungry faster; the head darkens the edges of your view and stops the minimap.
-- **HUD**: a small figure where the hearts were, each part green to red by its health.
+- **HUD**: a small figure where the hearts were, each part green to red by its health; a bleeding part flashes red, a broken one shows a crack, and tourniquets and splints show too. The inventory lists each part's wounds and the time left on them.
+
+### Bleeding and broken bones
+
+| Wound | From | What it does | What to do |
+| --- | --- | --- | --- |
+| Bleeding | Creatures' blows, arrows | The part loses 0.5 a second until it is destroyed, and does not mend by itself | A **tourniquet** stops it. Left on over 3 minutes, the part starts to die; only a surgery kit or a golden bell takes it off |
+| Broken bone (arms and legs) | Falls, explosions, very heavy blows | The limb works as if destroyed before it is: a broken leg cannot roll, only dive, and slows you; a broken arm weakens blows and mining | A **splint** holds it for 4 minutes, then it is broken again; a **surgery kit** sets it |
+
+- A **surgery kit** deals with one part at a time: a destroyed part first, then a broken bone, a tourniquet, then bleeding.
+- Resting at a **golden bell** deals with every wound. Painkillers hide destroyed parts, not broken bones.
 
 ## Death and the end of the mission
 
@@ -213,13 +226,14 @@ Rust Anchor says the coasts at the world's edge are lined with dead lighthouses,
 - 300 health, 8 armour, and a boss health bar.
 - Below half health every lamp in the room goes out and you are in darkness. Right-click the four lamp stands to light them; with all four lit it staggers for five seconds and takes half again as much damage, then snuffs them out one by one.
 - It drops **the Rust God's salt block**, 3000 salt, and a 30% chance of one piece of tier III–IV gear.
+- In the lamp room, or within 32 blocks once it is wounded, the keeper's fight music plays; below half health it changes to the dark half's track, and it stops when the fight is over.
 
 ## Controls
 
 | Input | Action |
 | --- | --- |
 | Use a golden bell | Rest, set respawn point, restore every body part |
-| Hit a gravestone | Take back the salt in the residue |
+| Hit a gravestone | Take back the salt and things in the residue |
 | `M` | Minimap zoom (1, 2 or 4 blocks per pixel) |
 | `E` | Inventory (gear, chest rig, backpack and body) |
 | Right-click the helmet slot | Switch to the mask slot |
@@ -270,7 +284,7 @@ Helmets last 70–640, masks 50–480, body armour 110–940, leggings 90–610,
 | V | 2×2 ×3 + 1×3 ×4 | 24 |
 | VI | 2×3 ×2, 2×2 + 1×3 ×4 | 28 |
 
-Pockets are four 1×1 cells and the safe box is 2×2. Pickups fill the pockets, then the chest rig, then the backpack. On death the pockets, chest rig, backpack and mask drop; the safe box stays. Footprints: gems and ingots 1×1, sticks 1×2, tools and swords 1×3, ore and other blocks 2×2, armour 2×2 or 2×3; the injector and painkillers 1×1, the surgery kit 1×2, and repair kits grow with their tier (armour: III 1×2, IV 1×3, V/VI 2×2; helmet: III/IV 1×2, V 1×3, VI 2×2). A backpack's contents live in the backpack item, so they travel with it. The backpack and chest rig you wear show on your body.
+Pockets are four 1×1 cells and the safe box is 2×2. Pickups fill the pockets, then the chest rig, then the backpack. On death the pockets, chest rig, backpack and mask go into the gravestone with everything else you carry; the safe box stays. Footprints: gems and ingots 1×1, sticks 1×2, tools and swords 1×3, ore and other blocks 2×2, armour 2×2 or 2×3; the injector, painkillers and tourniquet 1×1, the surgery kit and splint 1×2, and repair kits grow with their tier (armour: III 1×2, IV 1×3, V/VI 2×2; helmet: III/IV 1×2, V 1×3, VI 2×2). A backpack's contents live in the backpack item, so they travel with it. The backpack and chest rig you wear show on your body.
 
 ## Building from source
 
@@ -302,7 +316,7 @@ Bug fixes, features, tests, art and documentation are welcome; read the [contrib
 
 Copyright (c) 2026 Keeiv.
 
-Licensed under the **GNU Affero General Public License v3.0 only (AGPL-3.0-only)**; see [LICENSE](../LICENSE) and [NOTICE](../NOTICE). The original textures, models and sounds share the code's license.
+Licensed under the **GNU Affero General Public License v3.0 only (AGPL-3.0-only)**; see [LICENSE](../LICENSE) and [NOTICE](../NOTICE). The original textures and models share the code's license. The sounds are built from public-domain (CC0 1.0) recordings by Kenney and sinny, cut, layered and processed with the project's own noise synthesis; the keeper's fight music is two CC0 1.0 tracks, Juhani Junkala's *Epic Boss Battle* and Emma_MA's *Determined Pursuit*, used whole with only their loudness changed. Every sound file's sources are listed in [CREDITS.md](../CREDITS.md).
 
 > [!NOTE]
 > The wordmark is drawn with [Fusion Pixel Font](https://github.com/TakWolf/fusion-pixel-font) (SIL Open Font License 1.1). Minecraft is a trademark of Mojang Studios; this mod is not affiliated with Mojang or Microsoft.
