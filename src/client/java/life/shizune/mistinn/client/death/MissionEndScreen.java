@@ -23,12 +23,13 @@ import org.jspecify.annotations.Nullable;
  * 任務終止: the death screen. For the first seconds it shows nothing at all and leaves the world
  * to the death scene; then the world dims behind it, the words come up in red, the cause, and a
  * line from Rust Anchor that does not hide its disappointment, typed out. Under the two choices,
- * a heart run through. After an execution the word for it in the cause is crimson.
+ * a heart run through by a knife; after an execution, a heart bitten open, and the word for it in the cause in crimson.
  * It is a {@link DeathScreen}, so the game and other mods still know it for one.
  */
 public class MissionEndScreen extends DeathScreen {
-	private static final Identifier HEART = Mistinn.id("textures/gui/death/pierced_heart.png");
-	private static final int HEART_SIZE = 32;
+	private static final Identifier HEART = Mistinn.id("textures/gui/death/stabbed_heart.png");
+	private static final Identifier TORN_HEART = Mistinn.id("textures/gui/death/torn_heart.png");
+	private static final int HEART_SIZE = 48;
 	private static final int RED = 0xC23A2E;
 	/** The colour of the word "executed" in an execution's cause line. */
 	public static final int CRIMSON = 0xB3121F;
@@ -81,9 +82,9 @@ public class MissionEndScreen extends DeathScreen {
 		return DeathScene.seconds() - DeathScene.SCREEN;
 	}
 
-	/** The heart's size: smaller on short windows, so everything fits. */
+	/** The heart's size, in whole multiples of its pixels: smaller on short windows, so everything fits. */
 	private int heartSize() {
-		return this.height >= 360 ? HEART_SIZE * 3 : HEART_SIZE * 2;
+		return this.height >= 360 ? HEART_SIZE * 2 : HEART_SIZE;
 	}
 
 	/** The top of the whole column: title, cause, line, choices, heart. */
@@ -208,7 +209,8 @@ public class MissionEndScreen extends DeathScreen {
 		float beat = 1.0F + (0.06F - 0.03F * slowing) * life.shizune.mistinn.client.anim.Motion.heartbeat(since, 1.1F + 0.9F * slowing);
 		int size = Math.round(this.heartSize() * beat);
 		int hy = top + HEART_AT + (this.heartSize() - size) / 2;
-		g.blit(RenderPipelines.GUI_TEXTURED, HEART, cx - size / 2, hy, 0.0F, 0.0F, size, size, HEART_SIZE, HEART_SIZE, HEART_SIZE, HEART_SIZE, alpha << 24 | 0xFFFFFF);
+		Identifier heart = DeathScene.cause() == DeathScene.Cause.EXECUTION ? TORN_HEART : HEART;
+		g.blit(RenderPipelines.GUI_TEXTURED, heart, cx - size / 2, hy, 0.0F, 0.0F, size, size, HEART_SIZE, HEART_SIZE, HEART_SIZE, HEART_SIZE, alpha << 24 | 0xFFFFFF);
 	}
 
 	/** The choices wait until the screen has come up, so nothing is chosen by a stray click. */

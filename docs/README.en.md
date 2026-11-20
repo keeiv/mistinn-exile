@@ -217,7 +217,7 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 
 - **Killed by a creature** (keepers too): every other creature vanishes and the view swings out in front of and above the hunter, who drops to one knee, holds themselves up on a shaking hand, then topples onto one side and turns to smoke, leaving the residue.
 - **Any other death** (hunger, a fall, drowning, fire): a stagger, then a fall face down, and the same smoke.
-- **The end of the mission**: the view darkens to red words saying the mission is terminated, the cause of death and a line from Rust Anchor that fits it. *Return to the mission* respawns you at your golden bell; *Rest* saves and goes back to the title screen. After an execution, the word *executed* in the cause is crimson.
+- **The end of the mission**: the view darkens to red words saying the mission is terminated, the cause of death and a line from Rust Anchor that fits it. *Return to the mission* respawns you at your golden bell; *Rest* saves and goes back to the title screen. Below them, a heart run through by a short knife slowly stops; after an execution the heart is bitten open, and the word *executed* in the cause is crimson.
 - The gravestone rises as the body turns to smoke. If something was put down on that spot in the meantime, it rises nearby instead and the minimap mark follows.
 
 ## Swings, stamina and rolls
