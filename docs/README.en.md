@@ -59,16 +59,17 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Residue and gravestones | When you fall, all the salt you carry becomes residue, and everything else you carry (gear, hotbar, pockets, chest rig and backpack; not the safe box) goes into the same gravestone instead of onto the ground; right-click it to take it all back. Fall again first and the old residue fades: the salt is lost and the things spill where the stone stood. |
 | Death scene | Killed by a creature, every other creature vanishes; the hunter drops to one knee, topples onto one side and turns to smoke. Other deaths are a plain fall. Then the mission ends: the cause, a line from Rust Anchor, and the choice to return or to rest. |
 | Story mode | A prologue and a first chapter with objectives, radio calls, pixel-art story cards and in-world scenes, with a mission journal on `K`. Later chapters are still being made. |
-| Hunter Training | An optional course for a new singleplayer world. Follow the instructor through equipment, combat, medicine, crafting, the bell and residue, radio repair, and a keeper rehearsal. Board the drop pod to choose Story or Free exploration. |
-| Golden bells | Save points. Rest at one to restore every body part (destroyed ones too), eat and set it as your respawn point. The border world has no such metal, so they cannot be crafted. |
+| Hunter Training | An optional course for a new singleplayer world. Follow the instructor and the glowing arrows through equipment, combat, medicine, crafting, the bell and residue, radio repair, and a keeper rehearsal. Board the drop pod to choose Story or Free exploration. |
+| Golden bells | Ring one to set your respawn point. Each bell has its own one-hour cooldown in real time, shared by everyone. The border world has no such metal, so they cannot be crafted. |
 | Body parts | Hearts are replaced by six parts (head, torso, both arms, both legs), 80 health each; three destroyed parts kill. Each part is protected only by the gear that covers it, and a destroyed one has lasting effects. |
 | Bleeding and broken bones | Blows can open a bleeding wound that slowly kills the part until a tourniquet stops it; falls, explosions and crushing blows can break a limb, which then works as if destroyed (a broken leg only dives) until surgery sets it; a splint holds it for a while. |
 | Medicine and repair | Potent injector, surgery kit, painkillers, tourniquet, splint, and tier III–VI armour and helmet repair kits; each takes a few seconds with its own motion and sounds, and a heavy hit or a roll breaks it off. |
 | Crafting | Every medical item, repair kit, piece of gear and weapon can be crafted or smithed. Permanent golden bells are found in the world. Keepers drop the Rust God's salt block, an ingredient in tier VI gear. |
-| One-time bells | Cast from gold ore (ore or raw gold) and an iron chain; brings you back once, then cracks. |
+| One-time bells | Fragile bells cast from gold ore (ore or raw gold) and an iron chain. Each rings once and breaks after calling its first hunter back. A bell that has already rung drops nothing when broken. |
 | Minimap | Built in, north up; shows your heading, your bell and where you fell, pinned to the edge when off the map. |
 | Weapons | Five branches (blade, greatsword, spear, dagger, hammer) in five materials (wood, stone, iron, diamond, netherite), so there is something to fight with from day one; plus four named weapons: Anchor Blade, Sunken Bell Greatsword, Mistwalker Spear and Salt Fang. Each has vanilla-style art and a held model, its own swing and hit sounds, and its own first- and third-person swing. |
-| Swings | Every blow has a wind-up, a strike, an overshoot and a recovery: the arms strain and shake as it winds up, the weapon breaks loose, and its weight carries the body past the line. Third person twists and steps into it; in first person the view swings with the blow and jolts on a hit. |
+| Swings | Every blow has a wind-up, a strike, an overshoot and a recovery. Each weapon branch leaves a distinct trail, from the spear's straight thrust to the dagger's two crossing cuts. Third person twists and steps into it. In first person the view swings with the blow and jolts on a hit. |
+| Vanilla monsters | Each hostile species has its own sounds and gains new movement and poses for its rig. When both of a hunter's legs are destroyed, creatures that can execute in melee wind up first, giving nearby hunters time to interrupt them. |
 | Stamina and rolls | Swings, sprints and rolls cost stamina. The legs determine how far a roll goes and the arms shape its motion. Badly injured legs can force a dive, whose landing strains the upper body. |
 | Title screen | An original misty shore with a dead lighthouse: drifting fog, glinting water and a last ember in the lamp room. |
 | Hunter's Guide | Placed in your hotbar the first time you join; nine pages on the world, the mission and the rules. |
@@ -119,6 +120,14 @@ You need Minecraft Java Edition 26.3, [Fabric Loader](https://fabricmc.net/use/)
 
 Existing Bell Salve stacks turn into the same amount of raw gold when the save is loaded.
 
+### Playing with friends
+
+The host enters a Story or Free exploration world, presses Esc, and chooses **World & Multiplayer → Open Room**. Enter a host IP or hostname your friends can reach, then copy the connection address. Guests use the same Mistinn version and paste the address in **Multiplayer → Direct Connection**. The host can close the room from the same screen, and the world stays on their computer.
+
+Friends on different networks can connect over a reachable public address or a shared private virtual network. For a public IPv4 connection, forward the chosen TCP port (default `25565`) to the host computer and allow it through the firewall. A shared private virtual network also works when the host's ISP uses CGNAT. Guests need a verified Minecraft account to join the room. [Minecraft Java multiplayer help](https://help.minecraft.net/hc/en-us/articles/32899741198989)
+
+Story worlds remember whether the keeper has fallen and the salt block has been turned in. Friends who join later can continue their own objectives when they reach those steps.
+
 ## Story mode
 
 When creating a new world from the world list, choose **Story**, **Free exploration**, or **Hunter Training**. Free exploration has no mission and otherwise plays the same. Story mode has the prologue, *The Drop*, and chapter 1, *Lights Out*, so far.
@@ -166,7 +175,7 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 
 - **Death**: any three parts destroyed. Damage to a destroyed part spreads, weakened, over the others, so you cannot become unkillable.
 - **Where hits land**: by height and direction. High from the front is the face, from behind the crown; the middle is the torso or the arm on that side; low is the leg on that side. Falls land on both legs, drowning and starving on the torso, fire and explosions over the whole body.
-- **Recovery**: living parts that are no longer losing blood mend slowly while your food is at 6 or more. Potions and golden apples mend the most hurt living parts first. Resting at a golden bell restores the whole body, and a surgery kit brings back one destroyed part at a time.
+- **Recovery**: living parts that are no longer losing blood mend slowly while your food is at 6 or more. Potions and golden apples mend the most hurt living parts first. A surgery kit brings back one destroyed part at a time.
 - **Destroyed parts**: legs slow you and cut your jump; arms weaken blows, attack speed and mining; the torso makes you hungry faster; the head darkens the edges of your view and stops the minimap.
 - **HUD**: a small figure where the hearts were, each part green to red by its health; a bleeding part flashes red, a broken one shows a crack, and tourniquets and splints show too. The inventory lists each part's wounds and the time left on them.
 
@@ -174,11 +183,11 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 
 | Wound | From | What it does | What to do |
 | --- | --- | --- | --- |
-| Bleeding | Creatures' blows, arrows | The part loses 0.5 a second until it is destroyed, and does not mend by itself | A **tourniquet** stops it. Left on over 3 minutes, the part starts to die; only a surgery kit or a golden bell takes it off |
+| Bleeding | Creatures' blows, arrows | The part loses 0.5 a second until it is destroyed, and does not mend by itself | A **tourniquet** stops it. After 3 minutes under a tourniquet, the part starts to die. Only a surgery kit takes it off |
 | Broken bone (arms and legs) | Falls, explosions, very heavy blows | The limb works as if destroyed before it is: a broken leg cannot roll, only dive, and slows you; a broken arm weakens blows and mining | A **splint** holds it for 4 minutes, then it is broken again; a **surgery kit** sets it |
 
 - A **surgery kit** treats one part at a time, in order of priority: destroyed parts, broken bones, tourniquets, then bleeding. A destroyed part comes back with 24 health.
-- Resting at a **golden bell** deals with every wound. Painkillers hide destroyed parts, not broken bones.
+- **Painkillers** temporarily suppress the effects of destroyed parts.
 
 ## Death and the end of the mission
 
@@ -236,7 +245,7 @@ Rust Anchor says the coasts at the world's edge are lined with dead lighthouses,
 
 | Input | Action |
 | --- | --- |
-| Use a golden bell | Rest, set respawn point, restore every body part |
+| Use a golden bell | Ring it to set your respawn point |
 | Right-click a gravestone | Take back the salt and things in the residue |
 | `M` | Minimap zoom (1, 2 or 4 blocks per pixel) |
 | `E` | Inventory (gear, chest rig, backpack and body) |

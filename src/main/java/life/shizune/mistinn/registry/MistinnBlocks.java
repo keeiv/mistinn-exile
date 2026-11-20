@@ -33,9 +33,9 @@ public final class MistinnBlocks {
 		p -> new GoldenBellBlock(p, true),
 		BlockBehaviour.Properties.of()
 			.mapColor(MapColor.GOLD)
-			.strength(3.0F, 6.0F)
+			.strength(0.6F, 1.0F)
 			.sound(SoundType.METAL)
-			.lightLevel(state -> 3)
+			.lightLevel(state -> 1)
 			.noOcclusion()
 			.pushReaction(PushReaction.POPPED)
 	);

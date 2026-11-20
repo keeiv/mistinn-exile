@@ -12,8 +12,8 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 /**
- * 止血帶: stops one part's bleeding, the most bled first. It stays on until surgery or a golden
- * bell; left on longer than {@link WoundService#TOURNIQUET_SAFE} the part starts to die.
+ * 止血帶: stops one part's bleeding, the most bled first. Surgery takes it off.
+ * If left on longer than {@link WoundService#TOURNIQUET_SAFE}, the part starts to die.
  */
 public class TourniquetItem extends TreatmentItem {
 	/** 2 s to tie. */

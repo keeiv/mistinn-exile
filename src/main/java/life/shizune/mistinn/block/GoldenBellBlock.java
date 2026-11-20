@@ -1,5 +1,7 @@
 package life.shizune.mistinn.block;
 
+import java.util.List;
+import life.shizune.mistinn.bell.BellBlockEntity;
 import life.shizune.mistinn.bell.BellService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -7,17 +9,22 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /** 金鐘 and 一次性金鐘: rest here to be brought back here when you fall. */
-public class GoldenBellBlock extends Block {
+public class GoldenBellBlock extends BaseEntityBlock {
 	private static final VoxelShape SHAPE = Shapes.or(
 		Block.box(2, 0, 2, 14, 2, 14),
 		Block.box(4, 3, 4, 12, 5, 12),
@@ -43,15 +50,33 @@ public class GoldenBellBlock extends Block {
 
 	@Override
 	protected InteractionResult useWithoutItem(final BlockState state, final Level level, final BlockPos pos, final Player player, final BlockHitResult hitResult) {
-		if (player instanceof ServerPlayer serverPlayer) {
-			BellService.rest(serverPlayer, pos, this.oneTime);
+		if (player instanceof ServerPlayer serverPlayer && !BellService.rest(serverPlayer, pos)) {
+			return InteractionResult.CONSUME;
 		}
-		return InteractionResult.SUCCESS;
+		return InteractionResult.SUCCESS_SERVER;
+	}
+
+	@Override
+	protected RenderShape getRenderShape(final BlockState state) {
+		return RenderShape.MODEL;
+	}
+
+	@Override
+	public BellBlockEntity newBlockEntity(final BlockPos pos, final BlockState state) {
+		return new BellBlockEntity(pos, state);
+	}
+
+	@Override
+	protected List<ItemStack> getDrops(final BlockState state, final LootParams.Builder params) {
+		if (this.oneTime && params.getOptionalParameter(LootContextParams.BLOCK_ENTITY) instanceof BellBlockEntity bell && bell.claimed()) {
+			return List.of();
+		}
+		return super.getDrops(state, params);
 	}
 
 	@Override
 	public void animateTick(final BlockState state, final Level level, final BlockPos pos, final RandomSource random) {
-		if (random.nextInt(this.oneTime ? 6 : 3) == 0) {
+		if (random.nextInt(this.oneTime ? 18 : 3) == 0) {
 			double x = pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.6;
 			double y = pos.getY() + 0.4 + random.nextDouble() * 0.6;
 			double z = pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.6;
