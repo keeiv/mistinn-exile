@@ -60,6 +60,9 @@ public final class MistinnSounds {
 	public static final SoundEvent SNUFFER_HURT = register("entity.snuffer.hurt");
 	public static final SoundEvent SNUFFER_DEATH = register("entity.snuffer.death");
 	public static final SoundEvent SNUFFER_STEP = register("entity.snuffer.step");
+	public static final SoundEvent SNUFFER_SWEEP = register("entity.snuffer.sweep");
+	public static final SoundEvent SNUFFER_SLAM = register("entity.snuffer.slam");
+	public static final SoundEvent SNUFFER_HOOK = register("entity.snuffer.hook");
 	// the grid inventory, heard only by its owner
 	public static final SoundEvent GRID_PICKUP = register("ui.grid.pickup");
 	public static final SoundEvent GRID_PLACE = register("ui.grid.place");
@@ -80,8 +83,10 @@ public final class MistinnSounds {
 	// the radio at the station
 	public static final SoundEvent RADIO_STATIC = register("block.radio.static");
 	public static final SoundEvent RADIO_TUNE = register("block.radio.tune");
-	// boss music: the Snuffer's fight, and its dark half (CC0 tracks, see CREDITS.md)
+	// the shore at the title, and the Snuffer's fight and its turn into darkness
+	public static final SoundEvent MUSIC_SHORE = register("music.shore");
 	public static final SoundEvent MUSIC_KEEPER = register("music.keeper");
+	public static final SoundEvent MUSIC_KEEPER_TURN = register("music.keeper_turn");
 	public static final SoundEvent MUSIC_KEEPER_DARK = register("music.keeper_dark");
 
 	private MistinnSounds() {

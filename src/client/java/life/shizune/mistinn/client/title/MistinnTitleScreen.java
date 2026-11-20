@@ -3,6 +3,7 @@ package life.shizune.mistinn.client.title;
 import java.util.ArrayList;
 import java.util.List;
 import life.shizune.mistinn.Mistinn;
+import life.shizune.mistinn.registry.MistinnSounds;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.CommonButtons;
@@ -18,8 +19,10 @@ import net.minecraft.client.gui.screens.options.LanguageSelectScreen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The title screen of 霧宿：追放: a dead lighthouse on a misty shore at dusk. The art is layered
@@ -38,6 +41,7 @@ public class MistinnTitleScreen extends TitleScreen {
 
 	private final long opened = System.nanoTime();
 	private final List<MenuButton> menu = new ArrayList<>();
+	private @Nullable SimpleSoundInstance shoreBell;
 	private int mouseX;
 	private int mouseY;
 
@@ -62,6 +66,10 @@ public class MistinnTitleScreen extends TitleScreen {
 
 	@Override
 	protected void init() {
+		if (this.shoreBell == null) {
+			this.shoreBell = SimpleSoundInstance.forMusic(MistinnSounds.MUSIC_SHORE);
+			this.minecraft.getSoundManager().play(this.shoreBell);
+		}
 		this.menu.clear();
 		int x = Math.max(24, this.width / 14);
 		int y = this.height / 2 - 6;
@@ -87,6 +95,14 @@ public class MistinnTitleScreen extends TitleScreen {
 		int creditsWidth = this.font.width(credits);
 		this.addRenderableWidget(new PlainTextButton(this.width - creditsWidth - 4, this.height - 10, creditsWidth, 10, credits,
 			b -> this.minecraft.gui.setScreen(new CreditsAndAttributionScreen(this)), this.font));
+	}
+
+	@Override
+	public void removed() {
+		super.removed();
+		if (this.shoreBell != null) {
+			this.minecraft.getSoundManager().stop(this.shoreBell);
+		}
 	}
 
 	private MenuButton add(final MenuButton button) {

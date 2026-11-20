@@ -1,6 +1,6 @@
 # Credits
 
-Mistinn: Exile is AGPL-3.0-only. Its textures and models are original. Its sounds are built from the public-domain (CC0 1.0) recordings below, cut, layered and processed, together with noise-based synthesis made for this project (friction grains, tearing, shaken particles, breath, wind and moving-band noise; no oscillator tones). The boss music is two CC0 tracks used whole, changed only in loudness. CC0 asks for no attribution; it is given here anyway, so every file can be traced.
+Mistinn: Exile is AGPL-3.0-only. Its textures and models are original. Its sound effects are made from the CC0 recordings below, some layered with noise synthesis made for the project. The score is arranged from CC0 instrument and metal percussion samples. Credits are listed so each file can be traced.
 
 ## Sources
 
@@ -11,8 +11,7 @@ Mistinn: Exile is AGPL-3.0-only. Its textures and models are original. Its sound
 | `kenney_ui` | Interface Sounds | Kenney Vleugels (Kenney.nl) | CC0 1.0 | <https://kenney.nl/assets/interface-sounds> |
 | `kenney_casino` | Casino Audio | Kenney Vleugels (Kenney.nl) | CC0 1.0 | <https://kenney.nl/assets/casino-audio> |
 | `oga_scissors` | Various Scissors | sinny | CC0 1.0 | <https://opengameart.org/content/various-scissors> |
-| `oga_epic_boss` | Epic Boss Battle [Seamlessly Looping] | Juhani Junkala (SubspaceAudio) | CC0 1.0 | <https://opengameart.org/content/boss-battle-music> |
-| `oga_pursuit` | Determined Pursuit (epic orchestra loop) | Emma_MA | CC0 1.0 | <https://opengameart.org/content/determined-pursuit-epic-orchestra-loop> |
+| `vsco_ce` | VSCO 2 Community Edition | Versilian Studios (Sam Gossner and Simon Dalzell, sample cutting by Elan Hickler) | CC0 1.0 | <https://versilian-studios.com/vsco-community/> |
 | `synth` | Noise-based synthesis for this project | Keeiv | AGPL-3.0-only (with the project) | this repository |
 
 Licence text: CC0 1.0 Universal, <https://creativecommons.org/publicdomain/zero/1.0/>. Kenney's packs carry the same notice in their `License.txt`; the OpenGameArt page lists "CC0" as the licence of "Various Scissors".
@@ -46,6 +45,12 @@ Every file under `src/main/resources/assets/mistinn/sounds/`, with what went int
 | `entity/snuffer/step_2.ogg` | `kenney_impact:footstep_wood_002`; `kenney_rpg:handleCoins`; `synth:grit` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/step_3.ogg` | `kenney_impact:footstep_concrete_003`; `kenney_rpg:handleCoins`; `synth:grit` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/step_4.ogg` | `kenney_impact:footstep_concrete_002`; `kenney_rpg:handleCoins`; `synth:grit` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/hook_1.ogg` | `kenney_rpg:handleCoins2`; `kenney_rpg:metalLatch`; `kenney_impact:impactMetal_heavy_001` | CC0 1.0 sources |
+| `entity/snuffer/hook_2.ogg` | `kenney_rpg:handleCoins2`; `kenney_rpg:metalLatch`; `kenney_impact:impactMetal_heavy_002` | CC0 1.0 sources |
+| `entity/snuffer/slam_1.ogg` | `kenney_impact:footstep_concrete_001`; `kenney_impact:impactMining_001`; `kenney_impact:footstep_concrete_003` | CC0 1.0 sources |
+| `entity/snuffer/slam_2.ogg` | `kenney_impact:footstep_concrete_002`; `kenney_impact:impactMining_002`; `kenney_impact:footstep_concrete_003` | CC0 1.0 sources |
+| `entity/snuffer/sweep_1.ogg` | `vsco_ce:gongscrape_mf`; `kenney_impact:impactMetal_medium_001` | CC0 1.0 sources |
+| `entity/snuffer/sweep_2.ogg` | `vsco_ce:gongscrape_mf`; `kenney_impact:impactMetal_medium_002` | CC0 1.0 sources |
 | `gear/equip/backpack_1.ogg` | `kenney_rpg:dropLeather`; `kenney_rpg:cloth`; `kenney_rpg:handleSmallLeather`; `kenney_rpg:metalClick` | CC0 1.0 sources + project synthesis |
 | `gear/equip/backpack_2.ogg` | `kenney_rpg:dropLeather`; `kenney_rpg:cloth`; `kenney_rpg:handleSmallLeather`; `kenney_rpg:metalClick` | CC0 1.0 sources + project synthesis |
 | `gear/equip/cloth_1.ogg` | `kenney_rpg:cloth`; `kenney_rpg:clothBelt` | CC0 1.0 sources + project synthesis |
@@ -58,8 +63,10 @@ Every file under `src/main/resources/assets/mistinn/sounds/`, with what went int
 | `gear/equip/rig_2.ogg` | `kenney_rpg:clothBelt`; `kenney_rpg:metalLatch`; `synth:velcro tearing model` | CC0 1.0 sources + project synthesis |
 | `item/guide/open_1.ogg` | `kenney_rpg:bookOpen`; `kenney_rpg:bookFlip` | CC0 1.0 sources + project synthesis |
 | `item/guide/open_2.ogg` | `kenney_rpg:bookFlip` | CC0 1.0 sources + project synthesis |
-| `music/keeper.ogg` | `oga_epic_boss`, levelled to about -21 dBFS RMS | CC0 1.0 |
-| `music/keeper_dark.ogg` | `oga_pursuit`, levelled to about -21 dBFS RMS | CC0 1.0 |
+| `music/keeper.ogg` | `vsco_ce:cello section (susvib, spic)`; `vsco_ce:timpani`; `kenney_impact:impactBell_heavy_002` | CC0 1.0 sources |
+| `music/keeper_dark.ogg` | `vsco_ce:cello section (susvib, spic, trem)`; `vsco_ce:timpani`; `kenney_impact:impactBell_heavy_002` | CC0 1.0 sources |
+| `music/keeper_turn.ogg` | `vsco_ce:gongscrape_mf`; `kenney_impact:impactBell_heavy_002` | CC0 1.0 sources |
+| `music/shore.ogg` | `vsco_ce:cello section (susvib)`; `kenney_impact:impactBell_heavy_002` | CC0 1.0 sources |
 | `player/dive_1.ogg` | `kenney_rpg:cloth`; `synth:moving-band noise whoosh` | CC0 1.0 sources + project synthesis |
 | `player/dive_2.ogg` | `kenney_rpg:cloth`; `synth:moving-band noise whoosh` | CC0 1.0 sources + project synthesis |
 | `player/land_1.ogg` | `kenney_impact:impactSoft_heavy_001`; `kenney_impact:footstep_grass_001`; `kenney_rpg:handleCoins`; `synth:noise crunch` | CC0 1.0 sources + project synthesis |

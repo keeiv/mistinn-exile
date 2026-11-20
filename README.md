@@ -239,14 +239,14 @@
 
 | 招式 | 預備動作 | 打在哪裡 |
 | --- | --- | --- |
-| 橫掃 | 提燈亮起、身體後仰 | 軀幹，或靠近那一側的手 |
-| 下砸 | 跳起前地面浮出鹽粒 | 落地的衝擊波打雙腿 |
-| 勾拉 | 燈鉤往後拉、鏈子作響 | 把你拉到身邊，再打臉，只有面罩能減傷 |
+| 橫掃 | 提燈亮起、身體後仰，有一道拉長的金屬刮聲 | 軀幹，或靠近那一側的手 |
+| 下砸 | 跳起前地面浮出鹽粒，腳邊傳出碎響 | 落地的衝擊波打雙腿 |
+| 勾拉 | 燈鉤往後拉，鐵鏈突然繃緊 | 把你拉到身邊，再打臉，只有面罩能減傷 |
 
 - 生命 300、護甲 8，有頭目血條。
 - 生命一半以下，燈室裡的燈全熄，你會陷入黑暗。對著四座燈台按右鍵點亮，全部亮起時它會失衡五秒，受到的傷害 ×1.5；之後它會把燈台一座座吹熄。
 - 擊倒後掉落**鏽神的鹽塊**、3000 鹽，以及 30% 機率一件 III～IV 級的裝備。
-- 進入燈室，或它受傷後在 32 格內，就會響起燈守戰的配樂；生命一半以下換成黑暗階段的曲子，戰鬥結束就停。
+- 進入燈室，或它受傷後在 32 格內，就會響起燈守戰的配樂。生命一半以下，熄燈時先響一聲低鐘，再接進黑暗階段的曲子。戰鬥結束就停。
 
 ## 操作
 
@@ -390,16 +390,15 @@ Copyright (c) 2026 Keeiv。
 
 所有貼圖與模型為原創，與程式碼使用相同授權。
 
-音效的素材來源（皆為 [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) 公眾領域授權，可與 AGPL 併用）：
+音效與配樂的素材來源（皆為 [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) 公眾領域授權，可與 AGPL 併用）：
 
 | 素材 | 作者 | 授權 | 網址 |
 | --- | --- | --- | --- |
 | RPG Audio、Impact Sounds、Interface Sounds、Casino Audio | Kenney Vleugels（Kenney.nl） | CC0 1.0 | <https://kenney.nl/assets> |
 | Various Scissors | sinny（OpenGameArt） | CC0 1.0 | <https://opengameart.org/content/various-scissors> |
-| Epic Boss Battle [Seamlessly Looping] | Juhani Junkala（SubspaceAudio，OpenGameArt） | CC0 1.0 | <https://opengameart.org/content/boss-battle-music> |
-| Determined Pursuit (epic orchestra loop) | Emma_MA（OpenGameArt） | CC0 1.0 | <https://opengameart.org/content/determined-pursuit-epic-orchestra-loop> |
+| VSCO 2 Community Edition | Versilian Studios | CC0 1.0 | <https://versilian-studios.com/vsco-community/> |
 
-錄音經剪接、疊加、濾波與變速後，再與專案自己的雜訊合成（摩擦顆粒、撕裂、搖晃顆粒、呼吸）混在一起；合成的部分與程式碼使用相同授權。燈守戰的兩首配樂整首使用，只調整了音量。每個 OGG 用了哪些素材，逐檔列在 [CREDITS.md](CREDITS.md)。
+音效由錄音剪接、疊加、濾波與變速製作，部分混入專案的雜訊合成。配樂由 CC0 樂器與金屬敲擊錄音編曲。每個 OGG 用了哪些素材，逐檔列在 [CREDITS.md](CREDITS.md)。
 
 > [!NOTE]
 > 字標使用 [Fusion Pixel Font](https://github.com/TakWolf/fusion-pixel-font)（SIL Open Font License 1.1）繪製。Minecraft 是 Mojang Studios 的商標，本模組與 Mojang、Microsoft 沒有關聯。

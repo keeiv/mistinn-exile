@@ -279,9 +279,9 @@ public class Snuffer extends Monster {
 		});
 		if (this.level() instanceof ServerLevel level) {
 			switch (chosen) {
-				case SWEEP -> level.playSound(null, this.blockPosition(), SoundEvents.CHAIN_PLACE, SoundSource.HOSTILE, 1.4F, 0.6F);
-				case SLAM -> level.playSound(null, this.blockPosition(), SoundEvents.SAND_BREAK, SoundSource.HOSTILE, 1.4F, 0.5F);
-				case HOOK -> level.playSound(null, this.blockPosition(), SoundEvents.CHAIN_HIT, SoundSource.HOSTILE, 1.6F, 0.7F);
+				case SWEEP -> level.playSound(null, this.blockPosition(), MistinnSounds.SNUFFER_SWEEP, SoundSource.HOSTILE, 1.3F, 1.0F);
+				case SLAM -> level.playSound(null, this.blockPosition(), MistinnSounds.SNUFFER_SLAM, SoundSource.HOSTILE, 1.3F, 1.0F);
+				case HOOK -> level.playSound(null, this.blockPosition(), MistinnSounds.SNUFFER_HOOK, SoundSource.HOSTILE, 1.3F, 1.0F);
 			}
 		}
 	}
