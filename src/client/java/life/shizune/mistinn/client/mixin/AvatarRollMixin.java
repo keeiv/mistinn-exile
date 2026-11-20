@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import life.shizune.mistinn.client.anim.Clip;
 import life.shizune.mistinn.client.anim.Poser;
+import life.shizune.mistinn.client.enemy.ExecutionView;
 import life.shizune.mistinn.client.move.RollClient;
 import life.shizune.mistinn.stamina.RollService;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
@@ -37,7 +38,9 @@ public abstract class AvatarRollMixin {
 		// the local hunter's death is the scene's to draw, not vanilla's red tilt
 		life.shizune.mistinn.client.death.DeathScene.Pose death = entity == net.minecraft.client.Minecraft.getInstance().player ? life.shizune.mistinn.client.death.DeathScene.pose() : null;
 		state.setData(life.shizune.mistinn.client.death.DeathScene.KEY, death);
-		if (death != null) {
+		ExecutionView.Pose execution = ExecutionView.sample(entity, partialTicks);
+		state.setData(ExecutionView.KEY, execution);
+		if (death != null || execution != null) {
 			state.deathTime = 0.0F;
 			state.hasRedOverlay = false;
 		}
@@ -45,6 +48,10 @@ public abstract class AvatarRollMixin {
 
 	@ModifyVariable(method = "setupRotations(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V", at = @At("HEAD"), argsOnly = true, ordinal = 0)
 	private float mistinn$faceTheRoll(final float bodyRot, final AvatarRenderState state) {
+		ExecutionView.Pose execution = state.getData(ExecutionView.KEY);
+		if (execution != null) {
+			return execution.yaw();
+		}
 		RollClient.Pose pose = state.getData(RollClient.KEY);
 		return pose == null ? bodyRot : pose.yaw();
 	}
@@ -52,6 +59,11 @@ public abstract class AvatarRollMixin {
 	@Inject(method = "setupRotations(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V", at = @At("TAIL"))
 	private void mistinn$tumble(final AvatarRenderState state, final PoseStack pose, final float bodyRot, final float entityScale, final CallbackInfo ci) {
 		life.shizune.mistinn.client.death.DeathScene.Pose death = state.getData(life.shizune.mistinn.client.death.DeathScene.KEY);
+		ExecutionView.Pose execution = state.getData(ExecutionView.KEY);
+		if (execution != null && (death == null || death.seconds() < life.shizune.mistinn.client.death.DeathScene.GONE)) {
+			ExecutionView.root(execution, pose, entityScale);
+			return;
+		}
 		if (death != null) {
 			mistinn$fall(death, pose);
 			return;

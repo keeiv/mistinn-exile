@@ -51,7 +51,7 @@ public final class TrainingClient {
 		}
 	}
 
-	private static @Nullable TrainingLesson current(final Minecraft mc) {
+	static @Nullable TrainingLesson current(final Minecraft mc) {
 		return mc.player == null || !mc.player.level().dimension().equals(TrainingGround.KEY)
 			? null : mc.player.getAttached(TrainingService.LESSON);
 	}
@@ -99,6 +99,7 @@ public final class TrainingClient {
 		if (radioTicks > 0) {
 			drawRadio(g, mc, lesson);
 		}
+		TrainingGuide.drawDirection(g, mc, lesson);
 	}
 
 	private static void drawRadio(final GuiGraphicsExtractor g, final Minecraft mc, final TrainingLesson lesson) {

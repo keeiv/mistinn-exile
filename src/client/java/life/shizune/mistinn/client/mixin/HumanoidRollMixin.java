@@ -3,6 +3,7 @@ package life.shizune.mistinn.client.mixin;
 import life.shizune.mistinn.client.anim.Clip;
 import life.shizune.mistinn.client.anim.Poser;
 import life.shizune.mistinn.client.death.DeathScene;
+import life.shizune.mistinn.client.enemy.ExecutionView;
 import life.shizune.mistinn.client.move.RollClient;
 import life.shizune.mistinn.stamina.RollService;
 import net.minecraft.client.model.HumanoidModel;
@@ -24,6 +25,11 @@ public abstract class HumanoidRollMixin {
 	@Inject(method = "setupAnim", at = @At("TAIL"))
 	private void mistinn$rollLimbs(final HumanoidRenderState state, final CallbackInfo ci) {
 		HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
+		ExecutionView.Pose execution = state.getData(ExecutionView.KEY);
+		if (execution != null) {
+			ExecutionView.limbs(execution, model);
+			return;
+		}
 		DeathScene.Pose death = state.getData(DeathScene.KEY);
 		if (death != null) {
 			Clip clip = Clip.get(death.kneel() ? "death/kneel" : "death/collapse");

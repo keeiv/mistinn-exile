@@ -507,5 +507,16 @@
         "stream": true
       }
     ]
-  }
+  },
+  "entity.bogged.shoot": {"subtitle": "subtitles.mistinn.bogged.shoot", "sounds": ["mistinn:entity/vanilla/bogged/shoot_1", "mistinn:entity/vanilla/bogged/shoot_2"]},
+  "entity.cave_spider.ambient": {"subtitle": "subtitles.mistinn.cave_spider.ambient", "sounds": ["mistinn:entity/vanilla/cave_spider/ambient_1", "mistinn:entity/vanilla/cave_spider/ambient_2", "mistinn:entity/vanilla/cave_spider/ambient_3"]},
+  "entity.cave_spider.death": {"subtitle": "subtitles.mistinn.cave_spider.death", "sounds": ["mistinn:entity/vanilla/cave_spider/death_1", "mistinn:entity/vanilla/cave_spider/death_2"]},
+  "entity.cave_spider.hurt": {"subtitle": "subtitles.mistinn.cave_spider.hurt", "sounds": ["mistinn:entity/vanilla/cave_spider/hurt_1", "mistinn:entity/vanilla/cave_spider/hurt_2", "mistinn:entity/vanilla/cave_spider/hurt_3"]},
+  "entity.cave_spider.step": {"subtitle": "subtitles.block.generic.footsteps", "sounds": ["mistinn:entity/vanilla/cave_spider/step_1", "mistinn:entity/vanilla/cave_spider/step_2"]},
+  "entity.giant.ambient": {"subtitle": "subtitles.mistinn.giant.ambient", "sounds": ["mistinn:entity/vanilla/giant/ambient_1", "mistinn:entity/vanilla/giant/ambient_2", "mistinn:entity/vanilla/giant/ambient_3"]},
+  "entity.giant.death": {"subtitle": "subtitles.mistinn.giant.death", "sounds": ["mistinn:entity/vanilla/giant/death_1", "mistinn:entity/vanilla/giant/death_2"]},
+  "entity.giant.hurt": {"subtitle": "subtitles.mistinn.giant.hurt", "sounds": ["mistinn:entity/vanilla/giant/hurt_1", "mistinn:entity/vanilla/giant/hurt_2", "mistinn:entity/vanilla/giant/hurt_3"]},
+  "entity.giant.step": {"subtitle": "subtitles.block.generic.footsteps", "sounds": ["mistinn:entity/vanilla/giant/step_1", "mistinn:entity/vanilla/giant/step_2"]},
+  "entity.parched.shoot": {"subtitle": "subtitles.mistinn.parched.shoot", "sounds": ["mistinn:entity/vanilla/parched/shoot_1", "mistinn:entity/vanilla/parched/shoot_2"]},
+  "entity.stray.shoot": {"subtitle": "subtitles.mistinn.stray.shoot", "sounds": ["mistinn:entity/vanilla/stray/shoot_1", "mistinn:entity/vanilla/stray/shoot_2"]}
 }

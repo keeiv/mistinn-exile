@@ -108,13 +108,21 @@ public class MistinnStoryTest implements FabricClientGameTest {
 			// ── The lighthouse: reach it, rest, climb ─────────────────
 			world.getServer().runOnServer(server -> {
 				BlockPos tower = places(server).lighthouse();
+				ServerPlayer hunter = player(server);
+				check(BellService.rest(hunter, tower.offset(0, 1, 7)), "the lighthouse bell starts ready");
+				hunter.removeAttached(life.shizune.mistinn.registry.MistinnAttachments.BELL);
 				player(server).teleportTo(server.overworld(), tower.getX() + 0.5, tower.getY() + 1, tower.getZ() + 9.5, Set.of(), 180.0F, 0.0F, true);
 			});
 			world.getConnection().waitForChunksRender();
 			context.waitTicks(20);
 			check(step(world) == StoryStep.BELL, "reaching the lighthouse moves on to the bell");
-			world.getServer().runOnServer(server -> BellService.rest(player(server), places(server).lighthouse().offset(0, 1, 7), false));
-			check(step(world) == StoryStep.LAMP_ROOM, "resting at the bell moves on to the lamp room");
+			world.getServer().runOnServer(server -> {
+				ServerPlayer hunter = player(server);
+				check(!BellService.rest(hunter, places(server).lighthouse().offset(0, 1, 7))
+					&& hunter.getAttached(life.shizune.mistinn.registry.MistinnAttachments.BELL) == null,
+					"approaching a cooling bell does not ring or bind it again");
+			});
+			check(step(world) == StoryStep.LAMP_ROOM, "a cooling bell still allows a hunter to proceed with the lighthouse objective");
 			world.getServer().runOnServer(server -> {
 				BlockPos room = places(server).lampRoom();
 				player(server).teleportTo(server.overworld(), room.getX() + 0.5, room.getY(), room.getZ() - 2.5, Set.of(), 0.0F, 10.0F, true);
@@ -159,6 +167,11 @@ public class MistinnStoryTest implements FabricClientGameTest {
 			check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 3), "the journal heard all three sequences");
 			context.takeScreenshot("story-journal");
 			context.runOnClient(mc -> mc.gui.setScreen(null));
+
+			// A hunter who catches up after the rest of the party needs no second boss or salt block.
+			world.getServer().runOnServer(server -> StoryService.advance(player(server), StoryStep.SNUFFER));
+			context.waitFor(mc -> mc.player != null && mc.player.getAttached(StoryService.PROGRESS) != null
+				&& mc.player.getAttached(StoryService.PROGRESS).step() == StoryStep.WAIT, 80);
 		}
 	}
 

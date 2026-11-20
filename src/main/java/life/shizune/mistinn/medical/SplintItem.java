@@ -13,7 +13,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * 夾板: holds one broken limb for {@link WoundService#SPLINT_TICKS}, legs first, so it can be
- * used again; the bone itself only mends under surgery or at a golden bell.
+ * used again. Surgery sets the bone.
  */
 public class SplintItem extends TreatmentItem {
 	/** 3 s to bind. */

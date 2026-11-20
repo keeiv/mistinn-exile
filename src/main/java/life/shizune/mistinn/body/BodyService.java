@@ -1,6 +1,7 @@
 package life.shizune.mistinn.body;
 
 import life.shizune.mistinn.Mistinn;
+import life.shizune.mistinn.enemy.ExecutionService;
 import life.shizune.mistinn.grid.GridRules;
 import life.shizune.mistinn.medical.TreatmentService;
 import life.shizune.mistinn.mixin.LivingEntityInvoker;
@@ -98,7 +99,7 @@ public final class BodyService {
 		player.setHealth(Math.max(1.0F, player.getMaxHealth() * share));
 	}
 
-	/** Golden bells and respawning: every part whole again. */
+	/** Restore every body part. */
 	public static void restoreAll(final ServerPlayer player) {
 		set(player, Body.FULL);
 	}
@@ -197,11 +198,12 @@ public final class BodyService {
 
 	/** Replaces vanilla's {@code actuallyHurt} for hunters: armour by part, then parts. */
 	public static void hurt(final ServerPlayer player, final ServerLevel level, final DamageSource source, float damage) {
-		if (player.isInvulnerableTo(level, source)) {
+		if (player.isInvulnerableTo(level, source) || ExecutionService.holdsBlow(source)) {
 			return;
 		}
 		damage = Math.min(damage, 1.0E6F);
-		Hit hit = locate(player, source);
+		boolean execution = ExecutionService.finalBlow(player, source);
+		Hit hit = execution ? Hit.on(BodyPart.TORSO, false) : locate(player, source);
 		if (!source.is(DamageTypeTags.BYPASSES_ARMOR)) {
 			EquipmentSlot[] slots = coveringSlots(hit);
 			float armor = 0.0F;
@@ -226,6 +228,9 @@ public final class BodyService {
 		if (damage <= 0.0F) {
 			return;
 		}
+		if (!execution && ExecutionService.begins(player, source)) {
+			return;
+		}
 		player.causeFoodExhaustion(source.getFoodExhaustion());
 		// a heavy blow breaks off whatever the hunter was treating or mending
 		TreatmentService.hurt(player, damage);
@@ -233,7 +238,8 @@ public final class BodyService {
 		player.awardStat(Stats.DAMAGE_TAKEN, Math.round(Math.min(damage, 1.0E5F) * 10.0F));
 		hurting = true;
 		try {
-			set(player, apply(get(player), hit, damage * DAMAGE_SCALE));
+			Body body = get(player);
+			set(player, execution ? body.with(BodyPart.TORSO, 0.0F) : apply(body, hit, damage * DAMAGE_SCALE));
 		} finally {
 			hurting = false;
 		}

@@ -8,6 +8,7 @@ import life.shizune.mistinn.client.story.StoryCardScreen;
 import life.shizune.mistinn.client.title.ModeSelectScreen;
 import life.shizune.mistinn.client.training.TrainingClient;
 import life.shizune.mistinn.client.training.TrainingCompleteScreen;
+import life.shizune.mistinn.client.training.TrainingGuide;
 import life.shizune.mistinn.grid.Area;
 import life.shizune.mistinn.grid.GridInventory;
 import life.shizune.mistinn.grid.GridService;
@@ -34,6 +35,7 @@ import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.MinecraftServer.MultiplayerScope;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -68,6 +70,15 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		context.waitFor(mc -> reload.isDone(), 1000);
 		openCourseFromWorldList(context);
 		try {
+			context.runOnClient(mc -> {
+				var server = mc.getSingleplayerServer();
+				// World Options calls this same vanilla method. Port zero lets the OS choose a free port.
+				boolean opened = server.publishServer(MultiplayerScope.LAN, 0);
+				if (opened) {
+					server.unpublishServer();
+				}
+				check(!opened, "vanilla world options cannot publish a training save");
+			});
 			playCourse(context);
 			deploy(context, WorldMode.STORY);
 		} finally {
@@ -123,6 +134,8 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 
 		go(context, TrainingLesson.ARRIVAL);
 		waitLesson(context, TrainingLesson.GEAR);
+		check(context.computeOnClient(mc -> TrainingLesson.KIT.equals(TrainingGuide.target(mc, TrainingLesson.GEAR))),
+			"the guide points at the gear chest");
 		go(context, TrainingLesson.GEAR);
 		server(context, player -> {
 			player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(MistinnItems.ARMORS.get(3)));
@@ -189,6 +202,8 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 			move(player, mark.pos().pos().south(2));
 		});
 		BlockPos grave = context.computeOnClient(mc -> mc.player.getAttached(MistinnAttachments.DEATH_MARK).pos().pos());
+		check(context.computeOnClient(mc -> grave.equals(TrainingGuide.target(mc, TrainingLesson.RECOVER))),
+			"the guide follows the actual gravestone");
 		context.waitFor(mc -> mc.level != null && mc.level.getBlockState(grave).is(MistinnBlocks.GRAVESTONE), 200);
 		context.getInput().lookAt(grave);
 		context.waitFor(mc -> mc.hitResult instanceof BlockHitResult hit && hit.getBlockPos().equals(grave), 100);
@@ -207,6 +222,8 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		server(context, player -> useBlock(player, TrainingLesson.RADIO.target, new ItemStack(Items.REDSTONE, 4)));
 		waitLesson(context, TrainingLesson.LAMPS);
 		go(context, TrainingLesson.LAMPS);
+		check(context.computeOnClient(mc -> TrainingLesson.LAMP_POSITIONS.contains(TrainingGuide.target(mc, TrainingLesson.LAMPS))),
+			"the guide points at a lamp while the lamp lesson is active");
 		server(context, player -> {
 			for (int x : new int[] {-4, 4}) {
 				for (int z : new int[] {-103, -113}) {

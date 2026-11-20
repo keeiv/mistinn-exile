@@ -1,5 +1,7 @@
 package life.shizune.mistinn.client.death;
 
+import life.shizune.mistinn.client.enemy.ExecutionView;
+import life.shizune.mistinn.enemy.ExecutionService;
 import life.shizune.mistinn.keeper.Snuffer;
 import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
 import net.minecraft.client.CameraType;
@@ -31,6 +33,7 @@ public final class DeathScene {
 	/** Why the hunter fell, which decides the fall and the words said over it. */
 	public enum Cause {
 		CREATURE,
+		EXECUTION,
 		KEEPER,
 		FALL,
 		HUNGER,
@@ -83,7 +86,8 @@ public final class DeathScene {
 		side = player.getRandom().nextBoolean() ? 1 : -1;
 		ticks = 0;
 		active = true;
-		camera = mc.options.getCameraType();
+		CameraType entryCamera = ExecutionView.takeCamera();
+		camera = entryCamera != null ? entryCamera : mc.options.getCameraType();
 		mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
 		yaw = player.yBodyRot;
 		hudWasHidden = mc.gui.hud.isHidden();
@@ -110,6 +114,9 @@ public final class DeathScene {
 	private static Cause causeOf(final @Nullable DamageSource source) {
 		if (source == null) {
 			return Cause.OTHER;
+		}
+		if (ExecutionService.wasExecuted(source)) {
+			return Cause.EXECUTION;
 		}
 		Entity attacker = source.getEntity();
 		if (attacker instanceof Snuffer) {
@@ -172,6 +179,14 @@ public final class DeathScene {
 
 	/** Hides every creature but the dying hunter. */
 	public static boolean hides(final Entity entity) {
-		return active && entity instanceof LivingEntity && entity != Minecraft.getInstance().player;
+		LocalPlayer hunter = Minecraft.getInstance().player;
+		if (!active || !(entity instanceof LivingEntity) || entity == hunter) {
+			return false;
+		}
+		if (cause == Cause.EXECUTION && hunter != null && seconds() < 0.67F) {
+			ExecutionView.Pose execution = ExecutionView.sample(hunter, 0.0F);
+			return execution == null || entity.getId() != execution.striker();
+		}
+		return true;
 	}
 }

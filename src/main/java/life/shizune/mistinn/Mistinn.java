@@ -4,12 +4,14 @@ import life.shizune.mistinn.bell.BellService;
 import life.shizune.mistinn.grid.GridActionPayload;
 import life.shizune.mistinn.grid.GridService;
 import life.shizune.mistinn.body.BodyService;
+import life.shizune.mistinn.enemy.ExecutionService;
 import life.shizune.mistinn.registry.MistinnAttachments;
 import life.shizune.mistinn.registry.MistinnBlockEntities;
 import life.shizune.mistinn.registry.MistinnBlocks;
 import life.shizune.mistinn.registry.MistinnComponents;
 import life.shizune.mistinn.registry.MistinnItems;
 import life.shizune.mistinn.registry.MistinnSounds;
+import life.shizune.mistinn.registry.VanillaCreatureSounds;
 import life.shizune.mistinn.registry.MistinnTab;
 import life.shizune.mistinn.residue.ResidueService;
 import life.shizune.mistinn.salt.SaltService;
@@ -37,6 +39,7 @@ public class Mistinn implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		MistinnSounds.init();
+		VanillaCreatureSounds.init();
 		MistinnComponents.init();
 		MistinnBlocks.init();
 		MistinnItems.init();
@@ -46,6 +49,7 @@ public class Mistinn implements ModInitializer {
 		GridActionPayload.register();
 		life.shizune.mistinn.stamina.RollService.register();
 		life.shizune.mistinn.medical.TreatmentService.register();
+		ExecutionService.init();
 		life.shizune.mistinn.registry.MistinnEntities.init();
 		MistinnWorld.init();
 		life.shizune.mistinn.story.WorldMode.init();

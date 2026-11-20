@@ -40,6 +40,12 @@ public final class MistinnAttachments {
 		.copyOnDeath()
 		.buildAndRegister(Mistinn.id("bell"));
 
+	/** Distinguishes current one-time bell claims from older saves that only stored the position. */
+	public static final AttachmentType<Boolean> ONE_TIME_BELL = AttachmentRegistry.<Boolean>builder()
+		.persistent(Codec.BOOL)
+		.copyOnDeath()
+		.buildAndRegister(Mistinn.id("one_time_bell"));
+
 	/** Pockets, safe box and worn backpack. Copied on death; the death handler empties all but the safe box. */
 	public static final AttachmentType<GridInventory> GRID = AttachmentRegistry.<GridInventory>builder()
 		.persistent(GridInventory.CODEC)

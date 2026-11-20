@@ -1,5 +1,6 @@
 package life.shizune.mistinn.story;
 
+import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
 import life.shizune.mistinn.Mistinn;
@@ -28,6 +29,7 @@ import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -47,6 +49,11 @@ public final class StoryService {
 	public static final AttachmentType<StoryPlaces> PLACES = AttachmentRegistry.<StoryPlaces>builder()
 		.persistent(StoryPlaces.CODEC)
 		.buildAndRegister(Mistinn.id("story_places"));
+
+	/** The last shared objective completed in the story world. */
+	private static final AttachmentType<StoryStep> CHAPTER_PROGRESS = AttachmentRegistry.<StoryStep>builder()
+		.persistent(Codec.STRING.xmap(StoryStep::byId, step -> step.id))
+		.buildAndRegister(Mistinn.id("story_chapter_progress"));
 
 	/** How near counts as having reached a place, in blocks. */
 	private static final double STATION_REACH = 7.0;
@@ -123,8 +130,27 @@ public final class StoryService {
 
 	private static void join(final ServerPlayer player) {
 		MinecraftServer server = player.level().getServer();
-		if (active(server) && !player.hasAttached(PROGRESS)) {
+		if (!active(server)) {
+			return;
+		}
+		StoryProgress progress = get(player);
+		if (progress == null) {
 			player.setAttached(PROGRESS, StoryProgress.START);
+		} else if (progress.step() == StoryStep.WAIT) {
+			complete(server, StoryStep.DELIVER);
+		} else if (progress.step() == StoryStep.DELIVER) {
+			complete(server, StoryStep.SNUFFER);
+		}
+	}
+
+	private static boolean completed(final MinecraftServer server, final StoryStep step) {
+		StoryStep last = server.overworld().getAttached(CHAPTER_PROGRESS);
+		return last != null && last.ordinal() >= step.ordinal();
+	}
+
+	private static void complete(final MinecraftServer server, final StoryStep step) {
+		if (!completed(server, step)) {
+			server.overworld().setAttached(CHAPTER_PROGRESS, step);
 		}
 	}
 
@@ -176,6 +202,16 @@ public final class StoryService {
 			case LAMP_ROOM -> {
 				if (places != null && near(player, places.lampRoom(), LAMP_ROOM_REACH) && player.getY() >= places.lampRoom().getY() - 0.5) {
 					advance(player, StoryStep.SNUFFER);
+				}
+			}
+			case SNUFFER -> {
+				if (completed(server, StoryStep.SNUFFER)) {
+					advance(player, StoryStep.DELIVER);
+				}
+			}
+			case DELIVER -> {
+				if (player.isAlive() && completed(server, StoryStep.DELIVER)) {
+					finishDelivery(player);
 				}
 			}
 			default -> {
@@ -237,12 +273,20 @@ public final class StoryService {
 	/** The salt block was put into a station's pod. Returns whether the story took it. */
 	public static boolean deliver(final ServerPlayer player) {
 		StoryProgress progress = get(player);
-		if (!active(player.level().getServer()) || progress == null || progress.step() != StoryStep.DELIVER) {
+		MinecraftServer server = player.level().getServer();
+		if (!active(server) || progress == null || progress.step() != StoryStep.DELIVER) {
 			return false;
 		}
+		// One keeper leaves one salt block; a late hunter gets the same radio call without paying again.
+		boolean first = !completed(server, StoryStep.DELIVER);
+		complete(server, StoryStep.DELIVER);
+		finishDelivery(player);
+		return first;
+	}
+
+	private static void finishDelivery(final ServerPlayer player) {
 		advance(player, StoryStep.WAIT);
 		play(player, StoryScript.NO_ANSWER, -1, StoryScript.UNANSWERED.id());
-		return true;
 	}
 
 	/** The hunter rested at a golden bell. */
@@ -257,6 +301,11 @@ public final class StoryService {
 	private static void keeperDown(final Snuffer keeper) {
 		if (!(keeper.level() instanceof ServerLevel level) || !active(level.getServer())) {
 			return;
+		}
+		StoryPlaces places = places(level.getServer());
+		if (level == level.getServer().overworld() && places != null
+			&& keeper.distanceToSqr(Vec3.atCenterOf(places.lampRoom())) <= 48.0 * 48.0) {
+			complete(level.getServer(), StoryStep.SNUFFER);
 		}
 		for (ServerPlayer player : level.players()) {
 			StoryProgress progress = get(player);
