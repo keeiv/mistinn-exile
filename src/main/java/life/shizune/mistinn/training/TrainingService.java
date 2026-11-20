@@ -164,8 +164,9 @@ public final class TrainingService {
 
 	private static void train(final ServerPlayer player, final ServerLevel range) {
 		TrainingLesson lesson = player.getAttached(LESSON);
-		if (player.gameMode() != GameType.ADVENTURE) {
-			player.setGameMode(GameType.ADVENTURE);
+		if (player.gameMode() != GameType.SURVIVAL) {
+			// Training saves made before the interaction change still have Adventure on the player.
+			player.setGameMode(GameType.SURVIVAL);
 		}
 		if (player.level() != range || player.getY() < 61.0) {
 			GlobalPos bell = player.getAttached(MistinnAttachments.BELL);
