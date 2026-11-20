@@ -1,6 +1,8 @@
 package life.shizune.mistinn.client.mixin;
 
 import life.shizune.mistinn.client.title.ModeSelectScreen;
+import life.shizune.mistinn.client.training.TrainingClient;
+import life.shizune.mistinn.story.WorldMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
@@ -11,8 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * "Create New World" (from the world list, or when there is no world yet) first asks whether
- * the world is for the story or for free exploration, then opens the vanilla settings.
+ * The world list asks which Mistinn experience to create before opening the settings or course.
  */
 @Mixin(CreateWorldScreen.class)
 public abstract class CreateWorldMixin {
@@ -28,10 +29,18 @@ public abstract class CreateWorldMixin {
 			return;
 		}
 		ci.cancel();
-		minecraft.gui.setScreen(new ModeSelectScreen(() -> {
+		minecraft.gui.setScreen(new ModeSelectScreen(mode -> {
+			if (mode == WorldMode.TRAINING) {
+				TrainingClient.createWorld(minecraft);
+				return;
+			}
+			WorldMode.choose(mode);
 			mistinn$chosen = true;
 			try {
-				CreateWorldScreen.openFresh(minecraft, onClose);
+				CreateWorldScreen.openFresh(minecraft, () -> {
+					WorldMode.choose(null);
+					onClose.run();
+				});
 			} finally {
 				mistinn$chosen = false;
 			}

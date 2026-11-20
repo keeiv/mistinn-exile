@@ -2,6 +2,7 @@ package life.shizune.mistinn.story;
 
 import com.mojang.serialization.Codec;
 import life.shizune.mistinn.Mistinn;
+import life.shizune.mistinn.training.TrainingGround;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -10,12 +11,12 @@ import net.minecraft.server.level.ServerLevel;
 import org.jspecify.annotations.Nullable;
 
 /**
- * How a world is played: the story (Rust Anchor's orders, chapter by chapter) or free
- * exploration. Chosen before the world is created and kept with the world.
+ * How a world is played. Training gives way to the story or free exploration in the same save.
  */
 public enum WorldMode {
 	STORY("story"),
-	FREE("free");
+	FREE("free"),
+	TRAINING("training");
 
 	public final String id;
 
@@ -37,10 +38,14 @@ public enum WorldMode {
 	private static volatile @Nullable WorldMode pending;
 
 	public static WorldMode byId(final String id) {
-		return STORY.id.equals(id) ? STORY : FREE;
+		return switch (id) {
+			case "story" -> STORY;
+			case "training" -> TRAINING;
+			default -> FREE;
+		};
 	}
 
-	public static void choose(final WorldMode mode) {
+	public static void choose(final @Nullable WorldMode mode) {
 		pending = mode;
 	}
 
@@ -52,7 +57,7 @@ public enum WorldMode {
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			ServerLevel overworld = server.overworld();
 			if (!overworld.hasAttached(ATTACHMENT)) {
-				WorldMode chosen = pending;
+				WorldMode chosen = server.getLevel(TrainingGround.KEY) == null ? pending : TRAINING;
 				overworld.setAttached(ATTACHMENT, chosen == null ? FREE : chosen);
 				Mistinn.LOGGER.info("New world, mode {}", overworld.getAttachedOrElse(ATTACHMENT, FREE).id);
 			}

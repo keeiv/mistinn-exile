@@ -1,5 +1,6 @@
 package life.shizune.mistinn.client.title;
 
+import java.util.function.Consumer;
 import life.shizune.mistinn.story.WorldMode;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -12,20 +13,18 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 
 /**
- * Asked before a new world's settings: the story, or free exploration. Stands on the title
- * screen's shore; the chosen card opens the vanilla world settings, which then create the
- * world in that mode.
+ * Asked at world creation. Story and free exploration open the world settings; training opens
+ * an introductory course that leads to either destination.
  */
 public class ModeSelectScreen extends Screen {
 	private static final int CARD_W = 172;
 	private static final int CARD_H = 118;
 
-	private final Runnable proceed;
+	private final Consumer<WorldMode> proceed;
 	private final Runnable back;
 	private final long opened = System.nanoTime();
 
-	/** {@code proceed} opens the world settings; {@code back} returns to where the player came from. */
-	public ModeSelectScreen(final Runnable proceed, final Runnable back) {
+	public ModeSelectScreen(final Consumer<WorldMode> proceed, final Runnable back) {
 		super(Component.translatable("mode.mistinn.title"));
 		this.proceed = proceed;
 		this.back = back;
@@ -34,16 +33,17 @@ public class ModeSelectScreen extends Screen {
 	@Override
 	protected void init() {
 		int gap = 14;
-		int x = this.width / 2 - CARD_W - gap / 2;
+		int cardWidth = Math.min(CARD_W, (this.width - 2 * gap - 24) / 3);
+		int x = (this.width - 3 * cardWidth - 2 * gap) / 2;
 		int y = this.height / 2 - CARD_H / 2 + 10;
-		this.addRenderableWidget(new Card(x, y, WorldMode.STORY, "mode.mistinn.story", "mode.mistinn.story.desc"));
-		this.addRenderableWidget(new Card(x + CARD_W + gap, y, WorldMode.FREE, "mode.mistinn.free", "mode.mistinn.free.desc"));
+		this.addRenderableWidget(new Card(x, y, cardWidth, WorldMode.STORY));
+		this.addRenderableWidget(new Card(x + cardWidth + gap, y, cardWidth, WorldMode.FREE));
+		this.addRenderableWidget(new Card(x + 2 * (cardWidth + gap), y, cardWidth, WorldMode.TRAINING));
 	}
 
 	/** For the client game test: pick a mode as a click would. */
 	public void pick(final WorldMode mode) {
-		WorldMode.choose(mode);
-		this.proceed.run();
+		this.proceed.accept(mode);
 	}
 
 	@Override
@@ -77,10 +77,10 @@ public class ModeSelectScreen extends Screen {
 		private float hover;
 		private long last = System.nanoTime();
 
-		Card(final int x, final int y, final WorldMode mode, final String name, final String desc) {
-			super(x, y, CARD_W, CARD_H, Component.translatable(name));
+		Card(final int x, final int y, final int width, final WorldMode mode) {
+			super(x, y, width, CARD_H, Component.translatable("mode.mistinn." + mode.id));
 			this.mode = mode;
-			this.desc = Component.translatable(desc);
+			this.desc = Component.translatable("mode.mistinn." + mode.id + ".desc");
 		}
 
 		@Override
@@ -105,10 +105,16 @@ public class ModeSelectScreen extends Screen {
 			g.outline(x, y, w, ht, edge);
 			g.fill(x, y, x + 3, y + ht, (int) (255 * h) << 24 | 0xD89A50);
 			Font font = ModeSelectScreen.this.font;
-			g.text(font, this.getMessage(), x + 12, y + 12, h > 0.5F ? 0xFFF2CC80 : 0xFFE4DED0, true);
-			int line = y + 30;
-			for (FormattedCharSequence part : font.split(this.desc, w - 24)) {
-				g.text(font, part, x + 12, line, 0xFFB8B0A0, false);
+			int inset = w < 120 ? 7 : 12;
+			int textWidth = w - 2 * inset;
+			int line = y + 11;
+			for (FormattedCharSequence title : font.split(this.getMessage(), textWidth)) {
+				g.text(font, title, x + inset, line, h > 0.5F ? 0xFFF2CC80 : 0xFFE4DED0, true);
+				line += 10;
+			}
+			line += 7;
+			for (FormattedCharSequence part : font.split(this.desc, textWidth)) {
+				g.text(font, part, x + inset, line, 0xFFB8B0A0, false);
 				line += 11;
 			}
 		}
