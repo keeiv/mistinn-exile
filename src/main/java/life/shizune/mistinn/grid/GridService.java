@@ -332,7 +332,11 @@ public final class GridService {
 		}
 	}
 
-	/** On death everything but the safe box falls where the hunter fell; backpack and rig whole. */
+	/**
+	 * On death everything but the safe box falls where the hunter fell; backpack and rig whole.
+	 * For hunters this finds nothing left: their things have already gone into the gravestone
+	 * ({@link life.shizune.mistinn.residue.ResidueService#collect}).
+	 */
 	public static void onDeath(final ServerPlayer player) {
 		if (player.level().getGameRules().get(GameRules.KEEP_INVENTORY)) {
 			return;

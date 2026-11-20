@@ -34,6 +34,8 @@ public final class MistinnTab {
 				output.accept(MistinnItems.POTENT_INJECTOR);
 				output.accept(MistinnItems.SURGERY_KIT);
 				output.accept(MistinnItems.PAINKILLERS);
+				output.accept(MistinnItems.TOURNIQUET);
+				output.accept(MistinnItems.SPLINT);
 				MistinnItems.ARMOR_REPAIR_KITS.forEach(output::accept);
 				MistinnItems.HELMET_REPAIR_KITS.forEach(output::accept);
 				output.accept(MistinnItems.LAMP_STAND);

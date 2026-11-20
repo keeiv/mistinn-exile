@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "X": "mistinn:salt",
+    "Q": "minecraft:quartz",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "X",
+    "Q",
+    "S"
+  ],
+  "result": {
+    "id": "mistinn:salt_fang"
+  }
+}

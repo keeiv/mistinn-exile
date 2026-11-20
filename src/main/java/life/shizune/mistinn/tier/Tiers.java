@@ -25,6 +25,8 @@ public final class Tiers {
 		FIXED.put(MistinnItems.ORE_BELL, Tier.II);
 		FIXED.put(MistinnItems.BELL_SALVE, Tier.III);
 		FIXED.put(MistinnItems.BELL_GREATSWORD, Tier.III);
+		FIXED.put(MistinnItems.SPLINT, Tier.N);
+		FIXED.put(MistinnItems.TOURNIQUET, Tier.I);
 		FIXED.put(MistinnItems.PAINKILLERS, Tier.III);
 		FIXED.put(MistinnItems.POTENT_INJECTOR, Tier.IV);
 		FIXED.put(MistinnItems.SURGERY_KIT, Tier.V);

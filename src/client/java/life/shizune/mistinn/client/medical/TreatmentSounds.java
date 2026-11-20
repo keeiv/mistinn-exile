@@ -99,7 +99,25 @@ public final class TreatmentSounds {
 			List.of(
 				new Beat(0.8F, 1.4F, 0.49F, MistinnSounds.REPAIR_STRAP, 0.7F, 0.25F),
 				new Beat(0.8F, 1.4F, 0.91F, MistinnSounds.REPAIR_HAMMER, 0.5F, 0.25F)
-			))
+			)),
+		// the tourniquet (2 s): the strap torn free of its wrap, wound round twice (keys 0.32,
+		// 0.68), then the windlass wrenched tight (key 0.8)
+		Treatment.TOURNIQUET, new Score(List.of(
+			new Cue(0.0F, MistinnSounds.SURGERY_TEAR, 0.6F),
+			new Cue(0.6F, MistinnSounds.REPAIR_STRAP, 0.6F),
+			new Cue(1.3F, MistinnSounds.REPAIR_STRAP, 0.6F),
+			new Cue(1.6F, MistinnSounds.REPAIR_STRAP, 0.9F)
+		), List.of(), List.of()),
+		// the splint (3 s): the boards knocked together as they are laid along the limb, the
+		// binding torn off its roll, then a turn pulled tight on each beat of the winding
+		Treatment.SPLINT, new Score(List.of(
+			new Cue(0.0F, MistinnSounds.HIT_WOOD, 0.35F),
+			new Cue(0.3F, MistinnSounds.SURGERY_TEAR, 0.6F)
+		),
+			// own view: each pull of the 0.5 s beat (key 0.6)
+			List.of(new Beat(0.7F, 0.5F, 0.3F, MistinnSounds.REPAIR_STRAP, 0.6F, 0.3F)),
+			// from outside: the pull of the 1.0 s loop (key 0.8)
+			List.of(new Beat(0.7F, 1.0F, 0.8F, MistinnSounds.REPAIR_STRAP, 0.6F, 0.3F)))
 	);
 
 	/** A use being scored: how far it has been heard, and the sounds still playing. */

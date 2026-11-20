@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:shears",
+    "minecraft:string",
+    "minecraft:string",
+    "minecraft:leather",
+    "minecraft:iron_nugget",
+    "mistinn:salt"
+  ],
+  "result": {
+    "id": "mistinn:surgery_kit"
+  }
+}

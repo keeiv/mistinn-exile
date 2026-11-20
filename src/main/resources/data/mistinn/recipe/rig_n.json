@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "X": "minecraft:leather",
+    "P": "minecraft:string",
+    "S": "minecraft:string",
+    "B": "minecraft:leather"
+  },
+  "pattern": [
+    "S S",
+    "XPX",
+    "BXB"
+  ],
+  "result": {
+    "id": "mistinn:rig_n"
+  }
+}

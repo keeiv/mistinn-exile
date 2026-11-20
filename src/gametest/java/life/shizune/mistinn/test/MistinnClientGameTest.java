@@ -146,6 +146,12 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				player.teleportTo(player.level(), bellPos.getX() - 1.5, bellPos.getY(), bellPos.getZ() + 0.5, java.util.Set.of(), -90.0F, 20.0F, true);
 				life.shizune.mistinn.bell.BellService.rest(player, bellPos, false);
 				SaltService.set(player, 1234);
+				// carried into death: worn gear, a hotbar item, a pocket, a backpack with something in it
+				player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new ItemStack(MistinnItems.HELMETS.get(2)));
+				player.getInventory().setItem(2, new ItemStack(Items.IRON_SWORD));
+				GridService.set(player, GridService.get(player).withBackpack(new ItemStack(MistinnItems.BACKPACKS.get(1))).withMask(new ItemStack(MistinnItems.MASKS.get(1))));
+				GridService.insert(player, new ItemStack(Items.GOLD_INGOT, 7));
+				GridService.insert(player, new ItemStack(Items.DIAMOND_ORE));
 			});
 			context.waitTicks(30);
 			context.takeScreenshot("bell-rest");
@@ -192,6 +198,14 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				check(server.overworld().getBlockState(at.pos()).is(MistinnBlocks.GRAVESTONE), "a gravestone stands where the hunter fell");
 				GravestoneBlockEntity stone = (GravestoneBlockEntity) server.overworld().getBlockEntity(at.pos());
 				check(SaltService.get(player) == 0, "the salt left the hunter");
+				// nothing fell to the ground: it is all in the stone
+				check(server.overworld().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new net.minecraft.world.phys.AABB(at.pos()).inflate(8.0)).isEmpty(), "nothing the hunter carried lies on the ground");
+				java.util.List<life.shizune.mistinn.residue.Kept> kept = stone.items();
+				check(kept.stream().anyMatch(k -> k.stack().is(MistinnItems.HELMETS.get(2))), "the stone keeps the worn helmet: " + kept);
+				check(kept.stream().anyMatch(k -> k.where().equals(life.shizune.mistinn.residue.Kept.SLOT) && k.index() == 2 && k.stack().is(Items.IRON_SWORD)), "and the sword from hotbar slot 3");
+				check(kept.stream().anyMatch(k -> k.where().equals(life.shizune.mistinn.residue.Kept.BACKPACK)), "and the backpack");
+				check(kept.stream().anyMatch(k -> k.stack().is(Items.GOLD_INGOT) && k.stack().getCount() == 7), "and the gold from the pockets");
+				check(GridService.get(player).backpack().isEmpty() && GridService.get(player).pockets().isEmpty(), "the hunter carries none of it");
 				return stone.salt();
 			});
 			check(residue == 1234, "the gravestone holds all 1234 salt, got " + residue);
@@ -217,6 +231,22 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				ResidueService.open(player, stone);
 				check(server.overworld().getBlockState(stone).isAir(), "the gravestone is gone once opened");
 				check(player.getAttached(MistinnAttachments.DEATH_MARK) == null, "the map mark is cleared");
+				// everything back where it was
+				check(player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).is(MistinnItems.HELMETS.get(2)), "the helmet is worn again");
+				check(player.getInventory().getItem(2).is(Items.IRON_SWORD), "the sword is back in its slot");
+				check(GridService.get(player).backpack().is(MistinnItems.BACKPACKS.get(1)) && GridService.get(player).mask().is(MistinnItems.MASKS.get(1)), "the backpack and mask are worn again");
+				int gold = 0;
+				for (Area area : new Area[] {Area.POCKETS, Area.RIG, Area.BACKPACK}) {
+					for (Placed placed : GridService.get(player).items(area)) {
+						if (placed.stack().is(Items.GOLD_INGOT)) {
+							gold += placed.stack().getCount();
+						}
+					}
+				}
+				check(gold == 7, "the gold is back in the grid: " + gold);
+				// clear the test gear again
+				player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, ItemStack.EMPTY);
+				player.getInventory().setItem(2, ItemStack.EMPTY);
 				return SaltService.get(player);
 			});
 			check(recovered == 1234, "all salt came back, got " + recovered);
@@ -798,6 +828,8 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			});
 			// ── Medical and repair: timed uses, their HUD, the repair rules ──
 			medical(context, world);
+			wounds(context, world);
+			recipes(world);
 
 			// a real swing, even at nothing, is paid for
 			context.waitTicks(80);
@@ -977,7 +1009,9 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			for (net.minecraft.resources.Identifier id : net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.keySet()) {
 				if (id.getNamespace().equals(life.shizune.mistinn.Mistinn.MOD_ID)) {
 					net.minecraft.client.sounds.WeighedSoundEvents sounds = mc.getSoundManager().getSoundEvent(id);
-					check(sounds != null && sounds.getWeight() > 0 && sounds.getSubtitle() != null, "the sound " + id + " has files and a subtitle");
+					// music has files but, as in vanilla, no subtitle
+					boolean music = id.getPath().startsWith("music.");
+					check(sounds != null && sounds.getWeight() > 0 && (music || sounds.getSubtitle() != null), "the sound " + id + " has files and a subtitle");
 				}
 			}
 		});
@@ -1134,6 +1168,163 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 	}
 
 	/** Moves the real cursor over a grid cell. */
+
+	/**
+	 * Bleeding drains a part until a tourniquet stops it; a tourniquet left on too long kills the
+	 * part; a broken leg allows only the dive until a splint holds it, and again once the splint
+	 * loosens; surgery deals with the worst first; a golden bell clears everything; heavy falls
+	 * break legs. The items are used with the real use key.
+	 */
+	private static void wounds(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			BodyService.restoreAll(player);
+			life.shizune.mistinn.body.WoundService.clearAll(player);
+			life.shizune.mistinn.body.WoundService.set(player, life.shizune.mistinn.body.Wounds.NONE
+				.with(BodyPart.TORSO, life.shizune.mistinn.body.Wounds.Wound.NONE.bleeding(true))
+				.with(BodyPart.LEFT_LEG, life.shizune.mistinn.body.Wounds.Wound.NONE.fractured(true)));
+		});
+		context.waitTicks(41);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			float torso = BodyService.get(player).get(BodyPart.TORSO);
+			check(torso <= BodyPart.MAX - 0.9F && torso >= BodyPart.MAX - 1.6F, "a bleeding torso loses half a point a second: " + torso);
+			check(life.shizune.mistinn.stamina.RollService.kind(player) == life.shizune.mistinn.stamina.RollService.Kind.DIVE, "a broken leg can only dive");
+			check(player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).getModifier(life.shizune.mistinn.Mistinn.id("body_legs")) != null, "and it slows like a dead leg");
+		});
+		context.runOnClient(mc -> mc.player.snapTo(mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.getYRot(), 30.0F));
+		context.setScreen(() -> new net.minecraft.client.gui.screens.inventory.InventoryScreen(context.computeOnClient(mc -> mc.player)));
+		context.waitTicks(10);
+		context.takeScreenshot("wounds-panel");
+		context.setScreen(() -> null);
+
+		// the tourniquet stops the bleeding
+		world.getServer().runCommand("item replace entity @a weapon.mainhand with mistinn:tourniquet");
+		context.waitTicks(5);
+		context.runOnClient(mc -> life.shizune.mistinn.client.medical.TreatmentSounds.LOG.clear());
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(life.shizune.mistinn.medical.TourniquetItem.USE_TICKS + 10);
+		heard(context, "the tourniquet", "treatment.repair.strap");
+		float[] tied = {0.0F};
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			life.shizune.mistinn.body.Wounds.Wound wound = life.shizune.mistinn.body.WoundService.get(player).get(BodyPart.TORSO);
+			check(wound.tied(), "the tourniquet is on the torso");
+			check(player.getMainHandItem().isEmpty(), "the tourniquet is used up");
+			tied[0] = BodyService.get(player).get(BodyPart.TORSO);
+		});
+		context.waitTicks(41);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			check(BodyService.get(player).get(BodyPart.TORSO) >= tied[0] - 0.01F, "no more blood is lost under the tourniquet");
+			// left on too long: the part starts to die
+			life.shizune.mistinn.body.Wounds wounds = life.shizune.mistinn.body.WoundService.get(player);
+			long old = player.level().getGameTime() - life.shizune.mistinn.body.WoundService.TOURNIQUET_SAFE - 20;
+			life.shizune.mistinn.body.WoundService.set(player, wounds.with(BodyPart.TORSO, wounds.get(BodyPart.TORSO).tourniquet(old)));
+			tied[0] = BodyService.get(player).get(BodyPart.TORSO);
+		});
+		context.waitTicks(41);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			check(BodyService.get(player).get(BodyPart.TORSO) < tied[0] - 0.5F, "a tourniquet left on too long starves the part");
+		});
+
+		// the splint holds the leg: rolling again
+		world.getServer().runCommand("item replace entity @a weapon.mainhand with mistinn:splint");
+		context.waitTicks(5);
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(life.shizune.mistinn.medical.SplintItem.USE_TICKS + 10);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			check(life.shizune.mistinn.body.WoundService.get(player).get(BodyPart.LEFT_LEG).splinted(player.level().getGameTime()), "the leg is splinted");
+			check(life.shizune.mistinn.stamina.RollService.kind(player) == life.shizune.mistinn.stamina.RollService.Kind.ROLL, "a splinted leg rolls again");
+			// the splint loosens: the bone is broken again
+			life.shizune.mistinn.body.Wounds wounds = life.shizune.mistinn.body.WoundService.get(player);
+			life.shizune.mistinn.body.WoundService.set(player, wounds.with(BodyPart.LEFT_LEG, wounds.get(BodyPart.LEFT_LEG).splint(player.level().getGameTime() - 1)));
+		});
+		context.waitTicks(21);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			check(life.shizune.mistinn.stamina.RollService.kind(player) == life.shizune.mistinn.stamina.RollService.Kind.DIVE, "once the splint loosens, only the dive again");
+		});
+		context.runOnClient(mc -> mc.player.snapTo(mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.getYRot(), 0.0F));
+		context.waitTicks(5);
+		context.takeScreenshot("wounds-hud");
+
+		// surgery: the broken leg before the tied torso
+		world.getServer().runCommand("item replace entity @a weapon.mainhand with mistinn:surgery_kit");
+		context.waitTicks(5);
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitTicks(life.shizune.mistinn.medical.SurgeryKitItem.USE_TICKS + 10);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			life.shizune.mistinn.body.Wounds wounds = life.shizune.mistinn.body.WoundService.get(player);
+			check(!wounds.get(BodyPart.LEFT_LEG).fractured() && wounds.get(BodyPart.TORSO).tied(), "surgery sets the broken bone first: " + wounds);
+			// a golden bell deals with the rest
+			life.shizune.mistinn.bell.BellService.rest(player, player.blockPosition(), false);
+			check(!life.shizune.mistinn.body.WoundService.get(player).any(), "resting at a bell clears every wound");
+			player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+			// heavy falls break legs: within a few the bone goes
+			boolean broke = false;
+			for (int i = 0; i < 12 && !broke; i++) {
+				BodyService.restoreAll(player);
+				player.damageCooldownTime = 0;
+				player.hurtServer(server.overworld(), player.damageSources().fall(), 10.0F);
+				broke = life.shizune.mistinn.body.WoundService.get(player).get(BodyPart.LEFT_LEG).fractured()
+					|| life.shizune.mistinn.body.WoundService.get(player).get(BodyPart.RIGHT_LEG).fractured();
+			}
+			check(broke, "a heavy fall breaks a leg sooner or later");
+			BodyService.restoreAll(player);
+			life.shizune.mistinn.body.WoundService.clearAll(player);
+		});
+
+		// the keeper's fight has its music, and its dark half its own
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+			life.shizune.mistinn.keeper.Snuffer keeper = life.shizune.mistinn.registry.MistinnEntities.SNUFFER.create(server.overworld(), net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+			keeper.snapTo(player.getX() + 4.0, player.getY(), player.getZ(), 0.0F, 0.0F);
+			keeper.setNoAi(true);
+			server.overworld().addFreshEntity(keeper);
+		});
+		context.waitTicks(10);
+		check(context.computeOnClient(mc -> life.shizune.mistinn.client.music.KeeperMusic.current() == life.shizune.mistinn.client.music.KeeperMusic.FIGHT), "near the keeper, the fight's music plays");
+		check(context.computeOnClient(mc -> mc.getSituationalMusic() == life.shizune.mistinn.client.music.KeeperMusic.FIGHT), "and it is what the game wants to play");
+		world.getServer().runOnServer(server -> server.overworld().getEntitiesOfClass(life.shizune.mistinn.keeper.Snuffer.class, server.getPlayerList().getPlayers().getFirst().getBoundingBox().inflate(10.0))
+			.forEach(keeper -> keeper.setHealth(keeper.getMaxHealth() / 2.0F - 1.0F)));
+		context.waitTicks(5);
+		check(context.computeOnClient(mc -> life.shizune.mistinn.client.music.KeeperMusic.current() == life.shizune.mistinn.client.music.KeeperMusic.DARK), "below half, the dark half's music");
+		world.getServer().runOnServer(server -> server.overworld().getEntitiesOfClass(life.shizune.mistinn.keeper.Snuffer.class, server.getPlayerList().getPlayers().getFirst().getBoundingBox().inflate(10.0))
+			.forEach(net.minecraft.world.entity.Entity::discard));
+		context.waitTicks(5);
+		check(context.computeOnClient(mc -> life.shizune.mistinn.client.music.KeeperMusic.current() == null), "no keeper, no fight music");
+	}
+
+	/** Every medical item, piece of gear and weapon can be crafted (only the golden bell and the keeper's salt cannot). */
+	private static void recipes(final TestSingleplayerContext world) {
+		world.getServer().runOnServer(server -> {
+			java.util.Set<net.minecraft.world.item.Item> made = new java.util.HashSet<>();
+			for (net.minecraft.world.item.crafting.RecipeHolder<?> holder : server.getRecipeManager().getRecipes()) {
+				if (holder.id().identifier().getNamespace().equals(life.shizune.mistinn.Mistinn.MOD_ID)) {
+					made.add(net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(life.shizune.mistinn.Mistinn.id(holder.id().identifier().getPath().replace("_smithing", ""))));
+				}
+			}
+			java.util.List<net.minecraft.world.item.Item> needed = new java.util.ArrayList<>();
+			needed.addAll(java.util.List.of(MistinnItems.POTENT_INJECTOR, MistinnItems.SURGERY_KIT, MistinnItems.PAINKILLERS, MistinnItems.TOURNIQUET, MistinnItems.SPLINT,
+				MistinnItems.BELL_SALVE, MistinnItems.ANCHOR_BLADE, MistinnItems.BELL_GREATSWORD, MistinnItems.MIST_SPEAR, MistinnItems.SALT_FANG));
+			needed.addAll(MistinnItems.ARMOR_REPAIR_KITS);
+			needed.addAll(MistinnItems.HELMET_REPAIR_KITS);
+			needed.addAll(MistinnItems.HELMETS);
+			needed.addAll(MistinnItems.MASKS);
+			needed.addAll(MistinnItems.ARMORS);
+			needed.addAll(MistinnItems.LEGGINGS);
+			needed.addAll(MistinnItems.BOOTS);
+			needed.addAll(MistinnItems.RIGS);
+			needed.addAll(MistinnItems.BACKPACKS);
+			MistinnItems.WEAPONS.values().forEach(byMaterial -> needed.addAll(byMaterial.values()));
+			java.util.List<String> missing = needed.stream().filter(item -> !made.contains(item)).map(item -> net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item).getPath()).toList();
+			check(missing.isEmpty(), "every item has a recipe; missing " + missing);
+		});
+	}
 
 	/** The use's sounds were played, each at least once. */
 	private static void heard(final ClientGameTestContext context, final String what, final String... sounds) {

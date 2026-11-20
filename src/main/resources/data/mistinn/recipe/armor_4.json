@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "X": "minecraft:diamond",
+    "P": "minecraft:leather"
+  },
+  "pattern": [
+    "XPX",
+    "XXX",
+    "XXX"
+  ],
+  "result": {
+    "id": "mistinn:armor_4"
+  }
+}

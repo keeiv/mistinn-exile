@@ -95,6 +95,13 @@ public final class MistinnItems {
 	public static final Item PAINKILLERS = register("painkillers", life.shizune.mistinn.medical.PainkillerItem::new, new Item.Properties()
 		.durability(life.shizune.mistinn.medical.PainkillerItem.DOSES));
 
+	/** 止血帶: stops one part bleeding. */
+	public static final Item TOURNIQUET = register("tourniquet", life.shizune.mistinn.medical.TourniquetItem::new, new Item.Properties()
+		.stacksTo(4));
+	/** 夾板: holds one broken limb for a while. */
+	public static final Item SPLINT = register("splint", life.shizune.mistinn.medical.SplintItem::new, new Item.Properties()
+		.stacksTo(4));
+
 	/** Helmets, body armour and backpacks, one of each per tier, indexed by {@link Tier#ordinal()}. */
 	public static final List<Item> HELMETS = Gear.HELMETS.stream().map(MistinnItems::helmet).toList();
 	public static final List<Item> ARMORS = Gear.ARMORS.stream().map(MistinnItems::bodyArmor).toList();

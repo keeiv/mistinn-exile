@@ -80,9 +80,9 @@ public final class MistinnSounds {
 	// the radio at the station
 	public static final SoundEvent RADIO_STATIC = register("block.radio.static");
 	public static final SoundEvent RADIO_TUNE = register("block.radio.tune");
-	// ambience: wind and surf in the fog, wind in a dead lighthouse
-	public static final SoundEvent AMBIENT_FOG = register("ambient.fog");
-	public static final SoundEvent AMBIENT_LIGHTHOUSE = register("ambient.lighthouse");
+	// boss music: the Snuffer's fight, and its dark half (CC0 tracks, see CREDITS.md)
+	public static final SoundEvent MUSIC_KEEPER = register("music.keeper");
+	public static final SoundEvent MUSIC_KEEPER_DARK = register("music.keeper_dark");
 
 	private MistinnSounds() {
 	}

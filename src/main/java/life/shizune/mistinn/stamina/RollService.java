@@ -70,8 +70,11 @@ public final class RollService {
 		return !numb && body.destroyed(BodyPart.LEFT_LEG) && body.destroyed(BodyPart.RIGHT_LEG) ? Kind.DIVE : Kind.ROLL;
 	}
 
-	/** The hunter's own roll kind, painkillers counted. */
+	/** The hunter's own roll kind, painkillers counted; a broken leg not held by a splint only dives. */
 	public static Kind kind(final Player player) {
+		if (life.shizune.mistinn.body.WoundService.legBroken(player)) {
+			return Kind.DIVE;
+		}
 		return kind(BodyService.get(player), TreatmentService.numb(player));
 	}
 
@@ -111,7 +114,7 @@ public final class RollService {
 		}
 		Body body = BodyService.get(player);
 		boolean numb = TreatmentService.numb(player);
-		Kind kind = kind(body, numb);
+		Kind kind = kind(player);
 		if (!StaminaService.has(player, cost(kind))) {
 			return;
 		}
@@ -129,8 +132,10 @@ public final class RollService {
 			LANDING.put(player.getUUID(), new Landing(DIVE_LANDING, DIVE_IMPACT, false));
 		}
 		player.level().playSound(null, player.blockPosition(), kind == Kind.ROLL ? MistinnSounds.ROLL : MistinnSounds.DIVE, SoundSource.PLAYERS, 0.8F, 0.95F + player.getRandom().nextFloat() * 0.1F);
+		// a broken arm hangs like a dead one
 		RollAnimPayload anim = new RollAnimPayload(player.getId(), kind.ordinal(), payload.yaw(),
-			body.get(BodyPart.LEFT_ARM) / BodyPart.MAX, body.get(BodyPart.RIGHT_ARM) / BodyPart.MAX);
+			life.shizune.mistinn.body.WoundService.broken(player, BodyPart.LEFT_ARM) ? 0.0F : body.get(BodyPart.LEFT_ARM) / BodyPart.MAX,
+			life.shizune.mistinn.body.WoundService.broken(player, BodyPart.RIGHT_ARM) ? 0.0F : body.get(BodyPart.RIGHT_ARM) / BodyPart.MAX);
 		for (ServerPlayer watcher : PlayerLookup.tracking(player)) {
 			ServerPlayNetworking.send(watcher, anim);
 		}
