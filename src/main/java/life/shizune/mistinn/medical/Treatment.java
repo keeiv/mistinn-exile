@@ -14,7 +14,11 @@ public enum Treatment {
 	/** 手術: stitching and binding a destroyed part. */
 	SURGERY("surgery", 0.6),
 	/** 服藥: pills to the mouth. */
-	PILLS("pills", 0.2);
+	PILLS("pills", 0.2),
+	/** 止血帶: a strap wound round the limb above the wound and wrenched tight. */
+	TOURNIQUET("tourniquet", 0.4),
+	/** 夾板: boards bound along a broken limb. */
+	SPLINT("splint", 0.5);
 
 	public final String id;
 	/** Walking speed lost while it runs: 0.4 is 40% slower. */

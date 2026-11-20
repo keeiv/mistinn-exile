@@ -28,6 +28,13 @@ public final class BodyHud implements HudElement {
 	public static final int HEIGHT = 28;
 	private static final int OUTLINE = 0xC0101010;
 	private static final int DEAD = 0xFF4A1414;
+	/** Wound marks on the figure. */
+	private static final int BLEED = 0xFFB0201A;
+	private static final int CRACK = 0xFFF2EEE4;
+	private static final int CRACK_HELD = 0xFF9C9488;
+	private static final int SPLINT = 0xFFB88A52;
+	private static final int STRAP = 0xFF1A1714;
+	private static final int STRAP_LATE = 0xFFE0A050;
 
 	private final HudElement vanilla;
 
@@ -59,11 +66,20 @@ public final class BodyHud implements HudElement {
 		// left of the hotbar, resting on the bottom edge
 		int x = g.guiWidth() / 2 - 91 - WIDTH - 6;
 		int y = g.guiHeight() - HEIGHT - 3;
-		figure(g, body, x, y, 1);
+		figure(g, body, life.shizune.mistinn.body.WoundService.get(player), player.level().getGameTime(), x, y, 1);
 	}
 
 	/** Draws the figure at (x, y), each figure pixel {@code scale} screen pixels wide. */
 	public static void figure(final GuiGraphicsExtractor g, final Body body, final int x, final int y, final int scale) {
+		figure(g, body, life.shizune.mistinn.body.Wounds.NONE, 0L, x, y, scale);
+	}
+
+	/**
+	 * The figure with its wounds: a bleeding part flashes red, a broken limb has a pale crack
+	 * across it, a tourniquet is a dark band at the top of the part (amber once it has been on
+	 * too long), a splint two wooden slats down its sides.
+	 */
+	public static void figure(final GuiGraphicsExtractor g, final Body body, final life.shizune.mistinn.body.Wounds wounds, final long now, final int x, final int y, final int scale) {
 		for (BodyPart part : BodyPart.values()) {
 			int[] s = SHAPE[part.ordinal()];
 			int px = x + s[0] * scale;
@@ -71,7 +87,29 @@ public final class BodyHud implements HudElement {
 			int w = s[2] * scale;
 			int h = s[3] * scale;
 			g.fill(px - 1, py - 1, px + w + 1, py + h + 1, OUTLINE);
-			g.fill(px, py, px + w, py + h, colour(body.get(part)));
+			life.shizune.mistinn.body.Wounds.Wound wound = wounds.get(part);
+			boolean flash = wound.bleeding() && !wound.tied() && !body.destroyed(part) && (now / 8) % 2 == 0;
+			g.fill(px, py, px + w, py + h, flash ? BLEED : colour(body.get(part)));
+			if (body.destroyed(part)) {
+				continue;
+			}
+			if (wound.fractured()) {
+				// a pale crack corner to corner
+				int steps = Math.max(w, h);
+				for (int i = 0; i < steps; i++) {
+					int cx = px + i * w / steps;
+					int cy = py + i * h / steps;
+					g.fill(cx, cy, cx + Math.max(1, scale / 2), cy + Math.max(1, scale / 2), wound.splinted(now) ? CRACK_HELD : CRACK);
+				}
+			}
+			if (wound.splinted(now)) {
+				g.fill(px, py, px + Math.max(1, scale / 2), py + h, SPLINT);
+				g.fill(px + w - Math.max(1, scale / 2), py, px + w, py + h, SPLINT);
+			}
+			if (wound.tied()) {
+				boolean starving = now - wound.tourniquet() > life.shizune.mistinn.body.WoundService.TOURNIQUET_SAFE;
+				g.fill(px, py, px + w, py + Math.max(1, scale), starving ? STRAP_LATE : STRAP);
+			}
 		}
 	}
 

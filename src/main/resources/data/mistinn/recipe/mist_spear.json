@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "P": "minecraft:prismarine_shard",
+    "I": "minecraft:iron_ingot",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "  P",
+    " IP",
+    "S  "
+  ],
+  "result": {
+    "id": "mistinn:mist_spear"
+  }
+}

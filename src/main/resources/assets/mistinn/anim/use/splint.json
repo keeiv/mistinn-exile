@@ -1,0 +1,19 @@
+{
+	"_comment": "夾板 SPLINT: the boards are laid along the limb with the left hand while the right winds the binding round them, pass after pass, and pulls each turn tight. Loops every 1.0 s for the whole use.",
+	"loop": 1.0,
+	"first_person_loop": 0.5,
+	"keys": [0.0, 0.3, 0.55, 0.8, 1.0],
+	"eases": ["in_out_sine", "in_out_sine", "in_cubic", "out_quad"],
+	"limbs": {
+		"head_x": [24, 26, 26, 28, 24],
+		"body_x": [8, 9, 9, 10, 8],
+		"right_arm_x": [-24, -38, -20, -44, -24],
+		"right_arm_y": [-30, -10, -42, -24, -30],
+		"right_arm_z": [0, -6, 10, 0, 0],
+		"left_arm_x": [-24, -24, -26, -24, -24],
+		"left_arm_y": [34, 34, 34, 34, 34]
+	},
+	"item": {
+		"x": [0, -15, 25, -25, 0]
+	}
+}

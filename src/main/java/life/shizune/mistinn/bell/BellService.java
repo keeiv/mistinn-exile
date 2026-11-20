@@ -33,6 +33,7 @@ public final class BellService {
 		player.setHealth(player.getMaxHealth());
 		// only a golden bell brings destroyed body parts back
 		BodyService.restoreAll(player);
+		life.shizune.mistinn.body.WoundService.clearAll(player);
 		player.getFoodData().setFoodLevel(20);
 		player.getFoodData().setSaturation(5.0F);
 		player.clearFire();

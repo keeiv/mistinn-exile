@@ -48,7 +48,8 @@ public final class ItemSizes {
 			put(armorKits[i][0], armorKits[i][1], MistinnItems.ARMOR_REPAIR_KITS.get(i));
 			put(helmetKits[i][0], helmetKits[i][1], MistinnItems.HELMET_REPAIR_KITS.get(i));
 		}
-		put(1, 2, MistinnItems.SURGERY_KIT);
+		put(1, 2, MistinnItems.SURGERY_KIT, MistinnItems.SPLINT);
+		put(1, 1, MistinnItems.TOURNIQUET);
 		put(1, 1, MistinnItems.POTENT_INJECTOR, MistinnItems.PAINKILLERS);
 		MistinnItems.WEAPONS.forEach((style, byMaterial) -> {
 			int[] size = switch (style) {

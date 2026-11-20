@@ -274,7 +274,9 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 		int y = this.topPos;
 		g.text(this.font, Component.translatable("gui.mistinn.body"), x + 6, y + 5, GridPanel.LABEL, false);
 		int scale = 4;
-		BodyHud.figure(g, body, x + (RIGHT_W - BodyHud.WIDTH * scale) / 2, y + 18, scale);
+		life.shizune.mistinn.body.Wounds wounds = life.shizune.mistinn.body.WoundService.get(this.minecraft.player);
+		long now = this.minecraft.player.level().getGameTime();
+		BodyHud.figure(g, body, wounds, now, x + (RIGHT_W - BodyHud.WIDTH * scale) / 2, y + 18, scale);
 		int ly = y + 18 + BodyHud.HEIGHT * scale + 8;
 		for (BodyPart part : BodyPart.values()) {
 			float health = body.get(part);
@@ -282,8 +284,42 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 			String value = health <= 0.0F ? "×" : Mth.ceil(health) + "/" + (int) BodyPart.MAX;
 			g.text(this.font, name, x + 8, ly, GridPanel.LABEL, false);
 			g.text(this.font, value, x + RIGHT_W - 8 - this.font.width(value), ly, BodyHud.colour(health), false);
+			// what the part carries, beside its name: bleeding, a broken bone, a tourniquet or splint with its time
+			Component state = woundState(wounds.get(part), health <= 0.0F, now);
+			if (state != null) {
+				g.text(this.font, state, x + 8 + this.font.width(name) + 4, ly, 0xFFB8B0A0, false);
+			}
 			ly += 10;
 		}
+	}
+
+	/** One line on what a part carries, or null when it carries nothing. */
+	private static @org.jspecify.annotations.Nullable Component woundState(final life.shizune.mistinn.body.Wounds.Wound wound, final boolean destroyed, final long now) {
+		if (destroyed || !wound.any()) {
+			return null;
+		}
+		net.minecraft.network.chat.MutableComponent line = Component.empty();
+		if (wound.bleeding() && !wound.tied()) {
+			line.append(Component.translatable("gui.mistinn.wound.bleeding").withColor(0xE0503C)).append(" ");
+		}
+		if (wound.tied()) {
+			long left = life.shizune.mistinn.body.WoundService.TOURNIQUET_SAFE - (now - wound.tourniquet());
+			line.append(left > 0
+				? Component.translatable("gui.mistinn.wound.tourniquet", time(left)).withColor(0xE0A050)
+				: Component.translatable("gui.mistinn.wound.necrosis").withColor(0xE0503C)).append(" ");
+		}
+		if (wound.fractured()) {
+			line.append(wound.splinted(now)
+				? Component.translatable("gui.mistinn.wound.splint", time(wound.splint() - now)).withColor(0xD4A86A)
+				: Component.translatable("gui.mistinn.wound.fracture").withColor(0xF2EEE4));
+		}
+		return line;
+	}
+
+	/** Ticks as minutes and seconds. */
+	private static String time(final long ticks) {
+		long seconds = Math.max(0L, ticks) / 20L;
+		return String.format("%d:%02d", seconds / 60L, seconds % 60L);
 	}
 
 	// ── Input ─────────────────────────────────────────────────────

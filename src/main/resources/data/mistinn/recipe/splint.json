@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "#minecraft:planks",
+    "#minecraft:planks",
+    "minecraft:stick",
+    "minecraft:string"
+  ],
+  "result": {
+    "id": "mistinn:splint"
+  }
+}

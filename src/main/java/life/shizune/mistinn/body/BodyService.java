@@ -237,6 +237,10 @@ public final class BodyService {
 		} finally {
 			hurting = false;
 		}
+		if (player.isAlive()) {
+			// blows may open a bleeding wound, falls and crushing blows may break a limb
+			WoundService.afterHit(player, hit, source, damage * DAMAGE_SCALE);
+		}
 		player.gameEvent(GameEvent.ENTITY_DAMAGE);
 	}
 
@@ -422,7 +426,8 @@ public final class BodyService {
 				Body mended = body;
 				for (BodyPart part : BodyPart.values()) {
 					float value = mended.get(part);
-					if (value > 0.0F && value < BodyPart.MAX) {
+					// an open wound or a starved limb does not mend by itself
+					if (value > 0.0F && value < BodyPart.MAX && !WoundService.drains(player, part)) {
 						mended = mended.with(part, value + 1.0F);
 						player.causeFoodExhaustion(0.05F);
 					}
@@ -443,12 +448,15 @@ public final class BodyService {
 
 	/**
 	 * Each dead leg slows and weighs down; each dead arm weakens blows and work. Painkillers
-	 * hide all of it while they last.
+	 * hide all of it while they last. A broken limb not held by a splint counts as dead, and
+	 * painkillers do nothing for it: the bone does not hold whether it hurts or not.
 	 */
 	public static void applyPenalties(final ServerPlayer player, final Body body) {
 		boolean numb = TreatmentService.numb(player);
-		int legs = numb ? 0 : (body.destroyed(BodyPart.LEFT_LEG) ? 1 : 0) + (body.destroyed(BodyPart.RIGHT_LEG) ? 1 : 0);
-		int arms = numb ? 0 : (body.destroyed(BodyPart.LEFT_ARM) ? 1 : 0) + (body.destroyed(BodyPart.RIGHT_ARM) ? 1 : 0);
+		int legs = (numb ? 0 : (body.destroyed(BodyPart.LEFT_LEG) ? 1 : 0) + (body.destroyed(BodyPart.RIGHT_LEG) ? 1 : 0))
+			+ (WoundService.broken(player, BodyPart.LEFT_LEG) ? 1 : 0) + (WoundService.broken(player, BodyPart.RIGHT_LEG) ? 1 : 0);
+		int arms = (numb ? 0 : (body.destroyed(BodyPart.LEFT_ARM) ? 1 : 0) + (body.destroyed(BodyPart.RIGHT_ARM) ? 1 : 0))
+			+ (WoundService.broken(player, BodyPart.LEFT_ARM) ? 1 : 0) + (WoundService.broken(player, BodyPart.RIGHT_ARM) ? 1 : 0);
 		penalty(player, Attributes.MOVEMENT_SPEED, LEGS_ID, -0.25 * legs);
 		penalty(player, Attributes.JUMP_STRENGTH, LEGS_ID, -0.25 * legs);
 		penalty(player, Attributes.ATTACK_DAMAGE, ARMS_ID, -0.25 * arms);

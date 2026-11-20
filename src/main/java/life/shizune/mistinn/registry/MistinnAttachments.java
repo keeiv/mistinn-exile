@@ -53,6 +53,12 @@ public final class MistinnAttachments {
 		.syncWith(Body.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
 		.buildAndRegister(Mistinn.id("body"));
 
+	/** Bleeding, broken bones, tourniquets and splints. Not copied on death: a respawned hunter is unhurt. */
+	public static final AttachmentType<life.shizune.mistinn.body.Wounds> WOUNDS = AttachmentRegistry.<life.shizune.mistinn.body.Wounds>builder()
+		.persistent(life.shizune.mistinn.body.Wounds.CODEC)
+		.syncWith(life.shizune.mistinn.body.Wounds.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
+		.buildAndRegister(Mistinn.id("wounds"));
+
 	/** Tier index of the worn mask (-1 for none), sent to everyone so it can be drawn on the face. */
 	public static final AttachmentType<Integer> WORN_MASK = AttachmentRegistry.<Integer>builder()
 		.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all())

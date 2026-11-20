@@ -465,19 +465,20 @@
     ],
     "subtitle": "subtitles.mistinn.block.radio.tune"
   },
-  "ambient.fog": {
+  "music.keeper": {
     "sounds": [
-      "mistinn:ambient/fog_1",
-      "mistinn:ambient/fog_2",
-      "mistinn:ambient/fog_3"
-    ],
-    "subtitle": "subtitles.mistinn.ambient.fog"
+      {
+        "name": "mistinn:music/keeper",
+        "stream": true
+      }
+    ]
   },
-  "ambient.lighthouse": {
+  "music.keeper_dark": {
     "sounds": [
-      "mistinn:ambient/lighthouse_1",
-      "mistinn:ambient/lighthouse_2"
-    ],
-    "subtitle": "subtitles.mistinn.ambient.lighthouse"
+      {
+        "name": "mistinn:music/keeper_dark",
+        "stream": true
+      }
+    ]
   }
 }

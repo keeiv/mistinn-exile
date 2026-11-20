@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:emerald",
+    "minecraft:iron_ingot",
+    "minecraft:leather",
+    "minecraft:string"
+  ],
+  "result": {
+    "id": "mistinn:helmet_repair_kit_3"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mistinn:rust_god_salt",
+    "minecraft:iron_ingot",
+    "minecraft:iron_ingot",
+    "minecraft:leather",
+    "minecraft:string"
+  ],
+  "result": {
+    "id": "mistinn:armor_repair_kit_6"
+  }
+}

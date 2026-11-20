@@ -1,0 +1,13 @@
+{
+	"_comment": "夾板 第一人稱工作拍 SPLINT, own view: the binding taken round once and pulled tight, every 0.5 s (first_person_loop in splint.json).",
+	"keys": [0.0, 0.3, 0.6, 1.0],
+	"eases": ["in_out_sine", "in_cubic", "out_quad"],
+	"first_person": {
+		"tx": [-0.08, -0.12, -0.06, -0.08],
+		"ty": [-0.14, -0.1, -0.18, -0.14],
+		"tz": [-0.3, -0.32, -0.3, -0.3],
+		"rx": [-12, -6, -22, -12],
+		"ry": [45, 60, 40, 45],
+		"rz": [6, 14, 4, 6]
+	}
+}
