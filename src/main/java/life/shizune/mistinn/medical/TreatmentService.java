@@ -9,6 +9,7 @@ import java.util.UUID;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.body.BodyService;
 import life.shizune.mistinn.registry.MistinnAttachments;
+import life.shizune.mistinn.registry.MistinnSounds;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -19,6 +20,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -124,6 +126,7 @@ public final class TreatmentService {
 					NUMB.remove(id);
 					if (player.isAlive()) {
 						player.sendSystemMessage(Component.translatable("message.mistinn.painkillers.worn_off"), true);
+						player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.PAINKILLER_WEAR_OFF, SoundSource.PLAYERS, 0.8F, 1.0F);
 					}
 				}
 				// the destroyed parts are felt again (or no longer)

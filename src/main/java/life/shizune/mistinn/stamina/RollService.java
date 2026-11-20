@@ -9,6 +9,7 @@ import life.shizune.mistinn.body.Body;
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
 import life.shizune.mistinn.medical.TreatmentService;
+import life.shizune.mistinn.registry.MistinnSounds;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -17,7 +18,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 
@@ -128,7 +128,7 @@ public final class RollService {
 		} else if (kind == Kind.DIVE) {
 			LANDING.put(player.getUUID(), new Landing(DIVE_LANDING, DIVE_IMPACT, false));
 		}
-		player.level().playSound(null, player.blockPosition(), kind == Kind.ROLL ? SoundEvents.ARMOR_EQUIP_LEATHER.value() : SoundEvents.PLAYER_ATTACK_WEAK, SoundSource.PLAYERS, 0.8F, kind == Kind.ROLL ? 1.2F : 0.7F);
+		player.level().playSound(null, player.blockPosition(), kind == Kind.ROLL ? MistinnSounds.ROLL : MistinnSounds.DIVE, SoundSource.PLAYERS, 0.8F, 0.95F + player.getRandom().nextFloat() * 0.1F);
 		RollAnimPayload anim = new RollAnimPayload(player.getId(), kind.ordinal(), payload.yaw(),
 			body.get(BodyPart.LEFT_ARM) / BodyPart.MAX, body.get(BodyPart.RIGHT_ARM) / BodyPart.MAX);
 		for (ServerPlayer watcher : PlayerLookup.tracking(player)) {
@@ -149,7 +149,7 @@ public final class RollService {
 			LANDING.remove(entry.getKey());
 			ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
 			if (player != null && player.isAlive()) {
-				player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_SMALL_FALL, SoundSource.PLAYERS, 1.0F, 0.8F);
+				player.level().playSound(null, player.blockPosition(), MistinnSounds.LAND, SoundSource.PLAYERS, 0.9F, 0.95F + player.getRandom().nextFloat() * 0.1F);
 				if (landing.whole()) {
 					BodyService.strainWhole(player, landing.amount());
 				} else {

@@ -12,6 +12,7 @@ import life.shizune.mistinn.grid.GridShape;
 import life.shizune.mistinn.grid.ItemSizes;
 import life.shizune.mistinn.grid.Placed;
 import life.shizune.mistinn.registry.MistinnAttachments;
+import life.shizune.mistinn.registry.MistinnSounds;
 import life.shizune.mistinn.tier.Tier;
 import life.shizune.mistinn.tier.Tiers;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -21,6 +22,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -568,6 +570,7 @@ public final class GridPanel {
 		}
 		if (key == InputConstants.KEY_R && !menu.getCarried().isEmpty()) {
 			rotated = !rotated;
+			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(MistinnSounds.GRID_ROTATE, 1.0F, 0.6F));
 			return true;
 		}
 		Hover h = hover;

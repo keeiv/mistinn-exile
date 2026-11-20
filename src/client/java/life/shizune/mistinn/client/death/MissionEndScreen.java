@@ -1,6 +1,7 @@
 package life.shizune.mistinn.client.death;
 
 import life.shizune.mistinn.Mistinn;
+import life.shizune.mistinn.registry.MistinnSounds;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -11,6 +12,7 @@ import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -41,6 +43,8 @@ public class MissionEndScreen extends DeathScreen {
 	private final LocalPlayer player;
 	private final Component quote;
 	private boolean shown;
+	/** Where in its beat the drawn heart was last tick; negative before the first. */
+	private float beatPhase = -1.0F;
 	private final java.util.List<Choice> choices = new java.util.ArrayList<>();
 
 	public MissionEndScreen(final @Nullable Component cause, final boolean hardcore, final LocalPlayer player) {
@@ -95,6 +99,22 @@ public class MissionEndScreen extends DeathScreen {
 		}
 		this.minecraft.disconnectWithSavingScreen();
 		this.minecraft.gui.setScreen(new TitleScreen());
+	}
+
+	/** The heartbeat heard with the heart drawn below: each lub-dub as the drawn beat starts, fading as it slows. */
+	@Override
+	public void tick() {
+		super.tick();
+		float since = this.shownFor();
+		if (since < 0.0F) {
+			return;
+		}
+		float slowing = Mth.clamp(since / 12.0F, 0.0F, 1.0F);
+		float phase = since % (1.1F + 0.9F * slowing);
+		if (this.beatPhase < 0.0F || phase < this.beatPhase) {
+			this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(MistinnSounds.HEARTBEAT, 1.0F, 0.9F - 0.5F * slowing));
+		}
+		this.beatPhase = phase;
 	}
 
 	@Override

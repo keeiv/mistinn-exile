@@ -6,9 +6,14 @@ import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.gear.Gear;
 import life.shizune.mistinn.registry.MistinnAttachments;
 import life.shizune.mistinn.registry.MistinnItems;
+import life.shizune.mistinn.registry.MistinnSounds;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Prediction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -94,13 +99,18 @@ public final class GridService {
 		set(player, inv.with(area, items));
 		menu.setCarried(taken.stack().copy());
 		menu.broadcastChanges();
+		cue(player, MistinnSounds.GRID_PICKUP);
 	}
 
 	/** Puts the cursor's stack down at (section, x, y), merging onto a matching stack there. */
 	public static void place(final ServerPlayer player, final Area area, final int section, final int x, final int y, final boolean rotated) {
 		AbstractContainerMenu menu = player.containerMenu;
 		ItemStack carried = menu.getCarried();
-		if (carried.isEmpty() || !GridLogic.canStore(carried)) {
+		if (carried.isEmpty()) {
+			return;
+		}
+		if (!GridLogic.canStore(carried)) {
+			cue(player, MistinnSounds.GRID_REJECT);
 			return;
 		}
 		GridInventory inv = get(player);
@@ -117,6 +127,9 @@ public final class GridService {
 				set(player, inv.with(area, items));
 				menu.setCarried(carried);
 				menu.broadcastChanges();
+				cue(player, MistinnSounds.GRID_PLACE);
+			} else {
+				cue(player, MistinnSounds.GRID_REJECT);
 			}
 			return;
 		}
@@ -124,12 +137,14 @@ public final class GridService {
 		int w = rotated ? size[1] : size[0];
 		int h = rotated ? size[0] : size[1];
 		if (!GridLogic.fits(shape, items, section, x, y, w, h, -1)) {
+			cue(player, MistinnSounds.GRID_REJECT);
 			return;
 		}
 		items.add(new Placed(section, x, y, rotated, carried.copy()));
 		set(player, inv.with(area, items));
 		menu.setCarried(ItemStack.EMPTY);
 		menu.broadcastChanges();
+		cue(player, MistinnSounds.GRID_PLACE);
 	}
 
 	/** Clicking the backpack slot: equip the backpack on the cursor, or take the worn one off. */
@@ -137,13 +152,18 @@ public final class GridService {
 		AbstractContainerMenu menu = player.containerMenu;
 		ItemStack carried = menu.getCarried();
 		if (!carried.isEmpty() && GridInventory.backpackOf(carried) == null) {
+			cue(player, MistinnSounds.GRID_REJECT);
 			return;
 		}
 		GridInventory inv = get(player);
 		ItemStack worn = inv.backpack();
+		if (carried.isEmpty() && worn.isEmpty()) {
+			return;
+		}
 		set(player, inv.withBackpack(carried.copy()));
 		menu.setCarried(worn.copy());
 		menu.broadcastChanges();
+		gear(player, MistinnSounds.EQUIP_BACKPACK);
 		applyWeight(player);
 	}
 
@@ -152,13 +172,18 @@ public final class GridService {
 		AbstractContainerMenu menu = player.containerMenu;
 		ItemStack carried = menu.getCarried();
 		if (!carried.isEmpty() && GridInventory.rigOf(carried) == null) {
+			cue(player, MistinnSounds.GRID_REJECT);
 			return;
 		}
 		GridInventory inv = get(player);
 		ItemStack worn = inv.rig();
+		if (carried.isEmpty() && worn.isEmpty()) {
+			return;
+		}
 		set(player, inv.withRig(carried.copy()));
 		menu.setCarried(worn.copy());
 		menu.broadcastChanges();
+		gear(player, MistinnSounds.EQUIP_RIG);
 	}
 
 	/** Clicking the mask slot: put on the mask on the cursor, or take the worn one off. */
@@ -166,13 +191,29 @@ public final class GridService {
 		AbstractContainerMenu menu = player.containerMenu;
 		ItemStack carried = menu.getCarried();
 		if (!carried.isEmpty() && GridInventory.maskOf(carried) == null) {
+			cue(player, MistinnSounds.GRID_REJECT);
 			return;
 		}
 		GridInventory inv = get(player);
 		ItemStack worn = inv.mask();
+		if (carried.isEmpty() && worn.isEmpty()) {
+			return;
+		}
 		set(player, inv.withMask(carried.copy()));
 		menu.setCarried(worn.copy());
 		menu.broadcastChanges();
+		gear(player, MistinnSounds.EQUIP_CLOTH.value());
+	}
+
+	/** An inventory sound for the owner alone: rummaging in one's own pack is not heard across the room. */
+	private static void cue(final ServerPlayer player, final SoundEvent sound) {
+		player.connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), SoundSource.PLAYERS,
+			player.getX(), player.getY(), player.getZ(), 0.7F, 0.95F + player.getRandom().nextFloat() * 0.1F, player.getRandom().nextLong()));
+	}
+
+	/** Gear put on or taken off, heard by those nearby as armour is. */
+	private static void gear(final ServerPlayer player, final SoundEvent sound) {
+		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), sound, SoundSource.PLAYERS, 0.8F, 0.95F + player.getRandom().nextFloat() * 0.1F);
 	}
 
 	/**
@@ -229,6 +270,7 @@ public final class GridService {
 				inventory.setItem(slot, items.remove(index).stack().copy());
 				set(player, inv.with(area, items));
 				player.containerMenu.broadcastChanges();
+				cue(player, MistinnSounds.GRID_PICKUP);
 				return;
 			}
 		}
@@ -251,6 +293,7 @@ public final class GridService {
 			int moved = before - moving.getCount();
 			slot.safeTake(moved, moved, player);
 			menu.broadcastChanges();
+			cue(player, MistinnSounds.GRID_PLACE);
 		}
 	}
 

@@ -41,13 +41,15 @@
   "weapon.hit.netherite": {
     "sounds": [
       "mistinn:weapon/hit/netherite_1",
-      "mistinn:weapon/hit/netherite_2"
+      "mistinn:weapon/hit/netherite_2",
+      "mistinn:weapon/hit/netherite_3"
     ],
     "subtitle": "subtitles.mistinn.weapon.hit.netherite"
   },
   "item.guide.open": {
     "sounds": [
-      "mistinn:item/guide/open"
+      "mistinn:item/guide/open_1",
+      "mistinn:item/guide/open_2"
     ],
     "subtitle": "subtitles.mistinn.item.guide.open"
   },
@@ -116,25 +118,28 @@
   },
   "block.golden_bell.rest": {
     "sounds": [
-      "mistinn:block/golden_bell/rest"
+      "mistinn:block/golden_bell/rest_1",
+      "mistinn:block/golden_bell/rest_2"
     ],
     "subtitle": "subtitles.mistinn.block.golden_bell.rest"
   },
   "block.ore_bell.break": {
     "sounds": [
-      "mistinn:block/ore_bell/break"
+      "mistinn:block/ore_bell/break_1"
     ],
     "subtitle": "subtitles.mistinn.block.ore_bell.break"
   },
   "residue.form": {
     "sounds": [
-      "mistinn:residue/form"
+      "mistinn:residue/form_1",
+      "mistinn:residue/form_2"
     ],
     "subtitle": "subtitles.mistinn.residue.form"
   },
   "residue.recover": {
     "sounds": [
-      "mistinn:residue/recover"
+      "mistinn:residue/recover_1",
+      "mistinn:residue/recover_2"
     ],
     "subtitle": "subtitles.mistinn.residue.recover"
   },
@@ -148,7 +153,8 @@
   },
   "treatment.inject.cap": {
     "sounds": [
-      "mistinn:treatment/inject/cap"
+      "mistinn:treatment/inject/cap_1",
+      "mistinn:treatment/inject/cap_2"
     ],
     "subtitle": "subtitles.mistinn.treatment.inject.cap"
   },
@@ -161,7 +167,8 @@
   },
   "treatment.inject.push": {
     "sounds": [
-      "mistinn:treatment/inject/push"
+      "mistinn:treatment/inject/push_1",
+      "mistinn:treatment/inject/push_2"
     ],
     "subtitle": "subtitles.mistinn.treatment.inject.push"
   },
@@ -174,7 +181,9 @@
   },
   "treatment.surgery.open": {
     "sounds": [
-      "mistinn:treatment/surgery/open"
+      "mistinn:treatment/surgery/open_1",
+      "mistinn:treatment/surgery/open_2",
+      "mistinn:treatment/surgery/open_3"
     ],
     "subtitle": "subtitles.mistinn.treatment.surgery.open"
   },
@@ -190,15 +199,10 @@
     "sounds": [
       "mistinn:treatment/surgery/stitch_1",
       "mistinn:treatment/surgery/stitch_2",
-      "mistinn:treatment/surgery/stitch_3"
+      "mistinn:treatment/surgery/stitch_3",
+      "mistinn:treatment/surgery/stitch_4"
     ],
     "subtitle": "subtitles.mistinn.treatment.surgery.stitch"
-  },
-  "treatment.surgery.tie": {
-    "sounds": [
-      "mistinn:treatment/surgery/tie"
-    ],
-    "subtitle": "subtitles.mistinn.treatment.surgery.tie"
   },
   "treatment.repair.plate": {
     "sounds": [
@@ -216,30 +220,264 @@
     ],
     "subtitle": "subtitles.mistinn.treatment.repair.hammer"
   },
-  "treatment.repair.ratchet": {
-    "sounds": [
-      "mistinn:treatment/repair/ratchet_1",
-      "mistinn:treatment/repair/ratchet_2"
-    ],
-    "subtitle": "subtitles.mistinn.treatment.repair.ratchet"
-  },
   "treatment.pills.rattle": {
     "sounds": [
       "mistinn:treatment/pills/rattle_1",
-      "mistinn:treatment/pills/rattle_2"
+      "mistinn:treatment/pills/rattle_2",
+      "mistinn:treatment/pills/rattle_3"
     ],
     "subtitle": "subtitles.mistinn.treatment.pills.rattle"
   },
   "treatment.pills.pour": {
     "sounds": [
-      "mistinn:treatment/pills/pour"
+      "mistinn:treatment/pills/pour_1",
+      "mistinn:treatment/pills/pour_2"
     ],
     "subtitle": "subtitles.mistinn.treatment.pills.pour"
   },
   "treatment.pills.swallow": {
     "sounds": [
-      "mistinn:treatment/pills/swallow"
+      "mistinn:treatment/pills/swallow_1",
+      "mistinn:treatment/pills/swallow_2"
     ],
     "subtitle": "subtitles.mistinn.treatment.pills.swallow"
+  },
+  "treatment.inject.finish": {
+    "sounds": [
+      "mistinn:treatment/inject/finish_1",
+      "mistinn:treatment/inject/finish_2"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.inject.finish"
+  },
+  "treatment.surgery.clink": {
+    "sounds": [
+      "mistinn:treatment/surgery/clink_1",
+      "mistinn:treatment/surgery/clink_2",
+      "mistinn:treatment/surgery/clink_3",
+      "mistinn:treatment/surgery/clink_4"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.surgery.clink"
+  },
+  "treatment.surgery.tear": {
+    "sounds": [
+      "mistinn:treatment/surgery/tear_1",
+      "mistinn:treatment/surgery/tear_2"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.surgery.tear"
+  },
+  "treatment.surgery.finish": {
+    "sounds": [
+      "mistinn:treatment/surgery/finish_1",
+      "mistinn:treatment/surgery/finish_2"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.surgery.finish"
+  },
+  "treatment.repair.open": {
+    "sounds": [
+      "mistinn:treatment/repair/open_1",
+      "mistinn:treatment/repair/open_2"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.repair.open"
+  },
+  "treatment.repair.strap": {
+    "sounds": [
+      "mistinn:treatment/repair/strap_1",
+      "mistinn:treatment/repair/strap_2",
+      "mistinn:treatment/repair/strap_3"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.repair.strap"
+  },
+  "treatment.repair.finish": {
+    "sounds": [
+      "mistinn:treatment/repair/finish_1",
+      "mistinn:treatment/repair/finish_2"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.repair.finish"
+  },
+  "treatment.pills.cap": {
+    "sounds": [
+      "mistinn:treatment/pills/cap_1",
+      "mistinn:treatment/pills/cap_2"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.pills.cap"
+  },
+  "treatment.pills.finish": {
+    "sounds": [
+      "mistinn:treatment/pills/finish_1",
+      "mistinn:treatment/pills/finish_2"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.pills.finish"
+  },
+  "treatment.interrupt": {
+    "sounds": [
+      "mistinn:treatment/interrupt_1",
+      "mistinn:treatment/interrupt_2"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.interrupt"
+  },
+  "treatment.wear_off": {
+    "sounds": [
+      "mistinn:treatment/wear_off_1",
+      "mistinn:treatment/wear_off_2"
+    ],
+    "subtitle": "subtitles.mistinn.treatment.wear_off"
+  },
+  "entity.snuffer.ambient": {
+    "sounds": [
+      "mistinn:entity/snuffer/ambient_1",
+      "mistinn:entity/snuffer/ambient_2",
+      "mistinn:entity/snuffer/ambient_3"
+    ],
+    "subtitle": "subtitles.mistinn.entity.snuffer.ambient"
+  },
+  "entity.snuffer.hurt": {
+    "sounds": [
+      "mistinn:entity/snuffer/hurt_1",
+      "mistinn:entity/snuffer/hurt_2",
+      "mistinn:entity/snuffer/hurt_3"
+    ],
+    "subtitle": "subtitles.mistinn.entity.snuffer.hurt"
+  },
+  "entity.snuffer.death": {
+    "sounds": [
+      "mistinn:entity/snuffer/death_1",
+      "mistinn:entity/snuffer/death_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.snuffer.death"
+  },
+  "entity.snuffer.step": {
+    "sounds": [
+      "mistinn:entity/snuffer/step_1",
+      "mistinn:entity/snuffer/step_2",
+      "mistinn:entity/snuffer/step_3",
+      "mistinn:entity/snuffer/step_4"
+    ],
+    "subtitle": "subtitles.mistinn.entity.snuffer.step"
+  },
+  "ui.grid.pickup": {
+    "sounds": [
+      "mistinn:ui/grid/pickup_1",
+      "mistinn:ui/grid/pickup_2",
+      "mistinn:ui/grid/pickup_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.pickup"
+  },
+  "ui.grid.place": {
+    "sounds": [
+      "mistinn:ui/grid/place_1",
+      "mistinn:ui/grid/place_2",
+      "mistinn:ui/grid/place_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.place"
+  },
+  "ui.grid.rotate": {
+    "sounds": [
+      "mistinn:ui/grid/rotate_1",
+      "mistinn:ui/grid/rotate_2"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.rotate"
+  },
+  "ui.grid.reject": {
+    "sounds": [
+      "mistinn:ui/grid/reject_1",
+      "mistinn:ui/grid/reject_2"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.reject"
+  },
+  "gear.equip.cloth": {
+    "sounds": [
+      "mistinn:gear/equip/cloth_1",
+      "mistinn:gear/equip/cloth_2",
+      "mistinn:gear/equip/cloth_3"
+    ],
+    "subtitle": "subtitles.mistinn.gear.equip.cloth"
+  },
+  "gear.equip.plate": {
+    "sounds": [
+      "mistinn:gear/equip/plate_1",
+      "mistinn:gear/equip/plate_2",
+      "mistinn:gear/equip/plate_3"
+    ],
+    "subtitle": "subtitles.mistinn.gear.equip.plate"
+  },
+  "gear.equip.backpack": {
+    "sounds": [
+      "mistinn:gear/equip/backpack_1",
+      "mistinn:gear/equip/backpack_2"
+    ],
+    "subtitle": "subtitles.mistinn.gear.equip.backpack"
+  },
+  "gear.equip.rig": {
+    "sounds": [
+      "mistinn:gear/equip/rig_1",
+      "mistinn:gear/equip/rig_2"
+    ],
+    "subtitle": "subtitles.mistinn.gear.equip.rig"
+  },
+  "player.roll": {
+    "sounds": [
+      "mistinn:player/roll_1",
+      "mistinn:player/roll_2",
+      "mistinn:player/roll_3"
+    ],
+    "subtitle": "subtitles.mistinn.player.roll"
+  },
+  "player.dive": {
+    "sounds": [
+      "mistinn:player/dive_1",
+      "mistinn:player/dive_2"
+    ],
+    "subtitle": "subtitles.mistinn.player.dive"
+  },
+  "player.land": {
+    "sounds": [
+      "mistinn:player/land_1",
+      "mistinn:player/land_2",
+      "mistinn:player/land_3"
+    ],
+    "subtitle": "subtitles.mistinn.player.land"
+  },
+  "body.limb_destroyed": {
+    "sounds": [
+      "mistinn:body/limb_destroyed_1",
+      "mistinn:body/limb_destroyed_2"
+    ],
+    "subtitle": "subtitles.mistinn.body.limb_destroyed"
+  },
+  "body.heartbeat": {
+    "sounds": [
+      "mistinn:body/heartbeat_1",
+      "mistinn:body/heartbeat_2"
+    ],
+    "subtitle": "subtitles.mistinn.body.heartbeat"
+  },
+  "block.radio.static": {
+    "sounds": [
+      "mistinn:block/radio/static_1",
+      "mistinn:block/radio/static_2"
+    ],
+    "subtitle": "subtitles.mistinn.block.radio.static"
+  },
+  "block.radio.tune": {
+    "sounds": [
+      "mistinn:block/radio/tune_1",
+      "mistinn:block/radio/tune_2"
+    ],
+    "subtitle": "subtitles.mistinn.block.radio.tune"
+  },
+  "ambient.fog": {
+    "sounds": [
+      "mistinn:ambient/fog_1",
+      "mistinn:ambient/fog_2",
+      "mistinn:ambient/fog_3"
+    ],
+    "subtitle": "subtitles.mistinn.ambient.fog"
+  },
+  "ambient.lighthouse": {
+    "sounds": [
+      "mistinn:ambient/lighthouse_1",
+      "mistinn:ambient/lighthouse_2"
+    ],
+    "subtitle": "subtitles.mistinn.ambient.lighthouse"
   }
 }

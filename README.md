@@ -312,7 +312,7 @@
 
 一般路徑可以直接使用 `./gradlew build`。
 
-貼圖、模型與音效都是森之宿茶室自己做的原創素材，倉庫裡只放成品（PNG、OGG、JSON），不放繪製用的原始檔。
+貼圖與模型是森之宿茶室自己做的原創素材；音效以 CC0 公眾領域錄音剪接、疊加與處理，再加上專案自己的雜訊合成製成（來源見[授權](#授權)與 [CREDITS.md](CREDITS.md)）。倉庫裡只放成品（PNG、OGG、JSON），不放繪製與生成用的原始檔。
 
 ## 專案結構
 
@@ -370,7 +370,16 @@ Copyright (c) 2026 Keeiv。
 
 採用 **GNU Affero General Public License v3.0 only（AGPL-3.0-only）**，條文見 [LICENSE](LICENSE)，著作權聲明見 [NOTICE](NOTICE)。可以複製、修改、散布與商業使用；散布修改後的版本時，須以相同授權提供完整的對應原始碼。
 
-所有貼圖、模型與音效為原創，與程式碼使用相同授權。
+所有貼圖與模型為原創，與程式碼使用相同授權。
+
+音效的素材來源（皆為 [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) 公眾領域授權，可與 AGPL 併用）：
+
+| 素材 | 作者 | 授權 | 網址 |
+| --- | --- | --- | --- |
+| RPG Audio、Impact Sounds、Interface Sounds、Casino Audio | Kenney Vleugels（Kenney.nl） | CC0 1.0 | <https://kenney.nl/assets> |
+| Various Scissors | sinny（OpenGameArt） | CC0 1.0 | <https://opengameart.org/content/various-scissors> |
+
+錄音經剪接、疊加、濾波與變速後，再與專案自己的雜訊合成（摩擦顆粒、撕裂、搖晃顆粒、呼吸、風聲）混在一起；合成的部分與程式碼使用相同授權。每個 OGG 用了哪些素材，逐檔列在 [CREDITS.md](CREDITS.md)。
 
 > [!NOTE]
 > 字標使用 [Fusion Pixel Font](https://github.com/TakWolf/fusion-pixel-font)（SIL Open Font License 1.1）繪製。Minecraft 是 Mojang Studios 的商標，本模組與 Mojang、Microsoft 沒有關聯。

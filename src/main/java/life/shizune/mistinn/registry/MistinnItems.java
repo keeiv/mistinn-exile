@@ -23,6 +23,7 @@ import net.minecraft.world.item.WrittenBookItem;
 import net.minecraft.world.item.component.WrittenBookContent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.network.Filterable;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -139,7 +140,7 @@ public final class MistinnItems {
 		return register("helmet_" + gear.tier().id(), Item::new, new Item.Properties()
 			.durability(gear.durability())
 			.attributes(attributes)
-			.component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.HEAD).setEquipSound(SoundEvents.ARMOR_EQUIP_IRON).setAsset(asset(gear.tier())).build())
+			.component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.HEAD).setEquipSound(equipSound(gear.tier())).setAsset(asset(gear.tier())).build())
 			.repairable(REPAIRS_GEAR)
 			.enchantable(10));
 	}
@@ -158,9 +159,14 @@ public final class MistinnItems {
 		return register("armor_" + gear.tier().id(), Item::new, new Item.Properties()
 			.durability(gear.durability())
 			.attributes(attributes.build())
-			.component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.CHEST).setEquipSound(SoundEvents.ARMOR_EQUIP_IRON).setAsset(asset(gear.tier())).build())
+			.component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.CHEST).setEquipSound(equipSound(gear.tier())).setAsset(asset(gear.tier())).build())
 			.repairable(REPAIRS_GEAR)
 			.enchantable(10));
+	}
+
+	/** Padded cloth for the lowest tiers, plates from II up. */
+	private static Holder<SoundEvent> equipSound(final Tier tier) {
+		return tier.ordinal() <= Tier.I.ordinal() ? MistinnSounds.EQUIP_CLOTH : MistinnSounds.EQUIP_PLATE;
 	}
 
 	private static Item backpack(final Gear.Backpack gear) {
@@ -189,7 +195,7 @@ public final class MistinnItems {
 		return register(kind + "_" + gear.tier().id(), Item::new, new Item.Properties()
 			.durability(gear.durability())
 			.attributes(attributes.build())
-			.component(DataComponents.EQUIPPABLE, Equippable.builder(slot).setEquipSound(SoundEvents.ARMOR_EQUIP_IRON).setAsset(asset(gear.tier())).build())
+			.component(DataComponents.EQUIPPABLE, Equippable.builder(slot).setEquipSound(equipSound(gear.tier())).setAsset(asset(gear.tier())).build())
 			.repairable(REPAIRS_GEAR)
 			.enchantable(10));
 	}
