@@ -50,6 +50,7 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.stamina.RollService.register();
 		life.shizune.mistinn.medical.TreatmentService.register();
 		ExecutionService.init();
+		life.shizune.mistinn.enemy.WindupService.init();
 		life.shizune.mistinn.registry.MistinnEntities.init();
 		MistinnWorld.init();
 		life.shizune.mistinn.story.WorldMode.init();

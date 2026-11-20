@@ -53,6 +53,9 @@ import net.minecraft.world.phys.Vec3;
 public class MistinnTrainingTest implements FabricClientGameTest {
 	@Override
 	public void runTest(final ClientGameTestContext context) {
+		if (TestFilter.skip(getClass())) {
+			return;
+		}
 		if (Boolean.getBoolean("mistinn.photo") || Boolean.getBoolean("mistinn.animsheet") || Boolean.getBoolean("mistinn.medreel")) {
 			return;
 		}

@@ -60,6 +60,9 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 
 	@Override
 	public void runTest(final ClientGameTestContext context) {
+		if (TestFilter.skip(getClass())) {
+			return;
+		}
 		if (Boolean.getBoolean("mistinn.photo") || Boolean.getBoolean("mistinn.animsheet") || Boolean.getBoolean("mistinn.medreel")) {
 			return; // photo mode only shoots pictures; see MistinnPhotoTest
 		}

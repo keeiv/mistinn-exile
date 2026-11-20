@@ -66,6 +66,19 @@ public final class WoundService {
 		set(player, get(player).with(part, Wounds.Wound.NONE));
 	}
 
+	/** Breaks the bone and/or opens a bleeding wound on one part, keeping whatever the part already had. */
+	public static void inflict(final ServerPlayer player, final BodyPart part, final boolean fracture, final boolean bleed) {
+		Wounds wounds = get(player);
+		Wounds.Wound wound = wounds.get(part);
+		if (fracture) {
+			wound = wound.fractured(true);
+		}
+		if (bleed) {
+			wound = wound.bleeding(true);
+		}
+		set(player, wounds.with(part, wound));
+	}
+
 	// ── What a limb can do ────────────────────────────────────────
 
 	/** A broken bone not held by a splint, on a living limb: it works as if destroyed. */

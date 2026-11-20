@@ -15,6 +15,9 @@ import net.minecraft.network.chat.Component;
 public final class MistinnRoomTest implements FabricClientGameTest {
 	@Override
 	public void runTest(final ClientGameTestContext context) {
+		if (TestFilter.skip(getClass())) {
+			return;
+		}
 		if (Boolean.getBoolean("mistinn.photo") || Boolean.getBoolean("mistinn.animsheet")
 			|| Boolean.getBoolean("mistinn.reel") || Boolean.getBoolean("mistinn.medreel")) {
 			return;

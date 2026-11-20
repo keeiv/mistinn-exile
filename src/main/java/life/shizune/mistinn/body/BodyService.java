@@ -198,7 +198,7 @@ public final class BodyService {
 
 	/** Replaces vanilla's {@code actuallyHurt} for hunters: armour by part, then parts. */
 	public static void hurt(final ServerPlayer player, final ServerLevel level, final DamageSource source, float damage) {
-		if (player.isInvulnerableTo(level, source) || ExecutionService.holdsBlow(player, source)) {
+		if (player.isInvulnerableTo(level, source) || ExecutionService.holdsBlow(player, source) || ExecutionService.headshotLands(player, source)) {
 			return;
 		}
 		damage = Math.min(damage, 1.0E6F);

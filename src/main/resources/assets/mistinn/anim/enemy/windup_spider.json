@@ -1,0 +1,86 @@
+{
+	"_comment": "前搖（撲咬）: rears up with the front legs high and the body back; at 0.6 it pounces forward and down.",
+	"keys": [
+		0.0,
+		0.3,
+		0.6,
+		0.7,
+		0.84,
+		1.0
+	],
+	"eases": [
+		"out_quad",
+		"in_quad",
+		"out_cubic",
+		"in_out_sine",
+		"in_out_sine"
+	],
+	"root": {
+		"pitch": [
+			0,
+			-18,
+			-28,
+			20,
+			10,
+			0
+		],
+		"y": [
+			0,
+			0.05,
+			0.1,
+			0.16,
+			0.05,
+			0
+		],
+		"z": [
+			0,
+			-0.15,
+			-0.22,
+			0.58,
+			0.36,
+			0
+		]
+	},
+	"bones": {
+		"right_front_leg_z": [
+			0,
+			-34,
+			-46,
+			10,
+			4,
+			0
+		],
+		"left_front_leg_z": [
+			0,
+			34,
+			46,
+			-10,
+			-4,
+			0
+		],
+		"right_middle_front_leg_z": [
+			0,
+			-16,
+			-22,
+			6,
+			2,
+			0
+		],
+		"left_middle_front_leg_z": [
+			0,
+			16,
+			22,
+			-6,
+			-2,
+			0
+		],
+		"head_x": [
+			0,
+			-10,
+			-16,
+			16,
+			6,
+			0
+		]
+	}
+}
