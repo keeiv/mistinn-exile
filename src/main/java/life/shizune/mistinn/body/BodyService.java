@@ -5,11 +5,13 @@ import life.shizune.mistinn.grid.GridRules;
 import life.shizune.mistinn.medical.TreatmentService;
 import life.shizune.mistinn.mixin.LivingEntityInvoker;
 import life.shizune.mistinn.registry.MistinnAttachments;
+import life.shizune.mistinn.registry.MistinnSounds;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
@@ -81,6 +83,10 @@ public final class BodyService {
 			}
 		} else {
 			syncHealth(player, body);
+			if (body.destroyedCount() > before.destroyedCount()) {
+				// a part gives out: a crack of bone and a sharp breath
+				player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.LIMB_DESTROYED, SoundSource.PLAYERS, 1.0F, 0.95F + player.getRandom().nextFloat() * 0.1F);
+			}
 		}
 		if (!body.equals(before)) {
 			applyPenalties(player, body);

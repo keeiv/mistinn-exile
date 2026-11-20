@@ -7,7 +7,6 @@ import life.shizune.mistinn.tier.Tiers;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -65,8 +64,9 @@ public class RepairKitItem extends TreatmentItem {
 	public void finish(final ServerPlayer player, final ItemStack stack, final InteractionHand hand) {
 		ItemStack worn = this.target(player);
 		RepairRules.Plan plan = apply(this.tier, worn);
-		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ANVIL_USE, SoundSource.PLAYERS, 0.35F, plan.poor() ? 0.8F : 1.3F);
-		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.GOLDEN_BELL_REST, SoundSource.PLAYERS, 0.15F, 1.8F);
+		// the pouch buckled shut; the heavier kits of the higher tiers sit a little lower
+		float pitch = 1.08F - 0.03F * this.tier.ordinal();
+		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.REPAIR_FINISH, SoundSource.PLAYERS, 0.8F, pitch);
 		String key = this.tier == Tier.VI ? "message.mistinn.repair.red" : plan.poor() ? "message.mistinn.repair.poor" : "message.mistinn.repair.done";
 		player.sendSystemMessage(Component.translatable(key, worn.getHoverName(), worn.getMaxDamage() - worn.getDamageValue(), worn.getMaxDamage()), true);
 		stack.consume(1, player);

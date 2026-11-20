@@ -972,6 +972,15 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 	 * whole body, and switching slots breaks a use off. Uses are started with the real use key.
 	 */
 	private static void medical(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		// every mod sound event is known to the sound manager, with its files listed (sounds.json in step with the code)
+		context.runOnClient(mc -> {
+			for (net.minecraft.resources.Identifier id : net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.keySet()) {
+				if (id.getNamespace().equals(life.shizune.mistinn.Mistinn.MOD_ID)) {
+					net.minecraft.client.sounds.WeighedSoundEvents sounds = mc.getSoundManager().getSoundEvent(id);
+					check(sounds != null && sounds.getWeight() > 0 && sounds.getSubtitle() != null, "the sound " + id + " has files and a subtitle");
+				}
+			}
+		});
 		// the rules in numbers
 		life.shizune.mistinn.medical.RepairRules.Plan matched = life.shizune.mistinn.medical.RepairRules.plan(life.shizune.mistinn.tier.Tier.III, life.shizune.mistinn.tier.Tier.II, 400, 400);
 		check(matched.ticks() == 100 && matched.restore() == 200 && matched.newMax() == 400 && !matched.poor(), "a kit on lower gear restores half in 5 s at no cost: " + matched);
@@ -1001,7 +1010,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 		context.getInput().pressKey(options -> options.keyUse);
 		context.waitTicks(40);
 		check(world.getServer().computeOnServer(server -> life.shizune.mistinn.medical.TreatmentService.active(server.getPlayerList().getPlayers().getFirst())), "the repair kit starts a timed use");
-		heard(context, "the armour repair", "treatment.repair.plate", "treatment.repair.hammer");
+		heard(context, "the armour repair", "treatment.repair.open", "treatment.repair.plate", "treatment.repair.hammer");
 		check(context.computeOnClient(mc -> life.shizune.mistinn.client.medical.TreatmentClient.busy()), "the client knows a use is running");
 		context.takeScreenshot("treatment-hud");
 		context.waitTicks(70);
@@ -1036,7 +1045,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 		context.runOnClient(mc -> life.shizune.mistinn.client.medical.TreatmentSounds.LOG.clear());
 		context.getInput().pressKey(options -> options.keyUse);
 		context.waitTicks(110);
-		heard(context, "the helmet repair", "treatment.repair.plate", "treatment.repair.ratchet");
+		heard(context, "the helmet repair", "treatment.repair.open", "treatment.repair.plate", "treatment.repair.strap");
 		world.getServer().runOnServer(server -> {
 			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
 			ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
@@ -1055,6 +1064,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 		context.runOnClient(mc -> mc.player.getInventory().setSelectedSlot((selected + 1) % 9));
 		context.waitTicks(5);
 		check(!world.getServer().computeOnServer(server -> life.shizune.mistinn.medical.TreatmentService.active(server.getPlayerList().getPlayers().getFirst())), "switching slots breaks the use off");
+		heard(context, "the broken-off use", "treatment.interrupt");
 		context.runOnClient(mc -> mc.player.getInventory().setSelectedSlot(selected));
 		context.waitTicks(5);
 		context.runOnClient(mc -> life.shizune.mistinn.client.medical.TreatmentSounds.LOG.clear());
@@ -1074,7 +1084,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 		context.runOnClient(mc -> life.shizune.mistinn.client.medical.TreatmentSounds.LOG.clear());
 		context.getInput().pressKey(options -> options.keyUse);
 		context.waitTicks(life.shizune.mistinn.medical.SurgeryKitItem.USE_TICKS + 10);
-		heard(context, "the surgery", "treatment.surgery.open", "treatment.surgery.cut", "treatment.surgery.stitch", "treatment.surgery.tie");
+		heard(context, "the surgery", "treatment.surgery.open", "treatment.surgery.clink", "treatment.surgery.cut", "treatment.surgery.stitch", "treatment.surgery.tear");
 		world.getServer().runOnServer(server -> {
 			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
 			Body body = BodyService.get(player);
@@ -1088,7 +1098,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 		context.runOnClient(mc -> life.shizune.mistinn.client.medical.TreatmentSounds.LOG.clear());
 		context.getInput().pressKey(options -> options.keyUse);
 		context.waitTicks(life.shizune.mistinn.medical.PainkillerItem.USE_TICKS + 10);
-		heard(context, "the painkillers", "treatment.pills.rattle", "treatment.pills.pour", "treatment.pills.swallow");
+		heard(context, "the painkillers", "treatment.pills.cap", "treatment.pills.rattle", "treatment.pills.pour", "treatment.pills.swallow");
 		world.getServer().runOnServer(server -> {
 			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
 			check(life.shizune.mistinn.medical.TreatmentService.numb(player), "the painkillers numb");

@@ -79,6 +79,7 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.move.RollClient.tick(minecraft, roll);
 			life.shizune.mistinn.client.medical.TreatmentClient.tick(minecraft);
 			life.shizune.mistinn.client.medical.TreatmentSounds.tick(minecraft);
+			life.shizune.mistinn.client.ambience.Ambience.tick(minecraft);
 			life.shizune.mistinn.client.death.DeathScene.tick(minecraft);
 			life.shizune.mistinn.client.story.StoryClient.tick(minecraft);
 			while (journal.consumeClick()) {

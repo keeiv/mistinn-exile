@@ -2,9 +2,9 @@ package life.shizune.mistinn.medical;
 
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
+import life.shizune.mistinn.registry.MistinnSounds;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -51,7 +51,7 @@ public class InjectorItem extends TreatmentItem {
 	@Override
 	public void finish(final ServerPlayer player, final ItemStack stack, final InteractionHand hand) {
 		TreatmentService.inject(player);
-		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BOTTLE_EMPTY, SoundSource.PLAYERS, 0.7F, 1.6F);
+		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.INJECT_FINISH, SoundSource.PLAYERS, 0.8F, 1.0F);
 		player.sendSystemMessage(Component.translatable("message.mistinn.injector.used"), true);
 		stack.consume(1, player);
 	}

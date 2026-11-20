@@ -1,8 +1,8 @@
 package life.shizune.mistinn.medical;
 
+import life.shizune.mistinn.registry.MistinnSounds;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -44,7 +44,7 @@ public class PainkillerItem extends TreatmentItem {
 	@Override
 	public void finish(final ServerPlayer player, final ItemStack stack, final InteractionHand hand) {
 		TreatmentService.numb(player, NUMB_TICKS);
-		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.GENERIC_DRINK.value(), SoundSource.PLAYERS, 0.5F, 1.5F);
+		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.PILLS_FINISH, SoundSource.PLAYERS, 0.7F, 1.0F);
 		player.sendSystemMessage(Component.translatable("message.mistinn.painkillers.used", NUMB_TICKS / 20), true);
 		stack.hurtAndBreak(1, player, hand);
 	}

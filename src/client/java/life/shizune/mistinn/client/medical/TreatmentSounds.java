@@ -46,43 +46,58 @@ public final class TreatmentSounds {
 			new Cue(1.18F, MistinnSounds.INJECT_PUSH, 0.75F),
 			new Cue(2.5F, MistinnSounds.INJECT_OUT, 0.8F)
 		), List.of(), List.of()),
-		// painkillers (2 s): shaken on the way up, tipped with the head back (keys 0.25 to 0.45), swallowed
+		// painkillers (2 s): the cap twisted off, shaken on the way up, tipped with the head back
+		// (keys 0.25 to 0.45), swallowed; the cap goes back on as the use completes (server side)
 		Treatment.PILLS, new Score(List.of(
-			new Cue(0.0F, MistinnSounds.PILLS_RATTLE, 0.7F),
-			new Cue(0.55F, MistinnSounds.PILLS_POUR, 0.7F),
+			new Cue(0.0F, MistinnSounds.PILLS_CAP, 0.7F),
+			new Cue(0.2F, MistinnSounds.PILLS_RATTLE, 0.6F),
+			new Cue(0.6F, MistinnSounds.PILLS_POUR, 0.7F),
 			new Cue(1.2F, MistinnSounds.PILLS_SWALLOW, 0.8F)
 		), List.of(), List.of()),
-		// the surgery kit (8 s): opened, three cuts through the ruined flesh, then stitch after
-		// stitch, and the thread tied off and snipped at the end
+		// the surgery kit (8 s): the cloth roll opened and the instruments picked out, three cuts
+		// through the ruined flesh, then stitch after stitch with an instrument laid down now and
+		// then, and a bandage torn off at the end; the roll is tied shut on completion (server side)
 		Treatment.SURGERY, new Score(List.of(
 			new Cue(0.0F, MistinnSounds.SURGERY_OPEN, 0.7F),
+			new Cue(0.4F, MistinnSounds.SURGERY_CLINK, 0.6F),
 			new Cue(0.55F, MistinnSounds.SURGERY_CUT, 0.9F),
 			new Cue(1.1F, MistinnSounds.SURGERY_CUT, 0.9F),
 			new Cue(1.6F, MistinnSounds.SURGERY_CUT, 0.9F),
-			new Cue(-0.4F, MistinnSounds.SURGERY_TIE, 0.8F)
+			new Cue(1.9F, MistinnSounds.SURGERY_CLINK, 0.6F),
+			new Cue(-1.1F, MistinnSounds.SURGERY_TEAR, 0.8F)
 		),
 			// one's own view: a stitch on every other quick dip of the hand (0.5 s beat, dip at 0.22)
-			List.of(new Beat(2.1F, 1.0F, 0.11F, MistinnSounds.SURGERY_STITCH, 0.8F, 0.7F)),
+			List.of(
+				new Beat(2.1F, 1.0F, 0.11F, MistinnSounds.SURGERY_STITCH, 0.8F, 1.3F),
+				new Beat(2.1F, 3.0F, 1.6F, MistinnSounds.SURGERY_CLINK, 0.5F, 1.3F)
+			),
 			// seen from outside: the needle drawn up and out (2 s loop, key 0.3)
-			List.of(new Beat(2.1F, 2.0F, 0.6F, MistinnSounds.SURGERY_STITCH, 0.8F, 0.7F))),
-		// armour: the splint drawn out, then a hammer blow on each press of the hand
+			List.of(
+				new Beat(2.1F, 2.0F, 0.6F, MistinnSounds.SURGERY_STITCH, 0.8F, 1.3F),
+				new Beat(2.1F, 4.0F, 1.6F, MistinnSounds.SURGERY_CLINK, 0.5F, 1.3F)
+			)),
+		// armour: the canvas pouch opened, the splint drawn out, then a light hammer tap on each
+		// press of the hand; the pouch is buckled shut on completion (server side)
 		Treatment.ARMOR_REPAIR, new Score(List.of(
-			new Cue(0.0F, MistinnSounds.REPAIR_PLATE, 0.8F)
+			new Cue(0.0F, MistinnSounds.REPAIR_OPEN, 0.7F),
+			new Cue(0.35F, MistinnSounds.REPAIR_PLATE, 0.8F)
 		),
 			// own view: the press down of the 0.6 s beat (key 0.14)
 			List.of(new Beat(0.8F, 0.6F, 0.084F, MistinnSounds.REPAIR_HAMMER, 0.75F, 0.25F)),
 			// from outside: the tap of the 1.2 s loop (key 0.35)
 			List.of(new Beat(0.8F, 1.2F, 0.42F, MistinnSounds.REPAIR_HAMMER, 0.75F, 0.25F))),
-		// the helmet: the splint drawn out, then turned tight with the ratchet, and a light tap
+		// the helmet: the pouch opened, the splint drawn out, then a strap pulled tight and a rivet
+		// tapped home, over and over
 		Treatment.HELMET_REPAIR, new Score(List.of(
-			new Cue(0.0F, MistinnSounds.REPAIR_PLATE, 0.8F)
+			new Cue(0.0F, MistinnSounds.REPAIR_OPEN, 0.7F),
+			new Cue(0.35F, MistinnSounds.REPAIR_PLATE, 0.8F)
 		),
 			List.of(
-				new Beat(0.8F, 1.2F, 0.084F, MistinnSounds.REPAIR_RATCHET, 0.7F, 0.25F),
+				new Beat(0.8F, 1.2F, 0.084F, MistinnSounds.REPAIR_STRAP, 0.7F, 0.25F),
 				new Beat(0.8F, 1.2F, 0.684F, MistinnSounds.REPAIR_HAMMER, 0.5F, 0.25F)
 			),
 			List.of(
-				new Beat(0.8F, 1.4F, 0.49F, MistinnSounds.REPAIR_RATCHET, 0.7F, 0.25F),
+				new Beat(0.8F, 1.4F, 0.49F, MistinnSounds.REPAIR_STRAP, 0.7F, 0.25F),
 				new Beat(0.8F, 1.4F, 0.91F, MistinnSounds.REPAIR_HAMMER, 0.5F, 0.25F)
 			))
 	);
@@ -117,8 +132,13 @@ public final class TreatmentSounds {
 		}
 		Heard heard = HEARD.remove(payload.entity());
 		if (payload.result() == TreatmentService.RESULT_INTERRUPTED) {
-			// broken off: whatever was mid-sound stops with the hands
+			// broken off: whatever was mid-sound stops with the hands, and the kit is fumbled away
 			stop(heard);
+			Minecraft mc = Minecraft.getInstance();
+			Entity entity = mc.level == null ? null : mc.level.getEntity(payload.entity());
+			if (heard != null && entity != null) {
+				play(mc, heard, entity, MistinnSounds.TREATMENT_INTERRUPT, 0.8F);
+			}
 		}
 	}
 

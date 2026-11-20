@@ -6,6 +6,7 @@ import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
 import life.shizune.mistinn.registry.MistinnBlocks;
 import life.shizune.mistinn.registry.MistinnItems;
+import life.shizune.mistinn.registry.MistinnSounds;
 import life.shizune.mistinn.salt.SaltService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -16,6 +17,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.BossEvent;
@@ -503,6 +505,32 @@ public class Snuffer extends Monster {
 	@Override
 	public boolean hurtServer(final ServerLevel level, final DamageSource source, final float damage) {
 		return super.hurtServer(level, source, this.staggered > 0 ? damage * STAGGER_DAMAGE : damage);
+	}
+
+	// ── Voice ────────────────────────────────────────────────────
+
+	/** Breath drawn through the empty lantern, its frame creaking and the hook's chain stirring. */
+	@Override
+	protected SoundEvent getAmbientSound() {
+		return MistinnSounds.SNUFFER_AMBIENT;
+	}
+
+	/** The lantern head struck: tin and cracked glass, and a hiss. */
+	@Override
+	protected SoundEvent getHurtSound(final DamageSource source) {
+		return MistinnSounds.SNUFFER_HURT;
+	}
+
+	/** A long exhale, then the lantern crashing down. */
+	@Override
+	protected SoundEvent getDeathSound() {
+		return MistinnSounds.SNUFFER_DEATH;
+	}
+
+	/** A heavy, slow footfall with the hook's chain swinging. */
+	@Override
+	protected void playStepSound(final BlockPos pos, final BlockState state) {
+		this.playSound(MistinnSounds.SNUFFER_STEP, 0.7F, 0.9F + this.random.nextFloat() * 0.2F);
 	}
 
 	// ── Health bar and spoils ─────────────────────────────────────

@@ -3,9 +3,9 @@ package life.shizune.mistinn.medical;
 import life.shizune.mistinn.body.Body;
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
+import life.shizune.mistinn.registry.MistinnSounds;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -62,7 +62,7 @@ public class SurgeryKitItem extends TreatmentItem {
 			return;
 		}
 		BodyService.set(player, body.with(part, REVIVE));
-		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ARMOR_EQUIP_LEATHER.value(), SoundSource.PLAYERS, 0.8F, 0.8F);
+		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.SURGERY_FINISH, SoundSource.PLAYERS, 0.8F, 1.0F);
 		player.sendSystemMessage(Component.translatable("message.mistinn.surgery.done", Component.translatable("gui.mistinn.part." + part.id)), true);
 		stack.hurtAndBreak(1, player, hand);
 	}

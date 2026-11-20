@@ -12,8 +12,12 @@ GNU Affero General Public License for more details.
 
 A copy of the license is included in LICENSE.
 
-The textures, models and sounds are original works and are covered by the
-same license. The README wordmark is drawn with
+The textures and models are original works and are covered by the same
+license. The sounds are built from public-domain (CC0 1.0) recordings by
+Kenney Vleugels (Kenney.nl) and by sinny (OpenGameArt), layered and
+processed together with noise-based synthesis made for this project; the
+synthesis is covered by the same license. CREDITS.md lists the sources of
+every sound file. The README wordmark is drawn with
 Fusion Pixel Font (SIL Open Font License 1.1).
 Minecraft is a trademark of Mojang Studios; this project is not affiliated
 with Mojang or Microsoft.

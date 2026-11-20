@@ -1,6 +1,7 @@
 package life.shizune.mistinn.story;
 
 import life.shizune.mistinn.registry.MistinnItems;
+import life.shizune.mistinn.registry.MistinnSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -58,7 +59,7 @@ public class RadioBlock extends Block {
 			}
 			stack.consume(StoryStep.RADIO_PARTS, hunter);
 			level.setBlockAndUpdate(pos, state.setValue(LIT, true));
-			level.playSound(null, pos, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 0.6F, 1.6F);
+			level.playSound(null, pos, MistinnSounds.RADIO_TUNE, SoundSource.BLOCKS, 0.9F, 1.0F);
 			if (!StoryService.radioMended(hunter)) {
 				hunter.sendOverlayMessage(Component.translatable("message.mistinn.radio.static"));
 			}
@@ -73,7 +74,7 @@ public class RadioBlock extends Block {
 			return InteractionResult.SUCCESS;
 		}
 		hunter.sendOverlayMessage(Component.translatable("message.mistinn.radio.static"));
-		level.playSound(null, pos, SoundEvents.BEACON_AMBIENT, SoundSource.BLOCKS, 0.5F, 1.8F);
+		level.playSound(null, pos, MistinnSounds.RADIO_STATIC, SoundSource.BLOCKS, 0.8F, 0.95F + level.getRandom().nextFloat() * 0.1F);
 		return InteractionResult.SUCCESS;
 	}
 }
