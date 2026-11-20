@@ -23,6 +23,9 @@ public class MistinnAnimSheetTest implements FabricClientGameTest {
 
 	@Override
 	public void runTest(final ClientGameTestContext context) {
+		if (TestFilter.skip(getClass())) {
+			return;
+		}
 		if (!Boolean.getBoolean("mistinn.animsheet")) {
 			return;
 		}

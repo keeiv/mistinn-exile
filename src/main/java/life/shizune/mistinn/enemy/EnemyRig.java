@@ -4,26 +4,42 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import org.jspecify.annotations.Nullable;
 
-/** The vanilla model families, and the kind of contact they can use against a fallen hunter. */
+/** The vanilla model families, and how long and how far they wind up a melee blow. */
 public enum EnemyRig {
-	UNDEAD(Finisher.GRAB), HUSK(Finisher.GRAB), DROWNED(Finisher.GRAB), SKELETON(Finisher.BLADE),
-	ILLAGER(Finisher.BLADE), PIGLIN(Finisher.BLADE), ENDERMAN(Finisher.GRAB), CREAKING(Finisher.GRAB),
-	WARDEN(Finisher.CRUSH), CREEPER(null), SPIDER(Finisher.POUNCE), RAVAGER(Finisher.GORE),
-	HOGLIN(Finisher.GORE), MOUNT(null), GEL(Finisher.CRUSH), VERMIN(Finisher.POUNCE),
-	GHAST(null), PHANTOM(Finisher.POUNCE), VEX(Finisher.BLADE), WITHER(null), BLAZE(null),
-	BREEZE(null), SHULKER(null), GUARDIAN(null), NAUTILUS(null), DRAGON(null),
-	QUADRUPED(Finisher.GORE), BEE(null);
+	UNDEAD(7, 0.45F), HUSK(8, 0.45F), DROWNED(7, 0.45F),
+	SKELETON(6, 0.40F), ILLAGER(6, 0.45F), PIGLIN(6, 0.45F),
+	ENDERMAN(5, 0.50F), CREAKING(8, 0.40F), WARDEN(10, 0.60F),
+	CREEPER(0, 0.0F), SPIDER(5, 0.55F), RAVAGER(10, 0.60F),
+	HOGLIN(8, 0.60F), MOUNT(0, 0.0F), GEL(0, 0.0F), VERMIN(3, 0.30F),
+	GHAST(0, 0.0F), PHANTOM(0, 0.0F), VEX(0, 0.0F), WITHER(0, 0.0F),
+	BLAZE(0, 0.0F), BREEZE(0, 0.0F), SHULKER(0, 0.0F), GUARDIAN(0, 0.0F), NAUTILUS(0, 0.0F),
+	DRAGON(0, 0.0F), QUADRUPED(6, 0.50F), BEE(0, 0.0F);
 
-	public enum Finisher { GRAB, BLADE, CRUSH, POUNCE, GORE }
+	private final int windupTicks;
+	private final float lunge;
 
-	private final @Nullable Finisher finisher;
-
-	EnemyRig(final @Nullable Finisher finisher) {
-		this.finisher = finisher;
+	EnemyRig(final int windupTicks, final float lunge) {
+		this.windupTicks = windupTicks;
+		this.lunge = lunge;
 	}
 
-	public @Nullable Finisher finisher() {
-		return this.finisher;
+	/** Ticks a melee blow is held back while the creature winds up; 0 for no windup. */
+	public int windupTicks() {
+		return this.windupTicks;
+	}
+
+	/** How far, in blocks, the creature lunges when the wound-up blow is released. */
+	public float lunge() {
+		return this.lunge;
+	}
+
+
+	/**
+	 * Whether the creature can tell where its target is. Wardens are blind in vanilla (no line of sight at all)
+	 * and track by vibration, so they always know; everyone else needs to see the target.
+	 */
+	public static boolean perceives(final net.minecraft.world.entity.Mob mob, final net.minecraft.world.entity.Entity target) {
+		return mob instanceof net.minecraft.world.entity.monster.warden.Warden || mob.hasLineOfSight(target);
 	}
 
 	public static @Nullable EnemyRig of(final EntityType<?> type) {

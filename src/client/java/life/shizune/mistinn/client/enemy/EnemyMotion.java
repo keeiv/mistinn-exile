@@ -1,19 +1,30 @@
 package life.shizune.mistinn.client.enemy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Function;
 import life.shizune.mistinn.enemy.EnemyRig;
+import life.shizune.mistinn.client.anim.Clip;
+import life.shizune.mistinn.enemy.ExecutionMove;
 import life.shizune.mistinn.enemy.ExecutionService;
+import life.shizune.mistinn.enemy.WindupService;
 import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.creaking.Creaking;
+import net.minecraft.world.entity.monster.warden.Warden;
 import org.jspecify.annotations.Nullable;
 
 /** Runs after vanilla poses its model, keeping attacks, casting, swimming and other species states intact. */
@@ -26,10 +37,174 @@ public final class EnemyMotion {
 	private static final String[] WINGS_RIGHT = {"right_wing", "right_wing_base", "right_wing_tip"};
 
 	public record Sample(EnemyRig rig, float seed, float swing, float hurt, float fall, boolean grounded,
-		boolean aggressive, boolean riding, float finishing) {
+		boolean aggressive, boolean riding, float finishing, int id, float hunting, float windup, boolean twitchy,
+		@Nullable ExecutionMove move, float size, @Nullable Clip finisher) {
 	}
 
+	/** A sudden jerk: which kind (0 none, 1 head snap, 2 shoulder jerk, 3 stumble), how far into it, and to which side. */
+	public record Twitch(int kind, float amount, float side, int window) {
+		static final Twitch NONE = new Twitch(0, 0.0F, 1.0F, -1);
+	}
+
+	/** Where the release falls in every windup clip; the charge is drawn before it, the follow-through after. */
+	public static final float RELEASE_KEY = 0.6F;
+	/** Ticks the hunting stance takes to come in or go out. */
+	private static final float HUNT_EASE = 8.0F;
+	private static final int IDLE_WINDOW = 80;
+	private static final int HUNT_WINDOW = 30;
+	private static final Map<Entity, float[]> HUNTING = new WeakHashMap<>();
+	private static final Map<Entity, Integer> RATTLED = new WeakHashMap<>();
+
 	private EnemyMotion() {
+	}
+
+	/** Every clip the creatures use, for checks that they are all present. */
+	public static List<String> clipNames() {
+		List<String> names = new ArrayList<>();
+		for (EnemyRig rig : EnemyRig.values()) {
+			String hunt = huntClip(rig);
+			String windup = windupClip(rig);
+			if (hunt != null && !names.contains(hunt)) {
+				names.add(hunt);
+			}
+			if (windup != null && !names.contains(windup)) {
+				names.add(windup);
+			}
+		}
+		return names;
+	}
+
+	private static @Nullable String huntClip(final EnemyRig rig) {
+		return switch (rig) {
+			case UNDEAD, HUSK, DROWNED -> "enemy/hunt_undead";
+			case SKELETON -> "enemy/hunt_skeleton";
+			case ILLAGER, PIGLIN -> "enemy/hunt_brute";
+			case ENDERMAN -> "enemy/hunt_enderman";
+			case WARDEN, CREAKING -> "enemy/hunt_heavy";
+			case SPIDER -> "enemy/hunt_spider";
+			case QUADRUPED, HOGLIN, RAVAGER -> "enemy/hunt_beast";
+			case VERMIN -> "enemy/hunt_vermin";
+			default -> null;
+		};
+	}
+
+	private static @Nullable String windupClip(final EnemyRig rig) {
+		if (rig.windupTicks() <= 0) {
+			return null;
+		}
+		return switch (rig) {
+			case UNDEAD, HUSK, DROWNED, ENDERMAN -> "enemy/windup_grab";
+			case SKELETON, ILLAGER, PIGLIN -> "enemy/windup_weapon";
+			case WARDEN, CREAKING -> "enemy/windup_heavy";
+			case SPIDER -> "enemy/windup_spider";
+			case VERMIN -> "enemy/windup_vermin";
+			default -> "enemy/windup_beast";
+		};
+	}
+
+	/**
+	 * How much larger than its model the body is drawn. Clip moves are in world blocks, and a model drawn larger
+	 * carries its model units with it. Cube mobs are scaled up by their size when drawn (a grown sulfur cube at half
+	 * that); every other creature only by its scale attribute, since young ones have smaller models of their own.
+	 */
+	public static float drawnSize(final LivingEntity entity) {
+		if (entity instanceof net.minecraft.world.entity.monster.cubemob.AbstractCubeMob cube) {
+			float size = Math.max(0.1F, entity.getBbHeight() / entity.getType().getHeight());
+			return cube instanceof net.minecraft.world.entity.monster.cubemob.SulfurCube && !cube.isBaby() ? size * 0.5F : size;
+		}
+		return Math.max(0.1F, entity.getScale());
+	}
+
+	/** The striker's half of a finishing move: the creature's own variant when the move has one, else the move's shared clip. */
+	public static Clip finisherClip(final ExecutionMove move, final net.minecraft.world.entity.EntityType<?> type) {
+		Clip own = Clip.find("execution/" + move.id() + "/striker_" + net.minecraft.world.entity.EntityType.getKey(type).getPath());
+		return own != null ? own : Clip.get("execution/" + move.id() + "/striker");
+	}
+
+	/** How far into its hunting stance a creature is, eased in and out over {@link #HUNT_EASE} ticks. */
+	public static float hunting(final @Nullable LivingEntity entity, final float partialTicks) {
+		if (entity == null) {
+			return 0.0F;
+		}
+		boolean hunting = entity instanceof Mob mob && mob.isAggressive()
+			|| entity instanceof Warden warden && warden.getClientAngerLevel() >= 80
+			|| entity instanceof Creaking creaking && creaking.isActive();
+		float age = entity.tickCount + partialTicks;
+		// target, when it last changed, and the value it changed from
+		float[] state = HUNTING.computeIfAbsent(entity, e -> new float[] {hunting ? 1.0F : 0.0F, -1000.0F, hunting ? 1.0F : 0.0F});
+		float target = hunting ? 1.0F : 0.0F;
+		if (state[0] != target) {
+			state[2] = Mth.lerp(ease(age, state[1], state[1] + HUNT_EASE), state[2], state[0]);
+			state[0] = target;
+			state[1] = age;
+		}
+		return Mth.lerp(ease(age, state[1], state[1] + HUNT_EASE), state[2], state[0]);
+	}
+
+	/** Progress through the windup clip, or -1 when the creature is not winding up. */
+	static float windup(final LivingEntity entity, final float partialTicks) {
+		WindupService.Windup windup = entity.getAttached(WindupService.WINDUP);
+		if (windup == null) {
+			return -1.0F;
+		}
+		float elapsed = entity.level().getGameTime() - windup.start() + partialTicks;
+		if (!windup.released() && elapsed < windup.length()) {
+			return RELEASE_KEY * Math.max(0.0F, elapsed) / windup.length();
+		}
+		return RELEASE_KEY + (1.0F - RELEASE_KEY) * Mth.clamp((elapsed - windup.length()) / WindupService.FOLLOW_THROUGH, 0.0F, 1.0F);
+	}
+
+	/**
+	 * The same jerk for every viewer: one per window of time (longer at rest, shorter while hunting),
+	 * at a point in the window and of a kind picked from the entity id and the window.
+	 */
+	public static Twitch twitch(final int id, final float time, final boolean hunting) {
+		int window = hunting ? HUNT_WINDOW : IDLE_WINDOW;
+		int n = Mth.floor(time / window);
+		int h = mix(id * 0x9E3779B1 + n * 0x85EBCA6B + (hunting ? 0x27D4EB2F : 0));
+		int start = Math.floorMod(h >>> 8, window - 10);
+		int hold = 1 + Math.floorMod(h >>> 16, 3);
+		float t = time - n * window - start;
+		float envelope;
+		if (t < 0.0F) {
+			return Twitch.NONE;
+		} else if (t < 2.0F) {
+			envelope = ease(t, 0.0F, 2.0F);
+		} else if (t < 2.0F + hold) {
+			envelope = 1.0F;
+		} else if (t < 6.0F + hold) {
+			envelope = 1.0F - ease(t, 2.0F + hold, 6.0F + hold);
+		} else {
+			return Twitch.NONE;
+		}
+		float magnitude = 0.35F + 0.25F * ((h >>> 20) & 255) / 255.0F;
+		return new Twitch(1 + Math.floorMod(h, 3), envelope * magnitude, ((h >>> 4) & 1) == 0 ? 1.0F : -1.0F, n);
+	}
+
+	private static int mix(int h) {
+		h ^= h >>> 16;
+		h *= 0x7FEB352D;
+		h ^= h >>> 15;
+		h *= 0x846CA68B;
+		return h ^ h >>> 16;
+	}
+
+	private static boolean twitchy(final LivingEntity entity, final EnemyRig rig) {
+		return switch (rig) {
+			case ENDERMAN, CREAKING -> true;
+			case UNDEAD, HUSK, DROWNED, SKELETON, PIGLIN, HOGLIN, MOUNT, QUADRUPED -> entity.getType().builtInRegistryHolder().is(EntityTypeTags.UNDEAD);
+			default -> false;
+		};
+	}
+
+	/** Bones rattle when a skeleton jerks: played once, as the jerk starts, where the viewer is. */
+	private static void rattle(final LivingEntity entity, final Twitch twitch) {
+		if (twitch.kind() == 0 || twitch.window() == RATTLED.getOrDefault(entity, Integer.MIN_VALUE)) {
+			return;
+		}
+		RATTLED.put(entity, twitch.window());
+		entity.level().playLocalSound(entity.getX(), entity.getY(), entity.getZ(), SoundEvents.SKELETON_STEP, SoundSource.HOSTILE,
+			0.35F, 1.3F + entity.getRandom().nextFloat() * 0.3F, false);
 	}
 
 	public static void extract(final LivingEntity entity, final LivingEntityRenderState state, final float partialTicks) {
@@ -42,18 +217,26 @@ public final class EnemyMotion {
 		float finishing = -1.0F;
 		if (execution != null && execution.striker()) {
 			float elapsed = entity.level().getGameTime() - execution.start() + partialTicks;
-			if (elapsed < ExecutionService.DURATION) {
+			if (elapsed < execution.finisher().length()) {
 				finishing = Math.max(0.0F, elapsed);
 				state.bodyRot = execution.yaw();
 				state.yRot = 0.0F;
 				state.xRot = 0.0F;
 			}
 		}
+		float hunting = hunting(entity, partialTicks);
+		boolean twitchy = twitchy(entity, rig);
+		if (twitchy && rig == EnemyRig.SKELETON && finishing < 0.0F) {
+			rattle(entity, twitch(entity.getId(), entity.tickCount, hunting > 0.5F));
+		}
 		state.setData(KEY, new Sample(rig, (entity.getId() & 63) * 0.22F,
 			entity.isSwinging() ? entity.getSwingAnimation(partialTicks) : 0.0F,
 			Mth.clamp((entity.hurtTime - partialTicks) / 10.0F, 0.0F, 1.0F),
 			(float) entity.getKnownMovement().y, entity.onGround(), entity instanceof Mob mob && mob.isAggressive(),
-			entity.isPassenger(), finishing));
+			entity.isPassenger(), finishing, entity.getId(), hunting, windup(entity, partialTicks), twitchy,
+			execution != null && execution.striker() ? execution.finisher() : null,
+			drawnSize(entity),
+			execution != null && execution.striker() ? finisherClip(execution.finisher(), entity.getType()) : null));
 	}
 
 	/** Used for both drawn meshes and the poses that hold equipment layers. */
@@ -78,8 +261,9 @@ public final class EnemyMotion {
 		float step = living.walkAnimationPos * 0.6662F;
 		float gait = Mth.sin(step) * walk;
 		float breath = Mth.sin(time * 0.105F);
-		if (motion.finishing >= 0.0F && motion.rig.finisher() != null) {
-			finisher(bones, motion.rig.finisher(), motion.finishing, time);
+		if (motion.finishing >= 0.0F && motion.move != null && motion.finisher != null) {
+			// the striker's half of the finishing move, on vanilla's still pose
+			bones.clip(motion.finisher, motion.finishing / motion.move.length(), 1.0F, motion.size, motion.finisher.owns(motion.finishing, true));
 			return;
 		}
 
@@ -96,6 +280,25 @@ public final class EnemyMotion {
 			case WITHER, BLAZE, BREEZE, SHULKER -> floating(bones, motion.rig, time, gait, breath);
 			case GUARDIAN, NAUTILUS -> aquatic(bones, motion.rig, time, walk, gait);
 			case DRAGON -> dragon(bones, time);
+		}
+		String hunt = huntClip(motion.rig);
+		if (hunt != null && motion.hunting > 0.0F) {
+			Clip clip = Clip.get(hunt);
+			float length = clip.number("length", 40.0F);
+			bones.clip(clip, (time % length) / length, motion.hunting * (motion.windup >= 0.0F ? 0.3F : 1.0F), motion.size, 0.0F);
+		}
+		if (motion.twitchy && motion.windup < 0.0F) {
+			twitch(bones, twitch(motion.id, state.ageInTicks, motion.hunting > 0.5F));
+		}
+		String windup = windupClip(motion.rig);
+		if (windup != null && motion.windup >= 0.0F) {
+			Clip clip = Clip.get(windup);
+			bones.clip(clip, motion.windup, clip.weight(motion.windup), motion.size, 0.0F);
+			// the strain shows as a tremor that builds toward the release
+			float strain = motion.windup < RELEASE_KEY ? Mth.square(motion.windup / RELEASE_KEY) * 0.06F * Mth.sin(time * 2.3F) : 0.0F;
+			bones.turn("right_arm", strain, 0, 0);
+			bones.turn("left_arm", -strain, 0, 0);
+			bones.turn("head", strain * 0.5F, 0, 0);
 		}
 		// A hit travels through the supporting body before the head catches up.
 		bones.root.y += 0.5F * motion.hurt;
@@ -116,7 +319,7 @@ public final class EnemyMotion {
 			case WARDEN -> 1.50F;
 			default -> 1.0F;
 		};
-		float limp = m.rig == EnemyRig.HUSK || m.rig == EnemyRig.UNDEAD ? 0.12F * walk : 0.0F;
+		float limp = (m.rig == EnemyRig.HUSK || m.rig == EnemyRig.UNDEAD ? 0.12F * walk : 0.0F) * (1.0F + 0.6F * m.hunting);
 		float grip = m.aggressive ? 0.07F : 0.0F;
 		if (m.rig == EnemyRig.DROWNED && swimming) {
 			b.lean(0.055F * Mth.sin(time * 0.30F), 0.08F * Mth.sin(time * 0.19F), 0.5F * breath, 0.0F);
@@ -283,70 +486,26 @@ public final class EnemyMotion {
 		b.turn("jaw", 0.035F * (1.0F + breath), 0, 0);
 	}
 
+	private static void twitch(final Bones b, final Twitch twitch) {
+		float a = twitch.amount();
+		float side = twitch.side();
+		switch (twitch.kind()) {
+			case 1 -> b.turn("head", 0.25F * a, side * a, side * 0.5F * a);
+			case 2 -> {
+				b.turn(side > 0 ? "right_arm" : "left_arm", -0.8F * a, 0, side * 0.4F * a);
+				b.turn("body", 0, side * 0.25F * a, side * 0.15F * a);
+			}
+			case 3 -> {
+				b.lean(0.15F * a, side * 0.25F * a, 1.2F * a, 0);
+				b.turn(side > 0 ? "right_leg" : "left_leg", 0.6F * a, 0, 0);
+			}
+			default -> { }
+		}
+	}
+
 	static float ease(final float time, final float start, final float end) {
 		float t = Mth.clamp((time - start) / (end - start), 0.0F, 1.0F);
 		return t * t * (3.0F - 2.0F * t);
-	}
-
-	private static void finisher(final Bones b, final EnemyRig.Finisher kind, final float time, final float beat) {
-		float prepare = ease(time, 0, 6);
-		float wind = ease(time, 5, 15) * (1.0F - ease(time, 15, 19));
-		float contact = ease(time, 14, 18) * (1.0F - ease(time, 19, 25));
-		float recover = ease(time, 19, 24) * (1.0F - ease(time, 24, ExecutionService.DURATION));
-		float alive = prepare * (1.0F - ease(time, 25, ExecutionService.DURATION));
-		float strain = wind * Mth.sin(beat * 0.90F) * 0.05F;
-		// Ease out of the stopped walk, coil, overshoot the hit, then let the weight settle.
-		b.turn("head", -0.14F * wind + 0.29F * contact + strain, 0, -0.1F * recover);
-		switch (kind) {
-			case GRAB -> {
-				b.lean(0.26F * prepare - 0.42F * wind + 0.47F * contact, -0.21F * wind + 0.19F * contact,
-					1.55F * alive - 1.2F * wind + 1.2F * contact, 4.1F * contact);
-				b.set("right_arm", -0.65F - 1.70F * wind + 0.15F * contact, -0.22F * wind, 0.29F + 0.42F * wind, alive);
-				b.set("left_arm", -0.52F - 0.58F * wind + 0.28F * recover, 0.29F, -0.31F, alive);
-				b.turn("body", 0.26F * contact, -0.26F * wind + 0.18F * contact, 0.09F * wind);
-				b.turn("left_leg", -0.52F * alive, 0.09F * alive, 0.10F * alive);
-				b.turn("right_leg", 0.52F * alive + 0.26F * contact, -0.07F * alive, -0.13F * alive);
-			}
-			case BLADE -> {
-				b.lean(-0.18F * wind + 0.54F * contact, 0.35F * wind - 0.34F * contact, 0.32F * alive + 1.65F * contact, 4.0F * contact);
-				b.set("right_arm", -2.62F * wind - 0.90F * contact + 0.18F * recover, -0.78F * wind + 0.78F * contact,
-					0.50F * wind + 0.45F * contact, alive);
-				b.set("left_arm", -0.58F * wind - 0.25F * contact, 0.32F * alive, -0.38F * alive, alive);
-				b.turn("body", 0.14F * contact, 0.37F * wind - 0.44F * contact, 0);
-				b.turn("left_leg", -0.50F * contact, 0.15F * wind, 0.08F * alive);
-				b.turn("right_leg", -0.41F * wind + 0.34F * contact, -0.13F * wind, -0.08F * alive);
-				b.turn("arms", -1.15F * wind + 0.43F * contact, 0.24F * wind - 0.4F * contact, 0.17F * alive);
-			}
-			case CRUSH -> {
-				b.lean(-0.31F * wind + 0.46F * contact, strain, 2.8F * prepare - 5.8F * wind + 1.9F * contact, 4.3F * contact);
-				b.squash(0.22F * wind - 0.27F * contact);
-				b.set("left_arm", -2.74F * wind - 0.31F * contact, 0.12F * alive, -0.42F * alive, alive);
-				b.set("right_arm", -2.67F * wind - 0.29F * contact, -0.12F * alive, 0.42F * alive, alive);
-				b.turn("left_leg", -0.27F * wind + 0.40F * contact, 0, 0.12F * alive);
-				b.turn("right_leg", -0.27F * wind + 0.40F * contact, 0, -0.12F * alive);
-			}
-			case POUNCE -> {
-				b.lean(-0.33F * wind + 0.39F * contact, strain, 1.9F * wind - 3.8F * ease(time, 14, 16) * (1 - ease(time, 16, 19)), 6.2F * contact);
-				b.turn("body1", -0.38F * wind + 0.20F * contact, 0, 0);
-				b.turn("left_wing_base", 0.24F * wind, -0.17F * wind, -0.42F * contact);
-				b.turn("right_wing_base", 0.24F * wind, 0.17F * wind, 0.42F * contact);
-				for (int i = 0; i < SPIDER_LEFT.length; i++) {
-					float reach = (i + 1) * 0.16F;
-					b.turn(SPIDER_LEFT[i], -0.15F * wind, -reach * contact, -0.40F * wind + 0.27F * recover);
-					b.turn(SPIDER_RIGHT[i], -0.15F * wind, reach * contact, 0.40F * wind - 0.27F * recover);
-				}
-			}
-			case GORE -> {
-				b.lean(0.23F * wind - 0.28F * contact, 0.14F * wind, 1.9F * wind - 1.8F * contact, 5.6F * contact);
-				b.turn("neck", 0.54F * wind - 0.59F * contact, -0.17F * wind, -0.07F * wind);
-				b.turn("head", 0.27F * wind - 0.23F * contact, -0.17F * wind + 0.13F * contact, 0);
-				b.turn("mouth", 0.38F * contact, 0, 0);
-				b.turn("left_front_leg", -0.42F * contact, 0, 0.15F * wind);
-				b.turn("right_front_leg", -0.31F * wind + 0.25F * contact, 0, -0.15F * wind);
-				b.turn("left_hind_leg", 0.28F * contact, 0, 0);
-				b.turn("right_hind_leg", 0.38F * contact, 0, 0);
-			}
-		}
 	}
 
 	private static final class Bones {
@@ -395,6 +554,60 @@ public final class EnemyMotion {
 			this.root.x += foot * Mth.sin(roll);
 			this.root.y += height + foot * (1.0F - Mth.cos(pitch) * Mth.cos(roll));
 			this.root.z -= reach + foot * Mth.sin(pitch);
+		}
+
+		/**
+		 * Adds a clip on top of the current pose, scaled by {@code weight}: {@code bones.<part>_x|y|z} in degrees,
+		 * {@code root.pitch|roll|yaw} in degrees and {@code root.x|y|z} in blocks (right, up, forward).
+		 */
+		private void clip(final Clip clip, final float p, final float weight, final float size, final float own) {
+			if (weight <= 0.0F) {
+				return;
+			}
+			// "pose" tracks replace a part's rotation outright (as far as the clip owns the pose): a finisher cannot
+			// build on vanilla's stance, which differs by creature and by mood
+			if (own > 0.0F) {
+				for (String track : clip.tracks("pose")) {
+					int split = track.lastIndexOf('_');
+					ModelPart part = split <= 0 ? null : this.part(track.substring(0, split));
+					if (part == null) {
+						continue;
+					}
+					float value = clip.rad("pose." + track, p);
+					switch (track.charAt(split + 1)) {
+						case 'x' -> part.xRot = Mth.lerp(own, part.xRot, value);
+						case 'y' -> part.yRot = Mth.lerp(own, part.yRot, value);
+						case 'z' -> part.zRot = Mth.lerp(own, part.zRot, value);
+						default -> { }
+					}
+				}
+			}
+			for (String track : clip.tracks("bones")) {
+				int split = track.lastIndexOf('_');
+				if (split <= 0) {
+					continue;
+				}
+				float value = clip.rad("bones." + track, p) * weight;
+				String part = track.substring(0, split);
+				switch (track.charAt(split + 1)) {
+					case 'x' -> this.turn(part, value, 0, 0);
+					case 'y' -> this.turn(part, 0, value, 0);
+					case 'z' -> this.turn(part, 0, 0, value);
+					default -> { }
+				}
+			}
+			this.root.yRot += clip.rad("root.yaw", p) * weight;
+			// model space: forward is -z, up is -y, the creature's right is -x
+			// model units are scaled with the body when it is drawn larger, so world blocks shrink by the size
+			float unit = 16.0F * weight / size;
+			this.root.x -= clip.at("root.x", p) * unit;
+			// "y_scaled" lifts by a share of the creature's own size (cube mobs of any size rest on the same surface)
+			this.lean(clip.rad("root.pitch", p) * weight, clip.rad("root.roll", p) * weight,
+				-(clip.at("root.y", p) + clip.at("root.y_scaled", p) * size) * unit, clip.at("root.z", p) * unit);
+			float squash = clip.at("root.squash", p) * weight;
+			if (squash != 0.0F) {
+				this.squash(squash);
+			}
 		}
 
 		private void squash(final float amount) {

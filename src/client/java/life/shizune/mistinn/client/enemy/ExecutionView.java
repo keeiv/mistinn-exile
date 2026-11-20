@@ -2,7 +2,10 @@ package life.shizune.mistinn.client.enemy;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import life.shizune.mistinn.client.anim.Clip;
+import life.shizune.mistinn.client.anim.Poser;
 import life.shizune.mistinn.client.death.DeathScene;
+import life.shizune.mistinn.enemy.ExecutionMove;
 import life.shizune.mistinn.enemy.ExecutionService;
 import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
 import net.minecraft.client.CameraType;
@@ -20,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 
 /** The victim's staged pose, shared by all viewers, and the local hunter's view of it. */
 public final class ExecutionView {
-	public record Pose(float time, float yaw, int striker) {
+	public record Pose(float time, float yaw, int striker, ExecutionMove move, boolean done, Clip clip) {
 	}
 
 	public record Shot(Vec3 eye, Vec3 lookAt) {
@@ -41,10 +44,16 @@ public final class ExecutionView {
 			return null;
 		}
 		float time = entity.level().getGameTime() - sequence.start() + partialTicks;
-		if (!sequence.completed() && time > ExecutionService.DURATION + 3) {
+		int length = sequence.finisher().length();
+		if (sequence.finisher().ranged() && !sequence.completed()) {
+			// between the release and the impact the hunter is held on the release frame
+			time = Math.min(time, sequence.finisher().kill());
+		}
+		if (!sequence.completed() && time > length + 3) {
 			return null;
 		}
-		return new Pose(Mth.clamp(time, 0.0F, ExecutionService.DURATION), sequence.yaw(), sequence.counterpart());
+		return new Pose(Mth.clamp(time, 0.0F, length), sequence.yaw(), sequence.counterpart(), sequence.finisher(), sequence.completed(),
+			victimClip(sequence.finisher(), entity.level().getEntity(sequence.counterpart())));
 	}
 
 	public static void tick(final Minecraft minecraft) {
@@ -81,47 +90,54 @@ public final class ExecutionView {
 		Vec3 side = new Vec3(forward.z, 0, -forward.x);
 		Vec3 feet = hunter.getPosition(partialTicks);
 		Entity striker = minecraft.level.getEntity(pose.striker);
-		float turn = EnemyMotion.ease(pose.time, 0, ExecutionService.DURATION);
-		boolean nearby = striker != null && striker.distanceToSqr(hunter) < 25.0;
+		float turn = EnemyMotion.ease(pose.time, 0, pose.move.length());
+		boolean ranged = pose.move.ranged();
+		boolean nearby = striker != null && striker.distanceToSqr(hunter) < (ranged ? 24.0 * 24.0 : 25.0);
 		double span = nearby ? striker.distanceTo(hunter) : 1.0;
 		float height = nearby ? Mth.clamp(striker.getBbHeight() * 0.50F, 0.65F, 1.8F) : 0.8F;
-		Vec3 focus = feet.add(forward.scale(Math.min(span * 0.5, 1.3))).add(0, height, 0);
-		Vec3 desired = focus.add(side.scale(3.02 + height * 0.35 - turn * 0.24)).add(forward.scale(-0.65 - turn * 0.35)).add(0, 0.72 + turn * 0.16, 0);
+		Clip staged = victim(pose);
+		if (ranged && nearby) {
+			// a shot from afar: the camera stands off the line between them and takes both in; once the arrow
+			// has struck it closes on the fallen hunter. The held hunter's view is narrowed by vanilla's speed
+			// effect (about half its width), so it stands well back.
+			float closing = EnemyMotion.ease(pose.time, pose.move.kill(), pose.move.length());
+			double middle = span * Mth.lerp(closing, 0.48F, 0.12F);
+			Vec3 between = feet.add(forward.scale(middle)).add(0, Mth.lerp(closing, 0.95F, 0.45F), 0);
+			double away = Mth.lerp(closing, (float) Math.max(staged.number("camera_side", 3.0F), span * 1.15 + 2.6), 3.4F);
+			Vec3 standoff = between.add(side.scale(away)).add(forward.scale(-0.5)).add(0, Mth.lerp(closing, 1.3F, 1.6F), 0);
+			HitResult blocked = minecraft.level.clip(new ClipContext(between, standoff, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, hunter));
+			return new Shot(blocked.getType() == HitResult.Type.MISS ? standoff : blocked.getLocation().lerp(between, 0.14), between);
+		}
+		// a move that carries the bodies away from where the hunter stands says where its middle is
+		Vec3 focus = feet.add(forward.scale(staged.number("camera_forward", (float) Math.min(span * 0.5, 1.3))))
+			.add(0, staged.number("camera_focus_height", height), 0);
+		Clip clip = victim(pose);
+		Vec3 desired = focus.add(side.scale(clip.number("camera_side", 3.02F) + height * 0.35 - turn * 0.24)).add(forward.scale(-0.65 - turn * 0.35))
+			.add(0, clip.number("camera_height", 0.72F) + turn * 0.16, 0);
 		HitResult collision = minecraft.level.clip(new ClipContext(focus, desired, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, hunter));
 		Vec3 eye = collision.getType() == HitResult.Type.MISS ? desired : collision.getLocation().lerp(focus, 0.14);
 		return new Shot(eye, focus);
 	}
 
+	/** The hunter's half of the move: the one paired with this kind of striker when the move has one, else the shared clip. */
+	public static Clip victimClip(final ExecutionMove move, final @Nullable Entity striker) {
+		Clip own = striker == null ? null
+			: Clip.find("execution/" + move.id() + "/victim_" + net.minecraft.world.entity.EntityType.getKey(striker.getType()).getPath());
+		return own != null ? own : Clip.get("execution/" + move.id() + "/victim");
+	}
+
+	public static Clip victim(final Pose pose) {
+		return pose.clip();
+	}
+
 	public static void root(final Pose pose, final PoseStack stack, final float scale) {
-		float t = pose.time;
-		float buckle = EnemyMotion.ease(t, 0, 8);
-		float bracing = EnemyMotion.ease(t, 5, 14);
-		float recoil = EnemyMotion.ease(t, 16, 18) * (1.0F - EnemyMotion.ease(t, 18, 23));
-		float fall = EnemyMotion.ease(t, 18, 27);
-		stack.translate(0.025F * buckle * scale, (-0.44F * buckle - 0.24F * fall) * scale,
-			(-0.09F * bracing + 0.24F * recoil + 0.22F * fall) * scale);
-		stack.translate(0, 0.50F * scale, 0);
-		stack.rotateDegrees(Axis.XP, 14.0F * buckle - 22.0F * bracing + 39.0F * recoil + 63.0F * fall);
-		stack.rotateDegrees(Axis.ZP, -10.0F * buckle + 11.0F * recoil - 52.0F * fall);
-		stack.translate(0, -0.50F * scale, 0);
+		Poser.root(victim(pose), pose.time() / pose.move().length(), stack, 1, scale);
 	}
 
 	public static void limbs(final Pose pose, final HumanoidModel<?> model) {
-		float t = pose.time;
-		float buckle = EnemyMotion.ease(t, 0, 8);
-		float bracing = EnemyMotion.ease(t, 5, 14);
-		float recoil = EnemyMotion.ease(t, 15, 18) * (1.0F - EnemyMotion.ease(t, 18, 22));
-		float fall = EnemyMotion.ease(t, 18, 27);
-		float weight = EnemyMotion.ease(t, 0, 4);
-		float tremor = bracing * (1.0F - EnemyMotion.ease(t, 15, 19)) * Mth.sin(t * 1.5F) * 0.055F;
-		set(model.head, -0.22F * bracing - 0.34F * recoil + 0.25F * fall, 0.16F * bracing, 0.10F * fall, weight);
-		set(model.body, 0.41F * buckle - 0.42F * recoil - 0.26F * fall, 0.20F * bracing - 0.20F * recoil, 0.12F * fall, weight);
-		set(model.rightArm, -0.58F * buckle - 1.36F * bracing - 0.23F * recoil + 1.47F * fall + tremor,
-			-0.35F * bracing, 0.27F * buckle + 0.22F * recoil + 0.24F * fall, weight);
-		set(model.leftArm, 0.35F * buckle - 0.36F * bracing - 1.23F * recoil + 0.27F * fall,
-			0.15F * bracing, -0.31F * buckle - 0.25F * recoil - 0.28F * fall, weight);
-		set(model.rightLeg, -1.43F * buckle + 1.20F * fall, 0.16F * bracing, 0.16F * buckle, weight);
-		set(model.leftLeg, 0.92F * buckle - 1.15F * fall, -0.19F * bracing, -0.22F * buckle, weight);
+		Clip clip = victim(pose);
+		float p = pose.time() / pose.move().length();
+		Poser.limbs(clip, p, model, 1, clip.owns(pose.time(), false));
 	}
 
 	private static void set(final ModelPart part, final float x, final float y, final float z, final float weight) {

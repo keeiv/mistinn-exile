@@ -23,13 +23,15 @@ import org.jspecify.annotations.Nullable;
  * 任務終止: the death screen. For the first seconds it shows nothing at all and leaves the world
  * to the death scene; then the world dims behind it, the words come up in red, the cause, and a
  * line from Rust Anchor that does not hide its disappointment, typed out. Under the two choices,
- * a heart run through.
+ * a heart run through. After an execution the word for it in the cause is crimson.
  * It is a {@link DeathScreen}, so the game and other mods still know it for one.
  */
 public class MissionEndScreen extends DeathScreen {
 	private static final Identifier HEART = Mistinn.id("textures/gui/death/pierced_heart.png");
 	private static final int HEART_SIZE = 32;
 	private static final int RED = 0xC23A2E;
+	/** The colour of the word "executed" in an execution's cause line. */
+	public static final int CRIMSON = 0xB3121F;
 	/** How many lines each cause has to choose from. */
 	private static final int LINES = 4;
 	/** Offsets down the column from its top. */
@@ -49,12 +51,29 @@ public class MissionEndScreen extends DeathScreen {
 
 	public MissionEndScreen(final @Nullable Component cause, final boolean hardcore, final LocalPlayer player) {
 		super(cause, hardcore, player);
-		this.cause = cause;
 		this.hardcore = hardcore;
 		this.player = player;
 		DeathScene.begin(player);
+		this.cause = DeathScene.cause() == DeathScene.Cause.EXECUTION ? executed(cause) : cause;
 		String kind = DeathScene.cause().name().toLowerCase(java.util.Locale.ROOT);
 		this.quote = Component.translatable("death.mistinn.quote." + kind + "." + player.getRandom().nextInt(LINES));
+	}
+
+	/**
+	 * An execution's cause line, written by the screen: the same names as the death message, with the word for
+	 * "executed" in crimson. The chat keeps the plain message.
+	 */
+	static @Nullable Component executed(final @Nullable Component cause) {
+		if (cause != null && cause.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents message && message.getArgs().length >= 2) {
+			return Component.translatable("death.mistinn.cause.execution", message.getArgs()[0], message.getArgs()[1],
+				Component.translatable("death.mistinn.executed").withColor(CRIMSON));
+		}
+		return cause;
+	}
+
+	/** The cause line as drawn (for the client game test). */
+	public @Nullable Component causeLine() {
+		return this.cause;
 	}
 
 	/** Seconds since the screen itself appeared, after the death scene. */

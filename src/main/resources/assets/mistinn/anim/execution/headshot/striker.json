@@ -1,0 +1,79 @@
+{
+	"_comment": "爆頭（骷髏類）: raises the bow and slowly draws to the cheek, aiming down at the kneeling hunter; looses at 30 and lowers the bow.",
+	"keys": [
+		0.0,
+		0.15,
+		0.75,
+		0.775,
+		0.8,
+		0.9,
+		1.0
+	],
+	"eases": [
+		"in_out_sine",
+		"in_out_sine",
+		"out_quart",
+		"in_out_sine",
+		"in_out_sine",
+		"in_out_sine"
+	],
+	"length": 40,
+	"root": {
+		"pitch": [
+			0,
+			-0.8,
+			-4.0,
+			-1.0,
+			2.0,
+			1.0,
+			0
+		]
+	},
+	"bones": {
+		"right_arm_x": [
+			0,
+			-88.0,
+			-86.0,
+			-96.0,
+			-88.8,
+			-60.0,
+			-30
+		],
+		"left_arm_x": [
+			0,
+			-90.0,
+			-90.0,
+			-86.667,
+			-83.333,
+			-70.0,
+			-40
+		],
+		"left_arm_y": [
+			0,
+			28.0,
+			30.0,
+			28.333,
+			26.667,
+			20.0,
+			0
+		],
+		"right_arm_y": [
+			0,
+			-10.0,
+			-42.0,
+			-4.0,
+			-3.556,
+			-1.778,
+			0
+		],
+		"head_x": [
+			0,
+			18.0,
+			22.0,
+			20.6,
+			19.2,
+			13.6,
+			8
+		]
+	}
+}

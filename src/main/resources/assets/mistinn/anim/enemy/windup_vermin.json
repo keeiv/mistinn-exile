@@ -1,0 +1,54 @@
+{
+	"_comment": "前搖（蠹魚）: coils back in a tight S; at 0.6 it snaps forward.",
+	"keys": [
+		0.0,
+		0.3,
+		0.6,
+		0.7,
+		0.84,
+		1.0
+	],
+	"eases": [
+		"out_quad",
+		"in_quad",
+		"out_cubic",
+		"in_out_sine",
+		"in_out_sine"
+	],
+	"root": {
+		"z": [
+			0,
+			-0.06,
+			-0.1,
+			0.32,
+			0.16,
+			0
+		]
+	},
+	"bones": {
+		"segment0_y": [
+			0,
+			24,
+			30,
+			-10,
+			-4,
+			0
+		],
+		"segment1_y": [
+			0,
+			-22,
+			-28,
+			8,
+			3,
+			0
+		],
+		"segment2_y": [
+			0,
+			18,
+			22,
+			-6,
+			-2,
+			0
+		]
+	}
+}
