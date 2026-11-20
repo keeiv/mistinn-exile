@@ -23,6 +23,8 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -39,10 +41,13 @@ public class MistinnTitleScreen extends TitleScreen {
 	private static final int WORDMARK_ZH_W = 516;
 	private static final int WORDMARK_EN_W = 612;
 	private static final int WORDMARK_H = 120;
+	private static final int SPLASH_COUNT = 50;
 	private static final float FADE_SECONDS = 1.6F;
 
 	private final long opened = System.nanoTime();
 	private final List<MenuButton> menu = new ArrayList<>();
+	/** One line for this visit, so resizing or going back from options does not reroll it. */
+	private final Component splash = Component.translatable("title.mistinn.splash." + (RandomSource.create().nextInt(SPLASH_COUNT) + 1));
 	private @Nullable SimpleSoundInstance shoreBell;
 	private int mouseX;
 	private int mouseY;
@@ -144,6 +149,10 @@ public class MistinnTitleScreen extends TitleScreen {
 		int markY = this.height / 2 - 26 - markH - 14;
 		g.blit(RenderPipelines.GUI_TEXTURED, english ? WORDMARK_EN : WORDMARK_ZH, x - 4, markY, 0.0F, 0.0F, markW, markH, textureWidth, WORDMARK_H, textureWidth, WORDMARK_H);
 		int taglineWidth = Math.min(this.width - x - 8, Math.max(190, this.width / 2 - x));
+		float elapsed = (System.nanoTime() - this.opened) / 1.0E9F;
+		if (!this.minecraft.options.hideSplashTexts().get()) {
+			this.drawSplash(g, x, markY, taglineWidth, elapsed);
+		}
 		int taglineY = markY + markH + 6;
 		for (FormattedCharSequence line : this.font.split(Component.translatable("title.mistinn.tagline"), taglineWidth)) {
 			g.text(this.font, line, x, taglineY, 0xFFB8B0A0, true);
@@ -151,9 +160,21 @@ public class MistinnTitleScreen extends TitleScreen {
 		}
 
 		// the screen comes up out of the dark
-		float fade = 1.0F - Math.min(1.0F, (System.nanoTime() - this.opened) / 1.0E9F / FADE_SECONDS);
+		float fade = 1.0F - Math.min(1.0F, elapsed / FADE_SECONDS);
 		if (fade > 0.0F) {
 			g.fill(0, 0, this.width, this.height, (int) (fade * fade * 255) << 24);
+		}
+	}
+
+	/** The line brightens and dims like the ember across the water. */
+	private void drawSplash(final GuiGraphicsExtractor g, final int x, final int markY, final int width, final float elapsed) {
+		List<FormattedCharSequence> lines = this.font.split(this.splash, width);
+		int spacing = this.font.lineHeight + 2;
+		int y = markY - 8 - lines.size() * spacing;
+		int alpha = Math.round(224.0F + 24.0F * Mth.sin(elapsed * 1.55F));
+		for (FormattedCharSequence line : lines) {
+			g.text(this.font, line, x, y, alpha << 24 | 0xEDC27F, true);
+			y += spacing;
 		}
 	}
 }
