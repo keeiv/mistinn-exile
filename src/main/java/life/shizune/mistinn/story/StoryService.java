@@ -128,6 +128,12 @@ public final class StoryService {
 		}
 	}
 
+	/** A trainee has elected to begin the story in this world, with players already online. */
+	public static void beginAfterTraining(final MinecraftServer server) {
+		ensurePlaces(server);
+		server.getPlayerList().getPlayers().forEach(StoryService::join);
+	}
+
 	private static void tick(final MinecraftServer server) {
 		if (!active(server)) {
 			return;

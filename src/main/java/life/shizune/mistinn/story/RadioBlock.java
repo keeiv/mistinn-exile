@@ -68,7 +68,8 @@ public class RadioBlock extends Block {
 		if (StoryService.radioMended(hunter)) {
 			return InteractionResult.SUCCESS;
 		}
-		if (stack.is(MistinnItems.RUST_GOD_SALT) && StoryService.deliver(hunter)) {
+		if (stack.is(MistinnItems.RUST_GOD_SALT)
+			&& (StoryService.deliver(hunter) || life.shizune.mistinn.training.TrainingService.deliver(hunter, pos))) {
 			stack.consume(1, hunter);
 			level.playSound(null, pos, SoundEvents.IRON_DOOR_CLOSE, SoundSource.BLOCKS, 1.0F, 0.6F);
 			return InteractionResult.SUCCESS;

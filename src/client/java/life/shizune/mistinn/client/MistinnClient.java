@@ -6,6 +6,7 @@ import life.shizune.mistinn.client.body.BodyHud;
 import life.shizune.mistinn.client.map.MinimapHud;
 import life.shizune.mistinn.client.map.MinimapTexture;
 import life.shizune.mistinn.client.tier.TierText;
+import life.shizune.mistinn.client.training.TrainingClient;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
@@ -55,6 +56,7 @@ public class MistinnClient implements ClientModInitializer {
 
 		HudElementRegistry.addLast(Mistinn.id("minimap"), new MinimapHud());
 		HudElementRegistry.addLast(Mistinn.id("story"), new life.shizune.mistinn.client.story.StoryHud());
+		HudElementRegistry.addLast(Mistinn.id("training"), TrainingClient::draw);
 		// "正在使用 …" and its progress bar above the hotbar
 		HudElementRegistry.addLast(Mistinn.id("treatment"), new life.shizune.mistinn.client.medical.TreatmentHud());
 		// hunters see their body parts where the hearts were
@@ -82,6 +84,7 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.music.KeeperMusic.tick(minecraft);
 			life.shizune.mistinn.client.death.DeathScene.tick(minecraft);
 			life.shizune.mistinn.client.story.StoryClient.tick(minecraft);
+			TrainingClient.tick(minecraft);
 			while (journal.consumeClick()) {
 				if (minecraft.gui.screen() == null) {
 					minecraft.gui.setScreen(new life.shizune.mistinn.client.story.JournalScreen());

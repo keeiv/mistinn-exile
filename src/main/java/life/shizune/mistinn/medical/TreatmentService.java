@@ -152,6 +152,7 @@ public final class TreatmentService {
 		CHANNELS.remove(player.getUUID());
 		slow(player, 0.0);
 		((TreatmentItem) channel.item()).finish(player, held, channel.hand());
+		life.shizune.mistinn.training.TrainingService.treated(player, channel.treatment());
 		broadcast(player, new TreatmentPayload(player.getId(), -1, 0, 0, RESULT_DONE));
 	}
 

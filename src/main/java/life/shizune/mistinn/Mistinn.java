@@ -13,6 +13,7 @@ import life.shizune.mistinn.registry.MistinnSounds;
 import life.shizune.mistinn.registry.MistinnTab;
 import life.shizune.mistinn.residue.ResidueService;
 import life.shizune.mistinn.salt.SaltService;
+import life.shizune.mistinn.training.TrainingService;
 import life.shizune.mistinn.weapon.Weapons;
 import life.shizune.mistinn.world.MistinnWorld;
 import net.fabricmc.api.ModInitializer;
@@ -50,6 +51,7 @@ public class Mistinn implements ModInitializer {
 		MistinnWorld.init();
 		life.shizune.mistinn.story.WorldMode.init();
 		life.shizune.mistinn.story.StoryService.init();
+		TrainingService.init();
 
 		// A fallen hunter leaves their salt as residue; a defeated creature gives salt.
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {

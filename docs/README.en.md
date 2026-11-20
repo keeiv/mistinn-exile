@@ -58,7 +58,8 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Salt | The currency. Defeating a hostile creature gives salt equal to its maximum health; others give a fifth (at least 1). Salt found in structures is worth 10 each when used. |
 | Residue and gravestones | When you fall, all the salt you carry becomes residue, and everything else you carry (gear, hotbar, pockets, chest rig and backpack; not the safe box) goes into the same gravestone instead of onto the ground; hit it to take it all back. Fall again first and the old residue fades: the salt is lost and the things spill where the stone stood. |
 | Death scene | Killed by a creature, every other creature vanishes; the hunter drops to one knee, topples onto one side and turns to smoke. Other deaths are a plain fall. Then the mission ends: the cause, a line from Rust Anchor, and the choice to return or to rest. |
-| Story mode | A new singleplayer world first asks for the story or free exploration. Story mode has a prologue and a first chapter: objectives, radio calls, pixel-art story cards and in-world scenes, with a mission journal on `K`. Later chapters are still being made. |
+| Story mode | A prologue and a first chapter with objectives, radio calls, pixel-art story cards and in-world scenes, with a mission journal on `K`. Later chapters are still being made. |
+| Hunter Training | An optional course for a new singleplayer world. Follow the instructor through equipment, combat, medicine, crafting, the bell and residue, radio repair, and a keeper rehearsal. Board the drop pod to choose Story or Free exploration. |
 | Golden bells | Save points. Rest at one to restore every body part (destroyed ones too), eat and set it as your respawn point. The border world has no such metal, so they cannot be crafted. |
 | Body parts | Hearts are replaced by six parts (head, torso, both arms, both legs), 80 health each; three destroyed parts kill. Each part is protected only by the gear that covers it, and a destroyed one has lasting effects. |
 | Bleeding and broken bones | Blows can open a bleeding wound that slowly kills the part until a tourniquet stops it; falls, explosions and crushing blows can break a limb, which then works as if destroyed (a broken leg only dives) until surgery sets it; a splint holds it for a while. |
@@ -120,7 +121,9 @@ Existing Bell Salve stacks turn into the same amount of raw gold when the save i
 
 ## Story mode
 
-Creating a new world from the world list first asks for **story mode** or **free exploration**. Free exploration has no mission and otherwise plays the same; story mode has the prologue, *The Drop*, and chapter 1, *Lights Out*, so far.
+When creating a new world from the world list, choose **Story**, **Free exploration**, or **Hunter Training**. Free exploration has no mission and otherwise plays the same. Story mode has the prologue, *The Drop*, and chapter 1, *Lights Out*, so far.
+
+Hunter Training creates a save with standard survival settings and sends you to Rust Anchor's offshore training yard. After the course, walk into the drop pod and press the console button to take your seat. Choose where to deploy in the same save. Practice salt and gear stay at the range.
 
 - **Guaranteed places**: a new story world builds an intact drop station about 150 to 240 blocks from spawn, looking for flat land first. It searches from the station for a beach to build the lighthouse on, or uses open ground farther out if it finds no beach.
 - **Objectives**: shown in the top-left corner with a hint and the distance, lit up when they change. The amber diamond on the minimap is where to go.

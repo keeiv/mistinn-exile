@@ -10,6 +10,7 @@ import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
 import life.shizune.mistinn.medical.TreatmentService;
 import life.shizune.mistinn.registry.MistinnSounds;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -171,6 +172,9 @@ public final class RollService {
 	}
 
 	public static void register() {
+		// The cooldown is measured in this server's ticks. A new session has a different clock.
+		ServerPlayerEvents.JOIN.register(RollService::forget);
+		ServerPlayerEvents.LEAVE.register(RollService::forget);
 		PayloadTypeRegistry.serverboundPlay().register(RollPayload.TYPE, RollPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(SwingPayload.TYPE, SwingPayload.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(RollAnimPayload.TYPE, RollAnimPayload.CODEC);
@@ -181,6 +185,13 @@ public final class RollService {
 				StaminaService.spend(player, StaminaService.swingCost(player.getMainHandItem()));
 			}
 		});
+	}
+
+	private static void forget(final ServerPlayer player) {
+		UUID id = player.getUUID();
+		LAST.remove(id);
+		DODGE.remove(id);
+		LANDING.remove(id);
 	}
 
 	// ── Payloads ──────────────────────────────────────────────────
