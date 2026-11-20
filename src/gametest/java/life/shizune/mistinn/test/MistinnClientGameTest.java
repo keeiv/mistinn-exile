@@ -1299,6 +1299,8 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 		world.getServer().runOnServer(server -> server.overworld().getEntitiesOfClass(life.shizune.mistinn.keeper.Snuffer.class, server.getPlayerList().getPlayers().getFirst().getBoundingBox().inflate(10.0))
 			.forEach(keeper -> keeper.setHealth(keeper.getMaxHealth() / 2.0F - 1.0F)));
 		context.waitTicks(5);
+		check(context.computeOnClient(mc -> life.shizune.mistinn.client.music.KeeperMusic.current() == life.shizune.mistinn.client.music.KeeperMusic.TURN), "the lights go out with the bell cue first");
+		context.waitTicks(25);
 		check(context.computeOnClient(mc -> life.shizune.mistinn.client.music.KeeperMusic.current() == life.shizune.mistinn.client.music.KeeperMusic.DARK), "below half, the dark half's music");
 		world.getServer().runOnServer(server -> server.overworld().getEntitiesOfClass(life.shizune.mistinn.keeper.Snuffer.class, server.getPlayerList().getPlayers().getFirst().getBoundingBox().inflate(10.0))
 			.forEach(net.minecraft.world.entity.Entity::discard));

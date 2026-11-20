@@ -220,14 +220,14 @@ Rust Anchor says the coasts at the world's edge are lined with dead lighthouses,
 
 | Move | Tell | Where it lands |
 | --- | --- | --- |
-| Sweep | The lantern flares, it leans back | Torso, or the arm on that side |
-| Slam | Salt grains rise where it will land | The shockwave takes both legs |
-| Hook | The hook is drawn back, the chain rattles | Drags you in, then strikes your face; only a mask helps |
+| Sweep | The lantern flares, it leans back, and metal scrapes | Torso, or the arm on that side |
+| Slam | Salt crackles underfoot and grains rise where it will land | The shockwave takes both legs |
+| Hook | The hook is drawn back and the chain snaps taut | Drags you in, then strikes your face; only a mask helps |
 
 - 300 health, 8 armour, and a boss health bar.
 - Below half health every lamp in the room goes out and you are in darkness. Right-click the four lamp stands to light them; with all four lit it staggers for five seconds and takes half again as much damage, then snuffs them out one by one.
 - It drops **the Rust God's salt block**, 3000 salt, and a 30% chance of one piece of tier III–IV gear.
-- In the lamp room, or within 32 blocks once it is wounded, the keeper's fight music plays; below half health it changes to the dark half's track, and it stops when the fight is over.
+- In the lamp room, or within 32 blocks once it is wounded, the keeper's fight music plays. Below half health, a low bell marks the blackout and leads into the dark track. The music stops when the fight is over.
 
 ## Controls
 
@@ -317,7 +317,7 @@ Bug fixes, features, tests, art and documentation are welcome; read the [contrib
 
 Copyright (c) 2026 Keeiv.
 
-Licensed under the **GNU Affero General Public License v3.0 only (AGPL-3.0-only)**; see [LICENSE](../LICENSE) and [NOTICE](../NOTICE). The original textures and models share the code's license. The sounds are built from public-domain (CC0 1.0) recordings by Kenney and sinny, cut, layered and processed with the project's own noise synthesis; the keeper's fight music is two CC0 1.0 tracks, Juhani Junkala's *Epic Boss Battle* and Emma_MA's *Determined Pursuit*, used whole with only their loudness changed. Every sound file's sources are listed in [CREDITS.md](../CREDITS.md).
+Licensed under the **GNU Affero General Public License v3.0 only (AGPL-3.0-only)**; see [LICENSE](../LICENSE) and [NOTICE](../NOTICE). The original textures and models share the code's license. The sound effects use edited CC0 recordings, some layered with the project's own noise synthesis. The score is arranged from CC0 instrument and metal percussion samples. Every sound file's sources are listed in [CREDITS.md](../CREDITS.md).
 
 > [!NOTE]
 > The wordmark is drawn with [Fusion Pixel Font](https://github.com/TakWolf/fusion-pixel-font) (SIL Open Font License 1.1). Minecraft is a trademark of Mojang Studios; this mod is not affiliated with Mojang or Microsoft.

@@ -72,14 +72,22 @@ public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 			case 3, 4 -> cubes.texOffs(0, 0).addBox(-4.0F, 0.5F, 3.0F, 8, 10, 4).texOffs(0, 16).addBox(-3.0F, 5.0F, 7.0F, 6, 4, 1);
 			default -> cubes.texOffs(0, 0).addBox(-4.0F, 0.5F, 3.0F, 8, 11, 4).texOffs(0, 16).addBox(-3.0F, 6.0F, 7.0F, 6, 4, 1);
 		}
-		if (tier == 4) {
+		if (tier == 3) {
+			// 錨衛: two issued field pockets, fitted to the side of the pack
+			cubes.texOffs(32, 0).addBox(-5.5F, 4.0F, 3.5F, 2, 4, 3);
+			cubes.texOffs(44, 0).addBox(3.5F, 4.0F, 3.5F, 2, 4, 3);
+		} else if (tier == 4) {
 			// 霧行: a bedroll strapped across the top
 			cubes.texOffs(32, 0).addBox(-4.5F, -1.5F, 3.5F, 9, 2, 3);
-		} else if (tier >= 5) {
-			// 鐘守 and 鏽神: the pack hangs on a frame that stands above the shoulders
-			int height = tier == 5 ? 14 : 15;
-			cubes.texOffs(32, 8).addBox(-5.0F, 13.0F - height - 1.0F, 3.5F, 1, height, 1);
-			cubes.texOffs(36, 8).addBox(4.0F, 13.0F - height - 1.0F, 3.5F, 1, height, 1);
+		} else if (tier == 5) {
+			// 鐘守: an even metal frame
+			cubes.texOffs(32, 8).addBox(-5.0F, -2.0F, 3.5F, 1, 14, 1);
+			cubes.texOffs(36, 8).addBox(4.0F, -2.0F, 3.5F, 1, 14, 1);
+		} else if (tier == 6) {
+			// 鏽神: an uneven frame held against the lid with a lashed crosspiece
+			cubes.texOffs(32, 8).addBox(-5.0F, -3.0F, 5.5F, 1, 15, 1);
+			cubes.texOffs(36, 8).addBox(4.0F, -1.0F, 5.5F, 1, 13, 1);
+			cubes.texOffs(42, 22).addBox(-4.0F, 1.0F, 7.0F, 8, 1, 1);
 		}
 		return cubes;
 	}
@@ -99,21 +107,38 @@ public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 			cubes.texOffs(0, 0).addBox(-4.5F, 9.0F, -3.0F, 9, 2, 6);
 			cubes.texOffs(0, 16).addBox(-3.5F, 7.5F, -4.0F, 3, 3, 1);
 			cubes.texOffs(0, 16).addBox(0.5F, 7.5F, -4.0F, 3, 3, 1);
+		} else if (tier == 3) {
+			// The square pouches sit low on the chest, clear of the armour's anchor.
+			shoulderStraps(cubes, 6);
+			cubes.texOffs(0, 0).addBox(-4.0F, 6.0F, -4.0F, 8, 4, 1);
+			cubes.texOffs(40, 0).addBox(-4.0F, 6.5F, -5.0F, 2, 3, 1);
+			cubes.texOffs(40, 0).addBox(2.0F, 6.5F, -5.0F, 2, 3, 1);
+			cubes.texOffs(48, 0).addBox(-2.0F, 8.0F, -5.0F, 4, 2, 1);
+		} else if (tier == 6) {
+			// Bone pouches on the sides leave the breastbone visible.
+			shoulderStraps(cubes, 6);
+			cubes.texOffs(0, 0).addBox(-4.0F, 5.0F, -5.0F, 3, 5, 2);
+			cubes.texOffs(10, 0).addBox(1.0F, 6.0F, -5.0F, 3, 4, 2);
+			cubes.texOffs(40, 0).addBox(-3.0F, 9.0F, -3.8F, 6, 1, 1);
 		} else {
 			int[] h = HARNESS[tier - 2];
 			int top = h[0];
 			cubes.texOffs(0, 0).addBox(-4.0F, top, -4.0F, 8, h[1], 1);
-			for (float x : new float[] {-3.0F, 2.0F}) {
-				cubes.texOffs(20, 0).addBox(x, 0.0F, -4.0F, 1, top, 1);
-				cubes.texOffs(0, 16).addBox(x, -1.0F, -4.0F, 1, 1, 8);
-				cubes.texOffs(28, 0).addBox(x, 0.0F, 3.0F, 1, 9, 1);
-			}
+			shoulderStraps(cubes, top);
 			float step = 8.0F / h[2];
 			for (int p = 0; p < h[2]; p++) {
 				cubes.texOffs(40, 0).addBox(-4.0F + p * step + (step - 2.0F) / 2.0F, top + 1.0F, -5.0F, 2, h[3], 1);
 			}
 		}
 		body.addOrReplaceChild("rig_" + tier, cubes, PartPose.ZERO);
+	}
+
+	private static void shoulderStraps(final CubeListBuilder cubes, final int frontLength) {
+		for (float x : new float[] {-3.0F, 2.0F}) {
+			cubes.texOffs(20, 0).addBox(x, 0.0F, -4.0F, 1, frontLength, 1);
+			cubes.texOffs(0, 16).addBox(x, -1.0F, -4.0F, 1, 1, 8);
+			cubes.texOffs(28, 0).addBox(x, 0.0F, 3.0F, 1, 9, 1);
+		}
 	}
 
 	@Override
