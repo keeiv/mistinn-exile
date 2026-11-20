@@ -30,7 +30,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
  * The death penalty. When a hunter falls, all the salt they carry turns into a wisp of residue
  * (殘香) held by a gravestone where they fell, and the spot is marked on their map. Everything
  * else they carried (worn gear, hotbar, pockets, chest rig and backpack; the safe box stays on
- * them) goes into the same stone rather than onto the ground. Hitting the stone gives it all
+ * them) goes into the same stone rather than onto the ground. Using the stone gives it all
  * back. Falling again first leaves the old residue to fade: only the newest stone can be
  * opened, and an old one crumbles, its salt lost and its things spilled where it stood.
  */
@@ -163,10 +163,10 @@ public final class ResidueService {
 	}
 
 	/**
-	 * The hunter hits a gravestone. Only its owner can take the salt back, and only from the
+	 * The hunter uses a gravestone. Only its owner can take the salt back, and only from the
 	 * newest stone; any other stone of theirs has faded and crumbles.
 	 *
-	 * @return true when the stone was handled (the hit should not do anything else)
+	 * @return true when the stone was handled
 	 */
 	public static boolean open(final ServerPlayer player, final BlockPos pos) {
 		ServerLevel level = player.level();

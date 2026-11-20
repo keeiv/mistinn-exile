@@ -56,7 +56,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Area | What it does |
 | --- | --- |
 | Salt | The currency. Defeating a hostile creature gives salt equal to its maximum health; others give a fifth (at least 1). Salt found in structures is worth 10 each when used. |
-| Residue and gravestones | When you fall, all the salt you carry becomes residue, and everything else you carry (gear, hotbar, pockets, chest rig and backpack; not the safe box) goes into the same gravestone instead of onto the ground; hit it to take it all back. Fall again first and the old residue fades: the salt is lost and the things spill where the stone stood. |
+| Residue and gravestones | When you fall, all the salt you carry becomes residue, and everything else you carry (gear, hotbar, pockets, chest rig and backpack; not the safe box) goes into the same gravestone instead of onto the ground; right-click it to take it all back. Fall again first and the old residue fades: the salt is lost and the things spill where the stone stood. |
 | Death scene | Killed by a creature, every other creature vanishes; the hunter drops to one knee, topples onto one side and turns to smoke. Other deaths are a plain fall. Then the mission ends: the cause, a line from Rust Anchor, and the choice to return or to rest. |
 | Story mode | A prologue and a first chapter with objectives, radio calls, pixel-art story cards and in-world scenes, with a mission journal on `K`. Later chapters are still being made. |
 | Hunter Training | An optional course for a new singleplayer world. Follow the instructor through equipment, combat, medicine, crafting, the bell and residue, radio repair, and a keeper rehearsal. Board the drop pod to choose Story or Free exploration. |
@@ -237,7 +237,7 @@ Rust Anchor says the coasts at the world's edge are lined with dead lighthouses,
 | Input | Action |
 | --- | --- |
 | Use a golden bell | Rest, set respawn point, restore every body part |
-| Hit a gravestone | Take back the salt and things in the residue |
+| Right-click a gravestone | Take back the salt and things in the residue |
 | `M` | Minimap zoom (1, 2 or 4 blocks per pixel) |
 | `E` | Inventory (gear, chest rig, backpack and body) |
 | Right-click the helmet slot | Switch to the mask slot |

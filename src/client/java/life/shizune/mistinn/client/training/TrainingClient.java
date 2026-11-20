@@ -84,7 +84,7 @@ public final class TrainingClient {
 		Component heading = Component.translatable("mode.mistinn.training");
 		Component station = Component.translatable("training.mistinn.station", Component.translatable(lesson.key()), distance);
 		Component hint = Component.translatable(lesson.key() + ".hint",
-			Component.keybind("key.mistinn.roll"), Component.keybind("key.sprint"), Component.keybind("key.inventory"));
+			Component.keybind("key.mistinn.roll"), Component.keybind("key.sprint"), Component.keybind("key.inventory"), Component.keybind("key.use"));
 		int width = Math.min(220, g.guiWidth() / 2 - 12);
 		var rows = mc.font.split(hint, width - 14);
 		g.fill(6, 6, 6 + width, 35 + rows.size() * 10, 0xAA080A0E);

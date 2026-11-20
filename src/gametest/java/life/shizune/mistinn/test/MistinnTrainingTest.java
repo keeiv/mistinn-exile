@@ -16,7 +16,6 @@ import life.shizune.mistinn.registry.MistinnAttachments;
 import life.shizune.mistinn.registry.MistinnBlocks;
 import life.shizune.mistinn.registry.MistinnItems;
 import life.shizune.mistinn.residue.DeathMark;
-import life.shizune.mistinn.residue.ResidueService;
 import life.shizune.mistinn.salt.SaltService;
 import life.shizune.mistinn.story.StoryService;
 import life.shizune.mistinn.story.WorldMode;
@@ -110,7 +109,7 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		server(context, player -> {
 			check(WorldMode.of(player.level().getServer()) == WorldMode.TRAINING, "the third card created a training save");
 			check(player.level().dimension().equals(TrainingGround.KEY), "the owner arrived at the course");
-			check(player.gameMode() == GameType.ADVENTURE, "the course blocks accidental edits to the range");
+			check(player.gameMode() == GameType.SURVIVAL, "the course starts in survival");
 		});
 	}
 
@@ -185,11 +184,25 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 			DeathMark mark = player.getAttached(MistinnAttachments.DEATH_MARK);
 			check(mark != null && mark.salt() >= 20, "the failed exercise made a real residue mark");
 			check(player.distanceToSqr(0.5, 65, -63.5) < 12.0, "the bell brought the hunter back");
+			player.setGameMode(GameType.ADVENTURE);
+			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.COBBLESTONE, 3));
 			move(player, mark.pos().pos().south(2));
-			check(ResidueService.open(player, mark.pos().pos()), "the practice grave can be recovered");
-			check(SaltService.get(player) >= 20, "the grave returned its salt");
 		});
+		BlockPos grave = context.computeOnClient(mc -> mc.player.getAttached(MistinnAttachments.DEATH_MARK).pos().pos());
+		context.waitFor(mc -> mc.level != null && mc.level.getBlockState(grave).is(MistinnBlocks.GRAVESTONE), 200);
+		context.getInput().lookAt(grave);
+		context.waitFor(mc -> mc.hitResult instanceof BlockHitResult hit && hit.getBlockPos().equals(grave), 100);
+		context.getInput().pressKey(options -> options.keyAttack);
+		context.waitTicks(4);
+		check(context.computeOnClient(mc -> mc.player.hasAttached(MistinnAttachments.DEATH_MARK)), "attacking the grave does not take the residue");
+		context.getInput().pressKey(options -> options.keyUse);
 		waitLesson(context, TrainingLesson.RADIO);
+		server(context, player -> {
+			check(player.gameMode() == GameType.SURVIVAL, "a saved Adventure mode is restored to Survival during training");
+			check(SaltService.get(player) >= 20 && player.level().getBlockState(grave).isAir(), "using the grave returned its salt");
+			check(player.getMainHandItem().is(Items.COBBLESTONE) && player.getMainHandItem().getCount() == 3,
+				"using the grave did not place the held block");
+		});
 		go(context, TrainingLesson.RADIO);
 		server(context, player -> useBlock(player, TrainingLesson.RADIO.target, new ItemStack(Items.REDSTONE, 4)));
 		waitLesson(context, TrainingLesson.LAMPS);

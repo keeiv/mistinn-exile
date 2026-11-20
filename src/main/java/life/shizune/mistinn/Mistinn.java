@@ -20,7 +20,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
-import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -109,17 +108,6 @@ public class Mistinn implements ModInitializer {
 			if (server.getTickCount() % 20 == 0) {
 				server.getPlayerList().getPlayers().forEach(GridService::tidy);
 			}
-		});
-
-		// Left click opens a gravestone. Accepting on the client sends the hit to the server.
-		AttackBlockCallback.EVENT.register((player, level, hand, pos, direction) -> {
-			if (!level.getBlockState(pos).is(MistinnBlocks.GRAVESTONE)) {
-				return InteractionResult.PASS;
-			}
-			if (player instanceof ServerPlayer serverPlayer) {
-				ResidueService.open(serverPlayer, pos);
-			}
-			return InteractionResult.SUCCESS;
 		});
 
 		// Each weapon branch has its own impact sound.
