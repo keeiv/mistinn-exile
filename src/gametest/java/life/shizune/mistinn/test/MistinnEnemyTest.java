@@ -99,15 +99,35 @@ public final class MistinnEnemyTest implements FabricClientGameTest {
 			removeHusks(player.level());
 		});
 		context.waitTicks(ExecutionService.REPEAT_DELAY);
+		// A husk walks in and attacks on its own. The seizing blow keeps none of vanilla's knockback or flinch,
+		// which used to push the hunter out of reach and cancel the finisher a few ticks in.
 		world.getServer().runOnServer(server -> {
 			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
-			Mob mob = husk(player, stage);
-			hit(player, mob, BOTH_LEGS);
-			check(player.hasAttached(ExecutionService.SEQUENCE), "the valid hit begins the synchronized action");
+			player.teleportTo(stage.getX() + 0.5, stage.getY(), stage.getZ() + 0.5);
+			BodyService.set(player, BOTH_LEGS);
+			Mob mob = EntityTypes.HUSK.create(player.level(), EntitySpawnReason.COMMAND);
+			mob.snapTo(stage.getX() + 0.5, stage.getY(), stage.getZ() + 3.0, 180.0F, 0.0F);
+			mob.addTag("mistinn.test_finisher");
+			player.level().addFreshEntity(mob);
+			mob.setTarget(player);
 		});
-		context.waitFor(mc -> ExecutionView.sample(mc.player, 0.0F) != null && mc.options.getCameraType() == CameraType.THIRD_PERSON_BACK, 100);
-		context.waitTicks(7);
-		context.takeScreenshot("enemy-execution-windup");
+		context.waitFor(mc -> mc.player != null && ExecutionView.sample(mc.player, 0.0F) != null, 200);
+		check(context.computeOnClient(mc -> mc.player.hurtTime == 0), "the seizing blow does not flinch the hunter's view");
+		for (int tick = 1; context.computeOnClient(mc -> mc.player.isAlive()); tick++) {
+			check(tick <= ExecutionService.IMPACT + 4, "the finisher lands within its windup");
+			context.waitTick();
+			boolean held = world.getServer().computeOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				return !player.isAlive() || player.hasAttached(ExecutionService.SEQUENCE);
+			});
+			check(held, "a natural attack keeps the finisher going until contact, tick " + tick);
+			check(context.computeOnClient(mc -> !mc.player.isAlive()
+				|| (ExecutionView.sample(mc.player, 0.0F) != null && mc.options.getCameraType() == CameraType.THIRD_PERSON_BACK)),
+				"the view stays on the finisher without snapping back, tick " + tick);
+			if (tick == 7) {
+				context.takeScreenshot("enemy-execution-windup");
+			}
+		}
 		context.waitForScreen(DeathScreen.class);
 		check(context.computeOnClient(mc -> DeathScene.cause() == DeathScene.Cause.EXECUTION), "a finisher has its own death scene");
 		world.getServer().runOnServer(server -> {

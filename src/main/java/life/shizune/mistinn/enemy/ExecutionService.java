@@ -54,6 +54,9 @@ public final class ExecutionService {
 		.buildAndRegister(Mistinn.id("execution_pose"));
 	private static final AttachmentType<Long> NEXT_ATTEMPT = AttachmentRegistry.<Long>builder()
 		.buildAndRegister(Mistinn.id("execution_next_attempt"));
+	/** The blow a finisher took over, between the body service and the end of vanilla's damage step. */
+	private static @Nullable ServerPlayer seizedHunter;
+	private static @Nullable DamageSource seizedBlow;
 
 	private ExecutionService() {
 	}
@@ -81,11 +84,33 @@ public final class ExecutionService {
 		player.setAttached(NEXT_ATTEMPT, now + REPEAT_DELAY);
 		attacker.getNavigation().stop();
 		TreatmentService.interrupt(player);
+		seize(player, source);
 		return true;
 	}
 
-	public static boolean holdsBlow(final DamageSource source) {
-		return source.getDirectEntity() instanceof Mob mob && source.getEntity() == mob && contact(source) && holdsMob(mob);
+	/** The striker's own blows during the move are held back; contact comes from the move itself. */
+	public static boolean holdsBlow(final ServerPlayer player, final DamageSource source) {
+		if (source.getDirectEntity() instanceof Mob mob && source.getEntity() == mob && contact(source) && holdsMob(mob)) {
+			seize(player, source);
+			return true;
+		}
+		return false;
+	}
+
+	private static void seize(final ServerPlayer player, final DamageSource source) {
+		seizedHunter = player;
+		seizedBlow = source;
+	}
+
+	/**
+	 * Whether this blow was taken over by a finisher. Vanilla would still flinch the hunter and knock them back
+	 * after the damage step, which pushed them out of reach and cancelled the move a few ticks in.
+	 */
+	public static boolean takeSeized(final ServerPlayer player, final DamageSource source) {
+		boolean seized = seizedHunter == player && seizedBlow == source;
+		seizedHunter = null;
+		seizedBlow = null;
+		return seized;
 	}
 
 	private static boolean contact(final DamageSource source) {
