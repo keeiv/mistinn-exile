@@ -1,7 +1,6 @@
 package life.shizune.mistinn.test;
 
 import life.shizune.mistinn.block.GravestoneBlockEntity;
-import life.shizune.mistinn.body.BellSalveItem;
 import life.shizune.mistinn.body.Body;
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
@@ -37,6 +36,8 @@ import net.minecraft.client.CameraType;
 import net.minecraft.client.gui.screens.DeathScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 
@@ -87,6 +88,15 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 
 			// ── Arrival: spawn station, clear air, the guide ────────
 			world.getServer().runOnServer(server -> {
+				CompoundTag saved = new CompoundTag();
+				saved.putString("id", "mistinn:bell_salve");
+				saved.putInt("count", 8);
+				var ops = server.registryAccess().createSerializationContext(NbtOps.INSTANCE);
+				ItemStack stack = ItemStack.CODEC.parse(ops, saved).getOrThrow();
+				check(stack.is(Items.RAW_GOLD) && stack.getCount() == 8, "old salve stacks load as the same amount of raw gold");
+				check(ItemStack.CODEC.encodeStart(ops, stack).getOrThrow() instanceof CompoundTag updated
+					&& updated.getStringOr("id", "").equals("minecraft:raw_gold"), "migrated stacks save with the current item id");
+
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
 				net.minecraft.server.level.ServerLevel level = server.overworld();
 				check(level.getAttachedOrElse(life.shizune.mistinn.world.MistinnWorld.SPAWN_STATION, false), "a drop station was built at the world spawn");
@@ -753,9 +763,6 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				check(player.getAttributeValue(Attributes.MOVEMENT_SPEED) < speed * 0.8, "a destroyed leg slows the hunter");
 				player.heal(20.0F);
 				check(BodyService.get(player).destroyed(BodyPart.LEFT_LEG), "ordinary healing cannot bring a destroyed part back");
-				BodyService.salve(player, BellSalveItem.REVIVE, 0.0F);
-				check(BodyService.get(player).get(BodyPart.LEFT_LEG) == BellSalveItem.REVIVE, "the bell salve brings it back");
-				check(player.getAttributeValue(Attributes.MOVEMENT_SPEED) >= speed * 0.99, "and the leg works again");
 
 				// where hits land: high from the front is the face, from behind the crown
 				player.snapTo(player.getX(), player.getY(), player.getZ(), 0.0F, 0.0F);
@@ -1310,7 +1317,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			}
 			java.util.List<net.minecraft.world.item.Item> needed = new java.util.ArrayList<>();
 			needed.addAll(java.util.List.of(MistinnItems.POTENT_INJECTOR, MistinnItems.SURGERY_KIT, MistinnItems.PAINKILLERS, MistinnItems.TOURNIQUET, MistinnItems.SPLINT,
-				MistinnItems.BELL_SALVE, MistinnItems.ANCHOR_BLADE, MistinnItems.BELL_GREATSWORD, MistinnItems.MIST_SPEAR, MistinnItems.SALT_FANG));
+				MistinnItems.ANCHOR_BLADE, MistinnItems.BELL_GREATSWORD, MistinnItems.MIST_SPEAR, MistinnItems.SALT_FANG));
 			needed.addAll(MistinnItems.ARMOR_REPAIR_KITS);
 			needed.addAll(MistinnItems.HELMET_REPAIR_KITS);
 			needed.addAll(MistinnItems.HELMETS);

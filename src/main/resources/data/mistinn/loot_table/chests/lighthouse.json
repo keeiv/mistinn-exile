@@ -25,21 +25,6 @@
         },
         {
           "type": "minecraft:item",
-          "name": "mistinn:bell_salve",
-          "weight": 8,
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": {
-                "type": "minecraft:uniform",
-                "min": 1,
-                "max": 2
-              }
-            }
-          ]
-        },
-        {
-          "type": "minecraft:item",
           "name": "minecraft:bread",
           "weight": 10,
           "functions": [

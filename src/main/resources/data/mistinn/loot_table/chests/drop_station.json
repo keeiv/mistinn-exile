@@ -51,11 +51,6 @@
         },
         {
           "type": "minecraft:item",
-          "name": "mistinn:bell_salve",
-          "weight": 2
-        },
-        {
-          "type": "minecraft:item",
           "name": "mistinn:armor_repair_kit_3",
           "weight": 2
         },

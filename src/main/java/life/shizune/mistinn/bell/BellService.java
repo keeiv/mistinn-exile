@@ -31,7 +31,6 @@ public final class BellService {
 		ServerLevel level = player.level();
 		player.setAttached(MistinnAttachments.BELL, GlobalPos.of(level.dimension(), pos));
 		player.setHealth(player.getMaxHealth());
-		// only a golden bell brings destroyed body parts back
 		BodyService.restoreAll(player);
 		life.shizune.mistinn.body.WoundService.clearAll(player);
 		player.getFoodData().setFoodLevel(20);

@@ -63,19 +63,18 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Body parts | Hearts are replaced by six parts (head, torso, both arms, both legs), 80 health each; three destroyed parts kill. Each part is protected only by the gear that covers it, and a destroyed one has lasting effects. |
 | Bleeding and broken bones | Blows can open a bleeding wound that slowly kills the part until a tourniquet stops it; falls, explosions and crushing blows can break a limb, which then works as if destroyed (a broken leg only dives) until surgery sets it; a splint holds it for a while. |
 | Medicine and repair | Potent injector, surgery kit, painkillers, tourniquet, splint, and tier III–VI armour and helmet repair kits; each takes a few seconds with its own motion and sounds, and a heavy hit or a roll breaks it off. |
-| Bell Salve | Made from gold ore, salt and a honey bottle; away from a golden bell, the only cure for a destroyed part. |
-| Crafting | Every medical item, repair kit, piece of gear and weapon can be crafted; only golden bells and the Rust God's salt block cannot, and tier VI gear needs the salt block. |
+| Crafting | Every medical item, repair kit, piece of gear and weapon can be crafted or smithed. Permanent golden bells are found in the world. Keepers drop the Rust God's salt block, an ingredient in tier VI gear. |
 | One-time bells | Cast from gold ore (ore or raw gold) and an iron chain; brings you back once, then cracks. |
 | Minimap | Built in, north up; shows your heading, your bell and where you fell, pinned to the edge when off the map. |
 | Weapons | Five branches (blade, greatsword, spear, dagger, hammer) in five materials (wood, stone, iron, diamond, netherite), so there is something to fight with from day one; plus four named weapons: Anchor Blade, Sunken Bell Greatsword, Mistwalker Spear and Salt Fang. Each has vanilla-style art and a held model, its own swing and hit sounds, and its own first- and third-person swing. |
 | Swings | Every blow has a wind-up, a strike, an overshoot and a recovery: the arms strain and shake as it winds up, the weapon breaks loose, and its weight carries the body past the line. Third person twists and steps into it; in first person the view swings with the blow and jolts on a hit. |
-| Stamina and rolls | Swings, sprints and rolls cost stamina. A roll passes through blows; how far it goes depends on the legs, how it looks on the arms. With both legs destroyed you can only dive, and the landing falls on the upper body. |
+| Stamina and rolls | Swings, sprints and rolls cost stamina. The legs determine how far a roll goes and the arms shape its motion. Badly injured legs can force a dive, whose landing strains the upper body. |
 | Title screen | An original misty shore with a dead lighthouse: drifting fog, glinting water and a last ember in the lamp room. |
 | Hunter's Guide | Placed in your hotbar the first time you join; nine pages on the world, the mission and the rules. |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V; each with its own durability, protection, capacity, layout and a two-line story. |
-| Grid inventory | Four pockets, the chest rig's and backpack's grids, and a safe box kept through death; every item takes a footprint by kind, can be rotated and shows its shape in the grid. The backpack and chest rig are worn on the body. In survival the inventory is the mod's own screen, and the 27 vanilla slots are sealed off. |
+| Grid inventory | Four pockets, the chest rig's and backpack's grids, and a safe box kept through death. Every item takes a footprint by kind and can be rotated. Packs, rigs and some medical supplies have sprites drawn for their footprints. Packs and rigs also show on the body. Survival and adventure use the mod's own inventory screen and seal off the 27 vanilla slots. |
 | Fog-shore lighthouses | Dead lighthouses on the coast; the lamp room at the top is held by the first keeper, **the Snuffer**, whose every move strikes a set part of the body. The fight has its own music, which turns more frantic in its dark half. |
 | Languages | Traditional Chinese and English. |
 
@@ -117,11 +116,13 @@ You need Minecraft Java Edition 26.3, [Fabric Loader](https://fabricmc.net/use/)
 > [!NOTE]
 > Only Minecraft 26.3 is supported. Creative mode keeps the vanilla inventory; the grid inventory is active in survival and adventure.
 
+Existing Bell Salve stacks turn into the same amount of raw gold when the save is loaded.
+
 ## Story mode
 
 Creating a new world from the world list first asks for **story mode** or **free exploration**. Free exploration has no mission and otherwise plays the same; story mode has the prologue, *The Drop*, and chapter 1, *Lights Out*, so far.
 
-- **Guaranteed places**: when a story world first starts, it builds an intact drop station on level ground 150 to 240 blocks from spawn and a fog-shore lighthouse on the nearest coast, so the places the story leads to always exist.
+- **Guaranteed places**: a new story world builds an intact drop station about 150 to 240 blocks from spawn, looking for flat land first. It searches from the station for a beach to build the lighthouse on, or uses open ground farther out if it finds no beach.
 - **Objectives**: shown in the top-left corner with a hint and the distance, lit up when they change. The amber diamond on the minimap is where to go.
 - **The radio**: the drop station's radio has burned out. Mend it by using it with 4 redstone, and Helm, Rust Anchor's operator, starts calling; the lines appear as typed subtitles.
 - **Story cards**: chapters open and close on full-screen pixel art; click to continue, `Esc` to skip.
@@ -162,7 +163,7 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 
 - **Death**: any three parts destroyed. Damage to a destroyed part spreads, weakened, over the others, so you cannot become unkillable.
 - **Where hits land**: by height and direction. High from the front is the face, from behind the crown; the middle is the torso or the arm on that side; low is the leg on that side. Falls land on both legs, drowning and starving on the torso, fire and explosions over the whole body.
-- **Recovery**: slow and natural while your food is at 6 or more; potions and golden apples mend the most hurt parts first. Only a golden bell or Bell Salve brings a destroyed part back.
+- **Recovery**: living parts that are no longer losing blood mend slowly while your food is at 6 or more. Potions and golden apples mend the most hurt living parts first. Resting at a golden bell restores the whole body, and a surgery kit brings back one destroyed part at a time.
 - **Destroyed parts**: legs slow you and cut your jump; arms weaken blows, attack speed and mining; the torso makes you hungry faster; the head darkens the edges of your view and stops the minimap.
 - **HUD**: a small figure where the hearts were, each part green to red by its health; a bleeding part flashes red, a broken one shows a crack, and tourniquets and splints show too. The inventory lists each part's wounds and the time left on them.
 
@@ -173,7 +174,7 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 | Bleeding | Creatures' blows, arrows | The part loses 0.5 a second until it is destroyed, and does not mend by itself | A **tourniquet** stops it. Left on over 3 minutes, the part starts to die; only a surgery kit or a golden bell takes it off |
 | Broken bone (arms and legs) | Falls, explosions, very heavy blows | The limb works as if destroyed before it is: a broken leg cannot roll, only dive, and slows you; a broken arm weakens blows and mining | A **splint** holds it for 4 minutes, then it is broken again; a **surgery kit** sets it |
 
-- A **surgery kit** deals with one part at a time: a destroyed part first, then a broken bone, a tourniquet, then bleeding.
+- A **surgery kit** treats one part at a time, in order of priority: destroyed parts, broken bones, tourniquets, then bleeding. A destroyed part comes back with 24 health.
 - Resting at a **golden bell** deals with every wound. Painkillers hide destroyed parts, not broken bones.
 
 ## Death and the end of the mission
@@ -206,16 +207,16 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 
 - **Roll** (Left Alt): 22 stamina, in the direction you are moving, or a step back if you are not. You cannot be hit for 10 ticks on whole legs, fewer as they are hurt, and the roll gets shorter too.
 - **The arms shape the roll**: a whole arm tucks in and pushes off; a destroyed arm hangs and is flung about, and the roll leans to that side; with both arms destroyed you roll over a shoulder.
-- **Dive**: with both legs destroyed you cannot roll, only throw yourself forward. 28 stamina, no protection, and the landing (12 points) is shared over head, torso and arms, so every dive costs you.
+- **Dive**: an unsplinted broken leg or two destroyed legs without painkillers force a dive. It costs 28 stamina and gives no protection from blows. The usual landing spreads 12 points of damage over the living parts of the upper body.
 - A destroyed torso slows stamina recovery; destroyed legs make sprinting cost more.
 
 ## The fog-shore lighthouse and the Snuffer
 
-Rust Anchor says the coasts at the world's edge are lined with dead lighthouses, each held by a keeper. Now and then a beach has a **fog-shore lighthouse**: a golden bell by the door, a ladder up past a supply floor, and at the top the lamp room where the Snuffer waits.
+Rust Anchor says the coasts at the world's edge are lined with dead lighthouses, each held by a keeper. Now and then a beach has a **fog-shore lighthouse**. A golden bell waits in a stone shrine by the door. The spiral stair climbs past the supplies to the lamp room, where the Snuffer waits.
 
 | | |
 | --- | --- |
-| ![A fog-shore lighthouse on the coast at sunset](images/lighthouse.jpg) | ![The Snuffer with its long hook by the rail of the lamp room](images/snuffer.jpg) |
+| ![The fog-shore lighthouse and the keeper's cottage](images/lighthouse.jpg) | ![The Snuffer with its long hook by the rail of the lamp room](images/snuffer.jpg) |
 
 | Move | Tell | Where it lands |
 | --- | --- | --- |
@@ -240,7 +241,7 @@ Rust Anchor says the coasts at the world's edge are lined with dead lighthouses,
 | Right-click a lamp stand | Light it |
 | Use a drop station radio | Mend it with 4 redstone; in the story, hand in the Rust God's salt block |
 | `K` | Mission journal |
-| Left Alt | Roll; dive when both legs are destroyed |
+| Left Alt | Roll or dive, depending on leg injuries and painkillers |
 | `J` | Toggle the first-person swing view |
 | Click a cell | Pick up or put down |
 | Drag | Move between cells, or between the grid and the hotbar or a chest |
@@ -296,12 +297,12 @@ JDK 25 is required. From a OneDrive folder or a path with non-ASCII characters u
 .\build.ps1 runClientGameTest   # a real client plays the core loop and saves screenshots
 ```
 
-Textures, models and sounds are original work by MoriTeahouse; the repository holds the finished files (PNG, OGG, JSON), not the working files they were drawn from.
+Textures and models are original work by MoriTeahouse. Sound effects combine edited CC0 recordings with noise synthesis made for the mod. The repository holds the finished PNG, OGG and JSON files. See [CREDITS.md](../CREDITS.md) for the audio sources.
 
 ## What comes next
 
 1. **The rest of the story**: chapter 2, *The Salt Road*, then the keepers of the Sunken Bell and the Rust Wheel, and the Mist Inn with the endings.
-2. **The rest of the forbidden zone**: fog that thickens near a lighthouse and on the minimap, the fog wall of the lamp room, creatures of the mist and the keeper's mist doubles ([design, in Chinese](phase2-design.md)).
+2. **The rest of the forbidden zone**: fog that thickens near a lighthouse and on the minimap, a second bell that needs lamp oil, the fog wall of the lamp room, creatures of the mist and the keeper's mist doubles ([design, in Chinese](phase2-design.md)).
 3. **More keepers**: the Sunken Bell and the Rust Wheel.
 4. **Later**: levelling with salt at bells, more weapons and charged attacks, co-op.
 
@@ -310,7 +311,7 @@ Textures, models and sounds are original work by MoriTeahouse; the repository ho
 Bug fixes, features, tests, art and documentation are welcome; read the [contributing guide](CONTRIBUTING.en.md) first.
 
 > [!IMPORTANT]
-> AI-assisted contributions are treated like hand-written ones. A pull request is merged only without security issues, and **assets must be original**; assets from other games or packs are not accepted.
+> AI-assisted contributions are treated like hand-written ones. Pull requests must pass security review, and all textures and models must be original to the project.
 
 ## License
 
