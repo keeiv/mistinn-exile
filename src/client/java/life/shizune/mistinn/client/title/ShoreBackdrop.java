@@ -24,9 +24,9 @@ public final class ShoreBackdrop {
 	private static final Identifier FOG_NEAR = tex("fog_near");
 	private static final Identifier SHORE = tex("shore");
 	/** The dead lamp room's glass, in art pixels. */
-	private static final int LAMP_X = 389;
-	private static final int LAMP_Y = 17;
-	private static final int MOTES = 46;
+	private static final int LAMP_X = 364;
+	private static final int LAMP_Y = 67;
+	private static final int MOTES = 28;
 
 	private ShoreBackdrop() {
 	}
@@ -37,13 +37,14 @@ public final class ShoreBackdrop {
 
 	/** Draws the shore over the whole screen; {@code leftMist} thickens the mist behind a menu on the left. */
 	public static void draw(final GuiGraphicsExtractor g, final int width, final int height, final int mouseX, final int mouseY, final float time, final boolean leftMist) {
-		float scale = Math.max((float) width / ART_W, (float) height / ART_H);
+		// Leave room for the nearest fog, which can shift eleven pixels sideways and six vertically.
+		float scale = Math.max((width + 22.0F) / ART_W, (height + 12.0F) / ART_H);
 		int w = Mth.ceil(ART_W * scale);
 		int h = Mth.ceil(ART_H * scale);
 		int ox = (width - w) / 2;
 		int oy = (height - h) / 2;
-		float lookX = (mouseX - width / 2.0F) / Math.max(1, width);
-		float lookY = (mouseY - height / 2.0F) / Math.max(1, height);
+		float lookX = Mth.clamp(mouseX / (float) Math.max(1, width) - 0.5F, -0.5F, 0.5F);
+		float lookY = Mth.clamp(mouseY / (float) Math.max(1, height) - 0.5F, -0.5F, 0.5F);
 
 		layer(g, SKY, ox, oy, w, h, 0.0F, lookX, lookY);
 		layer(g, CLIFF, ox, oy, w, h, 4.0F, lookX, lookY);
@@ -97,9 +98,10 @@ public final class ShoreBackdrop {
 		int alpha = Mth.clamp((int) (flicker * 200), 20, 230);
 		int x = ox + Math.round(LAMP_X * scale) + Math.round(-lookX * 4.0F);
 		int y = oy + Math.round(LAMP_Y * scale) + Math.round(-lookY * 2.0F);
-		int size = Math.max(2, Math.round(3 * scale));
-		g.fill(x + size, y + size / 2, x + size * 2, y + size + size / 2, alpha << 24 | 0xE89040);
-		g.fill(x + size / 2, y, x + size * 2 + size / 2, y + size * 2, (alpha / 5) << 24 | 0xE89040);
+		int width = Math.max(2, Math.round(4 * scale));
+		int height = Math.max(1, Math.round(2 * scale));
+		g.fill(x - 1, y - 1, x + width + 1, y + height + 1, (alpha / 5) << 24 | 0xE89040);
+		g.fill(x, y, x + width, y + height, alpha << 24 | 0xE89040);
 	}
 
 	/** Salt motes lifting off the shore and fading as they rise. */
