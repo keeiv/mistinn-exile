@@ -85,6 +85,24 @@ public final class Clip {
 		return CACHE.computeIfAbsent(name, Clip::load);
 	}
 
+	/** The clip of that name, or null when the mod ships none (for optional per-creature variants). */
+	public static @org.jspecify.annotations.Nullable Clip find(final String name) {
+		if (Clip.class.getResource("/assets/mistinn/anim/" + name + ".json") == null) {
+			return null;
+		}
+		return get(name);
+	}
+
+	/**
+	 * How much a clip that runs in ticks owns the pose at {@code tick}: it takes the pose over during its first
+	 * {@code blend_in} ticks and, when {@code handBack}, returns it during its last {@code blend_out}.
+	 */
+	public float owns(final float tick, final boolean handBack) {
+		float length = this.number("length", 1.0F);
+		float in = smooth(tick / Math.max(0.001F, this.number("blend_in", 3.0F)));
+		return handBack ? in * smooth((length - tick) / Math.max(0.001F, this.number("blend_out", 4.0F))) : in;
+	}
+
 	private static Clip load(final String name) {
 		String path = "/assets/mistinn/anim/" + name + ".json";
 		try (InputStream in = Clip.class.getResourceAsStream(path)) {
@@ -156,6 +174,18 @@ public final class Clip {
 			}
 		}
 		return values[values.length - 1];
+	}
+
+	/** The tracks of one group, by their names inside the group (without the {@code group.} prefix). */
+	public java.util.Set<String> tracks(final String group) {
+		String prefix = group + ".";
+		java.util.Set<String> names = new java.util.TreeSet<>();
+		for (String track : this.tracks.keySet()) {
+			if (track.startsWith(prefix)) {
+				names.add(track.substring(prefix.length()));
+			}
+		}
+		return names;
 	}
 
 	/** {@link #at} in radians, for clips that keep angles in degrees. */

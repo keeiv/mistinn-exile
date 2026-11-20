@@ -1,0 +1,197 @@
+package life.shizune.mistinn.enemy;
+
+import io.netty.buffer.ByteBuf;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
+import life.shizune.mistinn.Mistinn;
+import life.shizune.mistinn.body.BodyService;
+import life.shizune.mistinn.mixin.MobAttackBoxInvoker;
+import life.shizune.mistinn.registry.VanillaCreatureSounds;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.Ravager;
+import net.minecraft.world.phys.Vec3;
+
+/**
+ * Creatures hold a melee blow back for a readable windup, then lunge as they release it. The blow is
+ * decided here on the server: it lands only if the hunter is still within reach when it is released.
+ */
+public final class WindupService {
+	/** Ticks the released state stays visible to clients for the follow-through pose. */
+	public static final int FOLLOW_THROUGH = 5;
+	/** Share of its own speed a creature creeps forward with while winding up. */
+	public static final float CREEP = 0.30F;
+	/** How far, in blocks, the lunge chases a hunter who backed away during the windup. */
+	public static final float CHASE_CAP = 1.0F;
+	/** Vanilla's horizontal melee reach around the attack box, before the lunge is added. */
+	private static final double MELEE_REACH = Math.sqrt(2.04) - 0.6;
+	/** Converts a lunge distance to a starting speed, given vanilla ground friction. */
+	private static final double LUNGE_SPEED = 0.45;
+
+	public record Windup(long start, int length, int target, boolean released) {
+		public static final StreamCodec<ByteBuf, Windup> STREAM_CODEC = StreamCodec.composite(
+			ByteBufCodecs.VAR_LONG, Windup::start,
+			ByteBufCodecs.VAR_INT, Windup::length,
+			ByteBufCodecs.VAR_INT, Windup::target,
+			ByteBufCodecs.BOOL, Windup::released,
+			Windup::new
+		);
+	}
+
+	public static final AttachmentType<Windup> WINDUP = AttachmentRegistry.<Windup>builder()
+		.syncWith(Windup.STREAM_CODEC, AttachmentSyncPredicate.all())
+		.buildAndRegister(Mistinn.id("windup"));
+
+	private static final Set<Mob> ACTIVE = Collections.newSetFromMap(new WeakHashMap<>());
+	private static final Map<Mob, Double> START_DISTANCE = new WeakHashMap<>();
+	private static boolean releasing;
+
+	private WindupService() {
+	}
+
+	public static void init() {
+		ServerTickEvents.END_LEVEL_TICK.register(WindupService::tick);
+	}
+
+	/** True while this service lets a wound-up blow through {@code doHurtTarget}. */
+	public static boolean releasing() {
+		return releasing;
+	}
+
+	/** Takes over a melee blow at a hunter: returns true when the blow is now being wound up instead. */
+	public static boolean intercept(final Mob mob, final ServerLevel level, final Entity target) {
+		if (releasing) {
+			return false;
+		}
+		if (mob.hasAttached(WINDUP)) {
+			return true;
+		}
+		EnemyRig rig = EnemyRig.of(mob.getType());
+		if (rig == null || rig.windupTicks() <= 0 || !(target instanceof ServerPlayer hunter) || !BodyService.applies(hunter)
+			|| ExecutionService.holdsMob(mob)) {
+			return false;
+		}
+		mob.setAttached(WINDUP, new Windup(level.getGameTime(), rig.windupTicks(), hunter.getId(), false));
+		START_DISTANCE.put(mob, flatDistance(mob, hunter));
+		ACTIVE.add(mob);
+		SoundEvent cry = VanillaCreatureSounds.windup(mob.getType());
+		if (cry != null) {
+			level.playSound(null, mob.getX(), mob.getY(), mob.getZ(), cry, SoundSource.HOSTILE, 1.0F, 0.9F + mob.getRandom().nextFloat() * 0.2F);
+		}
+		return true;
+	}
+
+	/** True while the creature is still winding up (not yet released). */
+	public static boolean winding(final Mob mob) {
+		Windup windup = mob.getAttached(WINDUP);
+		return windup != null && !windup.released();
+	}
+
+	/** Runs after the creature's own AI each tick: it plants and creeps, turned toward its target. */
+	public static void holdStance(final Mob mob) {
+		Windup windup = mob.getAttached(WINDUP);
+		if (windup == null || windup.released()) {
+			return;
+		}
+		Entity target = mob.level().getEntity(windup.target());
+		mob.getNavigation().stop();
+		mob.setXxa(0.0F);
+		mob.setZza(CREEP);
+		mob.setSpeed((float) mob.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED) * CREEP);
+		if (target != null) {
+			mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
+			float yaw = (float) Math.toDegrees(Mth.atan2(target.getZ() - mob.getZ(), target.getX() - mob.getX())) - 90.0F;
+			mob.setYRot(yaw);
+			mob.setYBodyRot(yaw);
+			mob.setYHeadRot(yaw);
+		}
+	}
+
+	private static void tick(final ServerLevel level) {
+		for (Iterator<Mob> it = ACTIVE.iterator(); it.hasNext();) {
+			Mob mob = it.next();
+			if (mob.level() != level) {
+				continue;
+			}
+			Windup windup = mob.getAttached(WINDUP);
+			if (windup == null) {
+				it.remove();
+				continue;
+			}
+			long elapsed = level.getGameTime() - windup.start();
+			if (windup.released()) {
+				if (elapsed >= windup.length() + FOLLOW_THROUGH) {
+					clear(mob);
+					it.remove();
+				}
+				continue;
+			}
+			Entity target = level.getEntity(windup.target());
+			if (!(target instanceof ServerPlayer hunter) || !valid(mob, hunter)) {
+				clear(mob);
+				it.remove();
+				continue;
+			}
+			if (elapsed >= windup.length()) {
+				release(level, mob, hunter, windup);
+			}
+		}
+	}
+
+	private static boolean valid(final Mob mob, final ServerPlayer hunter) {
+		return mob.isAlive() && !mob.isRemoved() && !mob.isPassenger() && !ExecutionService.holdsMob(mob)
+			&& !(mob instanceof Ravager ravager && ravager.getStunnedTick() > 0)
+			&& hunter.isAlive() && hunter.level() == mob.level() && BodyService.applies(hunter);
+	}
+
+	private static void release(final ServerLevel level, final Mob mob, final ServerPlayer hunter, final Windup windup) {
+		EnemyRig rig = EnemyRig.of(mob.getType());
+		double retreat = Mth.clamp(flatDistance(mob, hunter) - START_DISTANCE.getOrDefault(mob, 0.0), 0.0, CHASE_CAP);
+		double reach = (rig == null ? 0.0 : rig.lunge()) + retreat;
+		Vec3 toward = hunter.position().subtract(mob.position()).multiply(1.0, 0.0, 1.0);
+		Vec3 direction = toward.lengthSqr() < 1.0E-6 ? Vec3.directionFromRotation(0.0F, mob.getYRot()) : toward.normalize();
+		mob.setAttached(WINDUP, new Windup(windup.start(), windup.length(), windup.target(), true));
+		mob.swingForAttack(InteractionHand.MAIN_HAND);
+		mob.setDeltaMovement(mob.getDeltaMovement().add(direction.scale(reach * LUNGE_SPEED)));
+		mob.needsSync = true;
+		boolean inReach = ((MobAttackBoxInvoker) mob).mistinn$attackBox(MELEE_REACH + reach).intersects(hunter.getBoundingBox())
+			&& EnemyRig.perceives(mob, hunter);
+		if (inReach) {
+			land(level, mob, hunter);
+		}
+	}
+
+	/** Lands a melee blow now, as a released windup does: the blow is not held back again. */
+	public static boolean land(final ServerLevel level, final Mob mob, final Entity target) {
+		releasing = true;
+		try {
+			return mob.doHurtTarget(level, target);
+		} finally {
+			releasing = false;
+		}
+	}
+
+	private static void clear(final Mob mob) {
+		mob.removeAttached(WINDUP);
+		START_DISTANCE.remove(mob);
+	}
+
+	private static double flatDistance(final Entity a, final Entity b) {
+		return Math.sqrt(Mth.square(a.getX() - b.getX()) + Mth.square(a.getZ() - b.getZ()));
+	}
+}

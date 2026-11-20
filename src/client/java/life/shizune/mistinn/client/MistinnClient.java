@@ -32,6 +32,12 @@ public class MistinnClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback.EVENT.register(
+			(type, renderer, helper, context) -> {
+				if (renderer instanceof net.minecraft.client.renderer.entity.player.AvatarRenderer<?> avatar) {
+					helper.register(new life.shizune.mistinn.client.enemy.HeadshotArrowLayer<>(avatar, context));
+				}
+			});
 		HostRoomScreen.register();
 		KeyMapping zoom = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.minimap_zoom", InputConstants.KEY_M, CATEGORY)

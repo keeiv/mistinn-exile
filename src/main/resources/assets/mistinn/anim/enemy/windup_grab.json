@@ -1,0 +1,86 @@
+{
+	"_comment": "前搖（抓撲）: weight back, both arms drawn up and back, shaking; at 0.6 the whole body throws forward and the arms slam down onto the prey, then settles.",
+	"keys": [
+		0.0,
+		0.3,
+		0.6,
+		0.7,
+		0.84,
+		1.0
+	],
+	"eases": [
+		"out_quad",
+		"in_quad",
+		"out_cubic",
+		"in_out_sine",
+		"in_out_sine"
+	],
+	"root": {
+		"pitch": [
+			0,
+			-12,
+			-16,
+			26,
+			16,
+			0
+		],
+		"z": [
+			0,
+			-0.08,
+			-0.12,
+			0.38,
+			0.24,
+			0
+		],
+		"y": [
+			0,
+			-0.04,
+			-0.06,
+			-0.03,
+			0,
+			0
+		]
+	},
+	"bones": {
+		"right_arm_x": [
+			0,
+			-38,
+			-55,
+			22,
+			10,
+			0
+		],
+		"left_arm_x": [
+			0,
+			-34,
+			-52,
+			24,
+			12,
+			0
+		],
+		"head_x": [
+			0,
+			-10,
+			-16,
+			16,
+			8,
+			0
+		],
+		"right_leg_x": [
+			0,
+			14,
+			20,
+			-26,
+			-10,
+			0
+		],
+		"left_leg_x": [
+			0,
+			-10,
+			-12,
+			20,
+			8,
+			0
+		]
+	}
+}

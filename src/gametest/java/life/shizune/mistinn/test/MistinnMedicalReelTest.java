@@ -33,6 +33,9 @@ public class MistinnMedicalReelTest implements FabricClientGameTest {
 
 	@Override
 	public void runTest(final ClientGameTestContext context) {
+		if (TestFilter.skip(getClass())) {
+			return;
+		}
 		if (!Boolean.getBoolean("mistinn.medreel")) {
 			return;
 		}

@@ -66,7 +66,8 @@ public final class Poser {
 		float pivot = clip.number("pivot", 0.9F) * scale;
 		// here the body faces -z, +y up and its right toward +x: a forward pitch turns the head
 		// toward -z, a roll to the right lowers +x
-		pose.translate(0.0F, clip.at("root.y", p) * scale, -clip.at("root.z", p) * scale);
+		pose.translate(mirror * clip.at("root.x", p) * scale, clip.at("root.y", p) * scale, -clip.at("root.z", p) * scale);
+		pose.rotateDegrees(Axis.YP, -mirror * clip.at("root.yaw", p));
 		pose.translate(0.0F, pivot, 0.0F);
 		pose.rotateDegrees(Axis.ZP, -mirror * clip.at("root.roll", p));
 		pose.rotateDegrees(Axis.XP, -clip.at("root.pitch", p));

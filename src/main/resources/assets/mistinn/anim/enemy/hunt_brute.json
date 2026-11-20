@@ -1,0 +1,77 @@
+{
+	"_comment": "獵殺姿態（持武器）: half crouched, weapon arm cocked high, the off hand forward, feet set wide.",
+	"keys": [
+		0.0,
+		0.25,
+		0.5,
+		0.75,
+		1.0
+	],
+	"eases": [
+		"in_out_sine",
+		"in_out_sine",
+		"in_out_sine",
+		"in_out_sine"
+	],
+	"length": 40,
+	"root": {
+		"pitch": [
+			8,
+			9.5,
+			8,
+			6.5,
+			8
+		],
+		"y": [
+			-0.12,
+			-0.09999999999999999,
+			-0.12,
+			-0.13999999999999999,
+			-0.12
+		]
+	},
+	"bones": {
+		"right_arm_x": [
+			-62,
+			-58,
+			-62,
+			-66,
+			-62
+		],
+		"right_arm_z": [
+			8,
+			8.0,
+			8,
+			8.0,
+			8
+		],
+		"left_arm_x": [
+			-22,
+			-19,
+			-22,
+			-25,
+			-22
+		],
+		"right_leg_x": [
+			-16,
+			-16.0,
+			-16,
+			-16.0,
+			-16
+		],
+		"left_leg_x": [
+			12,
+			12.0,
+			12,
+			12.0,
+			12
+		],
+		"head_x": [
+			-6,
+			-4,
+			-6,
+			-8,
+			-6
+		]
+	}
+}

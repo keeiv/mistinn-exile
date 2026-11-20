@@ -40,6 +40,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 - [Story mode](#story-mode)
 - [World and structures](#world-and-structures)
 - [Body parts](#body-parts)
+- [Vanilla monsters and executions](#vanilla-monsters-and-executions)
 - [Death and the end of the mission](#death-and-the-end-of-the-mission)
 - [Swings, stamina and rolls](#swings-stamina-and-rolls)
 - [The fog-shore lighthouse and the Snuffer](#the-fog-shore-lighthouse-and-the-snuffer)
@@ -69,7 +70,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Minimap | Built in, north up; shows your heading, your bell and where you fell, pinned to the edge when off the map. |
 | Weapons | Five branches (blade, greatsword, spear, dagger, hammer) in five materials (wood, stone, iron, diamond, netherite), so there is something to fight with from day one; plus four named weapons: Anchor Blade, Sunken Bell Greatsword, Mistwalker Spear and Salt Fang. Each has vanilla-style art and a held model, its own swing and hit sounds, and its own first- and third-person swing. |
 | Swings | Every blow has a wind-up, a strike, an overshoot and a recovery. Each weapon branch leaves a distinct trail, from the spear's straight thrust to the dagger's two crossing cuts. Third person twists and steps into it. In first person the view swings with the blow and jolts on a hit. |
-| Vanilla monsters | Each hostile species has its own sounds and gains new movement and poses for its rig. When both of a hunter's legs are destroyed, creatures that can execute in melee wind up first, giving nearby hunters time to interrupt them. |
+| Vanilla monsters | Their voices are built from CC0 recordings, lower and more savage; their movement and poses are remade for each rig. They stalk low once they have a hunter, and every melee blow has a windup you can see and hear, and roll away from. A hunter whose legs are both destroyed is executed: see [Vanilla monsters and executions](#vanilla-monsters-and-executions). |
 | Stamina and rolls | Swings, sprints and rolls cost stamina. The legs determine how far a roll goes and the arms shape its motion. Badly injured legs can force a dive, whose landing strains the upper body. |
 | Title screen | An original misty shore with a dead lighthouse: drifting fog, glinting water and a last ember in the lamp room. |
 | Hunter's Guide | Placed in your hotbar the first time you join; nine pages on the world, the mission and the rules. |
@@ -189,13 +190,34 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 - A **surgery kit** treats one part at a time, in order of priority: destroyed parts, broken bones, tourniquets, then bleeding. A destroyed part comes back with 24 health.
 - **Painkillers** temporarily suppress the effects of destroyed parts.
 
+## Vanilla monsters and executions
+
+- **Stalking and windups**: a monster that has a hunter closes in low. Before each melee blow it winds up (zombies and spiders quickly, wardens and ravagers slowly) with a cry, then lunges. A roll or a step back during the windup avoids it; backing off too far is chased a short way.
+- **Voices**: 35 creatures (zombies, piglins, the warden, endermen, spiders, wolves with a set for each of their seven variants, polar bears and more) speak with CC0 recordings from OpenGameArt, layered and reshaped. Skeletons and the creaking have no throat; their windups are bone and wood.
+- **Executions**: when both legs are destroyed, a monster in reach pins the hunter and kills them. Each family has its own paired move:
+
+| Move | Who | How |
+| --- | --- | --- |
+| Grapple and bite | Zombies, zombie villagers, husks, drowned, zombified piglins | Twists the wrist behind the back until it breaks, forces the hunter down, bites the shoulder and tears |
+| Neck pounce | Spiders, cave spiders, wolves, silverfish, endermites, phantoms, and every young monster | Knocks the hunter flat and rides them, biting the throat |
+| Leap and slam | Slimes, magma cubes, sulfur cubes | Leaps high and flattens the hunter, bounces, slams again |
+| Fist slam | The warden, the creaking | The warden lifts the hunter overhead and slams them down; the creaking knocks them down; both arms are broken, then the ribs |
+| Charge and maul | Ravagers, hoglins, zoglins, polar bears | Throws the hunter down, bites into the belly, shakes and drags them |
+| Stomp and stab | Vindicators, piglins, piglin brutes, vexes | Kicks the hunter down, stands on the chest and drives the weapon in |
+| Slash | Wither skeletons, and skeletons without a bow | Cuts down both arms, holds the forehead and cuts the throat |
+| Neck twist | Endermen | Wrenches both wrists, lifts the hunter by the head and breaks the neck |
+| Headshot | Skeletons, strays, bogged and parched with a bow | Stands still, aims, and puts an arrow through the head |
+
+- Another hunter's blow on the monster saves the victim; the victim's own blows do not. Where the monster has no room to stand (a corridor, a cave) there is no execution and the blow is an ordinary one.
+- Bodies do not pass through each other: every move is measured against every monster, tick by tick, and no model box goes more than 0.1 blocks into another.
+
 ## Death and the end of the mission
 
 ![Struck down on a drop station platform at dusk, a hunter on one knee, a hand on the floor, the pod behind](images/death.jpg)
 
 - **Killed by a creature** (keepers too): every other creature vanishes and the view swings out in front of and above the hunter, who drops to one knee, holds themselves up on a shaking hand, then topples onto one side and turns to smoke, leaving the residue.
 - **Any other death** (hunger, a fall, drowning, fire): a stagger, then a fall face down, and the same smoke.
-- **The end of the mission**: the view darkens to red words saying the mission is terminated, the cause of death and a line from Rust Anchor that fits it. *Return to the mission* respawns you at your golden bell; *Rest* saves and goes back to the title screen.
+- **The end of the mission**: the view darkens to red words saying the mission is terminated, the cause of death and a line from Rust Anchor that fits it. *Return to the mission* respawns you at your golden bell; *Rest* saves and goes back to the title screen. After an execution, the word *executed* in the cause is crimson.
 - The gravestone rises as the body turns to smoke. If something was put down on that spot in the meantime, it rises nearby instead and the minimap mark follows.
 
 ## Swings, stamina and rolls

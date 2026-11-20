@@ -63,6 +63,24 @@ fabricApi {
 	}
 }
 
+// Single test (-PonlyTest=<ClassName>): the client game test runs only that test class.
+if (project.hasProperty("onlyTest")) {
+	loom.runs.configureEach {
+		if (name == "clientGameTest") {
+			vmArg "-Dmistinn.only=${project.onlyTest}"
+		}
+	}
+}
+
+// Clip report (-PclipReport): the finisher overlap test only measures and writes its report, without failing.
+if (project.hasProperty("clipReport")) {
+	loom.runs.configureEach {
+		if (name == "clientGameTest") {
+			vmArg "-Dmistinn.clipreport=true"
+		}
+	}
+}
+
 // Animation sheet (-PanimSheet): the client game test freezes each swing at its beats and
 // screenshots them in first and third person, to judge the animation frame by frame.
 if (project.hasProperty("animSheet")) {
