@@ -389,17 +389,6 @@ public final class BodyService {
 		return body;
 	}
 
-	/** The bell salve: destroyed parts come back, the rest mends a little. */
-	public static void salve(final ServerPlayer player, final float revive, final float mend) {
-		Body body = get(player);
-		for (BodyPart part : BodyPart.values()) {
-			if (body.destroyed(part)) {
-				body = body.with(part, revive);
-			}
-		}
-		set(player, mend(body, mend));
-	}
-
 	// ── Every tick ────────────────────────────────────────────────
 
 	public static void tick(final MinecraftServer server) {

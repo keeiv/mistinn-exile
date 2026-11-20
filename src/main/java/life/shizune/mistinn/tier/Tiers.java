@@ -23,7 +23,6 @@ public final class Tiers {
 		FIXED.put(MistinnItems.ANCHOR_BLADE, Tier.II);
 		FIXED.put(MistinnItems.MIST_SPEAR, Tier.II);
 		FIXED.put(MistinnItems.ORE_BELL, Tier.II);
-		FIXED.put(MistinnItems.BELL_SALVE, Tier.III);
 		FIXED.put(MistinnItems.BELL_GREATSWORD, Tier.III);
 		FIXED.put(MistinnItems.SPLINT, Tier.N);
 		FIXED.put(MistinnItems.TOURNIQUET, Tier.I);

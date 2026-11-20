@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Healing a hunter mends their living body parts; a destroyed part needs a golden bell. */
+/** Vanilla healing mends living parts; surgery and resting handle destroyed parts separately. */
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityHealMixin {
 	@Inject(method = "heal", at = @At("HEAD"), cancellable = true)

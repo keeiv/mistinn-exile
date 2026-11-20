@@ -30,7 +30,6 @@ public final class MistinnTab {
 				output.accept(MistinnItems.HUNTER_GUIDE);
 				output.accept(MistinnItems.GOLDEN_BELL);
 				output.accept(MistinnItems.ORE_BELL);
-				output.accept(MistinnItems.BELL_SALVE);
 				output.accept(MistinnItems.POTENT_INJECTOR);
 				output.accept(MistinnItems.SURGERY_KIT);
 				output.accept(MistinnItems.PAINKILLERS);

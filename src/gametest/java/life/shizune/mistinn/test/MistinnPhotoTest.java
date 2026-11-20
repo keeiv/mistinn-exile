@@ -308,7 +308,7 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 					.withMask(new ItemStack(MistinnItems.MASKS.get(4))));
 				player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.LEGS, new ItemStack(MistinnItems.LEGGINGS.get(4)));
 				player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET, new ItemStack(MistinnItems.BOOTS.get(4)));
-				GridService.insert(player, new ItemStack(MistinnItems.BELL_SALVE, 2));
+				GridService.insert(player, new ItemStack(MistinnItems.POTENT_INJECTOR, 2));
 				GridService.insert(player, new ItemStack(Items.BREAD, 6));
 				// a hunter fresh from the lamp room: an arm hurt, a leg nearly gone
 				BodyService.set(player, Body.FULL.with(BodyPart.LEFT_ARM, 41.0F).with(BodyPart.RIGHT_LEG, 9.0F).with(BodyPart.TORSO, 66.0F));

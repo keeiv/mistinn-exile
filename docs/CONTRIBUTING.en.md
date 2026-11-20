@@ -28,7 +28,7 @@ One condition: **a pull request is merged only when it has no security issues.**
 - Nothing duplicates items: code that moves items into or out of the grid takes the same amount from the source.
 - File paths, URLs and commands never use unchecked input.
 - New dependencies exist, are maintained and have no known high-risk advisories. Tools sometimes invent package names; verify before installing.
-- **Assets must be original.** Assets from other games, resource packs, AI image generators or the web are not accepted. Commit finished files only (PNG, OGG, JSON), never the working files they were drawn from (project files, generator scripts, layered images).
+- **Textures and models must be original.** Art from other games, resource packs, AI image generators or the web is not accepted. Sound effects may be made from verified CC0 recordings. List the sources of recordings and music by file in [CREDITS.md](../CREDITS.md). Commit finished files only (PNG, OGG, JSON) and keep working files (project files, generator scripts, layered images) outside the repository.
 
 Comments are for future maintainers: say why the code does what it does; do not leave conversations with tools or edit history.
 
@@ -86,4 +86,4 @@ Report on the [MoriTeahouse site](https://moriteahouse.shizune.life/account) wit
 
 ## License
 
-The current version is **AGPL-3.0-only** by **Keeiv**; see [LICENSE](../LICENSE) and [NOTICE](../NOTICE). New contributions use the same license and keep contributors' copyright notices. Assets share the code's license.
+The current version is **AGPL-3.0-only** by **Keeiv**. See [LICENSE](../LICENSE) and [NOTICE](../NOTICE). New contributions use the same license and keep contributors' copyright notices. The project's original textures, models and synthesized sounds share the code's license. See [CREDITS.md](../CREDITS.md) for the public-domain recordings and music.
