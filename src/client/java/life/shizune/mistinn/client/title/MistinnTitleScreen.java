@@ -22,6 +22,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.FormattedCharSequence;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -35,7 +36,8 @@ import org.jspecify.annotations.Nullable;
 public class MistinnTitleScreen extends TitleScreen {
 	private static final Identifier WORDMARK_ZH = tex("wordmark_zh");
 	private static final Identifier WORDMARK_EN = tex("wordmark_en");
-	private static final int WORDMARK_W = 516;
+	private static final int WORDMARK_ZH_W = 516;
+	private static final int WORDMARK_EN_W = 612;
 	private static final int WORDMARK_H = 120;
 	private static final float FADE_SECONDS = 1.6F;
 
@@ -135,11 +137,18 @@ public class MistinnTitleScreen extends TitleScreen {
 		super.extractRenderState(g, mouseX, mouseY, a);
 		int x = Math.max(24, this.width / 14);
 		boolean english = this.minecraft.getLanguageManager().getSelected().startsWith("en");
-		int markW = Math.min(230, this.width / 3);
-		int markH = Math.round(markW * WORDMARK_H / (float) WORDMARK_W);
+		int textureWidth = english ? WORDMARK_EN_W : WORDMARK_ZH_W;
+		float markScale = Math.min(230, this.width / 3) / (float) WORDMARK_ZH_W;
+		int markW = Math.round(textureWidth * markScale);
+		int markH = Math.round(WORDMARK_H * markScale);
 		int markY = this.height / 2 - 26 - markH - 14;
-		g.blit(RenderPipelines.GUI_TEXTURED, english ? WORDMARK_EN : WORDMARK_ZH, x - 4, markY, 0.0F, 0.0F, markW, markH, WORDMARK_W, WORDMARK_H, WORDMARK_W, WORDMARK_H);
-		g.text(this.font, Component.translatable("title.mistinn.tagline"), x, markY + markH + 6, 0xFFB8B0A0, true);
+		g.blit(RenderPipelines.GUI_TEXTURED, english ? WORDMARK_EN : WORDMARK_ZH, x - 4, markY, 0.0F, 0.0F, markW, markH, textureWidth, WORDMARK_H, textureWidth, WORDMARK_H);
+		int taglineWidth = Math.min(this.width - x - 8, Math.max(190, this.width / 2 - x));
+		int taglineY = markY + markH + 6;
+		for (FormattedCharSequence line : this.font.split(Component.translatable("title.mistinn.tagline"), taglineWidth)) {
+			g.text(this.font, line, x, taglineY, 0xFFB8B0A0, true);
+			taglineY += this.font.lineHeight + 2;
+		}
 
 		// the screen comes up out of the dark
 		float fade = 1.0F - Math.min(1.0F, (System.nanoTime() - this.opened) / 1.0E9F / FADE_SECONDS);
