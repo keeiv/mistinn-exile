@@ -92,6 +92,7 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 			slideMissPaysNothing(context, world, arena);
 			heavyStaysInItsWorld(context, world, arena);
 			rollBreaksTheCharge(context, world, arena);
+			deadArmsLetNothingGo(context, world, arena);
 			fireKillIsTheHunters(context, world, arena);
 			frames(context, world, arena);
 		}
@@ -726,6 +727,22 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 		context.waitTicks(12);
 		check(lost(world, target) == 0.0F, "letting go after the roll strikes nothing: lost " + lost(world, target));
 		context.waitTicks(20);
+	}
+
+	/** Both arms destroyed while charging: letting go strikes nothing, on the server as on the hunter's screen. */
+	private static void deadArmsLetNothingGo(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		stand(context, world, arena, iron(WeaponStyle.SLASH), Skills.EMPTY);
+		int target = husk(world, arena, 0.0, 2.0);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			BodyService.set(player, BodyService.get(player).with(life.shizune.mistinn.body.BodyPart.LEFT_ARM, 0.0F).with(life.shizune.mistinn.body.BodyPart.RIGHT_ARM, 0.0F));
+			check(!HeavyService.canLetGo(player, player.getMainHandItem()), "two dead arms cannot let a heavy blow go");
+			check(!HeavyService.release(player, player.getMainHandItem(), 40), "so the release does nothing");
+			BodyService.restoreAll(player);
+			check(HeavyService.canLetGo(player, player.getMainHandItem()), "whole arms can");
+		});
+		context.waitTicks(10);
+		check(lost(world, target) == 0.0F, "and nothing is struck: lost " + lost(world, target));
 	}
 
 	/** A creature that dies of the lantern's fire after the burst is still the hunter's kill. */
