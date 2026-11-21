@@ -1,0 +1,82 @@
+package life.shizune.mistinn.test;
+
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import life.shizune.mistinn.boss.BossMove;
+import life.shizune.mistinn.client.keeper.SnufferModel;
+import life.shizune.mistinn.keeper.SnufferMoves;
+import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
+import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
+import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
+import net.fabricmc.fabric.api.client.gametest.v1.screenshot.TestScreenshotOptions;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Blocks;
+
+/**
+ * 熄燈人的姿勢表: every keeper clip (each move and each idle) frozen at five beats and screenshotted from the side
+ * and from the front, so the body and its moves can be judged frame by frame. Runs only with
+ * -Dmistinn.keepersheet=true (build.gradle: -PkeeperSheet); writes to keepersheet/.
+ */
+@SuppressWarnings("UnstableApiUsage")
+public class MistinnKeeperSheetTest implements FabricClientGameTest {
+	private static final Path OUT = Path.of("keepersheet");
+	private static final float[] BEATS = {0.0F, 0.22F, 0.42F, 0.62F, 0.85F};
+
+	@Override
+	public void runTest(final ClientGameTestContext context) {
+		if (TestFilter.skip(getClass()) || !Boolean.getBoolean("mistinn.keepersheet")) {
+			return;
+		}
+		List<String> clips = new ArrayList<>();
+		for (BossMove move : SnufferMoves.SET.moves()) {
+			clips.add(move.id());
+		}
+		clips.addAll(List.of(SnufferModel.IDLES));
+		try (TestSingleplayerContext world = context.worldBuilder().create()) {
+			world.getConnection().waitForChunksRender();
+			world.getServer().runCommand("time set 6000");
+			world.getServer().runCommand("gamerule advance_time false");
+			world.getServer().runCommand("weather clear");
+			world.getServer().runCommand("gamemode spectator @a");
+			BlockPos stage = world.getServer().computeOnServer(server -> {
+				var player = server.getPlayerList().getPlayers().getFirst();
+				BlockPos pos = player.blockPosition().above(20).immutable();
+				for (BlockPos floor : BlockPos.betweenClosed(pos.offset(-8, -1, -8), pos.offset(8, -1, 8))) {
+					player.level().setBlockAndUpdate(floor, Blocks.POLISHED_DEEPSLATE.defaultBlockState());
+				}
+				for (BlockPos air : BlockPos.betweenClosed(pos.offset(-8, 0, -8), pos.offset(8, 6, 8))) {
+					player.level().setBlockAndUpdate(air, Blocks.AIR.defaultBlockState());
+				}
+				return pos;
+			});
+			double x = stage.getX() + 0.5;
+			double y = stage.getY();
+			double z = stage.getZ() + 0.5;
+			world.getServer().runCommand("summon mistinn:snuffer " + x + " " + y + " " + z + " {NoAI:1b,Rotation:[0.0f,0.0f],Tags:[\"sheet\"]}");
+			context.runOnClient(mc -> mc.gui.hud.toggle());
+			String[][] views = {
+				{"side", String.valueOf(x - 4.2), String.valueOf(y - 0.1), String.valueOf(z), "-90", "6"},
+				{"front", String.valueOf(x), String.valueOf(y - 0.1), String.valueOf(z + 4.5), "180", "6"},
+			};
+			for (String[] view : views) {
+				world.getServer().runCommand("tp @a " + view[1] + " " + view[2] + " " + view[3] + " " + view[4] + " " + view[5]);
+				context.waitTicks(10);
+				context.takeScreenshot(TestScreenshotOptions.of("rest-" + view[0]).disableCounterPrefix().withDestinationDir(OUT));
+				for (String clip : clips) {
+					for (int i = 0; i < BEATS.length; i++) {
+						float at = BEATS[i];
+						context.runOnClient(mc -> {
+							SnufferModel.previewClip = clip;
+							SnufferModel.previewProgress = at;
+						});
+						context.waitTicks(2);
+						context.takeScreenshot(TestScreenshotOptions.of(clip + "-" + view[0] + "-" + i).disableCounterPrefix().withDestinationDir(OUT));
+					}
+				}
+				context.runOnClient(mc -> SnufferModel.previewClip = null);
+			}
+			context.runOnClient(mc -> mc.gui.hud.toggle());
+		}
+	}
+}

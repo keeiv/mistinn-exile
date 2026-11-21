@@ -1,0 +1,10 @@
+{"_comment":"歪頭: the lantern tilts hard to its left as if listening, holds there, the free claw twitching, and rights itself.",
+"keys":[0.0,0.25,0.4,0.7,1.0],
+"eases":["in_out_sine","out_quad","in_out_sine","in_out_sine"],
+"length":60,"limbs":{
+"head_z":[0,24,20,22,0],
+"head_x":[0,8,6,8,0],
+"head_y":[0,-12,-10,-12,0],
+"body_y":[0,-6,-5,-6,0],
+"left_arm_x":[0,-6,-14,-8,0],
+"left_arm_z":[0,-6,-10,-6,0]}}
