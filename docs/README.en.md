@@ -258,6 +258,10 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 | Hammer | 1.2 s | A sweep across 180° in front, with heavier knockback |
 | Greatsword | 1.3 s | A chop across 50° in front, 1 block farther, and the ground shakes where it lands (half damage) |
 
+| | |
+| --- | --- |
+| ![Heavy blows seen from behind: the scythe and the hammer drawn far back to the right, the other hand off the haft, then swept round to the left with a low cut of light](images/heavy-blows.png) | ![Heavy blows' sword qi in first person: the blade's diagonal, the greatsword's chop and its ground wave, the dagger's crossing cuts, the scythe's low sweep](images/sword-qi.png) |
+
 - **View**: in first person the view turns, dips and tilts with the swing and jolts on a hit (harder for a heavy blow). Press `J` to turn this off; the setting is kept in `config/mistinn-client.properties`.
 - **Stamina**: 100 at most (3 more per point of constitution). Swings (misses too), sprinting and rolls cost it, and it starts coming back a second after you stop spending. At zero you cannot sprint or swing.
 
