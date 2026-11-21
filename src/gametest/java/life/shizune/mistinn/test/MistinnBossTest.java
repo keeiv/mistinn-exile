@@ -68,6 +68,7 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		brainsAreIndependent();
 		closeInMovesLand();
 		coversALeftRoller();
+		distanceMovesLand();
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			world.getConnection().waitForChunksRender();
 			world.getServer().runCommand("difficulty normal");
@@ -95,6 +96,9 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			slideTakesTheLegs(context, world, stage);
 			rushClosesTheGap(context, world, stage);
 			grabLetsGoOfTheGone(context, world, stage);
+			slamWaveReachesFurther(context, world, stage);
+			delayedSlamHangs(context, world, stage);
+			hookThrustMeetsThePulled(context, world, stage);
 		}
 	}
 
@@ -738,15 +742,19 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		int neutral = 0;
 		int learned = 0;
 		List<String> picks = new java.util.ArrayList<>();
+		// among blows that fall at fixed spots, where covering the roll is a choice (a hook's pull reaches anyone in range)
+		MoveSet fixed = new MoveSet(List.of(SnufferMoves.THRUST, SnufferMoves.LEG_SWEEP, SnufferMoves.UPSWING, SnufferMoves.OVERHEAD), List.of());
+		List<String> neutralPicks = new java.util.ArrayList<>();
 		for (int seed = 0; seed < 40; seed++) {
-			BossMove before = new Planner(SnufferMoves.SET, RandomSource.create(seed)).plan(standing(hunter, PlayerAction.IDLE), 3_000_000L).first();
-			BossMove after = new Planner(SnufferMoves.SET, RandomSource.create(seed)).plan(new Planner.Situation(Vec3.ZERO, 0.0F, "light", java.util.Map.of(), null, 0,
+			BossMove before = new Planner(fixed, RandomSource.create(seed)).plan(standing(hunter, PlayerAction.IDLE), 3_000_000L).first();
+			neutralPicks.add(before == null ? "nothing" : before.id());
+			BossMove after = new Planner(fixed, RandomSource.create(seed)).plan(new Planner.Situation(Vec3.ZERO, 0.0F, "light", java.util.Map.of(), null, 0,
 				hunter, Vec3.ZERO, PlayerAction.IDLE, 100.0F, roller, null, 0, Vec3.ZERO, 12.0), 3_000_000L).first();
 			neutral += covers(before, rolledTo) ? 1 : 0;
 			learned += covers(after, rolledTo) ? 1 : 0;
 			picks.add(after == null ? "nothing" : after.id());
 		}
-		System.out.println("[boss] against a left roller: " + learned + "/40 cover the roll (" + neutral + "/40 before learning): " + picks);
+		System.out.println("[boss] against a left roller: " + learned + "/40 cover the roll (" + neutral + "/40 before learning): " + picks + " before " + neutralPicks);
 		check(learned > neutral, "learning a left roller makes it cover their roll more often: " + learned + " against " + neutral + " " + picks);
 	}
 
@@ -762,6 +770,66 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		Vec3 local = move.motion().at(strike.tick());
 		Vec3 boss = new Vec3(-local.z, local.y, local.x);
 		return strike.shape().reaches(boss, new Vec3(0.0, 0.0, 1.0), at, 0.3, true);
+	}
+
+	/** The moves at a distance: each blow where it aims. */
+	private static void distanceMovesLand() {
+		blowsLandWhereTheyAim(java.util.Map.of(
+			"chain_sweep", PartRule.Aim.LEGS,
+			"slam_wave", PartRule.Aim.LEGS,
+			"delayed_slam", PartRule.Aim.LEGS,
+			"hook_thrust", PartRule.Aim.BODY), Set.of());
+		BossMove hookSlam = SnufferMoves.SET.get("hook_slam");
+		check(hookSlam.strikes().get(1).part().aim() == PartRule.Aim.HEAD, "the hook slam ends with a blow to the head");
+		check(SnufferMoves.SET.get("delayed_slam").tell() == SnufferMoves.SET.get("slam").tell(), "the delayed slam opens with the slam's own tell");
+	}
+
+	/** The slam's wave runs out along the floor past where the landing reaches, and takes the legs there. */
+	private static void slamWaveReachesFurther(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 7.5, Set.of(), 180.0F, 0.0F, true);
+			keeper(server, stage).perform("slam_wave");
+		});
+		context.waitTicks(70);
+		world.getServer().runOnServer(server -> {
+			life.shizune.mistinn.body.Body body = BodyService.get(player(server));
+			check(body.get(BodyPart.LEFT_LEG) < BodyPart.MAX && body.get(BodyPart.TORSO) == BodyPart.MAX, "seven blocks out, the wave takes the legs: " + body);
+			clear(server, stage);
+		});
+	}
+
+	/** The delayed slam hangs at the top of its leap well past when the slam would have landed, then comes down. */
+	private static void delayedSlamHangs(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		world.getServer().runOnServer(server -> {
+			player(server).teleportTo(server.overworld(), stage.getX() - 7.5, stage.getY(), stage.getZ() - 7.5, Set.of(), 0.0F, 0.0F, true);
+			keeper(server, stage).perform("delayed_slam");
+		});
+		context.waitTicks(46);
+		world.getServer().runOnServer(server -> check(keeper(server, stage).getY() > stage.getY() + 1.0, "still hanging in the air at tick 46: " + keeper(server, stage).position()));
+		context.waitTicks(50);
+		world.getServer().runOnServer(server -> {
+			Snuffer keeper = keeper(server, stage);
+			check(keeper.getY() < stage.getY() + 0.2 && !keeper.isNoGravity(), "and down again afterwards: " + keeper.position());
+			clear(server, stage);
+		});
+	}
+
+	/** Hooked at eight blocks and yanked in, the hunter runs onto the spear. */
+	private static void hookThrustMeetsThePulled(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 6.5, Set.of(), 180.0F, 0.0F, true);
+			Snuffer keeper = keeper(server, stage);
+			keeper.setTarget(player);
+			keeper.perform("hook_thrust");
+		});
+		context.waitTicks(30);
+		world.getServer().runOnServer(server -> {
+			life.shizune.mistinn.body.Body body = BodyService.get(player(server));
+			check(body.get(BodyPart.TORSO) < BodyPart.MAX, "the hooked hunter runs onto the spear: " + body + " at " + player(server).position());
+			clear(server, stage);
+		});
 	}
 
 	// ── Helpers ───────────────────────────────────────────────────

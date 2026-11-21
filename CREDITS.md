@@ -93,6 +93,14 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `entity/snuffer/lantern_bash_2.ogg` | `synth:the lantern rattling on its neck, the flame flaring` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/grab_throw_1.ogg` | `oga_snarls:monsters-snarls-3#1`; `synth:claws creaking open` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/grab_throw_2.ogg` | `oga_snarls:monster-snarl-attack#4`; `synth:claws creaking open` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/slam_wave_1.ogg` | `oga_snarls:monsters-snarls-3#1`; `synth:salt crunching and a rumble under the floor` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/slam_wave_2.ogg` | `oga_snarls:monster-snarl-5#7`; `synth:salt crunching and a rumble under the floor` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/hook_slam_1.ogg` | `synth:the chain swung round overhead` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/hook_slam_2.ogg` | `synth:the chain swung round overhead` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/hook_thrust_1.ogg` | `synth:the chain run out and the spear's iron ticking` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/hook_thrust_2.ogg` | `synth:the chain run out and the spear's iron ticking` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/chain_sweep_1.ogg` | `synth:the hook whirled low, the chain hissing over the floor` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/chain_sweep_2.ogg` | `synth:the hook whirled low, the chain hissing over the floor` | CC0 1.0 sources + project synthesis |
 | `execution/bite_1.ogg` | `oga_creature_2:attack_03`; `oga_creature_1:eat_03`; `oga_creature_2:slime_06`; `synth:teeth` | CC0 1.0 sources + project synthesis |
 | `execution/bite_2.ogg` | `oga_creature_2:attack_02`; `oga_creature_1:eat_03`; `oga_creature_2:slime_07`; `synth:teeth` | CC0 1.0 sources + project synthesis |
 | `execution/bite_3.ogg` | `oga_creature_2:attack_02`; `oga_creature_1:eat_04`; `oga_creature_2:slime_07`; `synth:teeth` | CC0 1.0 sources + project synthesis |

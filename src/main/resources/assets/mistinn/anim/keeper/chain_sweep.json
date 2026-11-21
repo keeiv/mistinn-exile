@@ -1,0 +1,14 @@
+{"_comment":"擲鉤掃場: whirls the hook low at its side, the chain hissing on the floor (the tell, 0-16); slings it out flat across the floor in a wide arc (16-18) at the legs; reels it in (18-40).",
+"keys":[0.0,0.1,0.2,0.3,0.4,0.475,0.65,1.0],
+"eases":["in_out_sine","in_out_sine","in_out_sine","in_cubic","out_cubic","linear","in_out_sine"],
+"length":40,"limbs":{
+"body_x":[0,15,15,15,25,25,25,0],
+"body_y":[0,30,10,35,40,-50,-40,0],
+"left_leg_x":[0,0,0,0,20,20,20,0],
+"right_arm_x":[0,-30,-30,-30,-30,-40,-40,0],
+"right_arm_y":[0,60,-20,60,70,-80,-80,0],
+"right_arm_z":[0,40,60,45,45,35,35,0],
+"right_leg_x":[0,0,0,0,-30,-30,-30,0]},
+"root":{
+"y":[0,0,0,0,-0.2,-0.2,-0.2,0],
+"yaw":[0,0,0,0,0,-15,-15,0]}}
