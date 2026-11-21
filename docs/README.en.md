@@ -213,6 +213,17 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 | ![A ravager has thrown the hunter down on the grass and bites into their belly, shaking them](images/execution-charge.jpg) | ![An enderman holds the hunter's head in both hands and lifts them off the ground, about to break the neck](images/execution-neck-twist.jpg) |
 | ![A skeleton stands with its bow drawn and looses an arrow at the hunter kneeling across from it](images/execution-headshot.jpg) | ![The mission-end screen after an execution: the word executed in crimson, and below it the heart bitten open with a knife in it](images/mission-end-execution.jpg) |
 
+- **Hearing and smell**: what a hunter does makes noise. A hostile monster nearby with nothing to chase freezes, turns its head toward the sound, then walks over to look, and gives up if it finds nothing. Heard is not seen: it only locks on once it sees you.
+
+  | Action | Carries (blocks) |
+  | --- | --- |
+  | Swing, roll, dive | 10 |
+  | Sprinting, slide | 12 |
+  | Starting a treatment | 16 |
+  | Heavy blow | 18 |
+  | Resting at a golden bell | 24 |
+
+  Crouching halves swings, rolls, slides and sprinting; treatment and the bell are as loud crouched. A bleeding hunter gives off a scent every two seconds that monsters within 20 blocks smell without seeing them, 4 blocks further for each destroyed part. Creatures that only fight when provoked (endermen, zombified piglins, wolves, polar bears) are left alone, and piglins, hoglins, wardens, breezes and the creaking hunt the vanilla way.
 - **Stalking and windups**: a monster that has a hunter closes in low. Before each melee blow it winds up (zombies and spiders quickly, wardens and ravagers slowly) with a cry, then lunges. A roll or a step back during the windup avoids it; backing off too far is chased a short way.
 - **Voices**: 35 creatures (zombies, piglins, the warden, endermen, spiders, wolves with a set for each of their seven variants, polar bears and more) speak with CC0 recordings from OpenGameArt, layered and reshaped. Skeletons and the creaking have no throat; their windups are bone and wood.
 - **Executions**: when both legs are destroyed, a monster in reach pins the hunter and kills them. Each family has its own paired move:
