@@ -2,8 +2,10 @@ package life.shizune.mistinn.test;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
+import life.shizune.mistinn.boss.BossBrain;
 import life.shizune.mistinn.boss.BossMove;
 import life.shizune.mistinn.boss.HitShape;
 import life.shizune.mistinn.boss.MoveRunner;
@@ -60,6 +62,8 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		baitsEarlyRollers();
 		signalsAreHonest();
 		signalsAreNeverFaked();
+		learnsALeftRoller();
+		brainsAreIndependent();
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			world.getConnection().waitForChunksRender();
 			world.getServer().runCommand("difficulty normal");
@@ -81,6 +85,8 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			grabbedHunterLeavingReleases(context, world, stage);
 			feintsNeverHurt(context, world, stage);
 			delayHoldsTheBlow(context, world, stage);
+			forgetsAfterTheFight(world, stage);
+			ignoresNonHunters(context, world, stage);
 		}
 	}
 
@@ -438,6 +444,90 @@ public final class MistinnBossTest implements FabricClientGameTest {
 				check(SnufferMoves.SET.get(move.imitates()).kind() != BossMove.Kind.SIGNAL, move.id() + " fakes a signal");
 			}
 		}
+	}
+
+	// ── The brain in the keeper ───────────────────────────────────
+
+	/** A hunter who rolls to their left out of every sweep is seen doing it, and expected to. */
+	private static void learnsALeftRoller() {
+		BossBrain brain = new BossBrain(SnufferMoves.SET, new Planner(SnufferMoves.SET, RandomSource.create(1)));
+		UUID hunter = UUID.randomUUID();
+		long time = 0;
+		for (int round = 0; round < 6; round++) {
+			brain.started(SnufferMoves.SWEEP, 0, hunter, Vec3.ZERO, time);
+			// south of the keeper and facing it, so their left is west; the roll comes a few ticks into the tell
+			Vec3 last = new Vec3(0.0, 0.0, 3.5);
+			for (int t = 0; t < SnufferMoves.SWEEP.length(); t++) {
+				boolean rolling = t >= 6 && t < 12;
+				Vec3 pos = t < 6 ? new Vec3(0.0, 0.0, 3.5) : new Vec3(-0.55 * Math.min(6, t - 5), 0.0, 3.5);
+				brain.see(hunter, new Observation(time, pos, pos.subtract(last), 180.0F, rolling ? PlayerAction.ROLL : PlayerAction.IDLE, 100.0F, false, 3.0),
+					Vec3.ZERO, time);
+				last = pos;
+				time++;
+			}
+		}
+		PlayerModel model = brain.model(hunter);
+		check(model != null, "the brain keeps a model of the hunter it watched");
+		double left = model.responses("sweep").get(Response.ROLL_LEFT);
+		check(left > 0.6, "six rolls to the left make a left roll likely, not " + left + " " + model.responses("sweep"));
+	}
+
+	/** Two keepers learn each on their own: what one sees, the other does not know. */
+	private static void brainsAreIndependent() {
+		BossBrain one = new BossBrain(SnufferMoves.SET, new Planner(SnufferMoves.SET, RandomSource.create(1)));
+		BossBrain two = new BossBrain(SnufferMoves.SET, new Planner(SnufferMoves.SET, RandomSource.create(1)));
+		UUID hunter = UUID.randomUUID();
+		one.started(SnufferMoves.SWEEP, 0, hunter, Vec3.ZERO, 0);
+		for (int t = 0; t < 40; t++) {
+			one.see(hunter, observation(t, new Vec3(0.0, 0.0, 3.5), Vec3.ZERO), Vec3.ZERO, t);
+		}
+		check(one.model(hunter) != null, "the first keeper watched the hunter");
+		check(two.model(hunter) == null, "the second never did");
+	}
+
+	/** Once the room has been empty of hunters for the length of a fight's end, the keeper forgets them; not a tick sooner. */
+	private static void forgetsAfterTheFight(final TestSingleplayerContext world, final BlockPos stage) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			Snuffer keeper = keeper(server, stage);
+			keeper.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(40.0);
+			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 3.5, Set.of(), 180.0F, 0.0F, true);
+			Vec3 centre = Vec3.atBottomCenterOf(stage);
+			keeper.brain().observe(server.overworld(), keeper, centre, 12.0);
+			check(keeper.brain().model(player.getUUID()) != null, "a hunter in the room is watched");
+			// gone from the room, though not from the world
+			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY() + 40, stage.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
+			for (int i = 0; i < BossBrain.FIGHT_END - 1; i++) {
+				keeper.brain().observe(server.overworld(), keeper, centre, 12.0);
+			}
+			check(keeper.brain().model(player.getUUID()) != null, "a moment short of the fight's end, it still remembers");
+			keeper.brain().observe(server.overworld(), keeper, centre, 12.0);
+			check(keeper.brain().model(player.getUUID()) == null, "and then it forgets");
+			clear(server, stage);
+		});
+	}
+
+	/** A player in creative is not a hunter: the keeper neither targets nor watches them, until they are one. */
+	private static void ignoresNonHunters(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		world.getServer().runCommand("gamemode creative @a");
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 3.5, Set.of(), 180.0F, 0.0F, true);
+			keeper(server, stage).getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(40.0);
+		});
+		context.waitTicks(10);
+		world.getServer().runOnServer(server -> {
+			Snuffer keeper = keeper(server, stage);
+			check(keeper.getTarget() == null, "a creative player is not targeted: " + keeper.getTarget());
+			check(keeper.brain().model(player(server).getUUID()) == null, "nor watched");
+		});
+		world.getServer().runCommand("gamemode survival @a");
+		context.waitTicks(10);
+		world.getServer().runOnServer(server -> {
+			Snuffer keeper = keeper(server, stage);
+			check(keeper.getTarget() == player(server), "a hunter is: " + keeper.getTarget());
+			clear(server, stage);
+		});
 	}
 
 	// ── Helpers ───────────────────────────────────────────────────
