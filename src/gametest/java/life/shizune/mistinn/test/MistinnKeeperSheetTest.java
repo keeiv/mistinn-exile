@@ -76,6 +76,12 @@ public class MistinnKeeperSheetTest implements FabricClientGameTest {
 				}
 				context.runOnClient(mc -> SnufferModel.previewClip = null);
 			}
+			// the dark half: the lantern burns cold
+			world.getServer().runCommand("item replace entity @e[tag=sheet] armor.head with minecraft:soul_lantern");
+			world.getServer().runCommand("time set 18000");
+			world.getServer().runCommand("tp @a " + views[1][1] + " " + views[1][2] + " " + views[1][3] + " " + views[1][4] + " " + views[1][5]);
+			context.waitTicks(10);
+			context.takeScreenshot(TestScreenshotOptions.of("rest-front-dark").disableCounterPrefix().withDestinationDir(OUT));
 			context.runOnClient(mc -> mc.gui.hud.toggle());
 		}
 	}
