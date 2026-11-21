@@ -44,6 +44,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 - [Death and the end of the mission](#death-and-the-end-of-the-mission)
 - [Swings, stamina and rolls](#swings-stamina-and-rolls)
 - [The fog-shore lighthouse and the Snuffer](#the-fog-shore-lighthouse-and-the-snuffer)
+- [Stats and skills](#stats-and-skills)
 - [Controls](#controls)
 - [Tiers and gear](#tiers-and-gear)
 - [Grid inventory](#grid-inventory)
@@ -62,7 +63,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Story mode | A prologue and a first chapter with objectives, radio calls, pixel-art story cards and in-world scenes, with a mission journal on `K`. Later chapters are still being made. |
 | Hunter Training | An optional course for a new singleplayer world. Follow the instructor and the glowing arrows through equipment, combat, medicine, crafting, the bell and residue, radio repair, and a keeper rehearsal. Board the drop pod to choose Story or Free exploration. |
 | Golden bells | Ring one to set your respawn point. Each bell has its own one-hour cooldown in real time, shared by everyone. The border world has no such metal, so they cannot be crafted. |
-| Body parts | Hearts are replaced by six parts (head, torso, both arms, both legs), 80 health each; three destroyed parts kill. Each part is protected only by the gear that covers it, and a destroyed one has lasting effects. |
+| Body parts | Hearts are replaced by six parts (head, torso, both arms, both legs), 80 health each (up to 120 with constitution); three destroyed parts kill. Each part is protected only by the gear that covers it, and a destroyed one has lasting effects. |
 | Bleeding and broken bones | Blows can open a bleeding wound that slowly kills the part until a tourniquet stops it; falls, explosions and crushing blows can break a limb, which then works as if destroyed (a broken leg only dives) until surgery sets it; a splint holds it for a while. |
 | Medicine and repair | Potent injector, surgery kit, painkillers, tourniquet, splint, and tier III–VI armour and helmet repair kits; each takes a few seconds with its own motion and sounds, and a heavy hit or a roll breaks it off. |
 | Crafting | Every medical item, repair kit, piece of gear and weapon can be crafted or smithed. Permanent golden bells are found in the world. Keepers drop the Rust God's salt block, an ingredient in tier VI gear. |
@@ -73,12 +74,13 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Vanilla monsters | Their voices are built from CC0 recordings, lower and more savage; their movement and poses are remade for each rig. They stalk low once they have a hunter, and every melee blow has a windup you can see and hear, and roll away from. A hunter whose legs are both destroyed is executed: see [Vanilla monsters and executions](#vanilla-monsters-and-executions). |
 | Stamina and rolls | Swings, sprints and rolls cost stamina. The legs determine how far a roll goes and the arms shape its motion. Badly injured legs can force a dive, whose landing strains the upper body. |
 | Title screen | An original misty shore with a dead lighthouse: drifting fog, glinting water and a last ember in the lamp room. |
-| Hunter's Guide | Placed in your hotbar the first time you join; nine pages on the world, the mission and the rules. |
+| Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: ten pages on the world, the mission and the rules, the stats and the skill tree. |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V; each with its own durability, protection, capacity, layout and a two-line story. |
 | Grid inventory | Four pockets, the chest rig's and backpack's grids, and a safe box kept through death. Every item takes a footprint by kind and can be rotated. Packs, rigs and some medical supplies have sprites drawn for their footprints. Packs and rigs also show on the body. Survival and adventure use the mod's own inventory screen and seal off the 27 vanilla slots. |
 | Fog-shore lighthouses | Dead lighthouses on the coast; the lamp room at the top is held by the first keeper, **the Snuffer**, whose every move strikes a set part of the body. The fight has its own music, which turns more frantic in its dark half. |
+| Stats and skills | Bring back a keeper's rust god salt to learn the **slide**, the first major skill, on the guide's skills page; after that, salt buys strength, speed, constitution and intellect a point at a time. See [Stats and skills](#stats-and-skills). |
 | Languages | Traditional Chinese and English. |
 
 ### Weapons
@@ -234,7 +236,7 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 
 - **Swings**: every blow has four beats: the wind-up strains harder towards its end and the arms shake, the strike breaks loose and accelerates, the weapon's weight carries the body past the line, and the recovery hauls it back. Heavy weapons wind up and recover longer.
 - **View**: in first person the view turns, dips and tilts with the swing and jolts on a hit. Press `J` to turn this off; the setting is kept in `config/mistinn-client.properties`.
-- **Stamina**: 100 at most. Swings (misses too), sprinting and rolls cost it, and it starts coming back a second after you stop spending. At zero you cannot sprint or swing.
+- **Stamina**: 100 at most (3 more per point of constitution). Swings (misses too), sprinting and rolls cost it, and it starts coming back a second after you stop spending. At zero you cannot sprint or swing.
 
 | Weapon | Stamina per swing |
 | --- | --- |
@@ -269,6 +271,26 @@ Rust Anchor says the coasts at the world's edge are lined with dead lighthouses,
 - It drops **the Rust God's salt block**, 3000 salt, and a 30% chance of one piece of tier III–IV gear.
 - In the lamp room, or within 32 blocks once it is wounded, the keeper's fight music plays. Below half health, a low bell marks the blackout and leads into the dark track. The music stops when the fight is over.
 
+## Stats and skills
+
+| | |
+| --- | --- |
+| ![The skills page of the Hunter's Guide: the slide on the left, four rows of minor nodes for strength, speed, constitution and intellect, and the major nodes not yet open on the right](images/guide-skills.png) | ![The stats page of the Hunter's Guide: the four stats with what they do now, and the salt and rust god salt carried](images/guide-stats.png) |
+
+A hunter starts growing once a keeper falls and its rust god salt comes home. Open the **Hunter's Guide** on its Skills page: major nodes are unlocked with a rust god salt, the first being the **slide**; after that, salt buys minor nodes one at a time, each adding to one of four stats. Every node needs the one before it; click once to choose a node and again to learn it.
+
+| Stat | Per point (0 to 20) |
+| --- | --- |
+| Strength | Melee damage +3% |
+| Speed | Moving +1%, swings +1.5%, roll speed +1.5%; one more tick of roll dodge every 5 points |
+| Constitution | Each body part holds 2 more (up to 120), stamina 3 more (up to 160), bleeding and fractures 3% less likely |
+| Intellect | Treatment and repair take 2.5% less time (never less than half), surgery kits and injectors heal 3% more |
+
+- **Major nodes** take one rust god salt, from the hands, the hotbar or the grid. Later keepers guard the other major nodes; the guide shows them as not yet open.
+- **Minor nodes** cost 200 salt for the first and 100 more for each one after. Each of the four branches has five.
+- **Slide** (crouch while running): feet first for about five blocks, slowing as it goes; 18 stamina, a 1.2 second cooldown, and it breaks off a treatment in hand. Every hostile creature in the way is swept off its feet for 3 damage, once each. The slide gives no dodge, and two dead legs cannot slide.
+- Skills are saved with the hunter and kept through death. The guide's Stats page shows what each stat does for you now, and the salt and rust god salt you carry.
+
 ## Controls
 
 | Input | Action |
@@ -282,6 +304,8 @@ Rust Anchor says the coasts at the world's edge are lined with dead lighthouses,
 | Use a drop station radio | Mend it with 4 redstone; in the story, hand in the Rust God's salt block |
 | `K` | Mission journal |
 | Left Alt | Roll or dive, depending on leg injuries and painkillers |
+| Crouch while running | Slide (once learned) |
+| Use the Hunter's Guide | Open the guide: pages, stats and skills |
 | `J` | Toggle the first-person swing view |
 | Click a cell | Pick up or put down |
 | Drag | Move between cells, or between the grid and the hotbar or a chest |
