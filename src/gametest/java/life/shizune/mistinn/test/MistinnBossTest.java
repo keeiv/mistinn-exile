@@ -287,6 +287,8 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		Planner.Situation same = standing(new Vec3(0.0, 0.0, 4.0), PlayerAction.IDLE);
 		String previous = null;
 		int run = 0;
+		String previousFamily = null;
+		int familyRun = 0;
 		List<String> picks = new java.util.ArrayList<>();
 		for (int i = 0; i < 20; i++) {
 			BossMove first = planner.plan(same, 3_000_000L).first();
@@ -296,6 +298,10 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			run = first.id().equals(previous) ? run + 1 : 1;
 			previous = first.id();
 			check(run <= 3, "the same move four times running: " + picks);
+			String family = planner.family(first);
+			familyRun = family.equals(previousFamily) ? familyRun + 1 : 1;
+			previousFamily = family;
+			check(familyRun <= 3, "the same kind of move (" + family + ") four times running: " + picks);
 		}
 		System.out.println("[boss] twenty picks for one situation: " + picks);
 	}
