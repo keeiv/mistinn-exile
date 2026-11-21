@@ -903,27 +903,27 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 
 				BodyService.restoreAll(player);
 				player.damageCooldownTime = 0;
-				keeper.strikeNow(level, player, Snuffer.Move.SWEEP);
+				keeper.strikeNow(level, player, "sweep");
 				Body body = BodyService.get(player);
 				check(body.get(BodyPart.TORSO) < 80.0F || body.get(BodyPart.LEFT_ARM) < 80.0F || body.get(BodyPart.RIGHT_ARM) < 80.0F, "the sweep cuts the torso or an arm: " + body);
 				check(body.get(BodyPart.HEAD) == 80.0F && body.get(BodyPart.LEFT_LEG) == 80.0F && body.get(BodyPart.RIGHT_LEG) == 80.0F, "and nothing else: " + body);
 
 				BodyService.restoreAll(player);
 				player.damageCooldownTime = 0;
-				keeper.strikeNow(level, player, Snuffer.Move.SLAM);
+				keeper.strikeNow(level, player, "slam");
 				body = BodyService.get(player);
 				check(body.get(BodyPart.LEFT_LEG) < 80.0F && body.get(BodyPart.RIGHT_LEG) < 80.0F && body.get(BodyPart.TORSO) == 80.0F, "the slam takes the legs: " + body);
 
 				BodyService.restoreAll(player);
 				player.damageCooldownTime = 0;
-				keeper.strikeNow(level, player, Snuffer.Move.HOOK);
+				keeper.strikeNow(level, player, "hook");
 				body = BodyService.get(player);
 				float bareFace = body.get(BodyPart.HEAD);
 				check(bareFace < 80.0F && body.get(BodyPart.TORSO) == 80.0F, "the hook strikes the face: " + body);
 				BodyService.restoreAll(player);
 				GridService.set(player, GridService.get(player).withMask(new ItemStack(MistinnItems.MASKS.get(6))));
 				player.damageCooldownTime = 0;
-				keeper.strikeNow(level, player, Snuffer.Move.HOOK);
+				keeper.strikeNow(level, player, "hook");
 				check(BodyService.get(player).get(BodyPart.HEAD) > bareFace, "a mask softens the blow to the face: " + BodyService.get(player).get(BodyPart.HEAD) + " against " + bareFace);
 				BodyService.restoreAll(player);
 			});

@@ -2,8 +2,9 @@ package life.shizune.mistinn.keeper;
 
 import java.util.ArrayList;
 import java.util.List;
-import life.shizune.mistinn.body.BodyPart;
-import life.shizune.mistinn.body.BodyService;
+import life.shizune.mistinn.boss.BossMove;
+import life.shizune.mistinn.boss.MoveRunner;
+import life.shizune.mistinn.boss.MoveSet;
 import life.shizune.mistinn.registry.MistinnBlocks;
 import life.shizune.mistinn.registry.MistinnItems;
 import life.shizune.mistinn.registry.MistinnSounds;
@@ -39,7 +40,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -59,60 +59,16 @@ public class Snuffer extends Monster {
 	public static final int STAGGER_TICKS = 100;
 	public static final float STAGGER_DAMAGE = 1.5F;
 
-	/** The moves, with their wind-up (the tell), in ticks. */
-	public enum Move {
-		SWEEP(16, 7.0F),
-		SLAM(20, 6.0F),
-		HOOK(14, 8.0F);
-
-		public final int windup;
-		public final float damage;
-
-		Move(final int windup, final float damage) {
-			this.windup = windup;
-			this.damage = damage;
-		}
-	}
-
-	/**
-	 * 動作: what the keeper's body is doing, for the client to animate. A move has more than
-	 * one: the slam gathers, flies and lands. Each lasts {@code ticks} (0: until the next one),
-	 * and the client plays the clip {@code anim/keeper/<id>} over it.
-	 */
-	public enum Action {
-		NONE("none", 0),
-		/** The tell (leaning back, the pole drawn round), the sweep at tick 16, the follow-through. */
-		SWEEP("sweep", 40),
-		/** Sinking into a crouch to spring; held until the leap. */
-		SLAM_GATHER("slam_gather", 0),
-		/** In the air, the pole raised point down; held until it lands. */
-		SLAM_AIR("slam_air", 0),
-		/** The landing, the pole driven into the floor, and rising from it. */
-		SLAM_LAND("slam_land", 26),
-		/** Drawn back (the tell), thrown at tick 14, the hunter yanked in, struck at about 25. */
-		HOOK("hook", 40),
-		/** Thrown off balance by the lit lamps: hunched and swaying. */
-		STAGGER("stagger", STAGGER_TICKS);
-
-		public final String id;
-		public final int ticks;
-
-		Action(final String id, final int ticks) {
-			this.id = id;
-			this.ticks = ticks;
-		}
-	}
-
-	private static final EntityDataAccessor<Byte> DATA_ACTION = SynchedEntityData.defineId(Snuffer.class, EntityDataSerializers.BYTE);
-	private static final EntityDataAccessor<Integer> DATA_ACTION_TICKS = SynchedEntityData.defineId(Snuffer.class, EntityDataSerializers.INT);
+	/** The move being run, as its index in {@link SnufferMoves#SET} plus one (0: none), for the client. */
+	private static final EntityDataAccessor<Byte> DATA_MOVE = SynchedEntityData.defineId(Snuffer.class, EntityDataSerializers.BYTE);
+	/** How far into the move, in ticks. */
+	private static final EntityDataAccessor<Integer> DATA_MOVE_TICKS = SynchedEntityData.defineId(Snuffer.class, EntityDataSerializers.INT);
+	/** Whether the move's clock stands still (in the air, waiting to land): the client holds the pose. */
+	private static final EntityDataAccessor<Boolean> DATA_MOVE_HELD = SynchedEntityData.defineId(Snuffer.class, EntityDataSerializers.BOOLEAN);
 
 	private final ServerBossEvent bar = new ServerBossEvent(java.util.UUID.randomUUID(), Component.translatable("entity.mistinn.snuffer"), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.NOTCHED_10);
-	private @Nullable Move move;
-	private int moveTimer;
+	private final MoveRunner runner = new MoveRunner();
 	private int cooldown = 40;
-	private boolean leaping;
-	private int hookFollowUp = -1;
-	private @Nullable ServerPlayer hooked;
 	private boolean dark;
 	private int staggered;
 	private int snuffTimer;
@@ -154,48 +110,39 @@ public class Snuffer extends Monster {
 	@Override
 	protected void defineSynchedData(final SynchedEntityData.Builder builder) {
 		super.defineSynchedData(builder);
-		builder.define(DATA_ACTION, (byte) 0);
-		builder.define(DATA_ACTION_TICKS, 0);
+		builder.define(DATA_MOVE, (byte) 0);
+		builder.define(DATA_MOVE_TICKS, 0);
+		builder.define(DATA_MOVE_HELD, false);
 	}
 
 	// ── State, for tests and the client ───────────────────────────
 
-	/** What the body is doing, as the client sees it. */
-	public Action action() {
-		Action[] all = Action.values();
-		int i = this.entityData.get(DATA_ACTION);
-		return i >= 0 && i < all.length ? all[i] : Action.NONE;
+	/** Every move the keeper has. */
+	public MoveSet moves() {
+		return SnufferMoves.SET;
 	}
 
-	/** Ticks since the current action began. */
-	public int actionTicks() {
-		return this.entityData.get(DATA_ACTION_TICKS);
+	/** The move the body is in, as the client sees it, or null when it only walks or stands. */
+	public @Nullable BossMove currentMove() {
+		int i = this.entityData.get(DATA_MOVE) - 1;
+		return i >= 0 && i < SnufferMoves.SET.size() ? SnufferMoves.SET.byIndex(i) : null;
 	}
 
-	private void act(final Action action) {
-		this.entityData.set(DATA_ACTION, (byte) action.ordinal());
-		this.entityData.set(DATA_ACTION_TICKS, 0);
+	/** Ticks since the current move began. */
+	public int moveTicks() {
+		return this.entityData.get(DATA_MOVE_TICKS);
 	}
 
-	/** Counts the action on, and lets it go once its time is up. */
-	private void tickAction() {
-		Action action = this.action();
-		if (action == Action.NONE) {
-			return;
-		}
-		int ticks = this.actionTicks() + 1;
-		if (action.ticks > 0 && ticks >= action.ticks) {
-			this.act(Action.NONE);
-		} else if (action.ticks == 0 && ticks > 100) {
-			// a held pose never outlives its move by long, whatever went wrong
-			this.act(Action.NONE);
-		} else {
-			this.entityData.set(DATA_ACTION_TICKS, ticks);
-		}
+	/** Whether the current move's clock stands still. */
+	public boolean moveHeld() {
+		return this.entityData.get(DATA_MOVE_HELD);
 	}
 
-	public @Nullable Move move() {
-		return this.move;
+	private void syncMove() {
+		BossMove move = this.runner.current();
+		this.entityData.set(DATA_MOVE, (byte) (move == null ? 0 : SnufferMoves.SET.index(move.id()) + 1));
+		this.entityData.set(DATA_MOVE_TICKS, this.runner.ticks());
+		this.entityData.set(DATA_MOVE_HELD, this.runner.held());
 	}
 
 	public boolean dark() {
@@ -211,7 +158,6 @@ public class Snuffer extends Monster {
 	@Override
 	protected void customServerAiStep(final ServerLevel level) {
 		super.customServerAiStep(level);
-		this.tickAction();
 		this.bar.setProgress(this.getHealth() / this.getMaxHealth());
 		this.updateBarViewers(level);
 		if (!this.dark && this.getHealth() <= this.getMaxHealth() / 2.0F) {
@@ -220,22 +166,25 @@ public class Snuffer extends Monster {
 		if (this.dark) {
 			this.darkRoom(level);
 		}
+		LivingEntity target = this.getTarget();
 		if (this.staggered > 0) {
 			this.staggered--;
 			this.getNavigation().stop();
 			level.sendParticles(ParticleTypes.SMOKE, this.getX(), this.getEyeY() + 0.3, this.getZ(), 2, 0.2, 0.2, 0.2, 0.01);
+			this.runner.tick(level, this, target);
+			this.syncMove();
 			return;
 		}
-		if (this.hookFollowUp >= 0) {
-			this.hookFollowUp();
-		}
-		LivingEntity target = this.getTarget();
-		if (this.move != null) {
+		if (this.runner.running()) {
 			this.getNavigation().stop();
 			if (target != null) {
 				this.getLookControl().setLookAt(target, 30.0F, 30.0F);
 			}
-			this.tickMove(level, target);
+			this.runner.tick(level, this, target);
+			this.syncMove();
+			if (!this.runner.running()) {
+				this.cooldown = 10 + this.random.nextInt(20);
+			}
 			return;
 		}
 		if (target == null || !target.isAlive()) {
@@ -249,194 +198,43 @@ public class Snuffer extends Monster {
 			this.getNavigation().stop();
 		}
 		if (--this.cooldown <= 0 && this.hasLineOfSight(target)) {
-			Move chosen = this.choose(distance);
+			String chosen = this.choose(distance);
 			if (chosen != null) {
-				this.start(chosen);
+				this.perform(chosen);
 			}
 		}
 	}
 
-	private @Nullable Move choose(final double distance) {
+	private @Nullable String choose(final double distance) {
 		float roll = this.random.nextFloat();
 		if (distance < 4.5) {
-			return roll < 0.45F ? Move.SWEEP : roll < 0.75F ? Move.SLAM : Move.HOOK;
+			return roll < 0.45F ? "sweep" : roll < 0.75F ? "slam" : "hook";
 		}
 		if (distance < 12.0) {
-			return roll < 0.6F ? Move.HOOK : Move.SLAM;
+			return roll < 0.6F ? "hook" : "slam";
 		}
 		return null;
 	}
 
-	/** Starts a move from its wind-up. Public so the client game test can call each one. */
-	public void start(final Move chosen) {
-		this.move = chosen;
-		this.moveTimer = 0;
-		this.leaping = false;
-		this.act(switch (chosen) {
-			case SWEEP -> Action.SWEEP;
-			case SLAM -> Action.SLAM_GATHER;
-			case HOOK -> Action.HOOK;
-		});
-		if (this.level() instanceof ServerLevel level) {
-			switch (chosen) {
-				case SWEEP -> level.playSound(null, this.blockPosition(), MistinnSounds.SNUFFER_SWEEP, SoundSource.HOSTILE, 1.3F, 1.0F);
-				case SLAM -> level.playSound(null, this.blockPosition(), MistinnSounds.SNUFFER_SLAM, SoundSource.HOSTILE, 1.3F, 1.0F);
-				case HOOK -> level.playSound(null, this.blockPosition(), MistinnSounds.SNUFFER_HOOK, SoundSource.HOSTILE, 1.3F, 1.0F);
-			}
-		}
+	/** Starts a move from its tell, dropping whatever ran before. Public so the game tests can call each one. */
+	public void perform(final String id) {
+		this.runner.start(this, SnufferMoves.SET.get(id));
+		this.getNavigation().stop();
+		this.syncMove();
 	}
 
-	private void tickMove(final ServerLevel level, final @Nullable LivingEntity target) {
-		Move current = this.move;
-		if (current == null) {
-			return;
-		}
-		this.moveTimer++;
-		if (this.moveTimer < current.windup) {
-			this.tell(level, current, target);
-			return;
-		}
-		switch (current) {
-			case SWEEP -> {
-				this.sweep(level);
-				this.finish(30);
-			}
-			case SLAM -> this.slam(level, target);
-			case HOOK -> {
-				this.hook(level, target);
-				this.finish(40);
-			}
-		}
+	/** A dead keeper finishes nothing it began. */
+	@Override
+	public void die(final DamageSource source) {
+		this.runner.stop();
+		this.syncMove();
+		super.die(source);
 	}
 
-	/** The tell before each move, so a careful hunter can read it. */
-	private void tell(final ServerLevel level, final Move current, final @Nullable LivingEntity target) {
-		switch (current) {
-			// the lantern flares and the keeper leans back
-			case SWEEP -> level.sendParticles(ParticleTypes.FLAME, this.getX(), this.getEyeY() + 0.4, this.getZ(), 3, 0.15, 0.15, 0.15, 0.01);
-			// salt grains rise where it will land
-			case SLAM -> {
-				if (target != null) {
-					level.sendParticles(ParticleTypes.WHITE_ASH, target.getX(), target.getY() + 0.1, target.getZ(), 12, 1.6, 0.05, 1.6, 0.0);
-				}
-			}
-			// the hook is drawn back, the chain rattles
-			case HOOK -> level.sendParticles(ParticleTypes.CRIT, this.getX(), this.getEyeY(), this.getZ(), 2, 0.3, 0.3, 0.3, 0.05);
-		}
-	}
-
-	private void finish(final int rest) {
-		this.move = null;
-		this.moveTimer = 0;
-		this.leaping = false;
-		this.cooldown = rest + this.random.nextInt(20);
-	}
-
-	// ── The moves ─────────────────────────────────────────────────
-
-	/** A wide horizontal swing in front: torso, or the arm on the side it comes from. */
-	private void sweep(final ServerLevel level) {
-		this.swing(net.minecraft.world.InteractionHand.MAIN_HAND, this.getMainHandItem().getAttackAnimation(), true);
-		level.playSound(null, this.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE, 1.5F, 0.6F);
-		Vec3 facing = Vec3.directionFromRotation(0.0F, this.getYRot());
-		for (Player player : level.getEntitiesOfClass(Player.class, this.getBoundingBox().inflate(5.0))) {
-			Vec3 to = player.position().subtract(this.position()).multiply(1, 0, 1);
-			if (to.length() > 5.0 || to.normalize().dot(facing) < -0.2) {
-				continue;
-			}
-			this.strike(level, player, Move.SWEEP, this.sweepHit(player));
-		}
-	}
-
-	private BodyService.Hit sweepHit(final Player player) {
-		float roll = this.random.nextFloat();
-		if (roll < 0.5F) {
-			return BodyService.Hit.on(BodyPart.TORSO, false);
-		}
-		return BodyService.Hit.on(roll < 0.75F ? BodyPart.LEFT_ARM : BodyPart.RIGHT_ARM, false);
-	}
-
-	/** Leaps at the target and lands: a ring of salt that takes the legs of anyone standing in it. */
-	private void slam(final ServerLevel level, final @Nullable LivingEntity target) {
-		if (!this.leaping) {
-			this.leaping = true;
-			Vec3 to = target == null ? Vec3.ZERO : target.position().subtract(this.position());
-			Vec3 flat = new Vec3(to.x, 0, to.z);
-			double reach = Math.min(flat.length(), 8.0) / 8.0;
-			Vec3 push = flat.lengthSqr() < 1.0E-4 ? Vec3.ZERO : flat.normalize().scale(0.9 * reach);
-			this.setDeltaMovement(push.x, 0.75, push.z);
-			this.needsSync = true;
-			this.act(Action.SLAM_AIR);
-			return;
-		}
-		// wait to come down, then strike on landing (or give up after a few seconds)
-		if (!this.onGround() && this.moveTimer < this.move.windup + 60) {
-			return;
-		}
-		this.act(Action.SLAM_LAND);
-		level.playSound(null, this.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 1.0F, 1.4F);
-		level.sendParticles(ParticleTypes.WHITE_ASH, this.getX(), this.getY() + 0.1, this.getZ(), 80, 2.5, 0.1, 2.5, 0.05);
-		level.sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY() + 0.2, this.getZ(), 1, 0, 0, 0, 0);
-		for (Player player : level.getEntitiesOfClass(Player.class, this.getBoundingBox().inflate(5.0, 1.5, 5.0))) {
-			if (player.onGround() && player.distanceTo(this) <= 5.5) {
-				this.strike(level, player, Move.SLAM, BodyService.Hit.LEGS);
-				player.setDeltaMovement(player.getDeltaMovement().add(0, 0.35, 0));
-				player.needsSync = true;
-			}
-		}
-		this.finish(40);
-	}
-
-	/** Throws the hook: the target is dragged in, then struck in the face. */
-	private void hook(final ServerLevel level, final @Nullable LivingEntity target) {
-		if (!(target instanceof ServerPlayer player) || this.distanceTo(player) > 12.5 || !this.hasLineOfSight(player)) {
-			return;
-		}
-		Vec3 pull = this.position().subtract(player.position());
-		Vec3 flat = new Vec3(pull.x, 0, pull.z);
-		if (flat.lengthSqr() > 1.0E-4) {
-			Vec3 drag = flat.normalize().scale(Math.min(1.6, 0.25 * flat.length()));
-			player.setDeltaMovement(drag.x, 0.3, drag.z);
-			player.needsSync = true;
-		}
-		level.playSound(null, player.blockPosition(), SoundEvents.CHAIN_BREAK, SoundSource.HOSTILE, 1.5F, 0.8F);
-		this.hooked = player;
-		this.hookFollowUp = 10;
-	}
-
-	private void hookFollowUp() {
-		if (--this.hookFollowUp > 0) {
-			return;
-		}
-		this.hookFollowUp = -1;
-		ServerPlayer player = this.hooked;
-		this.hooked = null;
-		if (player != null && player.isAlive() && this.distanceTo(player) <= 4.0 && this.level() instanceof ServerLevel level) {
-			this.swing(net.minecraft.world.InteractionHand.MAIN_HAND, this.getMainHandItem().getAttackAnimation(), true);
-			this.strike(level, player, Move.HOOK, BodyService.Hit.on(BodyPart.HEAD, true));
-		}
-	}
-
-	/** Hits a player on the chosen part; non-hunters (creative) just take the damage. */
-	private void strike(final ServerLevel level, final Player player, final Move from, final BodyService.Hit hit) {
-		DamageSource source = this.damageSources().mobAttack(this);
-		if (player instanceof ServerPlayer serverPlayer && BodyService.applies(serverPlayer)) {
-			BodyService.aim(serverPlayer, hit);
-			player.hurtServer(level, source, from.damage);
-			// a blocked or ignored hit must not leave its aim for the next one
-			BodyService.clearAim(serverPlayer);
-		} else {
-			player.hurtServer(level, source, from.damage);
-		}
-	}
-
-	/** Test hook: performs a move's strike at once, skipping the wind-up. */
-	public void strikeNow(final ServerLevel level, final ServerPlayer player, final Move chosen) {
-		switch (chosen) {
-			case SWEEP -> this.strike(level, player, Move.SWEEP, this.sweepHit(player));
-			case SLAM -> this.strike(level, player, Move.SLAM, BodyService.Hit.LEGS);
-			case HOOK -> this.strike(level, player, Move.HOOK, BodyService.Hit.on(BodyPart.HEAD, true));
-		}
+	/** Test hook: deals a move's blow at once, skipping the tell, on the part that move strikes. */
+	public void strikeNow(final ServerLevel level, final ServerPlayer player, final String id) {
+		BossMove.Strike strike = SnufferMoves.SET.get(id).strikes().getFirst();
+		MoveRunner.hit(level, this, player, strike.part(), strike.damage());
 	}
 
 	// ── The dark half ─────────────────────────────────────────────
@@ -480,10 +278,8 @@ public class Snuffer extends Monster {
 
 	private void stagger(final ServerLevel level) {
 		this.staggered = STAGGER_TICKS;
-		this.act(Action.STAGGER);
 		this.snuffTimer = STAGGER_TICKS + 40;
-		this.move = null;
-		this.hookFollowUp = -1;
+		this.perform("stagger");
 		level.playSound(null, this.blockPosition(), SoundEvents.BELL_BLOCK, SoundSource.HOSTILE, 2.0F, 0.6F);
 		for (ServerPlayer player : this.bar.getPlayers()) {
 			player.sendSystemMessage(Component.translatable("message.mistinn.snuffer.stagger"), true);

@@ -3,7 +3,6 @@ package life.shizune.mistinn.client.keeper;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.client.anim.Clip;
 import life.shizune.mistinn.client.anim.Poser;
-import life.shizune.mistinn.keeper.Snuffer;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -62,18 +61,14 @@ public class SnufferModel extends HumanoidModel<SnufferRenderState> {
 		return LayerDefinition.create(mesh, 64, 64);
 	}
 
-	/** The clip of what the keeper is doing, or null when it is only walking or standing. */
+	/** The clip of the move the keeper is in, or null when it is only walking or standing. */
 	public static @Nullable Clip clip(final SnufferRenderState state) {
-		return state.action == Snuffer.Action.NONE ? null : Clip.get("keeper/" + state.action.id);
+		return state.move == null ? null : Clip.find("keeper/" + state.move);
 	}
 
-	/**
-	 * Progress through the action's clip. A held action (gathering, flying) plays its clip once
-	 * over its own {@code length} ticks and holds the last pose.
-	 */
+	/** Progress through the move's clip, which spans the whole move. */
 	public static float progress(final SnufferRenderState state) {
-		int ticks = state.action.ticks > 0 ? state.action.ticks : (int) Clip.get("keeper/" + state.action.id).number("length", 10.0F);
-		return Mth.clamp(state.actionTicks / ticks, 0.0F, 1.0F);
+		return state.moveLength <= 0 ? 0.0F : Mth.clamp(state.moveTicks / state.moveLength, 0.0F, 1.0F);
 	}
 
 	@Override
@@ -83,8 +78,7 @@ public class SnufferModel extends HumanoidModel<SnufferRenderState> {
 		Clip clip = clip(state);
 		if (clip != null) {
 			float p = progress(state);
-			float weight = state.action.ticks > 0 ? clip.weight(p) : clip.weightIn(p);
-			Poser.limbs(clip, p, this, 1, weight);
+			Poser.limbs(clip, p, this, 1, clip.weight(p));
 		}
 		this.lantern(state);
 		// the skirt follows the leading leg out and drags behind the trailing one
