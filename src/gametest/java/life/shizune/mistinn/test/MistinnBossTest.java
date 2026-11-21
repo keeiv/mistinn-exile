@@ -68,6 +68,7 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		brainsAreIndependent();
 		closeInMovesLand();
 		coversALeftRoller();
+		carriedBlowsCount();
 		darkMovesStayInTheDark();
 		feintsBorrowTheirTell();
 		eachSignalIsKept();
@@ -979,6 +980,12 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			server.overworld().setBlockAndUpdate(corner, Blocks.AIR.defaultBlockState());
 			clear(server, stage);
 		});
+	}
+
+	/** A blow carried along a dash (the slide) counts where it reaches along the way, not only where it starts. */
+	private static void carriedBlowsCount() {
+		double landing = new Planner(SnufferMoves.SET, RandomSource.create(3)).landing(standing(new Vec3(0.0, 0.0, 6.0), PlayerAction.IDLE), SnufferMoves.SLIDE);
+		check(landing > 0.3, "six blocks away, the slide reaches the hunter along the way: " + landing);
 	}
 
 	// ── Helpers ───────────────────────────────────────────────────
