@@ -1,0 +1,14 @@
+{"_comment":"延遲跳砸: the slam's crouch (the tell, 0-20) and leap (20-30); it hangs at the top of the leap with the pole raised (held at 30 while it hangs), then drops and lands (30-56).",
+"keys":[0.0,0.321429,0.357143,0.446429,0.535714,0.571429,0.714286,1.0],
+"eases":["out_quad","in_cubic","out_cubic","in_out_sine","out_quad","linear","in_out_sine"],
+"length":56,"limbs":{
+"body_x":[0,25,22,-15,-12,42,40,0],
+"head_x":[0,15,15,-20,-18,30,30,0],
+"left_arm_x":[0,40,40,-170,-170,-45,-45,0],
+"left_leg_x":[0,-30,-30,-25,-25,-40,-40,0],
+"right_arm_x":[0,40,40,-175,-175,-50,-50,0],
+"right_leg_x":[0,-40,-40,-50,-50,-55,-55,0]},
+"item":{
+"x":[0,0,0,60,60,80,70,0]},
+"root":{
+"y":[0,-0.4,-0.4,0.0,0.0,-0.45,-0.45,0]}}
