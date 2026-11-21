@@ -73,7 +73,9 @@ public abstract class AvatarRollMixin {
 			return;
 		}
 		float t = roll.t();
-		if (roll.kind() == RollService.Kind.ROLL) {
+		if (roll.kind() == RollService.Kind.SLIDE) {
+			Poser.root(Clip.get("move/slide"), t, pose, 1, entityScale);
+		} else if (roll.kind() == RollService.Kind.ROLL) {
 			boolean armless = roll.leftArm() <= 0.0F && roll.rightArm() <= 0.0F;
 			Poser.root(Clip.get(armless ? "move/roll_armless" : "move/roll"), t, pose, 1, entityScale);
 			// a weak arm gives way under the turn: the roll leans over to that side

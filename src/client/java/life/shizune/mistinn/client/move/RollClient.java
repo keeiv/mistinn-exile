@@ -5,6 +5,7 @@ import java.util.Map;
 import life.shizune.mistinn.body.Body;
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
+import life.shizune.mistinn.skill.SlideService;
 import life.shizune.mistinn.stamina.RollService;
 import life.shizune.mistinn.stamina.StaminaService;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -33,7 +34,11 @@ public final class RollClient {
 	private record Anim(RollService.Kind kind, long start, float yaw, float leftArm, float rightArm) {
 		float t() {
 			float seconds = (System.nanoTime() - this.start) / 1.0E9F;
-			int ticks = this.kind == RollService.Kind.DIVE ? RollService.DIVE_TICKS : RollService.ROLL_TICKS;
+			int ticks = switch (this.kind) {
+				case ROLL -> RollService.ROLL_TICKS;
+				case DIVE -> RollService.DIVE_TICKS;
+				case SLIDE -> SlideService.ANIM_TICKS;
+			};
 			return seconds * 20.0F / ticks;
 		}
 	}
@@ -44,6 +49,11 @@ public final class RollClient {
 	private static final Map<Integer, Anim> ANIMS = new HashMap<>();
 	private static @Nullable Vec3 push;
 	private static long lastRoll;
+	private static long lastSlide;
+	private static boolean wasSprinting;
+	private static boolean wasCrouching;
+	/** Share of the slide clip over which the slide travels; after it the hunter gets up. */
+	private static final float SLIDE_TRAVEL = (float) SlideService.TICKS / SlideService.ANIM_TICKS;
 
 	private RollClient() {
 	}
@@ -88,10 +98,18 @@ public final class RollClient {
 		if (player == null) {
 			return;
 		}
+		// 滑鏟: crouch pressed while running (the run ends the moment crouch goes down, so it is last tick's)
+		boolean crouching = mc.options.keyShift.isDown();
+		if (crouching && !wasCrouching && wasSprinting) {
+			trySlide(player);
+		}
+		wasCrouching = crouching;
+		wasSprinting = player.isSprinting();
 		Pose pose = sample(player.getId());
-		if (pose != null && push != null && pose.t() < 0.65F) {
-			// keep the roll travelling against friction, fading out
-			double fade = 1.0 - pose.t() / 0.65;
+		float travel = pose != null && pose.kind() == RollService.Kind.SLIDE ? SLIDE_TRAVEL : 0.65F;
+		if (pose != null && push != null && pose.t() < travel) {
+			// keep the roll (or slide) travelling against friction, fading out
+			double fade = 1.0 - pose.t() / travel;
 			player.setDeltaMovement(push.x * fade, player.getDeltaMovement().y, push.z * fade);
 		}
 		if (pose == null) {
@@ -128,6 +146,45 @@ public final class RollClient {
 	}
 
 	/**
+	 * Feet first along the ground, the way the hunter is running. The client moves the hunter
+	 * (movement is the client's); the server checks the skill, the legs, the cooldown and the
+	 * stamina, and shows the slide to everyone else.
+	 */
+	private static void trySlide(final LocalPlayer player) {
+		if (!SlideService.able(player) || !player.onGround() || busy() || player.isPassenger()) {
+			return;
+		}
+		if (System.nanoTime() - lastSlide < SlideService.COOLDOWN * 50_000_000L || !StaminaService.has(player, SlideService.COST)) {
+			return;
+		}
+		Body body = BodyService.get(player);
+		Vec3 moving = player.getDeltaMovement();
+		// along the run; with no motion to speak of, the way the hunter faces
+		float yaw = moving.horizontalDistanceSqr() > 1.0E-3 ? (float) Math.toDegrees(Math.atan2(-moving.x, moving.z)) : player.getYRot();
+		float rad = yaw * Mth.DEG_TO_RAD;
+		// the fading push carries it DISTANCE blocks: the sum of 1 - i/n over the n travelling ticks is (n + 1) / 2
+		double speed = SlideService.DISTANCE / ((SlideService.TICKS + 1) / 2.0);
+		push = new Vec3(-Mth.sin(rad) * speed, 0.0, Mth.cos(rad) * speed);
+		player.setDeltaMovement(push.x, player.getDeltaMovement().y, push.z);
+		player.setSprinting(false);
+		lastSlide = System.nanoTime();
+		ANIMS.put(player.getId(), new Anim(RollService.Kind.SLIDE, System.nanoTime(), yaw, Math.min(1.0F, body.get(BodyPart.LEFT_ARM) / BodyService.max(player)), Math.min(1.0F, body.get(BodyPart.RIGHT_ARM) / BodyService.max(player))));
+		ClientPlayNetworking.send(new SlideService.SlidePayload(yaw));
+	}
+
+	/** First person: how far the view sinks below the crouch through a slide, in blocks. */
+	public static float viewDrop() {
+		LocalPlayer player = Minecraft.getInstance().player;
+		Pose pose = player == null ? null : sample(player.getId());
+		if (pose == null || pose.kind() != RollService.Kind.SLIDE) {
+			return 0.0F;
+		}
+		float t = pose.t();
+		float down = t < 0.15F ? t / 0.15F : t < 0.7F ? 1.0F : 1.0F - (t - 0.7F) / 0.3F;
+		return 0.55F * Mth.clamp(down, 0.0F, 1.0F);
+	}
+
+	/**
 	 * First person, every frame: the view ducks through a roll (leaning to the weaker arm); a
 	 * dive pitches it down and jolts on landing. Degrees of yaw, pitch and roll.
 	 */
@@ -139,7 +196,12 @@ public final class RollClient {
 			return extra;
 		}
 		float t = pose.t();
-		if (pose.kind() == RollService.Kind.ROLL) {
+		if (pose.kind() == RollService.Kind.SLIDE) {
+			// leaning back: the view tips up a little and sways with the scrape
+			float lean = t < 0.15F ? t / 0.15F : t < 0.7F ? 1.0F : 1.0F - (t - 0.7F) / 0.3F;
+			extra[1] = -7.0F * lean;
+			extra[2] = 1.5F * Mth.sin(t * 40.0F) * lean;
+		} else if (pose.kind() == RollService.Kind.ROLL) {
 			float lopsided = pose.rightArm() - pose.leftArm();
 			extra[1] = 32.0F * Mth.sin(t * Mth.PI);
 			extra[2] = (6.0F + 14.0F * Math.abs(lopsided)) * Mth.sign(lopsided == 0.0F ? 1.0F : lopsided) * Mth.sin(t * Mth.PI);

@@ -45,7 +45,9 @@ public final class RollService {
 
 	public enum Kind {
 		ROLL,
-		DIVE
+		DIVE,
+		/** 滑鏟: a skill of its own ({@code SlideService}); shares the roll's motion and drawing on the client. */
+		SLIDE
 	}
 
 	private static final Map<UUID, Integer> DODGE = new HashMap<>();

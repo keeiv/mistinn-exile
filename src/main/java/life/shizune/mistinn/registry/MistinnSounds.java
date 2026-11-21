@@ -104,6 +104,7 @@ public final class MistinnSounds {
 	// rolls and dives
 	public static final SoundEvent ROLL = register("player.roll");
 	public static final SoundEvent DIVE = register("player.dive");
+	public static final SoundEvent SLIDE = register("player.slide");
 	public static final SoundEvent LAND = register("player.land");
 	// the body
 	public static final SoundEvent LIMB_DESTROYED = register("body.limb_destroyed");
