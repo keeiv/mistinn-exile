@@ -1,0 +1,16 @@
+{"_comment":"假突刺: the thrust's tell, the spear drawn back level (0-10), and it drops low instead (10-18), into the next move.",
+"keys":[0.0,0.444444,0.722222,1.0],
+"eases":["out_quad","out_quad","in_out_sine"],
+"length":18,"limbs":{
+"body_x":[0,5,35,0],
+"body_y":[0,25,30,0],
+"left_arm_x":[0,-85,0,0],
+"left_arm_y":[0,-15,-15,0],
+"left_leg_x":[0,-15,-15,0],
+"right_arm_x":[0,-80,-20,0],
+"right_arm_y":[0,30,50,0],
+"right_leg_x":[0,20,20,0]},
+"item":{
+"x":[0,-75,-20,0]},
+"root":{
+"y":[0,0,-0.3,0]}}

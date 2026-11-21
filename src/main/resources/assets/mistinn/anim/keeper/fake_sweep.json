@@ -1,0 +1,15 @@
+{"_comment":"假橫掃: the sweep's tell, the pole drawn round (0-16), but it never comes: the weight shifts and it turns into the next move (10-16), or settles (16-24).",
+"keys":[0.0,0.541667,0.75,1.0],
+"eases":["in_out_sine","out_quad","in_out_sine"],
+"length":24,"limbs":{
+"body_x":[0,-12,10,0],
+"body_y":[0,45,25,0],
+"head_x":[0,-10,-10,0],
+"left_arm_x":[0,-70,-70,0],
+"left_leg_x":[0,-22,-22,0],
+"right_arm_x":[0,-65,-70,0],
+"right_arm_y":[0,80,40,0],
+"right_arm_z":[0,25,25,0],
+"right_leg_x":[0,18,18,0]},
+"item":{
+"x":[0,-60,-40,0]}}
