@@ -45,6 +45,8 @@ public final class Planner {
 	 */
 	private static final double FUTURE_RATE = 2.5;
 	private static final int HORIZON = 200;
+	/** What flowing from one move into the next through a link is worth: it is quicker, and it reads as one fighter. */
+	private static final double CHAIN_BONUS = 0.8;
 	/** Ticks a signal binds the next attack to its family. */
 	public static final int SIGNAL_TICKS = 60;
 
@@ -255,12 +257,14 @@ public final class Planner {
 		}
 		int index = move == WALK ? -1 : this.set.index(move.id());
 		int start = node.end;
+		boolean chained = false;
 		BossMove previous = node.move != null ? node.move : now.last() != null && now.lastTicks() < now.last().length() ? now.last() : null;
 		if (previous != null) {
 			int previousStart = node.move != null ? node.start : -now.lastTicks();
 			for (MoveSet.Link link : this.set.links()) {
 				if (link.from().equals(previous.id()) && link.to().equals(move.id())) {
 					start = Math.max(previousStart + link.earliest(), node.move != null ? previousStart : 0);
+					chained = true;
 				}
 			}
 		}
@@ -309,13 +313,16 @@ public final class Planner {
 				value -= this.risk(now, move, bossAfter, this.hunterAt(now, node, start + length));
 			} else if (move.kind() == BossMove.Kind.SIGNAL) {
 				// a promise it keeps: worth showing from a distance it can follow up from, while the hunter is not pressing it
-				value += distance >= 3.0 && distance <= 10.0 && now.hunterAction() != PlayerAction.SWING ? 0.9 : 0.05;
+				value += distance >= 3.0 && distance <= 10.0 && now.hunterAction() != PlayerAction.SWING ? 2.6 : 0.05;
 			} else if (move.kind() == BossMove.Kind.IDLE) {
 				value += 0.05;
 			}
 			value += this.spacing(now, bossAfter, this.hunterAt(now, node, start + length));
 			if (previous != null && previous.id().equals(move.id())) {
 				value -= this.weights.variety * Math.abs(value) + this.weights.variety;
+			}
+			if (chained) {
+				value += CHAIN_BONUS;
 			}
 			if (node.depth == 0) {
 				value = this.stale(move, value);
@@ -380,9 +387,18 @@ public final class Planner {
 	private Outcome outcome(final Situation now, final Node node, final BossMove move, final Vec3 facing, final int start, final int delay, final double ready) {
 		BossMove.Strike strike = move.strikes().isEmpty() ? null : move.strikes().getFirst();
 		int strikeTick = (strike == null || strike.tick() == BossMove.Strike.SCRIPTED ? move.windup() : strike.tick()) + delay;
+		// a blow carried along a dash is checked at every tick it is carried through, from where the body is by then
+		List<BossMove.Strike> along = new ArrayList<>();
+		if (strike != null) {
+			for (BossMove.Strike other : move.strikes()) {
+				if (other == strike || strike.group() > 0 && other.group() == strike.group()) {
+					along.add(other);
+				}
+			}
+		}
 		Vec3 stay = this.hunterAt(now, node, start + strikeTick);
 		Vec3 boss = node.boss.add(turn(move.motion().at(Math.min(strikeTick, move.length())), facing));
-		double still = strike != null && this.lands(move, strike, boss, facing, stay) ? 1.0 : 0.0;
+		double still = strike != null && this.landsAlong(now, node, move, along, facing, start, delay, Vec3.ZERO) ? 1.0 : 0.0;
 		Vec3 away = flat(stay.subtract(boss));
 		double from = away.length();
 		Vec3 back = from < 1.0E-4 ? facing : away.scale(1.0 / from);
@@ -394,23 +410,44 @@ public final class Planner {
 		double push = 0.0;
 		double rolled = 0.0;
 		for (Map.Entry<Response, Double> r : now.hunter().responses(family).entrySet()) {
-			Vec3 where = switch (r.getKey()) {
-				case ROLL_LEFT -> stay.add(left.scale(ROLL_DISTANCE));
-				case ROLL_RIGHT -> stay.subtract(left.scale(ROLL_DISTANCE));
-				case ROLL_BACK -> stay.add(back.scale(ROLL_DISTANCE));
-				case BACK_OFF -> stay.add(back.scale(Math.min(BACK_OFF, 0.12 * (move.windup() + delay))));
-				case COUNTER, STAY -> stay;
+			Vec3 offset = switch (r.getKey()) {
+				case ROLL_LEFT -> left.scale(ROLL_DISTANCE);
+				case ROLL_RIGHT -> left.scale(-ROLL_DISTANCE);
+				case ROLL_BACK -> back.scale(ROLL_DISTANCE);
+				case BACK_OFF -> back.scale(Math.min(BACK_OFF, 0.12 * (move.windup() + delay)));
+				case COUNTER, STAY -> Vec3.ZERO;
 			};
 			double p = r.getValue();
-			push += p * (flat(where.subtract(boss)).length() - from);
+			push += p * (flat(stay.add(offset).subtract(boss)).length() - from);
 			if (r.getKey().roll()) {
 				rolled += p;
 			}
-			if (strike != null && this.lands(move, strike, boss, facing, where)) {
+			if (strike != null && this.landsAlong(now, node, move, along, facing, start, delay, offset)) {
 				reacting += p * (r.getKey().roll() ? 1.0 - dodge : 1.0);
 			}
 		}
 		return new Outcome((1.0 - ready) * still + ready * reacting, ready * push, rolled);
+	}
+
+	/** The chance a move begun now lands its blow, over what the hunter may do once its tell begins. */
+	public double landing(final Situation now, final BossMove move) {
+		Node root = new Node(null, null, 0, 0, now.bossPos(), Vec3.ZERO, 0, 0, new int[this.set.size()], 1.0, null, 0, 0.0, -100);
+		Vec3 toHunter = flat(now.hunterPos().subtract(now.bossPos()));
+		Vec3 facing = toHunter.lengthSqr() < 1.0E-8 ? forward(now.bossYaw()) : toHunter.normalize();
+		return this.outcome(now, root, move, facing, 0, 0, 1.0).chance();
+	}
+
+	/** Whether any of the blows reaches the hunter, moved by {@code offset} from where they are believed to be by then. */
+	private boolean landsAlong(final Situation now, final Node node, final BossMove move, final List<BossMove.Strike> along, final Vec3 facing,
+		final int start, final int delay, final Vec3 offset) {
+		for (BossMove.Strike strike : along) {
+			int tick = (strike.tick() == BossMove.Strike.SCRIPTED ? move.windup() : strike.tick()) + delay;
+			Vec3 boss = node.boss.add(turn(move.motion().at(Math.min(tick, move.length())), facing));
+			if (this.lands(move, strike, boss, facing, this.hunterAt(now, node, start + tick).add(offset))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/** Whether a strike from {@code boss} facing {@code facing} reaches a hunter standing at {@code at}. */
