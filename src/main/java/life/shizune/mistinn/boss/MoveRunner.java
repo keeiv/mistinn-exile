@@ -25,6 +25,7 @@ public final class MoveRunner {
 	private @Nullable BossMove current;
 	private int ticks;
 	private boolean held;
+	private int delayLeft;
 	private float facing;
 	private final Map<String, Object> notes = new HashMap<>();
 
@@ -33,6 +34,7 @@ public final class MoveRunner {
 		this.current = move;
 		this.ticks = 0;
 		this.held = false;
+		this.delayLeft = 0;
 		this.facing = boss.getYRot();
 		this.notes.clear();
 		if (move.tell() != null && boss.level() instanceof ServerLevel level) {
@@ -62,6 +64,11 @@ public final class MoveRunner {
 		return this.current != null && this.ticks >= this.current.windup() + this.current.active();
 	}
 
+	/** Holds the blow {@code ticks} longer at the last tick of the tell, to wait out a roll begun too early. */
+	public void delay(final int ticks) {
+		this.delayLeft = Math.max(0, ticks);
+	}
+
 	public void tick(final ServerLevel level, final Mob boss, final @Nullable LivingEntity target) {
 		BossMove move = this.current;
 		if (move == null) {
@@ -73,6 +80,12 @@ public final class MoveRunner {
 		}
 		if (this.ticks < move.windup() && move.tellEffect() != null) {
 			move.tellEffect().tick(level, boss, target, this.ticks);
+		}
+		if (this.delayLeft > 0 && this.ticks == move.windup() - 1) {
+			// the pose held at the end of the tell; nothing lands and nothing moves until the delay runs out
+			this.delayLeft--;
+			this.held = true;
+			return;
 		}
 		this.held = false;
 		if (move.script() != null) {
@@ -102,6 +115,7 @@ public final class MoveRunner {
 		this.current = null;
 		this.ticks = 0;
 		this.held = false;
+		this.delayLeft = 0;
 		this.notes.clear();
 	}
 
