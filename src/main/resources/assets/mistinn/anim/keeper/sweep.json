@@ -1,20 +1,17 @@
-{
-	"_comment": "掃擊 SWEEP (40 ticks): the tell is a slow lean back with the pole drawn round behind the right shoulder and the free hand reaching at the hunter; at tick 16 (0.40) the pole is laid flat and swept right to left through the front, the body wrenched round after it, then hauled back.",
-	"keys": [0.0, 0.15, 0.38, 0.43, 0.60, 0.80, 1.0],
-	"eases": ["out_quad", "in_out_sine", "in_cubic", "out_cubic", "in_out_sine", "in_out_sine"],
-	"limbs": {
-		"head_x": [0, -8, -15, 0, 8, 4, 0],
-		"body_x": [0, -8, -14, 4, 10, 5, 0],
-		"body_y": [0, 25, 45, -5, -55, -20, 0],
-		"right_arm_x": [0, -55, -65, -88, -80, -40, 0],
-		"right_arm_y": [0, 55, 80, 0, -75, -30, 0],
-		"right_arm_z": [0, 15, 25, 0, -10, -5, 0],
-		"left_arm_x": [0, -55, -75, -40, 15, 10, 0],
-		"left_arm_y": [0, 15, 25, 0, -20, -10, 0],
-		"right_leg_x": [0, 12, 20, -5, -20, -8, 0],
-		"left_leg_x": [0, -15, -25, -10, 15, 5, 0]
-	},
-	"item": {
-		"x": [0, -40, -75, -80, -75, -30, 0]
-	}
-}
+{"_comment":"掃擊 SWEEP (40 ticks): the tell is a slow lean back with the pole drawn round behind the right shoulder and the free hand reaching at the hunter; at tick 16 (0.40) the pole is laid flat and swept right to left through the front, the body wrenched round after it, then hauled back.",
+"keys":[0.0,0.15,0.38,0.43,0.6,0.8,1.0],
+"eases":["out_quad","in_out_sine","in_cubic","out_cubic","in_out_sine","in_out_sine"],
+"limbs":{
+"head_x":[0,-8,-15,0,8,4,0],
+"body_x":[0,-8,-14,4,10,5,0],
+"body_y":[0,25,45,-5,-55,-20,0],
+"right_arm_x":[0,-55,-65,-88,-80,-40,0],
+"right_arm_y":[0,55,80,0,-75,-30,0],
+"right_arm_z":[0,15,25,0,-10,-5,0],
+"left_arm_x":[0,-55,-75,-40,15,10,0],
+"left_arm_y":[0,15,25,0,-20,-10,0],
+"right_leg_x":[0,12,20,-5,-20,-8,0],
+"left_leg_x":[0,-15,-25,-10,15,5,0]},
+"item":{
+"x":[0,-40,-75,-80,-75,-30,0]},
+"length":40}
