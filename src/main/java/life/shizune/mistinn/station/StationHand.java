@@ -27,6 +27,8 @@ import net.minecraft.world.level.storage.ValueOutput;
  * so nothing is earned by striking them; only commands that bypass invulnerability remove them.
  */
 public class StationHand extends PathfinderMob {
+	/** Called together for an occasion (the drop): their rounds wait. */
+	public static final String GATHERED = "mistinn.gathered";
 	private static final EntityDataAccessor<Integer> DATA_ROLE = SynchedEntityData.defineId(StationHand.class, EntityDataSerializers.INT);
 
 	public StationHand(final EntityType<? extends StationHand> type, final Level level) {

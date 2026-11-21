@@ -1087,5 +1087,9 @@
   "training.mistinn.dummy": "鍛造間的假人",
   "training.mistinn.sparring": "陪練的屍殼",
   "training.mistinn.caged": "籠中的聆聽者",
-  "training.mistinn.sneak.heard": "牠們聽到你了。回到門口，重新來過。"
+  "training.mistinn.sneak.heard": "牠們聽到你了。回到門口，重新來過。",
+  "staff.mistinn.roommate.farewell": "我先走一步啦。下面見！",
+  "training.mistinn.broadcast.7": "第3411號，入座完畢。投放。",
+  "training.mistinn.broadcast.8": "第3412號，請入座。",
+  "training.mistinn.board.wait": "第3411號還沒走。等一下。"
 }

@@ -1087,5 +1087,9 @@
   "training.mistinn.dummy": "Forge dummy",
   "training.mistinn.sparring": "Sparring husk",
   "training.mistinn.caged": "Caged listener",
-  "training.mistinn.sneak.heard": "They heard you. Back to the door; try again."
+  "training.mistinn.sneak.heard": "They heard you. Back to the door; try again.",
+  "staff.mistinn.roommate.farewell": "I'll go on ahead. See you down there!",
+  "training.mistinn.broadcast.7": "Number 3411, seated. Dropping.",
+  "training.mistinn.broadcast.8": "Number 3412, take your seat.",
+  "training.mistinn.board.wait": "3411 hasn't gone yet. Wait."
 }

@@ -17,7 +17,11 @@ import net.minecraft.server.level.ServerPlayer;
  * one a few seconds after the hunter wakes. Helm is only ever a voice.
  */
 public final class StationBroadcast {
+	/** The announcements Helm goes round in the day. */
 	public static final int LINES = 7;
+	/** The two calls of the drop, made only at the drop. */
+	public static final int FAREWELL = 7;
+	public static final int YOUR_TURN = 8;
 	/** Ticks from waking to the first announcement, and the least and most between the rest. */
 	public static final int FIRST = 120;
 	private static final int GAP = 1800;
@@ -53,6 +57,12 @@ public final class StationBroadcast {
 		int line = said == 0 ? 0 : 1 + (said - 1) % (LINES - 1);
 		SAID.put(id, said + 1);
 		NEXT.put(id, now + GAP + hunter.getRandom().nextInt(GAP_SPREAD));
+		ServerPlayNetworking.send(hunter, new Payload(line));
+	}
+
+	/** Helm says this line now; the day's round waits a while after it. */
+	public static void say(final ServerPlayer hunter, final int line) {
+		NEXT.put(hunter.getUUID(), hunter.level().getGameTime() + GAP);
 		ServerPlayNetworking.send(hunter, new Payload(line));
 	}
 

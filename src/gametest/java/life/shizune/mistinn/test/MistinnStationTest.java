@@ -85,6 +85,9 @@ public final class MistinnStationTest implements FabricClientGameTest {
 			for (int n = 0; n < StationBroadcast.LINES; n++) {
 				check(language.has(StationBroadcast.key(n)), "every announcement is written: " + n);
 			}
+			check(language.has(StationBroadcast.key(StationBroadcast.FAREWELL)) && language.has(StationBroadcast.key(StationBroadcast.YOUR_TURN)),
+				"and the two calls of the drop");
+			check(language.has(StaffRole.ROOMMATE.key() + ".farewell"), "3411 says goodbye");
 		});
 	}
 

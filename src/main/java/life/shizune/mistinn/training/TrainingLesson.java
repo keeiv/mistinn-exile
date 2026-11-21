@@ -39,7 +39,7 @@ public enum TrainingLesson implements StringRepresentable {
 	LAMPS("lamps", new BlockPos(-48, 77, -81), true),
 	KEEPER("keeper", new BlockPos(-48, 77, -81), false),
 	REPORT("report", new BlockPos(-33, 91, -110), true),
-	BOARD("board", new BlockPos(-27, 91, -128), true),
+	BOARD("board", new BlockPos(-27, 91, -128), false),
 	DEPLOY("deploy", new BlockPos(-27, 91, -129), false);
 
 	public static final Codec<TrainingLesson> CODEC = StringRepresentable.fromEnum(TrainingLesson::values);
