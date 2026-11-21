@@ -11,6 +11,9 @@ public class SnufferRenderState extends HumanoidRenderState {
 	public @Nullable String move;
 	public float moveTicks;
 	public int moveLength;
+	/** The idle it plays while standing with no move (null: none now), and how far into it. */
+	public @Nullable String idle;
+	public float idleTicks;
 	/** How fast the body is turning, degrees per tick: the lantern swings out against it. */
 	public float turnSpeed;
 }
