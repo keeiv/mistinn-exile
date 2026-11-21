@@ -1,0 +1,9 @@
+{"_comment":"拉緊鎖鏈（信號：鉤鎖）: grips the chain across its chest in the free claw and draws it taut with a rattle; a hook is coming.",
+"keys":[0.0,0.230769,0.461538,0.615385,0.769231,1.0],
+"eases":["out_quad","in_out_sine","in_out_sine","in_out_sine","in_out_sine"],
+"length":26,"limbs":{
+"body_x":[0,0,8,8,8,0],
+"body_y":[0,10,-10,-10,-10,0],
+"left_arm_x":[0,-70,-40,-45,-40,0],
+"left_arm_y":[0,-40,-10,-15,-10,0],
+"left_arm_z":[0,10,-20,-20,-20,0]}}

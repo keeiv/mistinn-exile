@@ -68,6 +68,8 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		brainsAreIndependent();
 		closeInMovesLand();
 		coversALeftRoller();
+		feintsBorrowTheirTell();
+		eachSignalIsKept();
 		distanceMovesLand();
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			world.getConnection().waitForChunksRender();
@@ -830,6 +832,49 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			check(body.get(BodyPart.TORSO) < BodyPart.MAX, "the hooked hunter runs onto the spear: " + body + " at " + player(server).position());
 			clear(server, stage);
 		});
+	}
+
+	/** Each feint shows exactly the tell of the move it imitates (sound and windup), lands nothing, and hands over to something. */
+	private static void feintsBorrowTheirTell() {
+		int feints = 0;
+		for (BossMove move : SnufferMoves.SET.moves()) {
+			if (move.kind() != BossMove.Kind.FEINT) {
+				continue;
+			}
+			feints++;
+			BossMove real = SnufferMoves.SET.get(move.imitates());
+			check(move.tell() == real.tell() && move.windup() == real.windup(), move.id() + " shows " + real.id() + "'s tell, sound and length");
+			check(move.strikes().isEmpty(), move.id() + " lands nothing");
+			check(SnufferMoves.SET.links().stream().anyMatch(link -> link.from().equals(move.id())), move.id() + " turns into something");
+		}
+		check(feints >= 3, "the keeper has its feints: " + feints);
+	}
+
+	/** Each of the keeper's four signals is kept: for the next three seconds its next attack is of the family it showed. */
+	private static void eachSignalIsKept() {
+		java.util.Map<String, String> signals = java.util.Map.of("twirl", "thrust", "lantern_swing", "lantern", "chain_pull", "hook", "crouch", "lunge");
+		RandomSource random = RandomSource.create(21);
+		for (java.util.Map.Entry<String, String> signal : signals.entrySet()) {
+			BossMove shown = SnufferMoves.SET.get(signal.getKey());
+			check(shown.kind() == BossMove.Kind.SIGNAL && signal.getValue().equals(shown.signals()), signal.getKey() + " promises " + signal.getValue());
+			check(SnufferMoves.SET.moves().stream().anyMatch(m -> m.kind() != BossMove.Kind.FEINT && !m.strikes().isEmpty() && m.in(signal.getValue()) && !m.in("dark")),
+				"the promise of " + signal.getKey() + " can be kept in the light");
+			Planner planner = new Planner(SnufferMoves.SET, RandomSource.create(31));
+			for (int i = 0; i < 100; i++) {
+				Planner.Situation any = situation(random);
+				Planner.Situation owed = new Planner.Situation(any.bossPos(), any.bossYaw(), any.phase(), java.util.Map.of(), null, 0, any.hunterPos(),
+					any.hunterVelocity(), any.hunterAction(), any.hunterStamina(), any.hunter(), signal.getValue(), Planner.SIGNAL_TICKS, any.roomCentre(), any.roomRadius());
+				Planner.Plan plan = planner.plan(owed, 3_000_000L);
+				for (int step = 0; step < plan.steps().size() && plan.starts().get(step) < Planner.SIGNAL_TICKS; step++) {
+					BossMove move = plan.steps().get(step);
+					check(move.kind() != BossMove.Kind.FEINT && move.kind() != BossMove.Kind.SIGNAL, "nothing feints or signals while " + signal.getKey() + " is owed: " + plan.steps());
+					if (!move.strikes().isEmpty()) {
+						check(move.in(signal.getValue()), signal.getKey() + " promised " + signal.getValue() + ": " + plan.steps());
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	// ── Helpers ───────────────────────────────────────────────────

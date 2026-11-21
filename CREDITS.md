@@ -101,6 +101,14 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `entity/snuffer/hook_thrust_2.ogg` | `synth:the chain run out and the spear's iron ticking` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/chain_sweep_1.ogg` | `synth:the hook whirled low, the chain hissing over the floor` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/chain_sweep_2.ogg` | `synth:the hook whirled low, the chain hissing over the floor` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/twirl_1.ogg` | `synth:the spear spun once, humming` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/twirl_2.ogg` | `synth:the spear spun once, humming` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/lantern_swing_1.ogg` | `synth:the lantern creaking on its neck, the flame rising` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/lantern_swing_2.ogg` | `synth:the lantern creaking on its neck, the flame rising` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/chain_pull_1.ogg` | `synth:the chain drawn taut, link by link, and a clank` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/chain_pull_2.ogg` | `synth:the chain drawn taut, link by link, and a clank` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/crouch_1.ogg` | `oga_monster_sfx:monster-9`; `synth:salt crunching under its weight` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/crouch_2.ogg` | `oga_monster_vol1:monster-16`; `synth:salt crunching under its weight` | CC0 1.0 sources + project synthesis |
 | `execution/bite_1.ogg` | `oga_creature_2:attack_03`; `oga_creature_1:eat_03`; `oga_creature_2:slime_06`; `synth:teeth` | CC0 1.0 sources + project synthesis |
 | `execution/bite_2.ogg` | `oga_creature_2:attack_02`; `oga_creature_1:eat_03`; `oga_creature_2:slime_07`; `synth:teeth` | CC0 1.0 sources + project synthesis |
 | `execution/bite_3.ogg` | `oga_creature_2:attack_02`; `oga_creature_1:eat_04`; `oga_creature_2:slime_07`; `synth:teeth` | CC0 1.0 sources + project synthesis |
