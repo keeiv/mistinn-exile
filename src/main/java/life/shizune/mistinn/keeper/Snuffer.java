@@ -343,10 +343,10 @@ public class Snuffer extends Monster {
 		}
 	}
 
-	/** The lamp stands of this keeper's room. */
+	/** The lamp stands of this keeper's room: around the room's centre, wherever in it the keeper has got to. */
 	public List<BlockPos> lamps(final ServerLevel level) {
 		List<BlockPos> found = new ArrayList<>();
-		BlockPos centre = this.blockPosition();
+		BlockPos centre = this.home == null ? this.blockPosition() : BlockPos.containing(this.home);
 		for (BlockPos pos : BlockPos.betweenClosed(centre.offset(-ROOM_RADIUS, -3, -ROOM_RADIUS), centre.offset(ROOM_RADIUS, 3, ROOM_RADIUS))) {
 			if (level.getBlockState(pos).is(MistinnBlocks.LAMP_STAND)) {
 				found.add(pos.immutable());
