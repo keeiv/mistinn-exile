@@ -105,8 +105,10 @@ public final class BossBrain {
 		this.radius = radius;
 		long now = level.getGameTime();
 		double notice = boss.getAttributeValue(Attributes.FOLLOW_RANGE);
+		// a square room's corners lie further out than its radius: a hunter backed into one is still in the room
+		double room = radius * 1.5 + 4.0;
 		List<ServerPlayer> present = level.getPlayers(player -> hunts(player)
-			&& player.position().distanceTo(centre) <= radius + 4.0 && player.distanceTo(boss) <= notice);
+			&& player.position().distanceTo(centre) <= room && player.distanceTo(boss) <= notice);
 		if (present.isEmpty()) {
 			this.target = null;
 			if (++this.empty >= FIGHT_END) {
