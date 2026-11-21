@@ -118,12 +118,12 @@ public final class RollClient {
 		float yaw = player.getYRot() + turn;
 		float rad = yaw * Mth.DEG_TO_RAD;
 		Vec3 dir = new Vec3(-Mth.sin(rad), 0.0, Mth.cos(rad));
-		float speed = kind == RollService.Kind.DIVE ? 0.85F : RollService.rollSpeed(body);
+		float speed = kind == RollService.Kind.DIVE ? 0.85F : RollService.rollSpeed(player, body);
 		push = dir.scale(speed);
 		player.setDeltaMovement(push.x, kind == RollService.Kind.DIVE ? 0.32 : 0.12, push.z);
 		player.setSprinting(false);
 		lastRoll = System.nanoTime();
-		ANIMS.put(player.getId(), new Anim(kind, System.nanoTime(), yaw, body.get(BodyPart.LEFT_ARM) / BodyPart.MAX, body.get(BodyPart.RIGHT_ARM) / BodyPart.MAX));
+		ANIMS.put(player.getId(), new Anim(kind, System.nanoTime(), yaw, Math.min(1.0F, body.get(BodyPart.LEFT_ARM) / BodyService.max(player)), Math.min(1.0F, body.get(BodyPart.RIGHT_ARM) / BodyService.max(player))));
 		ClientPlayNetworking.send(new RollService.RollPayload(yaw));
 	}
 

@@ -68,7 +68,8 @@ public final class TreatmentService {
 
 	/** Begins a use; the item has already agreed it can be used. */
 	public static void start(final ServerPlayer player, final InteractionHand hand, final ItemStack stack, final TreatmentItem item) {
-		int ticks = item.ticks(player, stack);
+		// intellect shortens every treatment and repair
+		int ticks = life.shizune.mistinn.skill.SkillService.treatmentTicks(player, item.ticks(player, stack));
 		Treatment treatment = item.treatment(player, stack);
 		int slot = hand == InteractionHand.MAIN_HAND ? player.getInventory().getSelectedSlot() : -1;
 		CHANNELS.put(player.getUUID(), new Channel(item, hand, slot, item.target(player), treatment, ticks, new int[] {0}));
@@ -110,7 +111,8 @@ public final class TreatmentService {
 			Integer mending = MENDING.get(id);
 			if (mending != null) {
 				if (player.isAlive() && applies(player)) {
-					BodyService.set(player, BodyService.mend(BodyService.get(player), InjectorItem.HEAL / InjectorItem.HEAL_TICKS));
+					float dose = life.shizune.mistinn.skill.SkillService.treatmentAmount(player, InjectorItem.HEAL / InjectorItem.HEAL_TICKS);
+					BodyService.set(player, BodyService.mend(BodyService.get(player), dose, BodyService.max(player)));
 				}
 				if (mending <= 1) {
 					MENDING.remove(id);

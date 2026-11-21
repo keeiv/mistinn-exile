@@ -130,13 +130,14 @@ public final class WoundService {
 				continue;
 			}
 			Wounds.Wound wound = wounds.get(part);
-			if (blow && !wound.bleeding() && random.nextFloat() < Math.min(0.55F, (each - BLEED_FROM) / 40.0F)) {
+			// constitution makes both rarer
+			if (blow && !wound.bleeding() && random.nextFloat() < life.shizune.mistinn.skill.SkillService.woundChance(player, Math.min(0.55F, (each - BLEED_FROM) / 40.0F))) {
 				wound = wound.bleeding(true);
 				news.add(Component.translatable("message.mistinn.wound.bleeding", partName(part)));
 			}
 			boolean limb = part.isArm() || part.isLeg();
 			float breakChance = crush ? (each - BREAK_FROM) / 30.0F : (each - 30.0F) / 60.0F;
-			if (limb && !wound.fractured() && random.nextFloat() < Math.min(0.7F, breakChance)) {
+			if (limb && !wound.fractured() && random.nextFloat() < life.shizune.mistinn.skill.SkillService.woundChance(player, Math.min(0.7F, breakChance))) {
 				wound = wound.fractured(true);
 				news.add(Component.translatable("message.mistinn.wound.fracture", partName(part)));
 				broke = true;

@@ -18,7 +18,7 @@ public final class StaminaHud implements HudElement {
 		if (player == null || !StaminaService.applies(player) || mc.gui.hud.isHidden()) {
 			return;
 		}
-		float share = StaminaService.get(player) / StaminaService.MAX;
+		float share = Math.min(1.0F, StaminaService.get(player) / StaminaService.max(player));
 		int x = g.guiWidth() / 2 - 91;
 		int y = g.guiHeight() - 38;
 		g.fill(x - 1, y - 1, x + WIDTH + 1, y + 4, 0xC0101010);

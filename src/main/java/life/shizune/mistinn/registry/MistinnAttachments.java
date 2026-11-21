@@ -53,6 +53,13 @@ public final class MistinnAttachments {
 		.copyOnDeath()
 		.buildAndRegister(Mistinn.id("grid"));
 
+	/** The skill nodes the hunter has unlocked. Kept through death. */
+	public static final AttachmentType<life.shizune.mistinn.skill.Skills> SKILLS = AttachmentRegistry.<life.shizune.mistinn.skill.Skills>builder()
+		.persistent(life.shizune.mistinn.skill.Skills.CODEC)
+		.syncWith(life.shizune.mistinn.skill.Skills.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
+		.copyOnDeath()
+		.buildAndRegister(Mistinn.id("skills"));
+
 	/** Health of each body part. Not copied on death: a respawned hunter is whole. */
 	public static final AttachmentType<Body> BODY = AttachmentRegistry.<Body>builder()
 		.persistent(Body.CODEC)

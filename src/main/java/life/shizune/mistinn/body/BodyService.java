@@ -7,6 +7,7 @@ import life.shizune.mistinn.medical.TreatmentService;
 import life.shizune.mistinn.mixin.LivingEntityInvoker;
 import life.shizune.mistinn.registry.MistinnAttachments;
 import life.shizune.mistinn.registry.MistinnSounds;
+import life.shizune.mistinn.skill.SkillService;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
@@ -69,7 +70,37 @@ public final class BodyService {
 	}
 
 	public static Body get(final Player player) {
-		return player.getAttachedOrElse(MistinnAttachments.BODY, Body.FULL);
+		Body body = player.getAttached(MistinnAttachments.BODY);
+		return body != null ? body : Body.whole(max(player));
+	}
+
+	/** What each of this hunter's parts holds when whole: more with constitution. */
+	public static float max(final Player player) {
+		return SkillService.partCeiling(player);
+	}
+
+	/** Brings parts above the hunter's ceiling (constitution lost) down to it. */
+	public static void fitCeiling(final ServerPlayer player) {
+		if (!applies(player) || player.isDeadOrDying()) {
+			return;
+		}
+		Body body = player.getAttached(MistinnAttachments.BODY);
+		if (body == null) {
+			syncHealth(player, get(player));
+			return;
+		}
+		float max = max(player);
+		Body fitted = body;
+		for (BodyPart part : BodyPart.values()) {
+			if (fitted.get(part) > max) {
+				fitted = fitted.with(part, max);
+			}
+		}
+		if (fitted.equals(body)) {
+			syncHealth(player, body);
+		} else {
+			set(player, fitted);
+		}
 	}
 
 	/** Stores the body and brings vanilla health and the part penalties in line with it. */
@@ -95,13 +126,13 @@ public final class BodyService {
 	}
 
 	private static void syncHealth(final ServerPlayer player, final Body body) {
-		float share = body.total() / (BodyPart.MAX * BodyPart.values().length);
+		float share = Math.min(1.0F, body.total() / (max(player) * BodyPart.values().length));
 		player.setHealth(Math.max(1.0F, player.getMaxHealth() * share));
 	}
 
 	/** Restore every body part. */
 	public static void restoreAll(final ServerPlayer player) {
-		set(player, Body.FULL);
+		set(player, Body.whole(max(player)));
 	}
 
 	// ── Where a hit lands ─────────────────────────────────────────
@@ -373,22 +404,28 @@ public final class BodyService {
 		if (vanillaAmount <= 0.0F || player.isDeadOrDying()) {
 			return;
 		}
-		set(player, mend(get(player), vanillaAmount * DAMAGE_SCALE));
+		set(player, mend(get(player), vanillaAmount * DAMAGE_SCALE, max(player)));
 	}
 
-	public static Body mend(Body body, float amount) {
+	/** Mends living parts up to the base ceiling, most hurt first. */
+	public static Body mend(final Body body, final float amount) {
+		return mend(body, amount, BodyPart.MAX);
+	}
+
+	/** Mends living parts up to {@code ceiling}, most hurt first, at most 4 at a time per part. */
+	public static Body mend(Body body, float amount, final float ceiling) {
 		while (amount > 0.01F) {
 			BodyPart lowest = null;
 			for (BodyPart part : BodyPart.values()) {
 				float value = body.get(part);
-				if (value > 0.0F && value < BodyPart.MAX && (lowest == null || value < body.get(lowest))) {
+				if (value > 0.0F && value < ceiling && (lowest == null || value < body.get(lowest))) {
 					lowest = part;
 				}
 			}
 			if (lowest == null) {
 				break;
 			}
-			float give = Math.min(amount, Math.min(BodyPart.MAX - body.get(lowest), 4.0F));
+			float give = Math.min(amount, Math.min(ceiling - body.get(lowest), 4.0F));
 			body = body.with(lowest, body.get(lowest) + give);
 			amount -= give;
 		}
@@ -419,11 +456,12 @@ public final class BodyService {
 			}
 			if (regenTick && player.getFoodData().getFoodLevel() >= REGEN_FOOD) {
 				Body mended = body;
+				float max = max(player);
 				for (BodyPart part : BodyPart.values()) {
 					float value = mended.get(part);
 					// an open wound or a starved limb does not mend by itself
-					if (value > 0.0F && value < BodyPart.MAX && !WoundService.drains(player, part)) {
-						mended = mended.with(part, value + 1.0F);
+					if (value > 0.0F && value < max && !WoundService.drains(player, part)) {
+						mended = mended.with(part, Math.min(max, value + 1.0F));
 						player.causeFoodExhaustion(0.05F);
 					}
 				}

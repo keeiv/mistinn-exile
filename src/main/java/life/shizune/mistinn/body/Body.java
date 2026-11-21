@@ -11,7 +11,8 @@ import net.minecraft.util.Mth;
 
 /** Health of each {@link BodyPart}, in enum order. Immutable: every change returns a new value. */
 public record Body(List<Float> health) {
-	public static final Body FULL = new Body(Arrays.stream(BodyPart.values()).map(p -> BodyPart.MAX).toList());
+	/** Every part whole at the base ceiling. */
+	public static final Body FULL = whole(BodyPart.MAX);
 
 	public static final Codec<Body> CODEC = Codec.FLOAT.listOf().xmap(Body::of, Body::health);
 	public static final StreamCodec<ByteBuf, Body> STREAM_CODEC = ByteBufCodecs.FLOAT.apply(ByteBufCodecs.list()).map(Body::of, Body::health);
@@ -20,11 +21,16 @@ public record Body(List<Float> health) {
 		health = List.copyOf(health);
 	}
 
+	/** Every part at {@code health}. */
+	public static Body whole(final float health) {
+		return new Body(Arrays.stream(BodyPart.values()).map(p -> health).toList());
+	}
+
 	/** Reads a saved list; a missing or extra entry (an older or newer save) falls back to whole. */
 	private static Body of(final List<Float> saved) {
 		List<Float> values = new ArrayList<>();
 		for (int i = 0; i < BodyPart.values().length; i++) {
-			values.add(i < saved.size() ? Mth.clamp(saved.get(i), 0.0F, BodyPart.MAX) : BodyPart.MAX);
+			values.add(i < saved.size() ? Mth.clamp(saved.get(i), 0.0F, BodyPart.CEILING) : BodyPart.MAX);
 		}
 		return new Body(values);
 	}
@@ -39,7 +45,7 @@ public record Body(List<Float> health) {
 
 	public Body with(final BodyPart part, final float value) {
 		List<Float> values = new ArrayList<>(this.health);
-		values.set(part.ordinal(), Mth.clamp(value, 0.0F, BodyPart.MAX));
+		values.set(part.ordinal(), Mth.clamp(value, 0.0F, BodyPart.CEILING));
 		return new Body(values);
 	}
 

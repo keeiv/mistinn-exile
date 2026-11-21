@@ -4,6 +4,7 @@ import life.shizune.mistinn.body.Body;
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
 import life.shizune.mistinn.registry.MistinnAttachments;
+import life.shizune.mistinn.skill.SkillService;
 import life.shizune.mistinn.weapon.WeaponStyle;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
  * zero the hunter is spent, cannot sprint, and recovers only after a longer pause.
  */
 public final class StaminaService {
+	/** Stamina with no constitution; see {@link #max}. */
 	public static final float MAX = 100.0F;
 	/** Recovery per tick once it starts. */
 	public static final float REGEN = 1.4F;
@@ -51,11 +53,24 @@ public final class StaminaService {
 	}
 
 	public static float get(final Player player) {
-		return player.getAttachedOrElse(MistinnAttachments.STAMINA, MAX);
+		Float stamina = player.getAttached(MistinnAttachments.STAMINA);
+		return stamina != null ? stamina : max(player);
+	}
+
+	/** What this hunter's stamina holds: more with constitution. */
+	public static float max(final Player player) {
+		return SkillService.staminaCeiling(player);
+	}
+
+	/** Brings stamina above the hunter's ceiling (constitution lost) down to it. */
+	public static void fitCeiling(final ServerPlayer player) {
+		if (get(player) > max(player)) {
+			set(player, max(player));
+		}
 	}
 
 	private static void set(final ServerPlayer player, final float value) {
-		float clamped = Math.max(0.0F, Math.min(MAX, value));
+		float clamped = Math.max(0.0F, Math.min(max(player), value));
 		if (clamped != get(player)) {
 			player.setAttached(MistinnAttachments.STAMINA, clamped);
 		}
@@ -92,7 +107,7 @@ public final class StaminaService {
 				DELAY.put(player.getUUID(), delay - 1);
 				continue;
 			}
-			if (get(player) < MAX) {
+			if (get(player) < max(player)) {
 				Body body = BodyService.get(player);
 				// a destroyed torso breathes badly
 				float rate = body.destroyed(BodyPart.TORSO) ? REGEN * 0.6F : REGEN;

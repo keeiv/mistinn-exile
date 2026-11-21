@@ -350,8 +350,8 @@ public final class TrainingService {
 			case PAINKILLER -> supply(player, MistinnItems.PAINKILLERS, 1);
 			case INJECTOR -> {
 				Body body = BodyService.get(player);
-				if (body.total() == Body.FULL.total()) {
-					BodyService.set(player, body.with(BodyPart.LEFT_ARM, BodyPart.MAX / 2.0F));
+				if (body.total() >= Body.whole(BodyService.max(player)).total()) {
+					BodyService.set(player, body.with(BodyPart.LEFT_ARM, BodyService.max(player) / 2.0F));
 				}
 				supply(player, MistinnItems.POTENT_INJECTOR, 1);
 			}
