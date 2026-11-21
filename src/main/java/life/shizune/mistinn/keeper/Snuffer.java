@@ -311,16 +311,21 @@ public class Snuffer extends Monster {
 		if (this.staggered <= 0 && lamps.size() >= 4 && lit == lamps.size()) {
 			this.stagger(level);
 		}
-		// after a stagger it snuffs the lamps again, one at a time
-		if (this.staggered <= 0 && lit > 0 && --this.snuffTimer <= 0) {
+		// after a stagger it snuffs the lamps again, one at a time: as soon as it is free between moves, it turns to one
+		if (this.staggered <= 0 && lit > 0 && --this.snuffTimer <= 0 && !this.runner.running()) {
 			this.snuffTimer = 60;
-			for (BlockPos pos : lamps) {
-				BlockState state = level.getBlockState(pos);
-				if (state.getValue(LampStandBlock.LIT)) {
-					level.setBlockAndUpdate(pos, state.setValue(LampStandBlock.LIT, false));
-					level.sendParticles(ParticleTypes.SMOKE, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, 10, 0.1, 0.1, 0.1, 0.02);
-					break;
-				}
+			this.perform("snuff");
+		}
+	}
+
+	/** Puts out the first lit lamp stand of its room, with a puff of smoke. */
+	public void snuffOne(final ServerLevel level) {
+		for (BlockPos pos : this.lamps(level)) {
+			BlockState state = level.getBlockState(pos);
+			if (state.getValue(LampStandBlock.LIT)) {
+				level.setBlockAndUpdate(pos, state.setValue(LampStandBlock.LIT, false));
+				level.sendParticles(ParticleTypes.SMOKE, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, 10, 0.1, 0.1, 0.1, 0.02);
+				return;
 			}
 		}
 	}

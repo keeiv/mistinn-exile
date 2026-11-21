@@ -88,6 +88,9 @@ public final class MistinnSounds {
 	public static final SoundEvent SNUFFER_LANTERN_SWING = register("entity.snuffer.lantern_swing");
 	public static final SoundEvent SNUFFER_CHAIN_PULL = register("entity.snuffer.chain_pull");
 	public static final SoundEvent SNUFFER_CROUCH = register("entity.snuffer.crouch");
+	public static final SoundEvent SNUFFER_SNUFF = register("entity.snuffer.snuff");
+	public static final SoundEvent SNUFFER_MIST_AMBUSH = register("entity.snuffer.mist_ambush");
+	public static final SoundEvent SNUFFER_SOUL_SWEEP = register("entity.snuffer.soul_sweep");
 	// the grid inventory, heard only by its owner
 	public static final SoundEvent GRID_PICKUP = register("ui.grid.pickup");
 	public static final SoundEvent GRID_PLACE = register("ui.grid.place");

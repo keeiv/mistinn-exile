@@ -375,6 +375,27 @@
     ],
     "subtitle": "subtitles.mistinn.entity.snuffer.hook"
   },
+  "entity.snuffer.snuff": {
+    "sounds": [
+      "mistinn:entity/snuffer/snuff_1",
+      "mistinn:entity/snuffer/snuff_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.snuffer.snuff"
+  },
+  "entity.snuffer.mist_ambush": {
+    "sounds": [
+      "mistinn:entity/snuffer/mist_ambush_1",
+      "mistinn:entity/snuffer/mist_ambush_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.snuffer.mist_ambush"
+  },
+  "entity.snuffer.soul_sweep": {
+    "sounds": [
+      "mistinn:entity/snuffer/soul_sweep_1",
+      "mistinn:entity/snuffer/soul_sweep_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.snuffer.soul_sweep"
+  },
   "entity.snuffer.twirl": {
     "sounds": [
       "mistinn:entity/snuffer/twirl_1",

@@ -1,0 +1,17 @@
+{"_comment":"魂火橫掃: draws the spear back with soul fire pouring from the cracked lantern along the shaft (the tell, 0-18); sweeps a burning arc wide across the front (18); recovers (18-42).",
+"keys":[0.0,0.357143,0.428571,0.5,0.666667,1.0],
+"eases":["in_out_sine","in_cubic","out_cubic","linear","in_out_sine"],
+"length":42,"limbs":{
+"body_x":[0,-14,-14,12,12,0],
+"body_y":[0,50,0,-65,-55,0],
+"head_x":[0,-15,-15,-15,-15,0],
+"left_arm_x":[0,-80,-80,15,15,0],
+"left_leg_x":[0,-25,-25,15,15,0],
+"right_arm_x":[0,-70,-90,-82,-82,0],
+"right_arm_y":[0,90,0,-85,-85,0],
+"right_arm_z":[0,30,30,30,30,0],
+"right_leg_x":[0,20,20,-20,-20,0]},
+"item":{
+"x":[0,-60,-80,-80,-75,0]},
+"root":{
+"yaw":[0,0,0,-15,-15,0]}}

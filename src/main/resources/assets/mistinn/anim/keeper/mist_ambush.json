@@ -1,0 +1,17 @@
+{"_comment":"霧中突襲: sinks into the dark and is gone (0-6); reappears behind the hunter with the spear already drawn back (20-24) and strikes (24); recovers (24-46).",
+"keys":[0.0,0.108696,0.434783,0.521739,0.652174,1.0],
+"eases":["in_quad","step","out_cubic","linear","in_out_sine"],
+"length":46,"limbs":{
+"body_x":[0,50,10,35,30,0],
+"body_y":[0,0,0,-40,-40,0],
+"head_x":[0,30,5,5,5,0],
+"left_arm_x":[0,0,-60,10,10,0],
+"left_leg_x":[0,0,0,20,20,0],
+"right_arm_x":[0,0,-150,-60,-60,0],
+"right_arm_y":[0,0,30,-50,-50,0],
+"right_leg_x":[0,0,0,-30,-30,0]},
+"item":{
+"x":[0,0,20,-75,-70,0]},
+"root":{
+"pitch":[0,20,-6,14,14,0],
+"y":[0,-1.2,0.0,0.0,0.0,0]}}
