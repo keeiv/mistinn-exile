@@ -49,9 +49,11 @@ public abstract class HumanoidRollMixin {
 			return;
 		}
 		float t = roll.t();
-		boolean dive = roll.kind() == RollService.Kind.DIVE;
+		boolean slide = roll.kind() == RollService.Kind.SLIDE;
+		// a dead arm hangs through a slide as it does through a dive: no turn flings it
+		boolean dive = roll.kind() == RollService.Kind.DIVE || slide;
 		boolean armless = roll.leftArm() <= 0.0F && roll.rightArm() <= 0.0F;
-		Clip clip = Clip.get(dive ? "move/dive" : armless ? "move/roll_armless" : "move/roll");
+		Clip clip = Clip.get(slide ? "move/slide" : dive ? "move/dive" : armless ? "move/roll_armless" : "move/roll");
 		float rest = model.rightArm.xRot;
 		float restLeft = model.leftArm.xRot;
 		Poser.limbs(clip, t, model, 1, clip.weight(t));

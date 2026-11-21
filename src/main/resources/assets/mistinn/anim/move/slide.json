@@ -1,0 +1,128 @@
+{
+	"_comment": "滑鏟 SLIDE: drop onto the hip leaning far back, feet first along the floor, the trailing hand skimming the ground, then rock forward and stand. Played over SlideService.ANIM_TICKS. Written by a script; the drop at each key is the most the model allows.",
+	"keys": [
+		0.0,
+		0.05,
+		0.12,
+		0.25,
+		0.55,
+		0.72,
+		0.8,
+		0.88,
+		1.0
+	],
+	"eases": [
+		"linear",
+		"out_quad",
+		"out_quad",
+		"linear",
+		"in_out_sine",
+		"in_out_sine",
+		"in_out_sine",
+		"in_out_sine"
+	],
+	"pivot": 0.75,
+	"root": {
+		"pitch": [
+			0,
+			-14,
+			-38,
+			-64,
+			-64,
+			-50,
+			-34,
+			-16,
+			0
+		],
+		"y": [
+			0.0,
+			-0.026,
+			-0.332,
+			-0.477,
+			-0.477,
+			-0.297,
+			-0.094,
+			0.026,
+			0.0
+		]
+	},
+	"limbs": {
+		"head_x": [
+			0,
+			8,
+			22,
+			38,
+			38,
+			28,
+			18,
+			8,
+			0
+		],
+		"right_leg_x": [
+			0,
+			-26,
+			-40,
+			-30,
+			-30,
+			-24,
+			-16,
+			-8,
+			0
+		],
+		"left_leg_x": [
+			0,
+			-20,
+			-32,
+			-22,
+			-22,
+			-16,
+			-10,
+			-4,
+			0
+		],
+		"right_arm_x": [
+			0,
+			30,
+			70,
+			112,
+			112,
+			84,
+			54,
+			24,
+			0
+		],
+		"right_arm_z": [
+			0,
+			3,
+			8,
+			18,
+			18,
+			12,
+			8,
+			4,
+			0
+		],
+		"left_arm_x": [
+			0,
+			-12,
+			-30,
+			-52,
+			-52,
+			-40,
+			-26,
+			-12,
+			0
+		],
+		"left_arm_z": [
+			0,
+			-5,
+			-14,
+			-26,
+			-26,
+			-18,
+			-12,
+			-6,
+			0
+		]
+	}
+}

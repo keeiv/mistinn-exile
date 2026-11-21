@@ -90,6 +90,11 @@ public final class CameraSwing {
 		}
 		// rolls and dives move the view whatever the swing setting: it is where the body goes
 		float[] extra = life.shizune.mistinn.client.move.RollClient.viewOffsets();
+		// a slide takes the eye down near the floor
+		float drop = life.shizune.mistinn.client.move.RollClient.viewDrop();
+		if (drop > 0.0F) {
+			pose.translate(0.0F, drop, 0.0F);
+		}
 		float yaw = extra[0];
 		float pitch = extra[1];
 		float roll = extra[2];

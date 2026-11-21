@@ -50,6 +50,7 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.stamina.RollService.register();
 		life.shizune.mistinn.medical.TreatmentService.register();
 		life.shizune.mistinn.skill.SkillService.register();
+		life.shizune.mistinn.skill.SlideService.register();
 		ExecutionService.init();
 		life.shizune.mistinn.enemy.WindupService.init();
 		life.shizune.mistinn.registry.MistinnEntities.init();
@@ -107,6 +108,7 @@ public class Mistinn implements ModInitializer {
 		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPING.register(server -> life.shizune.mistinn.residue.ResidueService.placeNow());
 		ServerTickEvents.END_SERVER_TICK.register(life.shizune.mistinn.stamina.StaminaService::tick);
 		ServerTickEvents.END_SERVER_TICK.register(life.shizune.mistinn.stamina.RollService::tick);
+		ServerTickEvents.END_SERVER_TICK.register(life.shizune.mistinn.skill.SlideService::tick);
 		ServerTickEvents.END_SERVER_TICK.register(life.shizune.mistinn.medical.TreatmentService::tick);
 		// nothing may live in the hidden vanilla storage slots, however it got there
 		ServerTickEvents.END_SERVER_TICK.register(server -> server.getPlayerList().getPlayers().forEach(GridService::sweepHiddenSlots));

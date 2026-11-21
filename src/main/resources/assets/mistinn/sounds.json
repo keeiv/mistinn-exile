@@ -639,6 +639,21 @@
     ],
     "subtitle": "subtitles.mistinn.player.roll"
   },
+  "player.slide": {
+    "sounds": [
+      {
+        "name": "mistinn:entity/snuffer/slide_1",
+        "pitch": 1.25,
+        "volume": 0.7
+      },
+      {
+        "name": "mistinn:entity/snuffer/slide_2",
+        "pitch": 1.3,
+        "volume": 0.7
+      }
+    ],
+    "subtitle": "subtitles.mistinn.player.slide"
+  },
   "player.dive": {
     "sounds": [
       "mistinn:player/dive_1",

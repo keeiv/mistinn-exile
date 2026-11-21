@@ -18,21 +18,33 @@ import life.shizune.mistinn.salt.SaltService;
 import life.shizune.mistinn.skill.SkillService;
 import life.shizune.mistinn.skill.SkillTree;
 import life.shizune.mistinn.skill.Skills;
+import life.shizune.mistinn.skill.SlideService;
 import life.shizune.mistinn.skill.Stat;
+import life.shizune.mistinn.client.move.RollClient;
 import life.shizune.mistinn.stamina.RollService;
 import life.shizune.mistinn.stamina.StaminaService;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
+import net.fabricmc.fabric.api.client.gametest.v1.screenshot.TestScreenshotOptions;
 import life.shizune.mistinn.client.death.DeathScene;
 import life.shizune.mistinn.client.death.MissionEndScreen;
 import net.minecraft.client.gui.screens.DeathScreen;
+import java.util.List;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.zombie.Husk;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 
 /** The hunter's four stats and the skill tree they come from. */
 @SuppressWarnings("UnstableApiUsage")
@@ -62,6 +74,13 @@ public final class MistinnSkillTest implements FabricClientGameTest {
 			minorNodesCostSalt(world);
 			needsTheNodeBefore(world);
 			unlockingTwiceChargesOnce(context, world);
+			context.runOnClient(MistinnSkillTest::slidePoseStaysOnTheGround);
+			BlockPos lane = world.getServer().computeOnServer(MistinnSkillTest::lane);
+			slideNeedsTheSkill(context, world, lane);
+			sprintCrouchSlides(context, world, lane);
+			slideKicksWhatItMeets(context, world, lane);
+			noSlideOnDeadLegs(world);
+			slideFrames(context, world, lane);
 		}
 	}
 
@@ -271,6 +290,180 @@ public final class MistinnSkillTest implements FabricClientGameTest {
 			check(SaltService.get(player) == 800, "and charges once: " + SaltService.get(player) + " left");
 		});
 		check(context.computeOnClient(mc -> SkillService.get(mc.player).has("strength_1")), "the hunter's own client hears about the new skill");
+		world.getServer().runOnServer(server -> SkillService.set(player(server), Skills.EMPTY));
+	}
+
+	// ── The slide ─────────────────────────────────────────────────
+
+	/**
+	 * The slide's pose, in the sandbox, at every step of the clip: no part of the hunter sinks into
+	 * the floor, while it slides the hips are low and the feet lead the head.
+	 */
+	private static void slidePoseStaysOnTheGround(final Minecraft mc) {
+		List<String> sunk = new java.util.ArrayList<>();
+		for (int i = 0; i <= 28; i++) {
+			float t = i / 28.0F;
+			List<ClipProbe.Box> boxes = ClipProbe.boxes(mc, mc.player, Vec3.ZERO, 0.0F,
+				state -> state.setData(RollClient.KEY, new RollClient.Pose(RollService.Kind.SLIDE, t, 0.0F, 1.0F, 1.0F)), false, null, null);
+			float lowest = Float.MAX_VALUE;
+			String deepest = "";
+			for (ClipProbe.Box box : boxes) {
+				if (bottom(box) < lowest) {
+					lowest = bottom(box);
+					deepest = box.path();
+				}
+			}
+			ClipProbe.Box headBox = part(boxes, "/head");
+			System.out.println(String.format("SLIDE t=%.3f lowest %.3f %s head y %.3f z %.3f", t, lowest, deepest, headBox.center().y, headBox.center().z));
+			sunk.add(lowest >= -MistinnClipTest.TOLERANCE ? "" : String.format("t=%.2f %.3f (%s)", t, lowest, deepest));
+			if (t >= 0.25F && t <= 0.55F) {
+				ClipProbe.Box head = part(boxes, "/head");
+				ClipProbe.Box rightLeg = part(boxes, "/right_leg");
+				ClipProbe.Box leftLeg = part(boxes, "/left_leg");
+				ClipProbe.Box body = part(boxes, "/body");
+				check(head.center().y < 1.0F, String.format("at t=%.2f the hunter is low: head at %.2f", t, head.center().y));
+				check(lowest < 0.12F, String.format("at t=%.2f the hunter is on the floor, lowest %.3f", t, lowest));
+				// the hunter faces +z: the feet are ahead, the head leans back behind the hips
+				check(rightLeg.center().z > body.center().z + 0.2F && leftLeg.center().z > body.center().z, String.format("at t=%.2f the feet lead", t));
+				check(head.center().z < body.center().z, String.format("at t=%.2f the head leans back", t));
+			}
+		}
+		sunk.removeIf(String::isEmpty);
+		check(sunk.isEmpty(), "nothing sinks into the floor at any moment of the slide: " + sunk);
+	}
+
+	private static float bottom(final ClipProbe.Box box) {
+		return box.center().y - (box.half()[0] * Math.abs(box.axes()[0].y) + box.half()[1] * Math.abs(box.axes()[1].y) + box.half()[2] * Math.abs(box.axes()[2].y));
+	}
+
+	private static ClipProbe.Box part(final List<ClipProbe.Box> boxes, final String path) {
+		return boxes.stream().filter(b -> b.path().equals(path)).findFirst().orElseThrow(() -> new AssertionError("no box " + path));
+	}
+
+	/** A stone lane high above the world, 5 wide and 34 long, running towards +z. */
+	private static BlockPos lane(final MinecraftServer server) {
+		ServerPlayer player = player(server);
+		BlockPos pos = player.blockPosition().above(24).immutable();
+		for (BlockPos floor : BlockPos.betweenClosed(pos.offset(-2, -1, -3), pos.offset(2, -1, 30))) {
+			player.level().setBlockAndUpdate(floor, Blocks.STONE.defaultBlockState());
+		}
+		for (BlockPos air : BlockPos.betweenClosed(pos.offset(-2, 0, -3), pos.offset(2, 3, 30))) {
+			player.level().setBlockAndUpdate(air, Blocks.AIR.defaultBlockState());
+		}
+		return pos;
+	}
+
+	/**
+	 * Runs down the lane with the real keys: forward and sprint held, then crouch pressed. Returns how far the
+	 * hunter went in the 10 ticks after crouching, and how much stamina those ticks cost.
+	 */
+	private static double[] sprintThenCrouch(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos lane) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			BodyService.restoreAll(player);
+			player.teleportTo(server.overworld(), lane.getX() + 0.5, lane.getY(), lane.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
+		});
+		// rested, so stamina is full
+		context.waitTicks(90);
+		context.getInput().holdKey(options -> options.keyUp);
+		context.getInput().holdKey(options -> options.keySprint);
+		context.waitTicks(15);
+		check(context.computeOnClient(mc -> mc.player.isSprinting()), "the hunter is running before crouching");
+		double from = context.computeOnClient(mc -> mc.player.getZ());
+		float before = world.getServer().computeOnServer(server -> StaminaService.get(player(server)));
+		context.getInput().holdKey(options -> options.keyShift);
+		context.waitTicks(10);
+		double to = context.computeOnClient(mc -> mc.player.getZ());
+		float after = world.getServer().computeOnServer(server -> StaminaService.get(player(server)));
+		context.getInput().releaseKey(options -> options.keyShift);
+		context.getInput().releaseKey(options -> options.keySprint);
+		context.getInput().releaseKey(options -> options.keyUp);
+		context.waitTicks(30);
+		return new double[] {to - from, before - after};
+	}
+
+	private static void slideNeedsTheSkill(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos lane) {
+		world.getServer().runOnServer(server -> {
+			SkillService.set(player(server), Skills.EMPTY);
+			check(!SlideService.request(player(server), 0.0F), "the server refuses a slide without the skill");
+		});
+		context.waitTicks(5);
+		double[] run = sprintThenCrouch(context, world, lane);
+		check(run[0] < 2.0, "without the skill crouching while running only crouches: went " + run[0]);
+		check(run[1] < 6.0, "and costs no slide: " + run[1]);
+	}
+
+	private static void sprintCrouchSlides(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos lane) {
+		world.getServer().runOnServer(server -> SkillService.set(player(server), new Skills(Set.of(SkillTree.ROOT))));
+		context.waitTicks(5);
+		double[] run = sprintThenCrouch(context, world, lane);
+		check(run[0] >= 4.0, "running and crouching slides at least four blocks in half a second: went " + run[0]);
+		check(run[0] <= 6.5, "and no further than the slide carries: went " + run[0]);
+		check(run[1] >= SlideService.COST - 0.01F && run[1] < SlideService.COST + 6.0F, "the slide costs 18 stamina: " + run[1]);
+	}
+
+	private static void slideKicksWhatItMeets(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos lane) {
+		int husk = world.getServer().computeOnServer(server -> {
+			Husk mob = EntityTypes.HUSK.create(server.overworld(), EntitySpawnReason.COMMAND);
+			mob.setNoAi(true);
+			mob.snapTo(lane.getX() + 0.5, lane.getY(), lane.getZ() + 7.5, 180.0F, 0.0F);
+			server.overworld().addFreshEntity(mob);
+			return mob.getId();
+		});
+		float before = world.getServer().computeOnServer(server -> ((LivingEntity) server.overworld().getEntity(husk)).getHealth());
+		sprintThenCrouch(context, world, lane);
+		world.getServer().runOnServer(server -> {
+			LivingEntity mob = (LivingEntity) server.overworld().getEntity(husk);
+			float lost = before - mob.getHealth();
+			check(lost > 2.5F && lost < 3.1F, "the slide sweeps the husk once, for about 3: lost " + lost);
+			check(mob.getDeltaMovement().y > 0.2, "and lifts it off its feet: " + mob.getDeltaMovement());
+			mob.discard();
+		});
+	}
+
+	private static void noSlideOnDeadLegs(final TestSingleplayerContext world) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			SkillService.set(player, new Skills(Set.of(SkillTree.ROOT)));
+			BodyService.set(player, BodyService.get(player).with(BodyPart.LEFT_LEG, 0.0F).with(BodyPart.RIGHT_LEG, 0.0F));
+			check(!SlideService.request(player, 0.0F), "no slide on two dead legs");
+			BodyService.set(player, BodyService.get(player).with(BodyPart.RIGHT_LEG, 40.0F));
+			check(SlideService.request(player, 0.0F), "one leg is enough");
+			BodyService.restoreAll(player);
+		});
+	}
+
+	/** The slide frozen at five moments, seen from the side, for the eye (written to the screenshots folder). */
+	private static void slideFrames(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos lane) {
+		context.waitTicks(40);
+		world.getServer().runOnServer(server -> SkillService.set(player(server), new Skills(Set.of(SkillTree.ROOT))));
+		sprintThenCrouch(context, world, lane);
+		context.runOnClient(mc -> {
+			mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+			if (!mc.gui.hud.isHidden()) {
+				mc.gui.hud.toggle();
+			}
+		});
+		// a slide straight ahead, then the camera swings round to its side: the body keeps the slide's heading
+		context.waitTicks(30);
+		world.getServer().runOnServer(server -> SlideService.request(player(server), 0.0F));
+		context.waitTicks(2);
+		context.runOnClient(mc -> {
+			mc.player.setYRot(90.0F);
+			mc.player.setXRot(15.0F);
+		});
+		for (float t : new float[] {0.1F, 0.25F, 0.45F, 0.7F, 0.9F}) {
+			context.runOnClient(mc -> RollClient.preview = t);
+			context.waitTicks(2);
+			context.takeScreenshot(TestScreenshotOptions.of("slide-" + Math.round(t * 100)).disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("slide")));
+		}
+		context.runOnClient(mc -> {
+			RollClient.preview = -1.0F;
+			mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+			if (mc.gui.hud.isHidden()) {
+				mc.gui.hud.toggle();
+			}
+		});
 		world.getServer().runOnServer(server -> SkillService.set(player(server), Skills.EMPTY));
 	}
 
