@@ -1,0 +1,16 @@
+{"_comment":"跳砸衝擊波: the slam's crouch (the tell, 0-20) and leap (20-30, held while in the air); lands driving the pole in (30) and wrenches it so the salt bursts out along the floor (34-38); rises (38-64).",
+"keys":[0.0,0.28125,0.3125,0.375,0.46875,0.5,0.5625,0.6875,1.0],
+"eases":["out_quad","in_cubic","out_cubic","in_cubic","out_quad","out_back","linear","in_out_sine"],
+"length":64,"limbs":{
+"body_x":[0,25,22,-12,-8,45,50,45,0],
+"body_y":[0,0,0,0,0,0,20,15,0],
+"head_x":[0,15,15,-15,-10,30,30,30,0],
+"left_arm_x":[0,40,40,-160,-165,-45,-45,-45,0],
+"left_leg_x":[0,-30,-30,-15,-15,-40,-40,-40,0],
+"right_arm_x":[0,40,40,-165,-170,-50,-30,-30,0],
+"right_arm_y":[0,0,0,0,0,0,30,30,0],
+"right_leg_x":[0,-40,-40,-35,-35,-55,-55,-55,0]},
+"item":{
+"x":[0,0,0,60,60,80,80,70,0]},
+"root":{
+"y":[0,-0.4,-0.4,0.0,0.0,-0.45,-0.5,-0.5,0]}}
