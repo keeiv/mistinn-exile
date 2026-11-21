@@ -61,6 +61,8 @@ public final class BellService {
 		player.sendSystemMessage(Component.translatable(oneTime ? "message.mistinn.bell.rest_once" : "message.mistinn.bell.rest"), true);
 		StoryService.rested(player);
 		life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.BELL);
+		// the bell carries over the shore, and the dead come to it
+		life.shizune.mistinn.enemy.NoiseService.emit(player, life.shizune.mistinn.enemy.NoiseService.Noise.BELL);
 		return true;
 	}
 

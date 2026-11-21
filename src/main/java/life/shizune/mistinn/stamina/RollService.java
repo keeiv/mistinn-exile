@@ -126,6 +126,7 @@ public final class RollService {
 		// a roll breaks off any treatment in hand, and a heavy blow being charged
 		TreatmentService.interrupt(player);
 		life.shizune.mistinn.weapon.HeavyService.breakCharge(player);
+		life.shizune.mistinn.enemy.NoiseService.emit(player, life.shizune.mistinn.enemy.NoiseService.Noise.ROLL);
 		if (kind == Kind.ROLL) {
 			DODGE.put(player.getUUID(), dodgeTicks(player, body));
 		}
@@ -186,6 +187,7 @@ public final class RollService {
 			ServerPlayer player = context.player();
 			if (StaminaService.applies(player) && !player.isDeadOrDying()) {
 				StaminaService.spend(player, StaminaService.swingCost(player.getMainHandItem()));
+				life.shizune.mistinn.enemy.NoiseService.emit(player, life.shizune.mistinn.enemy.NoiseService.Noise.SWING);
 			}
 		});
 	}
