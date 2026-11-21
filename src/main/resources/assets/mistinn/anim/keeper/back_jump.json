@@ -1,0 +1,13 @@
+{"_comment":"後跳: a sharp crouch (the tell, 0-8); a leap back and up, knees drawn in, the spear held out in front (8-16); lands crouched (16-24).",
+"keys":[0.0,0.291667,0.458333,0.666667,1.0],
+"eases":["out_quad","out_cubic","in_quad","in_out_sine"],
+"length":24,"limbs":{
+"body_x":[0,30,-15,30,0],
+"head_x":[0,10,20,20,0],
+"left_arm_x":[0,20,-60,10,0],
+"left_leg_x":[0,-40,-50,-30,0],
+"right_arm_x":[0,20,-80,-40,0],
+"right_leg_x":[0,-40,-60,-35,0]},
+"root":{
+"pitch":[0,10,-20,10,0],
+"y":[0,-0.4,0.1,-0.45,0]}}

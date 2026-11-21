@@ -66,6 +66,8 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		signalsAreNeverFaked();
 		learnsALeftRoller();
 		brainsAreIndependent();
+		closeInMovesLand();
+		coversALeftRoller();
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			world.getConnection().waitForChunksRender();
 			world.getServer().runCommand("difficulty normal");
@@ -92,6 +94,7 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			dashStopsAtWalls(context, world, stage);
 			slideTakesTheLegs(context, world, stage);
 			rushClosesTheGap(context, world, stage);
+			grabLetsGoOfTheGone(context, world, stage);
 		}
 	}
 
@@ -634,6 +637,131 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			check(body.get(BodyPart.TORSO) < BodyPart.MAX, "nine blocks away, the rush lands within a second of its tell: " + body);
 			clear(server, stage);
 		});
+	}
+
+	// ── The move set ──────────────────────────────────────────────
+
+	/**
+	 * Every fixed blow of the given moves reaches a hunter in front of where the keeper stands when it lands, and
+	 * misses one behind it (unless it goes all the way round), and aims where it should.
+	 */
+	static void blowsLandWhereTheyAim(final java.util.Map<String, PartRule.Aim> aims, final Set<String> allRound) {
+		Vec3 facing = new Vec3(0.0, 0.0, 1.0);
+		for (java.util.Map.Entry<String, PartRule.Aim> entry : aims.entrySet()) {
+			BossMove move = SnufferMoves.SET.get(entry.getKey());
+			check(!move.strikes().isEmpty(), move.id() + " has a blow");
+			for (BossMove.Strike strike : move.strikes()) {
+				check(strike.part().aim() == entry.getValue(), move.id() + " aims at " + entry.getValue() + ", not " + strike.part().aim());
+				if (strike.tick() == BossMove.Strike.SCRIPTED) {
+					continue;
+				}
+				Vec3 local = move.motion().at(strike.tick());
+				// facing south: forward is +z, and its right is -x
+				Vec3 boss = new Vec3(-local.z, local.y, local.x);
+				double reach = switch (strike.shape()) {
+					case HitShape.Sector sector -> sector.radius();
+					case HitShape.Capsule capsule -> capsule.reach();
+					case HitShape.Circle circle -> circle.radius();
+					case HitShape.Grab grab -> grab.reach();
+				};
+				Vec3 front = boss.add(facing.scale(reach * 0.6));
+				check(strike.shape().reaches(boss, facing, front, 0.3, true), move.id() + " at tick " + strike.tick() + " reaches " + reach * 0.6 + " in front");
+				if (!allRound.contains(move.id())) {
+					check(!strike.shape().reaches(boss, facing, boss.subtract(facing.scale(2.5)), 0.3, true), move.id() + " at tick " + strike.tick() + " misses behind");
+				} else {
+					check(strike.shape().reaches(boss, facing, boss.subtract(facing.scale(2.0)), 0.3, true), move.id() + " goes all the way round");
+				}
+			}
+		}
+	}
+
+	/** The close-in moves: each blow where it aims. */
+	private static void closeInMovesLand() {
+		blowsLandWhereTheyAim(java.util.Map.ofEntries(
+			java.util.Map.entry("double_sweep", PartRule.Aim.BODY),
+			java.util.Map.entry("spin", PartRule.Aim.BODY),
+			java.util.Map.entry("thrust", PartRule.Aim.BODY),
+			java.util.Map.entry("triple_thrust", PartRule.Aim.BODY),
+			java.util.Map.entry("overhead", PartRule.Aim.HEAD),
+			java.util.Map.entry("upswing", PartRule.Aim.BODY),
+			java.util.Map.entry("leg_sweep", PartRule.Aim.LEGS),
+			java.util.Map.entry("butt", PartRule.Aim.BODY),
+			java.util.Map.entry("lantern_bash", PartRule.Aim.HEAD),
+			java.util.Map.entry("grab_throw", PartRule.Aim.BODY)), Set.of("spin"));
+		for (String step : List.of("step_left", "step_right", "back_step", "circle", "back_jump")) {
+			BossMove move = SnufferMoves.SET.get(step);
+			check(move.kind() == BossMove.Kind.MOVEMENT && move.motion().at(move.length()).length() > 2.0, step + " carries the keeper somewhere");
+		}
+		check(SnufferMoves.SET.get("step_left").motion().at(20).z < 0 && SnufferMoves.SET.get("step_right").motion().at(20).z > 0, "the side steps go to their own sides");
+	}
+
+	/** A hunter caught by the claws and then gone is let go, not hauled back or slammed. */
+	private static void grabLetsGoOfTheGone(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 2.0, Set.of(), 180.0F, 0.0F, true);
+			Snuffer keeper = keeper(server, stage);
+			keeper.setTarget(player);
+			keeper.perform("grab_throw");
+		});
+		for (int tick = 0; tick < 60 && world.getServer().computeOnServer(server -> keeper(server, stage).moveTicks() < 20); tick++) {
+			context.waitTick();
+		}
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			check(player.getY() > stage.getY() + 0.5, "the claws have the hunter up off the floor: " + player.position());
+			player.teleportTo(server.overworld(), stage.getX() + 8.5, stage.getY(), stage.getZ() - 8.5, Set.of(), 0.0F, 0.0F, true);
+		});
+		context.waitTicks(20);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			check(player.distanceToSqr(stage.getX() + 8.5, stage.getY(), stage.getZ() - 8.5) < 9.0, "a hunter gone from the claws stays gone: " + player.position());
+			check(BodyService.get(player).get(BodyPart.TORSO) == BodyPart.MAX, "and is not slammed: " + BodyService.get(player));
+			clear(server, stage);
+		});
+	}
+
+	/** Against a hunter who rolls left early from every tell, the keeper picks blows that still cover where they roll to. */
+	private static void coversALeftRoller() {
+		PlayerModel roller = new PlayerModel();
+		for (BossMove move : SnufferMoves.SET.moves()) {
+			for (String family : move.families()) {
+				for (int i = 0; i < 10; i++) {
+					roller.learn(family, Response.ROLL_LEFT);
+					roller.learnRoll(family, 15);
+				}
+			}
+		}
+		Vec3 hunter = new Vec3(0.0, 0.0, 3.5);
+		// facing the keeper (north), their left is west
+		Vec3 rolledTo = hunter.add(-3.2, 0.0, 0.0);
+		int neutral = 0;
+		int learned = 0;
+		List<String> picks = new java.util.ArrayList<>();
+		for (int seed = 0; seed < 40; seed++) {
+			BossMove before = new Planner(SnufferMoves.SET, RandomSource.create(seed)).plan(standing(hunter, PlayerAction.IDLE), 3_000_000L).first();
+			BossMove after = new Planner(SnufferMoves.SET, RandomSource.create(seed)).plan(new Planner.Situation(Vec3.ZERO, 0.0F, "light", java.util.Map.of(), null, 0,
+				hunter, Vec3.ZERO, PlayerAction.IDLE, 100.0F, roller, null, 0, Vec3.ZERO, 12.0), 3_000_000L).first();
+			neutral += covers(before, rolledTo) ? 1 : 0;
+			learned += covers(after, rolledTo) ? 1 : 0;
+			picks.add(after == null ? "nothing" : after.id());
+		}
+		System.out.println("[boss] against a left roller: " + learned + "/40 cover the roll (" + neutral + "/40 before learning): " + picks);
+		check(learned > neutral, "learning a left roller makes it cover their roll more often: " + learned + " against " + neutral + " " + picks);
+	}
+
+	/** Whether a move's first blow, aimed south from the centre, reaches where a hunter rolled to. */
+	private static boolean covers(final @org.jspecify.annotations.Nullable BossMove move, final Vec3 at) {
+		if (move == null || move.strikes().isEmpty()) {
+			return false;
+		}
+		BossMove.Strike strike = move.strikes().getFirst();
+		if (strike.tick() == BossMove.Strike.SCRIPTED) {
+			return move.range().contains(at.horizontalDistance());
+		}
+		Vec3 local = move.motion().at(strike.tick());
+		Vec3 boss = new Vec3(-local.z, local.y, local.x);
+		return strike.shape().reaches(boss, new Vec3(0.0, 0.0, 1.0), at, 0.3, true);
 	}
 
 	// ── Helpers ───────────────────────────────────────────────────

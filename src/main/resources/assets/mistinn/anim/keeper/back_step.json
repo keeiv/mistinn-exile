@@ -1,0 +1,14 @@
+{"_comment":"後撤步: rocks forward as if to come in (the tell, 0-8), then springs back three blocks with the spear brought round in front (8-14) and settles (14-22).",
+"keys":[0.0,0.272727,0.5,0.636364,1.0],
+"eases":["out_quad","out_cubic","in_quad","in_out_sine"],
+"length":22,"limbs":{
+"body_x":[0,25,-10,15,0],
+"head_x":[0,10,15,15,0],
+"left_arm_x":[0,0,-40,-40,0],
+"left_leg_x":[0,15,-35,-10,0],
+"right_arm_x":[0,0,-70,-70,0],
+"right_arm_y":[0,0,-20,-20,0],
+"right_leg_x":[0,-25,30,15,0]},
+"root":{
+"pitch":[0,8,-12,4,0],
+"y":[0,-0.15,0.2,-0.2,0]}}

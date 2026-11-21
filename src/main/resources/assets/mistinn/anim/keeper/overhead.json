@@ -1,0 +1,17 @@
+{"_comment":"下劈: raises the spear high in both claws over the lantern, leaning back (the tell, 0-16); brings it straight down onto the head (16); drags it up out of the floor (16-38).",
+"keys":[0.0,0.342105,0.421053,0.473684,0.631579,1.0],
+"eases":["in_out_sine","in_cubic","out_cubic","linear","in_out_sine"],
+"length":38,"limbs":{
+"body_x":[0,-15,-15,40,42,0],
+"head_x":[0,-15,-15,25,25,0],
+"left_arm_x":[0,-165,-165,-50,-50,0],
+"left_arm_z":[0,10,10,0,0,0],
+"left_leg_x":[0,-10,-10,25,25,0],
+"right_arm_x":[0,-170,-175,-55,-45,0],
+"right_arm_z":[0,-10,-10,0,0,0],
+"right_leg_x":[0,10,10,-30,-30,0]},
+"item":{
+"x":[0,25,25,-45,-45,0]},
+"root":{
+"pitch":[0,-6,-6,16,16,0],
+"y":[0,0,0,-0.15,-0.15,0]}}

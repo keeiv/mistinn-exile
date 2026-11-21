@@ -1,0 +1,17 @@
+{"_comment":"突刺: draws the spear back level at the shoulder, the free claw sighting along it (the tell, 0-10); lunges and drives it straight out (10); draws back (10-26).",
+"keys":[0.0,0.307692,0.384615,0.461538,0.615385,1.0],
+"eases":["out_quad","in_cubic","out_back","linear","in_out_sine"],
+"length":26,"limbs":{
+"body_x":[0,5,5,25,25,0],
+"body_y":[0,25,30,-25,-25,0],
+"left_arm_x":[0,-85,-85,20,20,0],
+"left_arm_y":[0,-15,-15,0,0,0],
+"left_leg_x":[0,-15,-15,30,30,0],
+"right_arm_x":[0,-80,-80,-95,-92,0],
+"right_arm_y":[0,30,30,-10,-10,0],
+"right_arm_z":[0,10,10,0,0,0],
+"right_leg_x":[0,20,20,-45,-45,0]},
+"item":{
+"x":[0,-75,-75,-88,-86,0]},
+"root":{
+"pitch":[0,-4,-4,18,18,0]}}

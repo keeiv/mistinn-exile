@@ -1,0 +1,15 @@
+{"_comment":"雙段橫掃: leans back with the pole drawn round (the tell, 0-16); sweeps right to left (16), the pole carried round overhead, and backhands it left to right (26); hauls back (26-48).",
+"keys":[0.0,0.270833,0.333333,0.395833,0.479167,0.541667,0.625,1.0],
+"eases":["in_out_sine","in_cubic","out_cubic","in_out_sine","in_cubic","out_cubic","in_out_sine"],
+"length":48,"limbs":{
+"body_x":[0,-12,-12,10,10,10,8,0],
+"body_y":[0,45,0,-55,-60,10,50,0],
+"head_x":[0,-10,-10,-10,-10,-10,-10,0],
+"left_arm_x":[0,-70,-70,10,10,10,10,0],
+"left_leg_x":[0,-22,-22,12,12,12,-15,0],
+"right_arm_x":[0,-65,-88,-80,-140,-85,-75,0],
+"right_arm_y":[0,80,0,-75,-60,10,75,0],
+"right_arm_z":[0,25,0,0,0,0,20,0],
+"right_leg_x":[0,18,18,-18,-18,-18,15,0]},
+"item":{
+"x":[0,-60,-80,-78,-40,-80,-75,0]}}

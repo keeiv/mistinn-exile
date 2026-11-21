@@ -1,0 +1,17 @@
+{"_comment":"反手撩: drops the spear low and back across its left side (the tell, 0-9); rips it up and across (9) at the arms; lets the swing carry it round (9-25).",
+"keys":[0.0,0.28,0.36,0.44,0.6,1.0],
+"eases":["out_quad","in_cubic","out_cubic","linear","in_out_sine"],
+"length":25,"limbs":{
+"body_x":[0,20,20,-10,-10,0],
+"body_y":[0,-35,-38,35,35,0],
+"left_arm_x":[0,-20,-20,10,10,0],
+"left_leg_x":[0,15,15,-15,-15,0],
+"right_arm_x":[0,20,20,-150,-145,0],
+"right_arm_y":[0,-40,-40,30,30,0],
+"right_arm_z":[0,-10,-10,20,20,0],
+"right_leg_x":[0,-15,-15,10,10,0]},
+"item":{
+"x":[0,-20,-20,-30,-30,0]},
+"root":{
+"pitch":[0,0,0,-6,-6,0],
+"y":[0,-0.1,-0.1,0.05,0.05,0]}}

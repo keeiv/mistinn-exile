@@ -1,0 +1,16 @@
+{"_comment":"槍柄撞擊: turns the spear round, butt first, and hunches behind it (the tell, 0-8); rams it into the chest (8); straightens (8-20).",
+"keys":[0.0,0.3,0.4,0.5,1.0],
+"eases":["out_quad","in_cubic","out_cubic","in_out_sine"],
+"length":20,"limbs":{
+"body_x":[0,15,15,25,0],
+"body_y":[0,-20,-22,15,0],
+"left_arm_x":[0,-60,-60,-85,0],
+"left_arm_y":[0,20,20,10,0],
+"left_leg_x":[0,-10,-10,20,0],
+"right_arm_x":[0,-40,-40,-85,0],
+"right_arm_y":[0,-40,-40,-10,0],
+"right_leg_x":[0,15,15,-30,0]},
+"item":{
+"x":[0,170,175,178,0]},
+"root":{
+"pitch":[0,0,0,14,0]}}
