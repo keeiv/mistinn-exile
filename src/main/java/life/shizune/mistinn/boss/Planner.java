@@ -47,6 +47,8 @@ public final class Planner {
 	private static final int HORIZON = 200;
 	/** What flowing from one move into the next through a link is worth: it is quicker, and it reads as one fighter. */
 	private static final double CHAIN_BONUS = 0.8;
+	/** How far past its radius a room reaches: a square room's corners lie about half again as far out. */
+	public static final double ROOM_REACH = 1.5;
 	/** Ticks a signal binds the next attack to its family. */
 	public static final int SIGNAL_TICKS = 60;
 
@@ -302,7 +304,7 @@ public final class Planner {
 			// walking gives the hunter time: it costs a little, so the boss does not dither in reach
 			value = this.spacing(now, bossAfter, this.hunterAt(now, node, start + WALK_TICKS)) * 0.5 - 0.4;
 		} else {
-			bossAfter = node.boss.add(turn(move.motion().at(move.length()), facing));
+			bossAfter = this.inRoom(now, node.boss.add(turn(move.motion().at(move.length()), facing)));
 			value = 0.0;
 			if (move.kind() == BossMove.Kind.ATTACK || move.kind() == BossMove.Kind.FEINT || !move.strikes().isEmpty()) {
 				Outcome outcome = this.outcome(now, node, move, facing, start, delay, ready);
@@ -452,7 +454,7 @@ public final class Planner {
 		final int start, final int delay, final Vec3 offset) {
 		for (BossMove.Strike strike : along) {
 			int tick = (strike.tick() == BossMove.Strike.SCRIPTED ? move.windup() : strike.tick()) + delay;
-			Vec3 boss = node.boss.add(turn(move.motion().at(Math.min(tick, move.length())), facing));
+			Vec3 boss = this.inRoom(now, node.boss.add(turn(move.motion().at(Math.min(tick, move.length())), facing)));
 			if (this.lands(move, strike, boss, facing, this.hunterAt(now, node, start + tick).add(offset))) {
 				return true;
 			}
@@ -509,6 +511,17 @@ public final class Planner {
 	private Vec3 hunterAt(final Situation now, final Node node, final int ticks) {
 		int carried = Math.min(Math.max(0, ticks), 20);
 		return now.hunterPos().add(now.hunterVelocity().x * carried, 0.0, now.hunterVelocity().z * carried).add(node.shift);
+	}
+
+	/** Where a move carries the body, held inside its room as the move runner holds it (walking is not held). */
+	private Vec3 inRoom(final Situation now, final Vec3 at) {
+		double reach = now.roomRadius() * ROOM_REACH;
+		Vec3 from = flat(at.subtract(now.roomCentre()));
+		double out = from.length();
+		if (now.roomRadius() <= 0.0 || out <= reach) {
+			return at;
+		}
+		return now.roomCentre().add(from.scale(reach / out)).add(0.0, at.y - now.roomCentre().y, 0.0);
 	}
 
 	private static Vec3 flat(final Vec3 v) {

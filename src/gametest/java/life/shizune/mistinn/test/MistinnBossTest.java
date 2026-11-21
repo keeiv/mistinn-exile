@@ -100,6 +100,7 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			slideTakesTheLegs(context, world, stage);
 			rushClosesTheGap(context, world, stage);
 			grabLetsGoOfTheGone(context, world, stage);
+			reachesACorneredHunter(context, world, stage);
 			lampsAreTheRooms(context, world, stage);
 			seesHuntersInTheCorners(context, world, stage);
 			interruptedMovesLetGo(context, world, stage);
@@ -1019,6 +1020,39 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			check(keeper(server, stage).staggered(), "four lit lamps stagger it, wherever in its room it stands");
 			for (BlockPos lamp : lamps) {
 				server.overworld().setBlockAndUpdate(lamp, Blocks.AIR.defaultBlockState());
+			}
+			clear(server, stage);
+		});
+	}
+
+	/** A hunter standing in a far corner of the room is walked down and struck, not thrust at from out of reach. */
+	private static void reachesACorneredHunter(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		world.getServer().runOnServer(server -> {
+			for (BlockPos floor : BlockPos.betweenClosed(stage.offset(9, -1, 9), stage.offset(14, -1, 14))) {
+				server.overworld().setBlockAndUpdate(floor, Blocks.STONE.defaultBlockState());
+			}
+			ServerPlayer player = player(server);
+			player.teleportTo(server.overworld(), stage.getX() + 12.5, stage.getY(), stage.getZ() + 12.5, Set.of(), 0.0F, 0.0F, true);
+			BodyService.restoreAll(player);
+			keeper(server, stage).getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(40.0);
+		});
+		boolean struck = false;
+		List<String> moves = new java.util.ArrayList<>();
+		for (int i = 0; i < 20 && !struck; i++) {
+			context.waitTicks(10);
+			struck = world.getServer().computeOnServer(server -> {
+				ServerPlayer player = player(server);
+				// pinned in the corner: the hunter does not move
+				player.teleportTo(server.overworld(), stage.getX() + 12.5, stage.getY(), stage.getZ() + 12.5, Set.of(), player.getYRot(), player.getXRot(), true);
+				BossMove move = keeper(server, stage).currentMove();
+				moves.add((move == null ? "-" : move.id()) + "@" + String.format("%.1f", keeper(server, stage).distanceTo(player)));
+				return BodyService.get(player).total() < life.shizune.mistinn.body.Body.FULL.total();
+			});
+		}
+		check(struck, "a cornered hunter is reached and struck within ten seconds: " + moves);
+		world.getServer().runOnServer(server -> {
+			for (BlockPos floor : BlockPos.betweenClosed(stage.offset(11, -1, 11), stage.offset(14, -1, 14))) {
+				server.overworld().setBlockAndUpdate(floor, Blocks.AIR.defaultBlockState());
 			}
 			clear(server, stage);
 		});
