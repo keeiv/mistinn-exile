@@ -26,6 +26,7 @@ public final class SaltService {
 
 	public static void add(final ServerPlayer player, final int amount) {
 		set(player, (int) Math.min((long) get(player) + amount, MAX));
+		life.shizune.mistinn.achievement.AchievementService.salt(player);
 	}
 
 	/**

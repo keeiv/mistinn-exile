@@ -174,6 +174,7 @@ public final class SkillService {
 			SaltService.add(player, -price);
 		}
 		set(player, skills.with(id));
+		life.shizune.mistinn.achievement.AchievementService.learned(player);
 		return Result.UNLOCKED;
 	}
 

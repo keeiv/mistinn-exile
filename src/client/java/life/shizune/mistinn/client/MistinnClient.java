@@ -52,6 +52,8 @@ public class MistinnClient implements ClientModInitializer {
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.weapon.HeavyService.HeavyAnimPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.anim.HeavyClient.received(payload));
 		life.shizune.mistinn.weapon.WeaponItem.releasedOnClient = life.shizune.mistinn.client.anim.HeavyClient::released;
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.achievement.AchievementService.EarnedPayload.TYPE,
+			(payload, context) -> life.shizune.mistinn.client.achievement.AchievementToast.push(payload.id()));
 		life.shizune.mistinn.weapon.HeavyService.clientBusy = life.shizune.mistinn.client.move.RollClient::busy;
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.stamina.RollService.RollAnimPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.move.RollClient.received(payload));
@@ -84,6 +86,8 @@ public class MistinnClient implements ClientModInitializer {
 		LevelRenderEvents.COLLECT_SUBMITS.register(SwordQi::submit);
 		// "正在使用 …" and its progress bar above the hotbar
 		HudElementRegistry.addLast(Mistinn.id("treatment"), new life.shizune.mistinn.client.medical.TreatmentHud());
+		// "achievement earned", sliding in at the top right
+		HudElementRegistry.addLast(Mistinn.id("achievement"), new life.shizune.mistinn.client.achievement.AchievementToast());
 		// the heavy blow's charge, under the crosshair
 		HudElementRegistry.addLast(Mistinn.id("charge"), new life.shizune.mistinn.client.combat.ChargeHud());
 		// hunters see their body parts where the hearts were
