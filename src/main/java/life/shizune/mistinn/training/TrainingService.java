@@ -19,6 +19,10 @@ import life.shizune.mistinn.registry.MistinnBlocks;
 import life.shizune.mistinn.registry.MistinnEntities;
 import life.shizune.mistinn.registry.MistinnItems;
 import life.shizune.mistinn.salt.SaltService;
+import life.shizune.mistinn.skill.SkillService;
+import life.shizune.mistinn.skill.SkillTree;
+import life.shizune.mistinn.skill.SlideService;
+import life.shizune.mistinn.skill.Stat;
 import life.shizune.mistinn.stamina.RollService;
 import life.shizune.mistinn.story.RadioBlock;
 import life.shizune.mistinn.story.StoryService;
@@ -81,6 +85,14 @@ public final class TrainingService {
 	private static final String KEEPER_TARGET = "mistinn.training_keeper";
 	private static final String POD_SEAT = "mistinn.training_seat";
 	private static final String STAFF = "mistinn.training_staff";
+	private static final String DUMMY = "mistinn.training_dummy";
+	private static final String SPARRING = "mistinn.training_sparring";
+	private static final String CAGED = "mistinn.training_caged";
+	private static final int PRACTICE_SKILL_SALT = 300;
+	/** Where the forge's dummies stand, from the heavy blow lesson's spot: in an arc a full slash reaches. */
+	private static final double[][] DUMMIES = {{-1.2, 0.0}, {0.0, -0.5}, {1.2, 0.0}};
+	/** The listeners' cages in the pen. */
+	private static final BlockPos[] CAGES = {new BlockPos(1, 77, -73), new BlockPos(9, 77, -73), new BlockPos(17, 77, -73)};
 	private static final int PRACTICE_SALT = 20;
 	private static final int COURSE_REACH = 8;
 
@@ -105,6 +117,14 @@ public final class TrainingService {
 		});
 		ServerLivingEntityEvents.AFTER_DEATH.register(TrainingService::fallen);
 		UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+			if (level.dimension().equals(TrainingGround.KEY) && player instanceof ServerPlayer hunter
+				&& (hit.getBlockPos().equals(TrainingLesson.SNEAK.target) || hit.getBlockPos().equals(TrainingLesson.SNEAK.target.above()))) {
+				if (at(hunter, TrainingLesson.SNEAK)) {
+					hunter.level().playSound(null, hit.getBlockPos(), SoundEvents.LANTERN_BREAK, SoundSource.BLOCKS, 0.6F, 1.2F);
+					announce(hunter, TrainingLesson.TOURNIQUET);
+				}
+				return InteractionResult.SUCCESS;
+			}
 			if (!level.dimension().equals(TrainingGround.KEY) || !hit.getBlockPos().equals(TrainingLesson.BOARD_BUTTON)) {
 				return InteractionResult.PASS;
 			}
@@ -143,6 +163,7 @@ public final class TrainingService {
 
 	private static void announce(final ServerPlayer player, final TrainingLesson next) {
 		player.setAttached(LESSON, next);
+		retire(player.level(), next);
 		if (next == TrainingLesson.CRAFT) {
 			player.awardRecipesByKey(java.util.List.of(ResourceKey.create(Registries.RECIPE, Mistinn.id("ore_bell"))));
 		}
@@ -252,6 +273,32 @@ public final class TrainingService {
 				// completed by hearing the quartermaster out
 			}
 			case GEAR, PACK -> equipment(player, level, lesson);
+			case HEAVY -> {
+				supply(player, MistinnItems.ANCHOR_BLADE, 1);
+				dummies(level, lesson.target);
+				if (struck(level, lesson.target) >= DUMMIES.length) {
+					announce(player, TrainingLesson.SPRINT);
+				}
+			}
+			case SLIDE -> {
+				// the slide is lent for the lesson and taken back at the drop
+				if (!SkillService.get(player).has(SkillTree.ROOT)) {
+					SkillService.set(player, SkillService.get(player).with(SkillTree.ROOT));
+				}
+				if (SlideService.sliding(player)) {
+					announce(player, TrainingLesson.STRIKE);
+				}
+			}
+			case WINDUP -> sparring(level, lesson.target);
+			case SNEAK -> listen(player, level);
+			case SKILLS -> {
+				supply(player, MistinnItems.HUNTER_GUIDE, 1);
+				if (SkillService.get(player).minorCount() > 0) {
+					announce(player, TrainingLesson.BELL);
+				} else if (SaltService.get(player) < SkillService.price(player, Stat.STRENGTH.id + "_1")) {
+					SaltService.set(player, Math.max(PRACTICE_SKILL_SALT, SaltService.get(player)));
+				}
+			}
 			case SPRINT -> {
 				if (player.isSprinting()) {
 					announce(player, TrainingLesson.ROLL);
@@ -259,7 +306,7 @@ public final class TrainingService {
 			}
 			case ROLL -> {
 				if (RollService.dodging(player)) {
-					announce(player, TrainingLesson.STRIKE);
+					announce(player, TrainingLesson.SLIDE);
 				}
 			}
 			case STRIKE -> {
@@ -268,7 +315,7 @@ public final class TrainingService {
 			}
 			case SALT -> {
 				if (SaltService.get(player) >= PRACTICE_SALT) {
-					announce(player, TrainingLesson.TOURNIQUET);
+					announce(player, TrainingLesson.WINDUP);
 				} else {
 					supply(player, MistinnItems.SALT, 1);
 				}
@@ -276,7 +323,7 @@ public final class TrainingService {
 			case TOURNIQUET, SPLINT, PAINKILLER, SURGERY, INJECTOR, REPAIR -> infirmary(player, lesson);
 			case CRAFT -> {
 				if (has(player, MistinnItems.ORE_BELL, 1)) {
-					announce(player, TrainingLesson.BELL);
+					announce(player, TrainingLesson.SKILLS);
 				} else if (player.containerMenu == player.inventoryMenu) {
 					supply(player, Items.RAW_GOLD, 5);
 					supply(player, Items.IRON_CHAIN, 1);
@@ -342,7 +389,7 @@ public final class TrainingService {
 		if (lesson == TrainingLesson.GEAR) {
 			announce(player, TrainingLesson.PACK);
 		} else if (grid.items(Area.BACKPACK).stream().anyMatch(placed -> placed.rotated() && placed.stack().is(MistinnItems.SPLINT))) {
-			announce(player, TrainingLesson.SPRINT);
+			announce(player, TrainingLesson.HEAVY);
 		}
 	}
 
@@ -387,6 +434,8 @@ public final class TrainingService {
 				return;
 			}
 		}
+		// a full hotbar: into the rest of the inventory
+		inventory.add(new ItemStack(item, count));
 	}
 
 	private static void infirmary(final ServerPlayer player, final TrainingLesson lesson) {
@@ -475,6 +524,115 @@ public final class TrainingService {
 		}
 	}
 
+	/** A practice husk of the station's: no wits, a lot of health, tagged for its lesson. */
+	private static @Nullable Mob practice(final ServerLevel level, final double x, final double y, final double z, final String tag,
+		final String name, final boolean thinks) {
+		Mob mob = EntityTypes.HUSK.create(level, EntitySpawnReason.STRUCTURE);
+		if (mob == null) {
+			return null;
+		}
+		mob.addTag(tag);
+		mob.setCustomName(Component.translatable(name));
+		mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200.0);
+		mob.setHealth(mob.getMaxHealth());
+		mob.setPersistenceRequired();
+		mob.setNoAi(!thinks);
+		mob.snapTo(x, y, z, 0.0F, 0.0F);
+		level.addFreshEntity(mob);
+		return mob;
+	}
+
+	private static java.util.List<Mob> tagged(final ServerLevel level, final BlockPos near, final String tag) {
+		return level.getEntitiesOfClass(Mob.class, new AABB(near).inflate(24.0), mob -> mob.entityTags().contains(tag));
+	}
+
+	/** The forge's three dummies, set up in an arc in front of the heavy blow lesson's spot. */
+	private static void dummies(final ServerLevel level, final BlockPos spot) {
+		if (!tagged(level, spot, DUMMY).isEmpty()) {
+			return;
+		}
+		for (double[] at : DUMMIES) {
+			Mob dummy = practice(level, spot.getX() + 0.5 + at[0], spot.getY(), spot.getZ() + 0.5 + at[1], DUMMY, "training.mistinn.dummy", false);
+			if (dummy != null) {
+				dummy.setYRot(180.0F);
+				dummy.setYHeadRot(180.0F);
+				dummy.setYBodyRot(180.0F);
+			}
+		}
+	}
+
+	/** How many of the dummies one blow has just hurt. */
+	private static int struck(final ServerLevel level, final BlockPos spot) {
+		int hurt = 0;
+		for (Mob dummy : tagged(level, spot, DUMMY)) {
+			if (dummy.hurtTime >= 9) {
+				hurt++;
+			}
+			dummy.setHealth(dummy.getMaxHealth());
+		}
+		return hurt;
+	}
+
+	/** The sparring husk: it hunts the hunter, winds up its blows, and is hard to kill. */
+	private static void sparring(final ServerLevel level, final BlockPos spot) {
+		if (tagged(level, spot, SPARRING).isEmpty()) {
+			practice(level, spot.getX() + 0.5, spot.getY(), spot.getZ() - 3.5, SPARRING, "training.mistinn.sparring", true);
+		}
+	}
+
+	/**
+	 * The listening pen: a husk in each cage that cannot see, only hear. If one hears the hunter, the
+	 * hunter goes back to the pen's door and they all forget.
+	 */
+	private static void listen(final ServerPlayer player, final ServerLevel level) {
+		java.util.List<Mob> caged = tagged(level, TrainingLesson.SNEAK.target, CAGED);
+		if (caged.isEmpty()) {
+			for (BlockPos cage : CAGES) {
+				practice(level, cage.getX() + 0.5, cage.getY(), cage.getZ() + 0.5, CAGED, "training.mistinn.caged", true);
+			}
+			return;
+		}
+		boolean heard = false;
+		for (Mob mob : caged) {
+			// blind: no hunting by sight, only the noise service's investigating
+			((life.shizune.mistinn.mixin.MobTargetsAccessor) mob).mistinn$targetSelector().removeAllGoals(goal -> true);
+			mob.setTarget(null);
+			heard |= life.shizune.mistinn.enemy.NoiseService.heard(mob) != null;
+		}
+		if (heard) {
+			for (Mob mob : caged) {
+				life.shizune.mistinn.enemy.NoiseService.forget(mob);
+				mob.getNavigation().stop();
+			}
+			move(player, level, TrainingGround.SNEAK_START);
+			player.sendSystemMessage(Component.translatable("training.mistinn.sneak.heard"), true);
+			level.playSound(null, TrainingGround.SNEAK_START, SoundEvents.ZOMBIE_AMBIENT, SoundSource.HOSTILE, 0.8F, 0.6F);
+		}
+	}
+
+	/** Practice creatures go once their lesson is behind the hunter. */
+	private static void retire(final ServerLevel level, final TrainingLesson next) {
+		if (!level.dimension().equals(TrainingGround.KEY)) {
+			return;
+		}
+		if (next.ordinal() > TrainingLesson.HEAVY.ordinal()) {
+			tagged(level, TrainingLesson.HEAVY.target, DUMMY).forEach(Mob::discard);
+		}
+		if (next.ordinal() > TrainingLesson.WINDUP.ordinal()) {
+			tagged(level, TrainingLesson.WINDUP.target, SPARRING).forEach(Mob::discard);
+		}
+		if (next.ordinal() > TrainingLesson.SNEAK.ordinal()) {
+			tagged(level, TrainingLesson.SNEAK.target, CAGED).forEach(Mob::discard);
+		}
+	}
+
+	/** A blow passed through the hunter's roll: the windup lesson is learned. */
+	public static void dodged(final ServerPlayer hunter) {
+		if (at(hunter, TrainingLesson.WINDUP)) {
+			announce(hunter, TrainingLesson.SNEAK);
+		}
+	}
+
 	private static void fallen(final LivingEntity entity, final net.minecraft.world.damagesource.DamageSource cause) {
 		if (!entity.level().dimension().equals(TrainingGround.KEY)) {
 			return;
@@ -556,6 +714,9 @@ public final class TrainingService {
 		player.removeAttached(MistinnAttachments.DEATH_MARK);
 		player.removeAttached(MistinnAttachments.PAINKILLER);
 		SaltService.set(player, 0);
+		// the lent slide, practice stat points and achievements earned in training do not go down with the hunter
+		SkillService.set(player, life.shizune.mistinn.skill.Skills.EMPTY);
+		life.shizune.mistinn.achievement.AchievementService.clear(player);
 		TreatmentService.reset(player);
 		WoundService.clearAll(player);
 		BodyService.restoreAll(player);

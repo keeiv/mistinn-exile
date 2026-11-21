@@ -375,6 +375,9 @@ final class StationMap {
 			b.fill(x0, MID + 5, -75, x0 + 6, MID + 5, -70, FRAME);
 			b.set(x0 + 3, MID + 4, -70, FRAME);
 		}
+		// the scout's lamp on its pedestal in front of the cages: fetch it without being heard
+		b.set(10, MID + 1, -66, Blocks.CHISELED_TUFF);
+		b.set(10, MID + 2, -66, Blocks.SOUL_LANTERN);
 		// only two lamps: the pen is kept dim
 		StationParts.lampPost(b, -4, -51, MID, false);
 		StationParts.lampPost(b, 24, -75, MID, false);

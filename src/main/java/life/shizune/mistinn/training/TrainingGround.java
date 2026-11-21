@@ -27,6 +27,8 @@ public final class TrainingGround {
 	public static final ResourceKey<Level> KEY = ResourceKey.create(Registries.DIMENSION, Mistinn.id("training_ground"));
 	/** The station as it is built now; a save built by an older version is cleared and built again. */
 	public static final int VERSION = 2;
+	/** Where a hunter heard in the listening pen is sent back to: its west door. */
+	public static final BlockPos SNEAK_START = new BlockPos(-3, 77, -60);
 	/** Where a hunter wakes: the barracks, between the bunks. */
 	public static final BlockPos ENTRY = new BlockPos(-24, 65, 17);
 
