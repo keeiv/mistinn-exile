@@ -32,7 +32,8 @@ public final class RouteGoal extends Goal {
 
 	@Override
 	public boolean canUse() {
-		return this.route().size() > 1 && this.hand.level().dimension().equals(TrainingGround.KEY);
+		return this.route().size() > 1 && this.hand.level().dimension().equals(TrainingGround.KEY)
+			&& !this.hand.entityTags().contains(StationHand.GATHERED);
 	}
 
 	@Override

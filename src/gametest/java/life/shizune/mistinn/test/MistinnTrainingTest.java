@@ -31,6 +31,7 @@ import life.shizune.mistinn.residue.DeathMark;
 import life.shizune.mistinn.salt.SaltService;
 import life.shizune.mistinn.station.StaffRole;
 import life.shizune.mistinn.station.StationHand;
+import life.shizune.mistinn.station.StationBroadcast;
 import life.shizune.mistinn.story.StoryService;
 import life.shizune.mistinn.story.WorldMode;
 import life.shizune.mistinn.training.TrainingGround;
@@ -314,6 +315,7 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		go(context, TrainingLesson.REPORT);
 		server(context, player -> useBlock(player, TrainingLesson.REPORT.target, new ItemStack(MistinnItems.RUST_GOD_SALT)));
 		waitLesson(context, TrainingLesson.BOARD);
+		farewell(context);
 		board(context);
 		context.waitTicks(24);
 		context.takeScreenshot("training-06-pod-heart");
@@ -321,8 +323,23 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		check(context.computeOnClient(mc -> mc.gui.screen() instanceof TrainingCompleteScreen), "the destination prompt stays open");
 	}
 
+	/**
+	 * The station sees 3411 off first: everyone gathers under the crane, Helm calls the drop over the
+	 * speakers, and 3411 goes down with the pod.
+	 */
+	private static void farewell(final ClientGameTestContext context) {
+		context.waitFor(mc -> mc.level.getEntitiesOfClass(StationHand.class, new AABB(TrainingLesson.BOARD.target).inflate(24.0),
+			h -> h.role() == StaffRole.COOK || h.role() == StaffRole.BELL_KEEPER).size() == 2, 200);
+		context.takeScreenshot("training-07-farewell");
+		context.waitFor(mc -> TrainingClient.lastBroadcast() == StationBroadcast.FAREWELL, 400);
+		context.waitFor(mc -> mc.level.getEntitiesOfClass(StationHand.class, mc.player.getBoundingBox().inflate(256.0),
+			h -> h.role() == StaffRole.ROOMMATE).isEmpty(), 200);
+	}
+
 	private static void board(final ClientGameTestContext context) {
 		go(context, TrainingLesson.BOARD);
+		// the seat waits until the one before has gone
+		context.waitFor(mc -> TrainingClient.lastBroadcast() == StationBroadcast.YOUR_TURN, 600);
 		server(context, player -> {
 			BlockPos button = TrainingLesson.BOARD_BUTTON;
 			var hit = new BlockHitResult(Vec3.atCenterOf(button), Direction.SOUTH, button, false);
@@ -341,6 +358,11 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 			return new double[] {choice.getX() + choice.getWidth() / 2.0, choice.getY() + choice.getHeight() / 2.0};
 		});
 		click(context, destination[0], destination[1]);
+		// three bells, the station falls quiet and dark, then the drop
+		context.waitFor(mc -> TrainingClient.dropping(), 100);
+		context.waitTicks(110);
+		server(context, player -> check(player.level().getEntitiesOfClass(StationHand.class, player.getBoundingBox().inflate(256.0),
+			h -> h.role() != StaffRole.CRANE_OPERATOR).isEmpty(), "by the third bell no one is left but the crane operator"));
 		context.waitFor(mc -> mc.player != null && mc.player.level().dimension().equals(Level.OVERWORLD), 1000);
 		server(context, player -> {
 			var world = player.level().getServer();

@@ -101,6 +101,7 @@ public final class TrainingService {
 
 	public static void init() {
 		TrainingGround.init();
+		StationCeremony.init();
 		PayloadTypeRegistry.serverboundPlay().register(DeployPayload.TYPE, DeployPayload.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(DeployPayload.TYPE, (payload, context) ->
 			finish(context.player(), payload.story() ? WorldMode.STORY : WorldMode.FREE));
@@ -114,6 +115,7 @@ public final class TrainingService {
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
 			life.shizune.mistinn.station.StationBarks.forgetAll();
 			life.shizune.mistinn.station.StationBroadcast.forgetAll();
+			StationCeremony.forgetAll();
 		});
 		ServerLivingEntityEvents.AFTER_DEATH.register(TrainingService::fallen);
 		UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
@@ -129,7 +131,11 @@ public final class TrainingService {
 				return InteractionResult.PASS;
 			}
 			if (player instanceof ServerPlayer hunter && at(hunter, TrainingLesson.BOARD)) {
-				board(hunter);
+				if (StationCeremony.seenOff(hunter)) {
+					board(hunter);
+				} else {
+					hunter.sendSystemMessage(Component.translatable("training.mistinn.board.wait"), true);
+				}
 			}
 			return InteractionResult.SUCCESS;
 		});
@@ -183,10 +189,16 @@ public final class TrainingService {
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 			if (player.isAlive() && server.isSingleplayerOwner(player.nameAndId())) {
 				train(player, range);
-				if (player.level() == range && player.getAttached(LESSON) != null) {
-					life.shizune.mistinn.station.StationBroadcast.tick(player);
-					if (server.getTickCount() % 5 == 0) {
-						life.shizune.mistinn.station.StationBarks.tick(range, player);
+				TrainingLesson now = player.getAttached(LESSON);
+				if (player.level() == range && now != null) {
+					StationCeremony.tick(player, range);
+					// the drop has its own calls; the day's chatter stops for it
+					boolean drop = now == TrainingLesson.BOARD || now == TrainingLesson.DEPLOY;
+					if (!drop) {
+						life.shizune.mistinn.station.StationBroadcast.tick(player);
+						if (server.getTickCount() % 5 == 0) {
+							life.shizune.mistinn.station.StationBarks.tick(range, player);
+						}
 					}
 				}
 			}
@@ -196,8 +208,9 @@ public final class TrainingService {
 	/** Puts back any member of the staff missing from a loaded post. */
 	private static void staff(final ServerLevel level) {
 		for (TrainingGround.Post post : TrainingGround.POSTS) {
-			if (!level.isPositionEntityTicking(post.pos())
-				|| !level.getEntitiesOfClass(StationHand.class, new AABB(post.pos()).inflate(64.0), hand -> hand.role() == post.role()).isEmpty()) {
+			// anywhere in the station counts: some walk rounds, all gather for the drop; those who left stay gone
+			if (StationCeremony.departed(post.role()) || !level.isPositionEntityTicking(post.pos())
+				|| !level.getEntitiesOfClass(StationHand.class, new AABB(BlockPos.ZERO).inflate(256.0), hand -> hand.role() == post.role()).isEmpty()) {
 				continue;
 			}
 			StationHand hand = MistinnEntities.STATION_HAND.create(level, EntitySpawnReason.STRUCTURE);
@@ -692,7 +705,15 @@ public final class TrainingService {
 		return player.teleportTo(destination, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, Set.of(), 180.0F, 0.0F, true);
 	}
 
+	/** The hunter chose where to go from the seat: the drop begins, three bells before they go. */
 	private static void finish(final ServerPlayer player, final WorldMode next) {
+		if (at(player, TrainingLesson.DEPLOY) && inSeat(player)) {
+			StationCeremony.drop(player, next);
+		}
+	}
+
+	/** After the third bell: the hunter leaves the station for the world they chose. */
+	static void complete(final ServerPlayer player, final WorldMode next) {
 		if (!at(player, TrainingLesson.DEPLOY) || !inSeat(player)) {
 			return;
 		}
