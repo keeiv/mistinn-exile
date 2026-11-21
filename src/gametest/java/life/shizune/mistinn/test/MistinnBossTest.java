@@ -1,5 +1,6 @@
 package life.shizune.mistinn.test;
 
+import java.util.List;
 import java.util.Set;
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
@@ -8,6 +9,7 @@ import life.shizune.mistinn.boss.Observation;
 import life.shizune.mistinn.boss.PlayerAction;
 import life.shizune.mistinn.boss.PlayerModel;
 import life.shizune.mistinn.boss.PlayerTrace;
+import life.shizune.mistinn.boss.Planner;
 import life.shizune.mistinn.boss.Response;
 import life.shizune.mistinn.client.anim.Clip;
 import life.shizune.mistinn.keeper.Snuffer;
@@ -20,6 +22,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.block.Blocks;
@@ -44,6 +47,11 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		seesFourTicksLate();
 		predictsStraightRuns();
 		learnsRollSide();
+		neverLooksPastSix();
+		staysInBudget();
+		picksWhatLands();
+		punishesTreatment();
+		variesItself();
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			world.getConnection().waitForChunksRender();
 			world.getServer().runCommand("difficulty normal");
@@ -178,6 +186,114 @@ public final class MistinnBossTest implements FabricClientGameTest {
 
 	static Observation observation(final long time, final Vec3 pos, final Vec3 velocity) {
 		return new Observation(time, pos, velocity, 0.0F, PlayerAction.WALK, 100.0F, false, 3.0);
+	}
+
+	// ── Thinking ahead ────────────────────────────────────────────
+
+	/** However things stand, the planner never looks further than six moves ahead. */
+	private static void neverLooksPastSix() {
+		Planner planner = new Planner(SnufferMoves.SET, RandomSource.create(1));
+		RandomSource random = RandomSource.create(7);
+		for (int i = 0; i < 300; i++) {
+			Planner.Plan plan = planner.plan(situation(random), 3_000_000L);
+			check(plan.depth() <= Planner.MAX_DEPTH && plan.steps().size() <= Planner.MAX_DEPTH, "looked " + plan.depth() + " moves ahead");
+		}
+	}
+
+	/**
+	 * Thinking costs under a millisecond on average and under three almost always. The rare sample that a
+	 * collector's pause or the scheduler stops mid-thought is logged, not failed: no budget can cut short a
+	 * pause it is inside, and in the game that pause stops the whole server tick anyway.
+	 */
+	private static void staysInBudget() {
+		Planner planner = new Planner(SnufferMoves.SET, RandomSource.create(2));
+		RandomSource random = RandomSource.create(11);
+		for (int i = 0; i < 300; i++) {
+			planner.plan(situation(random), 3_000_000L);
+		}
+		long[] nanos = new long[1000];
+		long total = 0;
+		for (int i = 0; i < nanos.length; i++) {
+			nanos[i] = planner.plan(situation(random), 3_000_000L).nanos();
+			total += nanos[i];
+		}
+		java.util.Arrays.sort(nanos);
+		long average = total / nanos.length;
+		long p99 = nanos[nanos.length * 99 / 100];
+		System.out.println("[boss] planner: " + average / 1000 + " µs on average, " + p99 / 1000 + " µs at the 99th percentile, " + nanos[nanos.length - 1] / 1000 + " µs at worst");
+		check(average < 1_000_000L, "thinks for " + average / 1000 + " µs on average");
+		check(p99 < 3_000_000L, "and " + p99 / 1000 + " µs at the 99th percentile");
+	}
+
+	/** A hunter standing still four blocks in front is attacked with something that reaches. */
+	private static void picksWhatLands() {
+		Planner planner = new Planner(SnufferMoves.SET, RandomSource.create(3));
+		Planner.Plan plan = planner.plan(standing(new Vec3(0.0, 0.0, 4.0), PlayerAction.IDLE), 3_000_000L);
+		BossMove first = plan.first();
+		System.out.println("[boss] four blocks away: " + plan.steps().stream().map(BossMove::id).toList() + " score " + plan.score());
+		check(first != null && first.kind() == BossMove.Kind.ATTACK && first.range().contains(4.0), "four blocks away, it attacks with what reaches: " + plan.steps());
+	}
+
+	/** A hunter healing ten blocks away is closed on and attacked within two moves. */
+	private static void punishesTreatment() {
+		Planner planner = new Planner(SnufferMoves.SET, RandomSource.create(4));
+		Planner.Plan plan = planner.plan(standing(new Vec3(0.0, 0.0, 10.0), PlayerAction.TREAT), 3_000_000L);
+		boolean punished = false;
+		for (int i = 0; i < Math.min(2, plan.steps().size()); i++) {
+			punished |= plan.steps().get(i).kind() == BossMove.Kind.ATTACK;
+		}
+		System.out.println("[boss] healing ten blocks away: " + plan.steps().stream().map(BossMove::id).toList());
+		check(punished, "a hunter healing ten blocks away is attacked within two moves: " + plan.steps());
+	}
+
+	/** Asked the same thing twenty times, it never does the same move more than three times running. */
+	private static void variesItself() {
+		Planner planner = new Planner(SnufferMoves.SET, RandomSource.create(5));
+		Planner.Situation same = standing(new Vec3(0.0, 0.0, 4.0), PlayerAction.IDLE);
+		String previous = null;
+		int run = 0;
+		List<String> picks = new java.util.ArrayList<>();
+		for (int i = 0; i < 20; i++) {
+			BossMove first = planner.plan(same, 3_000_000L).first();
+			check(first != null, "it always does something");
+			planner.commit(first);
+			picks.add(first.id());
+			run = first.id().equals(previous) ? run + 1 : 1;
+			previous = first.id();
+			check(run <= 3, "the same move four times running: " + picks);
+		}
+		System.out.println("[boss] twenty picks for one situation: " + picks);
+	}
+
+	/** The boss at the centre of a twelve-block room facing south, the hunter where given, nothing on cooldown. */
+	static Planner.Situation standing(final Vec3 hunter, final PlayerAction action) {
+		return new Planner.Situation(Vec3.ZERO, 0.0F, "light", java.util.Map.of(), null, 0, hunter, Vec3.ZERO, action, 100.0F, new PlayerModel(),
+			null, 0, Vec3.ZERO, 12.0);
+	}
+
+	/** Anything that could be: anywhere in the room, running or not, some moves cooling down, sometimes mid-move. */
+	static Planner.Situation situation(final RandomSource random) {
+		Vec3 hunter = new Vec3(random.nextDouble() * 24.0 - 12.0, 0.0, random.nextDouble() * 24.0 - 12.0);
+		Vec3 velocity = new Vec3(random.nextDouble() * 0.6 - 0.3, 0.0, random.nextDouble() * 0.6 - 0.3);
+		java.util.Map<String, Integer> cooldowns = new java.util.HashMap<>();
+		for (BossMove move : SnufferMoves.SET.moves()) {
+			if (random.nextFloat() < 0.3F) {
+				cooldowns.put(move.id(), random.nextInt(60));
+			}
+		}
+		BossMove last = null;
+		int lastTicks = 0;
+		if (random.nextFloat() < 0.3F) {
+			last = SnufferMoves.SET.byIndex(random.nextInt(SnufferMoves.SET.size()));
+			lastTicks = last.windup() + last.active() + random.nextInt(Math.max(1, last.recovery()));
+		}
+		PlayerModel model = new PlayerModel();
+		for (int i = 0; i < random.nextInt(20); i++) {
+			model.learn("sweep", Response.values()[random.nextInt(Response.values().length)]);
+		}
+		PlayerAction action = PlayerAction.values()[random.nextInt(PlayerAction.values().length)];
+		return new Planner.Situation(Vec3.ZERO, random.nextFloat() * 360.0F, random.nextBoolean() ? "light" : "dark", cooldowns, last, lastTicks,
+			hunter, velocity, action, random.nextFloat() * 100.0F, model, null, 0, Vec3.ZERO, 12.0);
 	}
 
 	// ── Helpers ───────────────────────────────────────────────────
