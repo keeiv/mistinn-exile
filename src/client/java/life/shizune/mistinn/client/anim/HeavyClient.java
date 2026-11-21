@@ -85,9 +85,8 @@ public final class HeavyClient {
 			return;
 		}
 		float charge = HeavyService.charge(player, style, held);
-		// only what the server also knows: a roll or slide here is judged by the server, which holds the charge
-		life.shizune.mistinn.weapon.SpecialWeapon special = life.shizune.mistinn.weapon.SpecialWeapon.of(player.getMainHandItem());
-		if (charge < HeavyService.MIN_CHARGE || (special != null && !special.fits(player))) {
+		// the same question the server asks; a roll or slide has already ended the charge on both sides
+		if (charge < HeavyService.MIN_CHARGE || !HeavyService.canLetGo(player, player.getMainHandItem())) {
 			return;
 		}
 		STRIKES.put(player.getId(), new Strike(style, charge, now()));

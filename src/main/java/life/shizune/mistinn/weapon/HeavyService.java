@@ -223,15 +223,27 @@ public final class HeavyService {
 		}
 	}
 
+	/**
+	 * Whether a charged blow may be let go now. The server and the hunter's own client both ask this
+	 * (the body and the skills are synced to their owner), so the hunter never sees a strike the
+	 * server refuses: the weapon must answer the hunter, and at least one arm must still work.
+	 */
+	public static boolean canLetGo(final Player player, final ItemStack stack) {
+		SpecialWeapon special = SpecialWeapon.of(stack);
+		if (special != null && !special.fits(player)) {
+			return false;
+		}
+		Body body = BodyService.get(player);
+		return !(body.destroyed(BodyPart.LEFT_ARM) && body.destroyed(BodyPart.RIGHT_ARM));
+	}
+
 	/** The hunter let go after charging for {@code ticks}; returns whether a heavy blow is on its way. */
 	public static boolean release(final ServerPlayer player, final ItemStack stack, final int ticks) {
 		WeaponStyle style = WeaponStyle.of(stack);
 		if (style == null || player.isDeadOrDying()) {
 			return false;
 		}
-		// only what the hunter's client also checks before it shows the strike: the weapon must answer
-		SpecialWeapon unfit = SpecialWeapon.of(stack);
-		if (unfit != null && !unfit.fits(player)) {
+		if (!canLetGo(player, stack)) {
 			return false;
 		}
 		float charge = charge(player, style, ticks);
