@@ -23,7 +23,15 @@ public final class PlayerModel {
 	/** How quickly the habits below follow the latest sighting. */
 	private static final double HABIT_RATE = 0.1;
 
+	/** How many roll timings are kept per family. */
+	private static final int LEADS = 12;
+	/** Before anything is seen: rolls spread over the tell, most of them in time. */
+	private static final int[] PRIOR_LEADS = {2, 5, 8, 11};
+	private static final double PRIOR_LEAD_WEIGHT = 0.5;
+
 	private final Map<String, EnumMap<Response, Double>> counts = new HashMap<>();
+	/** The last few roll timings per family, and (in the last slot) how many were ever seen. */
+	private final Map<String, int[]> leads = new HashMap<>();
 	private double preferredDistance = 4.0;
 	private double counterDelay = 10.0;
 
@@ -66,6 +74,43 @@ public final class PlayerModel {
 			out.put(response, (n + PRIOR) / total);
 		}
 		return out;
+	}
+
+	/**
+	 * Notes when a roll in answer to a tell of {@code family} began: {@code lead} ticks before the blow was due
+	 * (negative: after it). An early roller's dodge is spent before a held blow lands.
+	 */
+	public void learnRoll(final String family, final int lead) {
+		int[] seen = this.leads.computeIfAbsent(family, f -> new int[LEADS + 1]);
+		int count = seen[LEADS];
+		seen[count % LEADS] = lead;
+		seen[LEADS] = count + 1;
+	}
+
+	/**
+	 * The chance a roll in answer to a tell of {@code family} still covers the blow when it is held {@code delay}
+	 * ticks past its tell, for a dodge lasting {@code iframes} ticks. Starts from a few rolls spread over the tell.
+	 */
+	public double dodge(final String family, final int delay, final int iframes) {
+		double covered = 0.0;
+		double total = 0.0;
+		for (int lead : PRIOR_LEADS) {
+			total += PRIOR_LEAD_WEIGHT;
+			covered += covers(lead, delay, iframes) ? PRIOR_LEAD_WEIGHT : 0.0;
+		}
+		int[] seen = this.leads.get(family);
+		if (seen != null) {
+			for (int i = 0; i < Math.min(seen[LEADS], LEADS); i++) {
+				total += 1.0;
+				covered += covers(seen[i], delay, iframes) ? 1.0 : 0.0;
+			}
+		}
+		return covered / total;
+	}
+
+	/** A roll begun {@code lead} ticks before the blow was due dodges it if the blow, held {@code delay}, falls in its dodge. */
+	private static boolean covers(final int lead, final int delay, final int iframes) {
+		return lead >= -delay && lead + delay <= iframes;
 	}
 
 	/** Notes how far from the boss the hunter stood while it was not attacking. */

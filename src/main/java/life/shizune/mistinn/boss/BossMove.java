@@ -1,6 +1,8 @@
 package life.shizune.mistinn.boss;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import net.minecraft.server.level.ServerLevel;
@@ -183,8 +185,9 @@ public record BossMove(String id, Kind kind, Weight weight, @Nullable SoundEvent
 			return this;
 		}
 
+		/** The first family is the one its tell shows; the order is kept. */
 		public Builder families(final String... families) {
-			this.families = Set.of(families);
+			this.families = Collections.unmodifiableSet(new LinkedHashSet<>(List.of(families)));
 			return this;
 		}
 
@@ -209,6 +212,12 @@ public record BossMove(String id, Kind kind, Weight weight, @Nullable SoundEvent
 		}
 
 		public BossMove build() {
+			if (this.kind == Kind.FEINT && (!this.strikes.isEmpty() || this.imitates == null)) {
+				throw new IllegalStateException("a feint borrows a tell and lands nothing: " + this.id);
+			}
+			if (this.kind == Kind.SIGNAL && this.signals == null) {
+				throw new IllegalStateException("a signal promises a family: " + this.id);
+			}
 			return new BossMove(this.id, this.kind, this.weight, this.tell, this.windup, this.active, this.recovery, List.copyOf(this.strikes),
 				this.motion, this.range, this.cooldown, this.families, this.imitates, this.signals, this.tellEffect, this.script);
 		}
