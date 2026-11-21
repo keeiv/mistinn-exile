@@ -42,6 +42,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -113,12 +115,19 @@ public final class HeavyService {
 	private static final Shape BURST = new Shape(Kind.BURST, 0.0F, BURST_RADIUS, 0.0, 1, 1.0, 0.0, 0.6, 0.0, 14, 0.25F);
 	private static final Shape TOLL = new Shape(Kind.RING, 360.0F, TOLL_RADIUS, 0.0, 1, 1.0, 0.0, 0.6, 0.0, 18, 0.3F);
 
-	/** A blow on its way: let go, waiting for its contact. */
-	private record Strike(UUID player, WeaponStyle style, @Nullable SpecialWeapon special, Shape shape, float charge,
+	/** A blow on its way: let go in {@code world}, waiting for its contact. */
+	private record Strike(UUID player, ResourceKey<Level> world, WeaponStyle style, @Nullable SpecialWeapon special, Shape shape, float charge,
 		double damage, long landAt, int hitsLeft) {
 		Strike next(final long at) {
-			return new Strike(this.player, this.style, this.special, this.shape, this.charge, this.damage, at, this.hitsLeft - 1);
+			return new Strike(this.player, this.world, this.style, this.special, this.shape, this.charge, this.damage, at, this.hitsLeft - 1);
 		}
+	}
+
+	/** The branch of the blow landing right now, so a kill is the weapon's that struck it; else null. */
+	private static @Nullable WeaponStyle landing;
+
+	public static @Nullable WeaponStyle landing() {
+		return landing;
 	}
 
 	private static final List<Strike> PENDING = new ArrayList<>();
@@ -229,7 +238,7 @@ public final class HeavyService {
 		TreatmentService.interrupt(player);
 		player.resetAttackStrengthTicker();
 		ServerLevel level = player.level();
-		PENDING.add(new Strike(player.getUUID(), style, special, shape, charge, damage, level.getGameTime() + shape.landTicks(), shape.hits()));
+		PENDING.add(new Strike(player.getUUID(), level.dimension(), style, special, shape, charge, damage, level.getGameTime() + shape.landTicks(), shape.hits()));
 		Weapons.Profile profile = Weapons.profile(stack);
 		if (profile != null) {
 			level.playSound(null, player.getX(), player.getEyeY() - 0.3, player.getZ(), profile.swing(), SoundSource.PLAYERS,
@@ -254,7 +263,8 @@ public final class HeavyService {
 		for (Iterator<Strike> it = PENDING.iterator(); it.hasNext();) {
 			Strike strike = it.next();
 			ServerPlayer player = server.getPlayerList().getPlayer(strike.player());
-			if (player == null || player.isDeadOrDying()) {
+			// a blow does not follow the hunter into another world
+			if (player == null || player.isDeadOrDying() || player.level().dimension() != strike.world()) {
 				it.remove();
 				continue;
 			}
@@ -262,7 +272,12 @@ public final class HeavyService {
 				continue;
 			}
 			it.remove();
-			land(player, strike);
+			landing = strike.style();
+			try {
+				land(player, strike);
+			} finally {
+				landing = null;
+			}
 			if (strike.hitsLeft() > 1) {
 				follow.add(strike.next(player.level().getGameTime() + FLURRY_GAP));
 			}

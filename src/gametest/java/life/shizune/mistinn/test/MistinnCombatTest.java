@@ -87,6 +87,10 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 			hookDragsTheFarthest(context, world, arena);
 			lanternBursts(context, world, arena);
 			maulTollsAllAround(context, world, arena);
+			refusedChargeLeavesTheOtherHand(context, world, arena);
+			killGoesToTheBlowsWeapon(context, world, arena);
+			slideMissPaysNothing(context, world, arena);
+			heavyStaysInItsWorld(context, world, arena);
 			frames(context, world, arena);
 		}
 	}
@@ -251,7 +255,7 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 			HeavyService.forgetAll();
 			player.teleportTo(server.overworld(), arena.getX() + 0.5, arena.getY(), arena.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
 			player.getInventory().setSelectedSlot(0);
-			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(weapon));
+			player.setItemInHand(InteractionHand.MAIN_HAND, weapon == null ? ItemStack.EMPTY : new ItemStack(weapon));
 			SkillService.set(player, skills);
 			BodyService.restoreAll(player);
 			player.setAttached(MistinnAttachments.STAMINA, StaminaService.max(player));
@@ -607,6 +611,89 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 		}
 		check(lifted[0], "and throws them up");
 		check(lost(world, far) == 0.0F, "but not past its reach");
+	}
+
+	// ── Found in review ───────────────────────────────────────────
+
+	/** A charge the weapon refuses gives the use key back, so whatever is in the other hand can act. */
+	private static void refusedChargeLeavesTheOtherHand(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		stand(context, world, arena, MistinnItems.TIDE_MAUL, Skills.EMPTY);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			net.minecraft.world.InteractionResult result = player.getMainHandItem().getItem().use(server.overworld(), player, InteractionHand.MAIN_HAND);
+			check(result == net.minecraft.world.InteractionResult.PASS, "an unfit hunter's charge is refused with a pass, not a fail: " + result);
+			check(!player.isUsingItem(), "and no charge starts");
+		});
+	}
+
+	/** A kill is the weapon's that struck it, even if the hand changed before the blow landed. */
+	private static void killGoesToTheBlowsWeapon(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		stand(context, world, arena, iron(WeaponStyle.SLASH), Skills.EMPTY);
+		int target = husk(world, arena, 0.0, 2.0);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			life.shizune.mistinn.achievement.AchievementService.clear(player);
+			mob(server, target).setHealth(2.0F);
+			check(HeavyService.release(player, player.getMainHandItem(), 40), "the heavy slash is let go");
+			// the hand changes before the blow lands
+			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(iron(WeaponStyle.REAP)));
+		});
+		context.waitTicks(10);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			check(mob(server, target) == null || !mob(server, target).isAlive(), "the slash kills");
+			check(life.shizune.mistinn.achievement.AchievementService.has(player, "kill:blade"), "the kill is the blade's");
+			check(!life.shizune.mistinn.achievement.AchievementService.has(player, "kill:scythe"), "not the scythe's, which only came to hand after");
+		});
+	}
+
+	/** Sliding into a creature the slide cannot hurt sweeps nothing, and is no achievement. */
+	private static void slideMissPaysNothing(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		stand(context, world, arena, null, new Skills(Set.of(life.shizune.mistinn.skill.SkillTree.ROOT)));
+		int target = husk(world, arena, 0.0, 1.0);
+		world.getServer().runOnServer(server -> {
+			life.shizune.mistinn.achievement.AchievementService.clear(player(server));
+			mob(server, target).setPermanentlyInvulnerable(true);
+			check(life.shizune.mistinn.skill.SlideService.request(player(server), 0.0F), "the slide starts");
+		});
+		context.waitTicks(12);
+		check(!world.getServer().computeOnServer(server -> life.shizune.mistinn.achievement.AchievementService.has(player(server),
+			life.shizune.mistinn.achievement.Achievement.SLIDE_KICK)), "a slide that hurts nothing is not swept away");
+	}
+
+	/** A blow let go just before stepping into another world does not land in the new one. */
+	private static void heavyStaysInItsWorld(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		stand(context, world, arena, iron(WeaponStyle.SLASH), Skills.EMPTY);
+		int far = world.getServer().computeOnServer(server -> {
+			net.minecraft.server.level.ServerLevel nether = server.getLevel(net.minecraft.world.level.Level.NETHER);
+			BlockPos at = new BlockPos(arena.getX(), 100, arena.getZ());
+			for (BlockPos floor : BlockPos.betweenClosed(at.offset(-3, -1, -3), at.offset(3, -1, 6))) {
+				nether.setBlockAndUpdate(floor, Blocks.STONE.defaultBlockState());
+			}
+			for (BlockPos air : BlockPos.betweenClosed(at.offset(-3, 0, -3), at.offset(3, 3, 6))) {
+				nether.setBlockAndUpdate(air, Blocks.AIR.defaultBlockState());
+			}
+			Husk mob = EntityTypes.HUSK.create(nether, EntitySpawnReason.COMMAND);
+			mob.setNoAi(true);
+			mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(200.0);
+			mob.setHealth(200.0F);
+			mob.snapTo(at.getX() + 0.5, at.getY(), at.getZ() + 2.5, 180.0F, 0.0F);
+			nether.addFreshEntity(mob);
+			ServerPlayer player = player(server);
+			check(HeavyService.release(player, player.getMainHandItem(), 40), "the heavy slash is let go");
+			player.teleportTo(nether, at.getX() + 0.5, at.getY(), at.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
+			return mob.getId();
+		});
+		context.waitTicks(14);
+		world.getServer().runOnServer(server -> {
+			net.minecraft.server.level.ServerLevel nether = server.getLevel(net.minecraft.world.level.Level.NETHER);
+			LivingEntity mob = (LivingEntity) nether.getEntity(far);
+			check(mob.getHealth() == 200.0F, "the blow let go in the overworld does not land in the nether: " + mob.getHealth());
+			mob.discard();
+			ServerPlayer player = player(server);
+			player.teleportTo(server.overworld(), arena.getX() + 0.5, arena.getY(), arena.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
+		});
+		context.waitTicks(20);
 	}
 
 	// ── For the eye ───────────────────────────────────────────────
