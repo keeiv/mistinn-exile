@@ -68,6 +68,7 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		brainsAreIndependent();
 		closeInMovesLand();
 		coversALeftRoller();
+		darkMovesStayInTheDark();
 		feintsBorrowTheirTell();
 		eachSignalIsKept();
 		distanceMovesLand();
@@ -98,6 +99,7 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			slideTakesTheLegs(context, world, stage);
 			rushClosesTheGap(context, world, stage);
 			grabLetsGoOfTheGone(context, world, stage);
+			mistAmbushHasATell(context, world, stage);
 			slamWaveReachesFurther(context, world, stage);
 			delayedSlamHangs(context, world, stage);
 			hookThrustMeetsThePulled(context, world, stage);
@@ -875,6 +877,52 @@ public final class MistinnBossTest implements FabricClientGameTest {
 				}
 			}
 		}
+	}
+
+	/** The dark half's moves are planned only in the dark, and land where they aim. */
+	private static void darkMovesStayInTheDark() {
+		blowsLandWhereTheyAim(java.util.Map.of("mist_ambush", PartRule.Aim.BODY, "soul_sweep", PartRule.Aim.BODY), Set.of());
+		Planner planner = new Planner(SnufferMoves.SET, RandomSource.create(41));
+		RandomSource random = RandomSource.create(43);
+		boolean seenInDark = false;
+		for (int i = 0; i < 300; i++) {
+			Planner.Situation any = situation(random);
+			Planner.Plan plan = planner.plan(any, 3_000_000L);
+			for (BossMove move : plan.steps()) {
+				check(!move.in("dark") || "dark".equals(any.phase()), move.id() + " is planned in the light");
+				seenInDark |= move.in("dark");
+			}
+		}
+		check(seenInDark, "and the dark moves are planned in the dark");
+	}
+
+	/** The ambush is announced long before it shows itself: gone, then behind the hunter, then the blow. */
+	private static void mistAmbushHasATell(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		BossMove ambush = SnufferMoves.SET.get("mist_ambush");
+		check(ambush.tell() != null && SnufferMoves.AMBUSH_APPEARS >= 14, "its sound comes at least 14 ticks before it reappears");
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 6.5, Set.of(), 180.0F, 0.0F, true);
+			Snuffer keeper = keeper(server, stage);
+			keeper.setTarget(player);
+			keeper.perform("mist_ambush");
+		});
+		context.waitTicks(10);
+		world.getServer().runOnServer(server -> check(keeper(server, stage).isInvisible(), "gone into the dark"));
+		context.waitTicks(SnufferMoves.AMBUSH_APPEARS - 10 + 2);
+		world.getServer().runOnServer(server -> {
+			Snuffer keeper = keeper(server, stage);
+			ServerPlayer player = player(server);
+			Vec3 look = Vec3.directionFromRotation(0.0F, player.getYRot());
+			Vec3 to = keeper.position().subtract(player.position());
+			check(!keeper.isInvisible(), "back out of the dark");
+			check(look.x * to.x + look.z * to.z < 0.0, "behind the hunter: " + keeper.position() + " hunter " + player.position());
+		});
+		context.waitTicks(12);
+		world.getServer().runOnServer(server -> {
+			check(BodyService.get(player(server)).get(BodyPart.TORSO) < BodyPart.MAX, "and the blow lands from behind: " + BodyService.get(player(server)));
+			clear(server, stage);
+		});
 	}
 
 	// ── Helpers ───────────────────────────────────────────────────

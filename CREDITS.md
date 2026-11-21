@@ -109,6 +109,12 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `entity/snuffer/chain_pull_2.ogg` | `synth:the chain drawn taut, link by link, and a clank` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/crouch_1.ogg` | `oga_monster_sfx:monster-9`; `synth:salt crunching under its weight` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/crouch_2.ogg` | `oga_monster_vol1:monster-16`; `synth:salt crunching under its weight` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/snuff_1.ogg` | `oga_creature_2:breath_02`; `synth:a flame drawn out and gone` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/snuff_2.ogg` | `oga_creature_1:breath`; `synth:a flame drawn out and gone` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/mist_ambush_1.ogg` | `oga_creature_1:breath`; `synth:a whisper in the dark and a far bell` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/mist_ambush_2.ogg` | `oga_creature_1:breath`; `synth:a whisper in the dark and a far bell` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/soul_sweep_1.ogg` | `synth:soul fire pouring out, a low drone` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/soul_sweep_2.ogg` | `synth:soul fire pouring out, a low drone` | CC0 1.0 sources + project synthesis |
 | `execution/bite_1.ogg` | `oga_creature_2:attack_03`; `oga_creature_1:eat_03`; `oga_creature_2:slime_06`; `synth:teeth` | CC0 1.0 sources + project synthesis |
 | `execution/bite_2.ogg` | `oga_creature_2:attack_02`; `oga_creature_1:eat_03`; `oga_creature_2:slime_07`; `synth:teeth` | CC0 1.0 sources + project synthesis |
 | `execution/bite_3.ogg` | `oga_creature_2:attack_02`; `oga_creature_1:eat_04`; `oga_creature_2:slime_07`; `synth:teeth` | CC0 1.0 sources + project synthesis |
