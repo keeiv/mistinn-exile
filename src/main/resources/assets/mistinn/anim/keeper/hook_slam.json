@@ -1,0 +1,15 @@
+{"_comment":"鉤鎖甩地: draws the hook back high (the tell, 0-14), throws it (14) and hauls the hunter in (14-22); flings them down into the floor (24); brings the pole down on them (34); recovers (34-54).",
+"keys":[0.0,0.222222,0.277778,0.388889,0.444444,0.574074,0.62963,0.740741,1.0],
+"eases":["in_out_sine","out_quad","in_out_sine","out_cubic","in_out_sine","in_cubic","linear","in_out_sine"],
+"length":54,"limbs":{
+"body_x":[0,-8,8,8,35,-12,40,38,0],
+"body_y":[0,30,-10,25,-30,0,0,0,0],
+"left_arm_x":[0,-50,-20,-40,-60,-165,-45,-45,0],
+"left_leg_x":[0,0,0,0,0,0,25,25,0],
+"right_arm_x":[0,-150,-95,15,-30,-170,-50,-50,0],
+"right_arm_y":[0,20,-5,10,-40,0,0,0,0],
+"right_leg_x":[0,0,0,0,0,0,-30,-30,0]},
+"item":{
+"x":[0,0,-60,0,0,25,-45,-45,0]},
+"root":{
+"pitch":[0,0,0,0,14,-6,16,16,0]}}

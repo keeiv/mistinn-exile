@@ -12,12 +12,16 @@ import life.shizune.mistinn.boss.MoveSet;
 import life.shizune.mistinn.boss.PartRule;
 import life.shizune.mistinn.registry.MistinnSounds;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 熄燈人's moves. Each opens with its own sound and a body that can be read: the lantern flares and
@@ -55,13 +59,9 @@ public final class SnufferMoves {
 	public static final BossMove SLAM = BossMove.builder("slam", Kind.ATTACK).weight(Weight.HEAVY)
 		.tell(MistinnSounds.SNUFFER_SLAM, 20).timing(10, 26)
 		.strike(BossMove.Strike.SCRIPTED, new HitShape.Circle(5.5, true), PartRule.always(BodyService.Hit.LEGS), 6.0F)
-		.range(0.0, 12.0).families("leap")
-		.seen((level, boss, target, tick) -> {
-			if (target != null) {
-				level.sendParticles(ParticleTypes.WHITE_ASH, target.getX(), target.getY() + 0.1, target.getZ(), 12, 1.6, 0.05, 1.6, 0.0);
-			}
-		})
-		.script(SnufferMoves::slam)
+		.range(0.0, 12.0).families("leap", "lunge")
+		.seen(SnufferMoves::saltWhereItWillLand)
+		.script(leap(0, false))
 		.build();
 
 	/** Throws the hook: the target is dragged in, then struck in the face. */
@@ -234,7 +234,7 @@ public final class SnufferMoves {
 						Vec3 away = player.position().subtract(context.boss.position()).multiply(1.0, 0.0, 1.0);
 						Vec3 push = away.lengthSqr() < 1.0E-4 ? Vec3.ZERO : away.normalize().scale(1.1);
 						player.setDeltaMovement(push.x, 0.35, push.z);
-						player.needsSync = true;
+						player.syncVelocity = true;
 					}
 				}
 				context.level.playSound(null, context.boss.blockPosition(), SoundEvents.SHIELD_BLOCK.value(), SoundSource.HOSTILE, 1.0F, 0.6F);
@@ -301,17 +301,111 @@ public final class SnufferMoves {
 			double lift = 0.6 + (tick - CLUTCH) * 0.09;
 			held.teleportTo(context.level, front.x, context.boss.getY() + lift, front.z, java.util.Set.of(), held.getYRot(), held.getXRot(), false);
 			held.setDeltaMovement(Vec3.ZERO);
-			held.needsSync = true;
+			held.syncVelocity = true;
 			return;
 		}
 		held.teleportTo(context.level, front.x, context.boss.getY(), front.z, java.util.Set.of(), held.getYRot(), held.getXRot(), false);
 		context.strikeOne(held, strike);
 		held.setDeltaMovement(0.0, 0.25, 0.0);
-		held.needsSync = true;
+		held.syncVelocity = true;
 		context.level.playSound(null, held.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 0.6F, 1.6F);
 		context.level.sendParticles(ParticleTypes.WHITE_ASH, held.getX(), held.getY() + 0.1, held.getZ(), 40, 0.8, 0.1, 0.8, 0.05);
 		context.note("held", null);
 	}
+
+	// ── At a distance ─────────────────────────────────────────────
+
+	/** The slam, and as it lands the salt bursts out along the floor further than the landing reaches. */
+	public static final BossMove SLAM_WAVE = BossMove.builder("slam_wave", Kind.ATTACK).weight(Weight.HEAVY)
+		.tell(MistinnSounds.SNUFFER_SLAM_WAVE, 20).timing(10, 34)
+		.strike(BossMove.Strike.SCRIPTED, new HitShape.Circle(5.5, true), LEGS, 6.0F)
+		.strike(BossMove.Strike.SCRIPTED, new HitShape.Circle(8.5, true), LEGS, 4.0F)
+		.range(3.0, 12.0).cooldown(30).families("leap", "lunge")
+		.seen(SnufferMoves::saltWhereItWillLand)
+		.script(leap(0, true))
+		.build();
+
+	/** The slam's very tell, but it hangs at the top of the leap until the hunter's roll is spent, then drops. */
+	public static final BossMove DELAYED_SLAM = BossMove.builder("delayed_slam", Kind.ATTACK).weight(Weight.HEAVY)
+		.tell(MistinnSounds.SNUFFER_SLAM, 20).timing(10, 26)
+		.strike(BossMove.Strike.SCRIPTED, new HitShape.Circle(5.5, true), LEGS, 6.0F)
+		.range(0.0, 12.0).cooldown(40).families("leap", "lunge")
+		.seen(SnufferMoves::saltWhereItWillLand)
+		.script(leap(18, false))
+		.build();
+
+	/** Hooks the hunter, flings them down into the floor, and brings the pole down on them. */
+	public static final BossMove HOOK_SLAM = BossMove.builder("hook_slam", Kind.ATTACK).weight(Weight.HEAVY)
+		.tell(MistinnSounds.SNUFFER_HOOK_SLAM, 14).timing(18, 22)
+		.strike(BossMove.Strike.SCRIPTED, new HitShape.Circle(4.0, false), PartRule.always(BodyService.Hit.WHOLE), 5.0F)
+		.strike(BossMove.Strike.SCRIPTED, new HitShape.Circle(3.5, false), HEAD, 7.0F)
+		.range(0.0, 12.5).cooldown(30).families("hook")
+		.seen((level, boss, target, tick) -> level.sendParticles(ParticleTypes.CRIT, boss.getX(), boss.getEyeY(), boss.getZ(), 2, 0.3, 0.3, 0.3, 0.05))
+		.script(context -> {
+			int tick = context.tick();
+			if (tick == 14) {
+				pull(context, 1.6);
+			} else if (tick == 24) {
+				ServerPlayer player = hooked(context, 4.0);
+				if (player == null) {
+					context.note("hooked", null);
+					return;
+				}
+				// flung down: the whole body takes it
+				player.setDeltaMovement(0.0, -0.8, 0.0);
+				player.syncVelocity = true;
+				context.strikeOne(player, context.move().strikes().get(0));
+				context.level.playSound(null, player.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 0.6F, 1.5F);
+			} else if (tick == 34) {
+				ServerPlayer player = hooked(context, 3.5);
+				context.note("hooked", null);
+				if (player != null) {
+					context.boss.swing(InteractionHand.MAIN_HAND, context.boss.getMainHandItem().getAttackAnimation(), true);
+					context.strikeOne(player, context.move().strikes().get(1));
+				}
+			}
+		})
+		.build();
+
+	/** Hooks the hunter, and as they are yanked in the spear comes the other way to meet them. */
+	public static final BossMove HOOK_THRUST = BossMove.builder("hook_thrust", Kind.ATTACK).weight(Weight.HEAVY)
+		.tell(MistinnSounds.SNUFFER_HOOK_THRUST, 14).timing(6, 18)
+		.strike(BossMove.Strike.SCRIPTED, new HitShape.Capsule(4.2, 0.6, 2.0), TORSO, 8.0F)
+		.range(0.0, 12.5).cooldown(30).families("hook")
+		.seen((level, boss, target, tick) -> level.sendParticles(ParticleTypes.CRIT, boss.getX(), boss.getEyeY(), boss.getZ(), 2, 0.3, 0.3, 0.3, 0.05))
+		.script(context -> {
+			if (context.tick() == 14) {
+				pull(context, 1.8);
+			} else if (context.tick() == 18) {
+				ServerPlayer player = hooked(context, 5.0);
+				context.note("hooked", null);
+				context.boss.swing(InteractionHand.MAIN_HAND, context.boss.getMainHandItem().getAttackAnimation(), true);
+				if (player != null) {
+					context.strikeOne(player, context.move().strikes().getFirst());
+				}
+			}
+		})
+		.build();
+
+	/** The hook slung out flat along the floor in a wide arc: the legs, far out. */
+	public static final BossMove CHAIN_SWEEP = BossMove.builder("chain_sweep", Kind.ATTACK).weight(Weight.HEAVY)
+		.tell(MistinnSounds.SNUFFER_CHAIN_SWEEP, 16).timing(4, 20)
+		.strike(17, new HitShape.Sector(9.0, 75.0, 1.0), LEGS, 5.0F)
+		.range(2.0, 9.0).cooldown(30).families("hook")
+		.script(context -> {
+			if (context.tick() == 17) {
+				context.level.playSound(null, context.boss.blockPosition(), SoundEvents.CHAIN_BREAK, SoundSource.HOSTILE, 1.4F, 0.6F);
+				Vec3 facing = HitShape.facing(context.boss);
+				for (int i = -6; i <= 6; i++) {
+					double angle = Math.toRadians(i * 12.0);
+					Vec3 dir = new Vec3(facing.x * Math.cos(angle) - facing.z * Math.sin(angle), 0.0, facing.x * Math.sin(angle) + facing.z * Math.cos(angle));
+					for (double r = 2.0; r <= 9.0; r += 2.0) {
+						context.level.sendParticles(ParticleTypes.CRIT, context.boss.getX() + dir.x * r, context.boss.getY() + 0.2, context.boss.getZ() + dir.z * r, 1, 0.1, 0.0, 0.1, 0.0);
+					}
+				}
+			}
+		})
+		.build();
 
 	/** Thrown off balance by the lit lamps: hunched and swaying. Suffered, never chosen. */
 	public static final BossMove STAGGER = BossMove.builder("stagger", Kind.REACTION)
@@ -322,12 +416,14 @@ public final class SnufferMoves {
 		SWEEP, SLAM, HOOK, SLIDE, RUSH,
 		STEP_LEFT, STEP_RIGHT, BACK_STEP, CIRCLE, BACK_JUMP,
 		DOUBLE_SWEEP, SPIN, THRUST, TRIPLE_THRUST, OVERHEAD, UPSWING, LEG_SWEEP, BUTT, LANTERN_BASH, GRAB_THROW,
+		SLAM_WAVE, DELAYED_SLAM, HOOK_SLAM, HOOK_THRUST, CHAIN_SWEEP,
 		STAGGER), List.of(
 		// what flows into what: a combo is a path through these, chosen as it goes
 		new MoveSet.Link("sweep", "thrust", 17, 28),
 		new MoveSet.Link("step_left", "sweep", 14, 20), new MoveSet.Link("step_left", "thrust", 14, 20), new MoveSet.Link("step_left", "overhead", 14, 20),
 		new MoveSet.Link("step_right", "sweep", 14, 20), new MoveSet.Link("step_right", "thrust", 14, 20), new MoveSet.Link("step_right", "overhead", 14, 20),
 		new MoveSet.Link("back_step", "hook", 14, 22), new MoveSet.Link("back_step", "slam", 14, 22),
+		new MoveSet.Link("back_step", "chain_sweep", 14, 22), new MoveSet.Link("back_step", "hook_thrust", 14, 22),
 		new MoveSet.Link("thrust", "leg_sweep", 12, 20),
 		new MoveSet.Link("leg_sweep", "overhead", 12, 20),
 		new MoveSet.Link("upswing", "overhead", 11, 18),
@@ -335,32 +431,84 @@ public final class SnufferMoves {
 		new MoveSet.Link("back_jump", "slam", 16, 24),
 		new MoveSet.Link("circle", "rush", 20, 32), new MoveSet.Link("circle", "thrust", 20, 32)));
 
-	/** The leap at tick 20; in the air through 30, held there until it comes down; the landing strikes. */
-	private static void slam(final MoveRunner.Context context) {
-		int tick = context.tick();
-		if (tick == 20) {
-			Vec3 to = context.target == null ? Vec3.ZERO : context.target.position().subtract(context.boss.position());
-			Vec3 flat = new Vec3(to.x, 0, to.z);
-			double reach = Math.min(flat.length(), 8.0) / 8.0;
-			Vec3 push = flat.lengthSqr() < 1.0E-4 ? Vec3.ZERO : flat.normalize().scale(0.9 * reach);
-			context.boss.setDeltaMovement(push.x, 0.75, push.z);
-			context.boss.needsSync = true;
-			context.note("air", 0);
-			return;
+	/** Salt grains rise where the leap will come down. */
+	private static void saltWhereItWillLand(final ServerLevel level, final Mob boss, final @Nullable LivingEntity target, final int tick) {
+		if (target != null) {
+			level.sendParticles(ParticleTypes.WHITE_ASH, target.getX(), target.getY() + 0.1, target.getZ(), 12, 1.6, 0.05, 1.6, 0.0);
 		}
-		Integer air = context.note("air");
-		if (air == null || tick < 20 || tick > 30) {
-			return;
+	}
+
+	/**
+	 * The leap at tick 20, at the target (no further than eight blocks); in the air through 30, held there until it
+	 * comes down; the landing strikes. A hang keeps it at the top of the leap that many ticks first, the pole raised,
+	 * until a roll is spent; a wave sends the salt bursting out along the floor six ticks after it lands.
+	 */
+	private static BossMove.Script leap(final int hang, final boolean wave) {
+		return context -> {
+			int tick = context.tick();
+			if (tick == 20) {
+				Vec3 to = context.target == null ? Vec3.ZERO : context.target.position().subtract(context.boss.position());
+				Vec3 flat = new Vec3(to.x, 0, to.z);
+				double reach = Math.min(flat.length(), 8.0) / 8.0;
+				Vec3 push = flat.lengthSqr() < 1.0E-4 ? Vec3.ZERO : flat.normalize().scale(0.9 * reach);
+				context.boss.setDeltaMovement(push.x, 0.75, push.z);
+				context.boss.needsSync = true;
+				context.note("air", 0);
+				context.note("hang", hang);
+				return;
+			}
+			Integer air = context.note("air");
+			if (air != null && tick >= 20 && tick <= 30) {
+				air++;
+				context.note("air", air);
+				Integer hanging = context.note("hang");
+				if (hanging != null && hanging > 0 && air > 3 && context.boss.getDeltaMovement().y <= 0.05) {
+					// it hangs at the top of the leap, the pole raised, and waits
+					context.boss.setNoGravity(hanging > 1);
+					context.boss.setDeltaMovement(context.boss.getDeltaMovement().multiply(0.2, 0.0, 0.2));
+					context.boss.needsSync = true;
+					context.note("hang", hanging - 1);
+					if (hanging % 6 == 0) {
+						context.level.playSound(null, context.boss.blockPosition(), SoundEvents.CHAIN_STEP, SoundSource.HOSTILE, 1.0F, 0.5F);
+					}
+					context.hold();
+					return;
+				}
+				boolean landed = air > 2 && context.boss.onGround();
+				if (landed || air > 60 + hang) {
+					context.boss.setNoGravity(false);
+					land(context);
+					context.note("air", null);
+					context.skipTo(30);
+				} else if (tick == 30) {
+					context.hold();
+				}
+				return;
+			}
+			if (wave && tick == 36) {
+				wave(context);
+			}
+		};
+	}
+
+	/** The salt bursts outward along the floor: whoever stands on it in the ring beyond the landing loses their footing. */
+	private static void wave(final MoveRunner.Context context) {
+		var level = context.level;
+		var boss = context.boss;
+		BossMove.Strike strike = context.move().strikes().get(1);
+		for (int i = 0; i < 48; i++) {
+			double angle = i * Math.PI * 2.0 / 48.0;
+			for (double r = 5.0; r <= 8.5; r += 1.75) {
+				level.sendParticles(ParticleTypes.WHITE_ASH, boss.getX() + Math.cos(angle) * r, boss.getY() + 0.1, boss.getZ() + Math.sin(angle) * r, 3, 0.2, 0.05, 0.2, 0.02);
+			}
 		}
-		air++;
-		context.note("air", air);
-		boolean landed = air > 2 && context.boss.onGround();
-		if (landed || air > 60) {
-			land(context);
-			context.note("air", null);
-			context.skipTo(30);
-		} else if (tick == 30) {
-			context.hold();
+		level.playSound(null, boss.blockPosition(), SoundEvents.GRAVEL_BREAK, SoundSource.HOSTILE, 1.6F, 0.5F);
+		for (Player player : level.getEntitiesOfClass(Player.class, boss.getBoundingBox().inflate(9.0, 1.5, 9.0))) {
+			if (player.position().subtract(boss.position()).horizontalDistance() > 4.5 && strike.shape().hits(boss, player)) {
+				context.strikeOne(player, strike);
+				player.setDeltaMovement(player.getDeltaMovement().add(0, 0.3, 0));
+				player.syncVelocity = true;
+			}
 		}
 	}
 
@@ -375,7 +523,7 @@ public final class SnufferMoves {
 			if (strike.shape().hits(boss, player)) {
 				context.strikeOne(player, strike);
 				player.setDeltaMovement(player.getDeltaMovement().add(0, 0.35, 0));
-				player.needsSync = true;
+				player.syncVelocity = true;
 			}
 		}
 	}
@@ -384,25 +532,39 @@ public final class SnufferMoves {
 	private static void hook(final MoveRunner.Context context) {
 		int tick = context.tick();
 		if (tick == 14) {
-			if (!(context.target instanceof ServerPlayer player) || context.boss.distanceTo(player) > 12.5 || !context.boss.hasLineOfSight(player)) {
-				return;
-			}
-			Vec3 pull = context.boss.position().subtract(player.position());
-			Vec3 flat = new Vec3(pull.x, 0, pull.z);
-			if (flat.lengthSqr() > 1.0E-4) {
-				Vec3 drag = flat.normalize().scale(Math.min(1.6, 0.25 * flat.length()));
-				player.setDeltaMovement(drag.x, 0.3, drag.z);
-				player.needsSync = true;
-			}
-			context.level.playSound(null, player.blockPosition(), SoundEvents.CHAIN_BREAK, SoundSource.HOSTILE, 1.5F, 0.8F);
-			context.note("hooked", player);
+			pull(context, 1.6);
 		} else if (tick == 24) {
-			ServerPlayer player = context.note("hooked");
+			ServerPlayer player = hooked(context, 4.0);
 			context.note("hooked", null);
-			if (player != null && player.isAlive() && player.level() == context.level && context.boss.distanceTo(player) <= 4.0) {
+			if (player != null) {
 				context.boss.swing(InteractionHand.MAIN_HAND, context.boss.getMainHandItem().getAttackAnimation(), true);
 				context.strikeOne(player, context.move().strikes().getFirst());
 			}
 		}
+	}
+
+	/** Throws the hook at the target (in sight and within 12.5 blocks) and yanks them in, no faster than {@code speed}. */
+	private static void pull(final MoveRunner.Context context, final double speed) {
+		if (!(context.target instanceof ServerPlayer player) || context.boss.distanceTo(player) > 12.5 || !context.boss.hasLineOfSight(player)) {
+			return;
+		}
+		Vec3 pull = context.boss.position().subtract(player.position());
+		Vec3 flat = new Vec3(pull.x, 0, pull.z);
+		if (flat.lengthSqr() > 1.0E-4) {
+			Vec3 drag = flat.normalize().scale(Math.min(speed, 0.25 * flat.length()));
+			player.setDeltaMovement(drag.x, 0.3, drag.z);
+			player.syncVelocity = true;
+		}
+		context.level.playSound(null, player.blockPosition(), SoundEvents.CHAIN_BREAK, SoundSource.HOSTILE, 1.5F, 0.8F);
+		context.note("hooked", player);
+	}
+
+	/** The hooked hunter, if they are still alive, still here, and within {@code reach}; a hunter gone is let go. */
+	private static @Nullable ServerPlayer hooked(final MoveRunner.Context context, final double reach) {
+		ServerPlayer player = context.note("hooked");
+		if (player == null || !player.isAlive() || player.level() != context.level || context.boss.distanceTo(player) > reach) {
+			return null;
+		}
+		return player;
 	}
 }

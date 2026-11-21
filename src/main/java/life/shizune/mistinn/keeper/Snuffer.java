@@ -192,6 +192,11 @@ public class Snuffer extends Monster {
 			this.syncMove();
 			return;
 		}
+		if (!this.runner.running()) {
+			// nothing that hangs it in the air or hides it outlives the move that did it
+			this.setNoGravity(false);
+			this.setInvisible(false);
+		}
 		if (this.runner.running()) {
 			this.getNavigation().stop();
 			if (target != null) {
@@ -269,6 +274,8 @@ public class Snuffer extends Monster {
 	@Override
 	public void die(final DamageSource source) {
 		this.runner.stop();
+		this.setNoGravity(false);
+		this.setInvisible(false);
 		this.syncMove();
 		super.die(source);
 	}
