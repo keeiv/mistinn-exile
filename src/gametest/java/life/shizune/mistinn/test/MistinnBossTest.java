@@ -5,6 +5,10 @@ import java.util.Set;
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
 import life.shizune.mistinn.boss.BossMove;
+import life.shizune.mistinn.boss.HitShape;
+import life.shizune.mistinn.boss.MoveRunner;
+import life.shizune.mistinn.boss.MoveSet;
+import life.shizune.mistinn.boss.PartRule;
 import life.shizune.mistinn.boss.Observation;
 import life.shizune.mistinn.boss.PlayerAction;
 import life.shizune.mistinn.boss.PlayerModel;
@@ -15,6 +19,7 @@ import life.shizune.mistinn.client.anim.Clip;
 import life.shizune.mistinn.keeper.Snuffer;
 import life.shizune.mistinn.keeper.SnufferMoves;
 import life.shizune.mistinn.registry.MistinnEntities;
+import life.shizune.mistinn.registry.MistinnSounds;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
@@ -52,6 +57,9 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		picksWhatLands();
 		punishesTreatment();
 		variesItself();
+		baitsEarlyRollers();
+		signalsAreHonest();
+		signalsAreNeverFaked();
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			world.getConnection().waitForChunksRender();
 			world.getServer().runCommand("difficulty normal");
@@ -71,6 +79,8 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			sweepHitsInFrontNotBehind(world, stage);
 			deathStopsTheMove(context, world, stage);
 			grabbedHunterLeavingReleases(context, world, stage);
+			feintsNeverHurt(context, world, stage);
+			delayHoldsTheBlow(context, world, stage);
 		}
 	}
 
@@ -294,6 +304,140 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		PlayerAction action = PlayerAction.values()[random.nextInt(PlayerAction.values().length)];
 		return new Planner.Situation(Vec3.ZERO, random.nextFloat() * 360.0F, random.nextBoolean() ? "light" : "dark", cooldowns, last, lastTicks,
 			hunter, velocity, action, random.nextFloat() * 100.0F, model, null, 0, Vec3.ZERO, 12.0);
+	}
+
+	// ── Feints, delays and signals ────────────────────────────────
+
+	/** A thrust: a lunge forward with the spear, a long narrow band. */
+	static final BossMove TEST_THRUST = BossMove.builder("thrust", BossMove.Kind.ATTACK).weight(BossMove.Weight.LIGHT)
+		.tell(MistinnSounds.SNUFFER_HOOK, 10).timing(2, 14)
+		.strike(10, new HitShape.Capsule(6.0, 0.6, 2.0), PartRule.always(BodyService.Hit.on(BodyPart.TORSO, false)), 6.0F)
+		.motion(new BossMove.Motion(List.of(new BossMove.Motion.Key(10, 1.5, 0.0, 0.0)))).range(0.0, 7.0).families("thrust").build();
+	/** The sweep's tell, then nothing: it hands over to the thrust. */
+	static final BossMove TEST_FAKE_SWEEP = BossMove.builder("fake_sweep", BossMove.Kind.FEINT)
+		.tell(MistinnSounds.SNUFFER_SWEEP, 16).timing(0, 8).imitates("sweep").range(0.0, 4.5).families("sweep").build();
+	/** The spear spun once in the hand: a thrust is coming. */
+	static final BossMove TEST_TWIRL = BossMove.builder("twirl", BossMove.Kind.SIGNAL)
+		.tell(MistinnSounds.SNUFFER_HOOK, 0).timing(0, 30).signals("thrust").build();
+	static final MoveSet TRICKS = new MoveSet(List.of(SnufferMoves.SWEEP, TEST_FAKE_SWEEP, TEST_THRUST, TEST_TWIRL),
+		List.of(new MoveSet.Link("fake_sweep", "thrust", 10, 16)));
+
+	/** A feint can carry no blow, and running one through hurts nobody. */
+	private static void feintsNeverHurt(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		boolean refused = false;
+		try {
+			BossMove.builder("bad_feint", BossMove.Kind.FEINT).tell(MistinnSounds.SNUFFER_SWEEP, 16).imitates("sweep")
+				.strike(16, new HitShape.Circle(3.0, false), PartRule.always(BodyService.Hit.LEGS), 5.0F).build();
+		} catch (IllegalStateException expected) {
+			refused = true;
+		}
+		check(refused, "a feint with a blow in it is refused");
+		MoveRunner runner = new MoveRunner();
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 3.0, Set.of(), 180.0F, 0.0F, true);
+			BodyService.restoreAll(player);
+			runner.start(keeper(server, stage), TEST_FAKE_SWEEP);
+		});
+		for (int i = 0; i < TEST_FAKE_SWEEP.length() + 2; i++) {
+			world.getServer().runOnServer(server -> runner.tick(server.overworld(), keeper(server, stage), player(server)));
+			context.waitTick();
+		}
+		world.getServer().runOnServer(server -> {
+			check(!runner.running(), "the feint runs to its end");
+			check(BodyService.get(player(server)).total() == life.shizune.mistinn.body.Body.FULL.total(), "and hurts nobody: " + BodyService.get(player(server)));
+			clear(server, stage);
+		});
+	}
+
+	/** A delayed blow holds at the end of its tell and lands late, after an early roll would be spent. */
+	private static void delayHoldsTheBlow(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		MoveRunner runner = new MoveRunner();
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 3.0, Set.of(), 180.0F, 0.0F, true);
+			BodyService.restoreAll(player);
+			runner.start(keeper(server, stage), SnufferMoves.SWEEP);
+			runner.delay(8);
+		});
+		float[] seen = new float[2];
+		for (int i = 0; i < 30; i++) {
+			int tick = i;
+			world.getServer().runOnServer(server -> {
+				runner.tick(server.overworld(), keeper(server, stage), player(server));
+				if (tick == 18) {
+					seen[0] = BodyService.get(player(server)).total();
+				}
+				if (tick == 29) {
+					seen[1] = BodyService.get(player(server)).total();
+				}
+			});
+			context.waitTick();
+		}
+		float full = life.shizune.mistinn.body.Body.FULL.total();
+		check(seen[0] == full, "eight ticks of delay: nothing has landed when the sweep would have");
+		check(seen[1] < full, "and the sweep lands once the delay is over");
+		world.getServer().runOnServer(server -> clear(server, stage));
+	}
+
+	/** A hunter who rolls away early from the sweep's tell is shown the tell and then caught. */
+	private static void baitsEarlyRollers() {
+		PlayerModel model = new PlayerModel();
+		for (int i = 0; i < 8; i++) {
+			model.learn("sweep", Response.ROLL_BACK);
+			model.learnRoll("sweep", 14);
+		}
+		model.learn("sweep", Response.STAY);
+		model.learn("sweep", Response.STAY);
+		int feints = 0;
+		List<String> firsts = new java.util.ArrayList<>();
+		for (int seed = 0; seed < 40; seed++) {
+			Planner.Plan plan = new Planner(TRICKS, RandomSource.create(seed)).plan(new Planner.Situation(Vec3.ZERO, 0.0F, "light", java.util.Map.of(), null, 0,
+				new Vec3(0.0, 0.0, 3.5), Vec3.ZERO, PlayerAction.IDLE, 100.0F, model, null, 0, Vec3.ZERO, 12.0), 3_000_000L);
+			firsts.add(plan.first() == null ? "nothing" : plan.first().id());
+			if (plan.first() == TEST_FAKE_SWEEP) {
+				feints++;
+			}
+		}
+		System.out.println("[boss] against an early roller: " + firsts);
+		check(feints > 20, "an early roller is baited more often than not: " + firsts);
+	}
+
+	/** While a signal is owed, the next attack is of its family, and nothing feints or signals before it. */
+	private static void signalsAreHonest() {
+		Planner planner = new Planner(TRICKS, RandomSource.create(9));
+		RandomSource random = RandomSource.create(13);
+		for (int i = 0; i < 300; i++) {
+			Planner.Situation any = situation(random);
+			Planner.Situation owed = new Planner.Situation(any.bossPos(), any.bossYaw(), any.phase(), java.util.Map.of(), null, 0, any.hunterPos(),
+				any.hunterVelocity(), any.hunterAction(), any.hunterStamina(), any.hunter(), "thrust", 60, any.roomCentre(), any.roomRadius());
+			Planner.Plan plan = planner.plan(owed, 3_000_000L);
+			for (int step = 0; step < plan.steps().size() && plan.starts().get(step) < 60; step++) {
+				BossMove move = plan.steps().get(step);
+				check(move.kind() != BossMove.Kind.FEINT && move.kind() != BossMove.Kind.SIGNAL, "nothing feints or signals while a signal is owed: " + plan.steps());
+				if (move.kind() == BossMove.Kind.ATTACK) {
+					check(move.in("thrust"), "the spear's twirl promised a thrust: " + plan.steps());
+					break;
+				}
+			}
+		}
+	}
+
+	/** No feint borrows a signal: a signal always means what it says. */
+	private static void signalsAreNeverFaked() {
+		boolean refused = false;
+		try {
+			BossMove fake = BossMove.builder("fake_twirl", BossMove.Kind.FEINT).tell(MistinnSounds.SNUFFER_HOOK, 8).timing(0, 8).imitates("twirl").build();
+			new MoveSet(List.of(TEST_TWIRL, fake), List.of());
+		} catch (IllegalArgumentException expected) {
+			refused = true;
+		}
+		check(refused, "a move set with a feint of a signal is refused");
+		for (BossMove move : SnufferMoves.SET.moves()) {
+			if (move.imitates() != null) {
+				check(SnufferMoves.SET.get(move.imitates()).kind() != BossMove.Kind.SIGNAL, move.id() + " fakes a signal");
+			}
+		}
 	}
 
 	// ── Helpers ───────────────────────────────────────────────────

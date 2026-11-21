@@ -30,6 +30,12 @@ public final class MoveSet {
 			this.get(link.from());
 			this.get(link.to());
 		}
+		for (BossMove move : this.moves) {
+			// a signal always means what it says: no feint may borrow one
+			if (move.imitates() != null && this.get(move.imitates()).kind() == BossMove.Kind.SIGNAL) {
+				throw new IllegalArgumentException(move.id() + " fakes the signal " + move.imitates());
+			}
+		}
 	}
 
 	public List<BossMove> moves() {
