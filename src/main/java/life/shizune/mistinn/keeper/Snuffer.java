@@ -249,6 +249,9 @@ public class Snuffer extends Monster {
 	/** Starts a move, holding its blow {@code delay} ticks at the end of the tell. */
 	public void perform(final String id, final int delay) {
 		BossMove move = SnufferMoves.SET.get(id);
+		// a move cut off (by a stagger, by the next move) leaves nothing behind: it is seen and it falls
+		this.setInvisible(false);
+		this.setNoGravity(false);
 		this.runner.start(this, move);
 		this.runner.delay(delay);
 		this.getNavigation().stop();

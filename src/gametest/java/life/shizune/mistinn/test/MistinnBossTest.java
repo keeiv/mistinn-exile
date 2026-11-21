@@ -99,6 +99,7 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			slideTakesTheLegs(context, world, stage);
 			rushClosesTheGap(context, world, stage);
 			grabLetsGoOfTheGone(context, world, stage);
+			interruptedMovesLetGo(context, world, stage);
 			mistAmbushHasATell(context, world, stage);
 			slamWaveReachesFurther(context, world, stage);
 			delayedSlamHangs(context, world, stage);
@@ -921,6 +922,42 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		context.waitTicks(12);
 		world.getServer().runOnServer(server -> {
 			check(BodyService.get(player(server)).get(BodyPart.TORSO) < BodyPart.MAX, "and the blow lands from behind: " + BodyService.get(player(server)));
+			clear(server, stage);
+		});
+	}
+
+	/** Cut off mid-ambush or mid-hang (lit lamps stagger it), the keeper is seen again and falls: nothing outlives the move that did it. */
+	private static void interruptedMovesLetGo(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 6.5, Set.of(), 180.0F, 0.0F, true);
+			Snuffer keeper = keeper(server, stage);
+			keeper.setTarget(player);
+			keeper.perform("mist_ambush");
+		});
+		context.waitTicks(10);
+		world.getServer().runOnServer(server -> {
+			Snuffer keeper = keeper(server, stage);
+			check(keeper.isInvisible(), "gone into the dark");
+			keeper.perform("stagger");
+		});
+		context.waitTicks(2);
+		world.getServer().runOnServer(server -> check(!keeper(server, stage).isInvisible(), "a staggered keeper is seen, even cut off mid-ambush"));
+		world.getServer().runOnServer(server -> clear(server, stage));
+		world.getServer().runOnServer(server -> {
+			player(server).teleportTo(server.overworld(), stage.getX() - 7.5, stage.getY(), stage.getZ() - 7.5, Set.of(), 0.0F, 0.0F, true);
+			keeper(server, stage).perform("delayed_slam");
+		});
+		context.waitTicks(36);
+		world.getServer().runOnServer(server -> {
+			Snuffer keeper = keeper(server, stage);
+			check(keeper.isNoGravity(), "hanging at the top of the leap");
+			keeper.perform("stagger");
+		});
+		context.waitTicks(40);
+		world.getServer().runOnServer(server -> {
+			Snuffer keeper = keeper(server, stage);
+			check(!keeper.isNoGravity() && keeper.getY() < stage.getY() + 0.2, "and a stagger brings it down: " + keeper.position());
 			clear(server, stage);
 		});
 	}
