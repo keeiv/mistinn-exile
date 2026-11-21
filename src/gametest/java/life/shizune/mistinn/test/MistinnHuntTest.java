@@ -20,6 +20,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.zombie.Husk;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
@@ -108,16 +109,28 @@ public final class MistinnHuntTest implements FabricClientGameTest {
 		context.waitTicks(4);
 	}
 
-	/** A husk with its AI, {@code dz} blocks beyond the hunter (past the wall when dz > 3). */
+	/**
+	 * A husk with its AI, {@code dz} blocks beyond the hunter (past the wall when dz > 3). It is held
+	 * where it stands (no speed) so its idle wandering cannot carry it across the distance a check
+	 * depends on; {@link #free} lets it walk.
+	 */
 	private static int husk(final TestSingleplayerContext world, final BlockPos arena, final double dz) {
 		return world.getServer().computeOnServer(server -> {
 			Husk mob = EntityTypes.HUSK.create(server.overworld(), EntitySpawnReason.COMMAND);
 			mob.setPersistenceRequired();
+			mob.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.0);
 			mob.snapTo(arena.getX() + 0.5, arena.getY(), arena.getZ() + 0.5 + dz, 0.0F, 0.0F);
 			server.overworld().addFreshEntity(mob);
 			return mob.getId();
 		});
 	}
+
+	private static void free(final TestSingleplayerContext world, final int id) {
+		world.getServer().runOnServer(server -> mob(server, id).getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(HUSK_SPEED));
+	}
+
+	/** A husk's own walking speed. */
+	private static final double HUSK_SPEED = 0.23;
 
 	private static Mob mob(final MinecraftServer server, final int id) {
 		return (Mob) server.overworld().getEntity(id);
@@ -142,6 +155,7 @@ public final class MistinnHuntTest implements FabricClientGameTest {
 		world.getServer().runOnServer(server -> NoiseService.emit(player(server), NoiseService.Noise.SWING));
 		check(heard(world, id), "a swing carries ten blocks, through the wall");
 		check(world.getServer().computeOnServer(server -> mob(server, id).getTarget() == null), "but heard is not seen: the husk has no target");
+		free(world, id);
 		context.waitTicks(InvestigateGoal.LISTEN + 60);
 		double after = distance(world, id);
 		check(before - after > 2.0, "it comes to look: " + before + " -> " + after);
