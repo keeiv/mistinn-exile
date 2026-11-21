@@ -359,7 +359,17 @@ public final class Planner {
 				seen++;
 			}
 		}
-		double keep = Math.max(0.05, 1.0 - 0.3 * repeats - 0.12 * seen);
+		// and the same kind of move run after run is the same routine, whatever its name
+		String family = this.family(move);
+		int kindRepeats = 0;
+		for (var it = this.recent.descendingIterator(); it.hasNext(); ) {
+			String id = it.next();
+			if (this.set.index(id) < 0 || !this.family(this.set.get(id)).equals(family)) {
+				break;
+			}
+			kindRepeats++;
+		}
+		double keep = Math.max(0.05, 1.0 - 0.3 * repeats - 0.12 * seen - 0.25 * kindRepeats);
 		// a worthless move is not made better by being stale
 		double scaled = value > 0.0 ? value * keep : value - (1.0 - keep);
 		return scaled - this.weights.variety * repeats;
