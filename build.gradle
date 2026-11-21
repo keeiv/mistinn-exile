@@ -113,6 +113,10 @@ if (photoMode) {
 	loom.runs.configureEach {
 		if (name == "clientGameTest") {
 			vmArg "-Dmistinn.photo=true"
+			// some of the scenes only (-PphotoSet=death,executions); all of them when unset
+			if (project.hasProperty("photoSet")) {
+				vmArg "-Dmistinn.photoset=${project.photoSet}"
+			}
 		}
 	}
 }

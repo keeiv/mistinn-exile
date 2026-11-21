@@ -67,8 +67,10 @@ cd mistinn-exile
 README 與官網的照片用拍攝模式在遊戲裡擺好再拍：
 
 ```powershell
-.uild.ps1 runClientGameTest -PphotoMode
+.\build.ps1 runClientGameTest -PphotoMode
 ```
+
+只想重拍其中幾個場景時，加上 `-PphotoSet=`，例如 `-PphotoSet=death,executions`（可選：`title`、`places`、`hunter`、`structures`、`lighthouse`、`death`、`executions`、`story`、`inventory`）。
 
 拍攝模式會加入 Sodium 與 Iris，以最高畫質把每個場景拍成 1920×1080，存到 `build/run/clientGameTest/photos`。光影包不隨倉庫提供，請自行把 Complementary Reimagined r5.9.3 放進 `build/run/clientGameTest/shaderpacks`，並在同一個執行資料夾的 `config/iris.properties` 啟用。
 
