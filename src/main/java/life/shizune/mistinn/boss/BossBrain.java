@@ -234,7 +234,7 @@ public final class BossBrain {
 		if (move.kind() == BossMove.Kind.SIGNAL && move.signals() != null) {
 			this.signal = move.signals();
 			this.signalUntil = now + move.length() + Planner.SIGNAL_TICKS;
-		} else if (move.kind() == BossMove.Kind.ATTACK && this.signal != null && move.in(this.signal)) {
+		} else if (!move.strikes().isEmpty() && this.signal != null && move.in(this.signal)) {
 			this.signal = null;
 		}
 		if (move.plannable() && move != Planner.WALK) {

@@ -1,0 +1,11 @@
+{"_comment":"耍槍（信號：刺擊）: spins the spear once round in its claws, overhead and back, the lantern following it; a thrust is coming.",
+"keys":[0.0,0.2,0.4,0.6,0.8,1.0],
+"eases":["in_out_sine","linear","linear","in_out_sine","in_out_sine"],
+"length":30,"limbs":{
+"body_y":[0,0,0,0,15,0],
+"head_y":[0,15,-10,-20,0,0],
+"right_arm_x":[0,-110,-150,-110,-80,0],
+"right_arm_y":[0,30,-30,-60,25,0],
+"right_arm_z":[0,30,10,-10,10,0]},
+"item":{
+"x":[0,-60,-170,-300,-360,0]}}

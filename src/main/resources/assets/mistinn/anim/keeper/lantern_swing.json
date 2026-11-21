@@ -1,0 +1,8 @@
+{"_comment":"甩燈籠（信號：燈籠與魂火）: swings its lantern head round on the bent neck in a slow circle, the eye flaring; a lantern blow is coming.",
+"keys":[0.0,0.2,0.4,0.6,0.8,1.0],
+"eases":["in_out_sine","in_out_sine","in_out_sine","in_out_sine","in_out_sine"],
+"length":30,"limbs":{
+"body_x":[0,0,10,10,-5,0],
+"body_z":[0,-5,-5,5,5,0],
+"head_x":[0,10,30,10,-20,0],
+"head_z":[0,25,0,-25,0,0]}}

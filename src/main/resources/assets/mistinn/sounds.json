@@ -375,6 +375,34 @@
     ],
     "subtitle": "subtitles.mistinn.entity.snuffer.hook"
   },
+  "entity.snuffer.twirl": {
+    "sounds": [
+      "mistinn:entity/snuffer/twirl_1",
+      "mistinn:entity/snuffer/twirl_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.snuffer.twirl"
+  },
+  "entity.snuffer.lantern_swing": {
+    "sounds": [
+      "mistinn:entity/snuffer/lantern_swing_1",
+      "mistinn:entity/snuffer/lantern_swing_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.snuffer.lantern_swing"
+  },
+  "entity.snuffer.chain_pull": {
+    "sounds": [
+      "mistinn:entity/snuffer/chain_pull_1",
+      "mistinn:entity/snuffer/chain_pull_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.snuffer.chain_pull"
+  },
+  "entity.snuffer.crouch": {
+    "sounds": [
+      "mistinn:entity/snuffer/crouch_1",
+      "mistinn:entity/snuffer/crouch_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.snuffer.crouch"
+  },
   "entity.snuffer.slam_wave": {
     "sounds": [
       "mistinn:entity/snuffer/slam_wave_1",
