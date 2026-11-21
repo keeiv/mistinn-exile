@@ -102,6 +102,16 @@ public final class WindupService {
 		return windup != null && !windup.released();
 	}
 
+	/** 打斷: a heavy blow breaks off a blow still being wound up; returns whether one was. */
+	public static boolean interrupt(final Mob mob) {
+		if (!winding(mob)) {
+			return false;
+		}
+		clear(mob);
+		ACTIVE.remove(mob);
+		return true;
+	}
+
 	/** Runs after the creature's own AI each tick: it plants and creeps, turned toward its target. */
 	public static void holdStance(final Mob mob) {
 		Windup windup = mob.getAttached(WINDUP);

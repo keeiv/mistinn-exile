@@ -6,6 +6,42 @@
     ],
     "subtitle": "subtitles.mistinn.weapon.hammer.swing"
   },
+  "weapon.scythe.swing": {
+    "sounds": [
+      {
+        "name": "mistinn:weapon/bell_greatsword/swing_1",
+        "pitch": 1.2
+      },
+      {
+        "name": "mistinn:weapon/bell_greatsword/swing_2",
+        "pitch": 1.25
+      }
+    ],
+    "subtitle": "subtitles.mistinn.weapon.scythe.swing"
+  },
+  "player.charge_full": {
+    "sounds": [
+      {
+        "name": "mistinn:block/golden_bell/rest_2",
+        "pitch": 1.8,
+        "volume": 0.45
+      }
+    ],
+    "subtitle": "subtitles.mistinn.player.charge_full"
+  },
+  "weapon.snuffer_hook.pull": {
+    "sounds": [
+      {
+        "name": "mistinn:entity/snuffer/hook_1",
+        "pitch": 1.1
+      },
+      {
+        "name": "mistinn:entity/snuffer/hook_2",
+        "pitch": 1.15
+      }
+    ],
+    "subtitle": "subtitles.mistinn.weapon.snuffer_hook.pull"
+  },
   "weapon.hit.wood": {
     "sounds": [
       "mistinn:weapon/hit/wood_1",

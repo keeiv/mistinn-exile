@@ -1,0 +1,33 @@
+{
+	"_comment": "長槍 THRUST heavy, charging: the spear drawn far back past the hip and levelled, the body turned side-on.",
+	"keys": [0.0, 0.45, 1.0],
+	"eases": ["out_quad", "in_out_sine"],
+	"two_handed": false,
+	"pitch_follow": 0.9,
+	"first_person": {
+		"tx": [0, 0.045, 0.06],
+		"ty": [0, -0.045, -0.06],
+		"tz": [0, 0.255, 0.34],
+		"rx": [0, -10.5, -14],
+		"ry": [0, 3.0, 4],
+		"rz": [0, 0.0, 0]
+	},
+	"camera": {
+		"yaw": [0, 0.6, 0.8],
+		"pitch": [0, 0.0, 0],
+		"roll": [0, 0.0, 0]
+	},
+	"third_person": {
+		"arm_x": [-18, 14.25, 25],
+		"arm_y": [0, 11.25, 15],
+		"arm_z": [0, 6.0, 8],
+		"other_x": [0, -33.75, -45],
+		"other_y": [0, 15.0, 20],
+		"other_z": [0, 0.0, 0],
+		"body_y": [0, 33.75, 45],
+		"body_x": [0, -4.5, -6],
+		"front_leg": [0, -7.5, -10],
+		"back_leg": [0, 9.0, 12],
+		"item_x": [0, 18.75, 25]
+	}
+}

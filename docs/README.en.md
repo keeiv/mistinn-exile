@@ -69,12 +69,12 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Crafting | Every medical item, repair kit, piece of gear and weapon can be crafted or smithed. Permanent golden bells are found in the world. Keepers drop the Rust God's salt block, an ingredient in tier VI gear. |
 | One-time bells | Fragile bells cast from gold ore (ore or raw gold) and an iron chain. Each rings once and breaks after calling its first hunter back. A bell that has already rung drops nothing when broken. |
 | Minimap | Built in, north up; shows your heading, your bell and where you fell, pinned to the edge when off the map. |
-| Weapons | Five branches (blade, greatsword, spear, dagger, hammer) in five materials (wood, stone, iron, diamond, netherite), so there is something to fight with from day one; plus four named weapons: Anchor Blade, Sunken Bell Greatsword, Mistwalker Spear and Salt Fang. Each has vanilla-style art and a held model, its own swing and hit sounds, and its own first- and third-person swing. |
-| Swings | Every blow has a wind-up, a strike, an overshoot and a recovery. Each weapon branch leaves a distinct trail, from the spear's straight thrust to the dagger's two crossing cuts. Third person twists and steps into it. In first person the view swings with the blow and jolts on a hit. |
+| Weapons | Six branches (blade, greatsword, spear, dagger, hammer, scythe) in five materials (wood, stone, iron, diamond, netherite), so there is something to fight with from day one; four named weapons: Anchor Blade, Sunken Bell Greatsword, Mistwalker Spear and Salt Fang; and three special weapons that only answer a hunter who has earned them: the Snuffer's Hook, the Mist-Lantern Staff and the Tide-Bell Maul. Each has vanilla-style art and a held model, its own swing and hit sounds, and its own first- and third-person swing. |
+| Swings | Every blow has a wind-up, a strike, an overshoot and a recovery, and leaves a cut of vanilla-style pixel light where it lands, turned to the blow: the blade's diagonal, the greatsword's chop, the spear's line, the dagger's two crossing cuts, the hammer's sweep, the scythe's rising reap. Hold use to charge a **heavy blow** that hits everything in its reach. Third person twists and steps into it. In first person the view swings with the blow and jolts on a hit. |
 | Vanilla monsters | Their voices are built from CC0 recordings, lower and more savage; their movement and poses are remade for each rig. They stalk low once they have a hunter, and every melee blow has a windup you can see and hear, and roll away from. A hunter whose legs are both destroyed is executed: see [Vanilla monsters and executions](#vanilla-monsters-and-executions). |
 | Stamina and rolls | Swings, sprints and rolls cost stamina. The legs determine how far a roll goes and the arms shape its motion. Badly injured legs can force a dive, whose landing strains the upper body. |
 | Title screen | An original misty shore with a dead lighthouse: drifting fog, glinting water and a last ember in the lamp room. |
-| Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: ten pages on the world, the mission and the rules, the stats and the skill tree. |
+| Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: eleven pages on the world, the mission and the rules, the stats and the skill tree. |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V; each with its own durability, protection, capacity, layout and a two-line story. |
@@ -85,7 +85,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 
 ### Weapons
 
-Each branch has its own swing, footprint and feel; the material sets damage, durability and tier.
+Each of the six branches has its own swing, footprint and feel; the material sets damage, durability and tier.
 
 | Branch | Swing | Attacks per second | Reach | Footprint | Recipe (`X` material, `#` stick, `.` empty) |
 | --- | --- | --- | --- | --- | --- |
@@ -94,14 +94,15 @@ Each branch has its own swing, footprint and feel; the material sets damage, dur
 | Spear | Draw back, then thrust | 1.1 | 4 | 1×4 | `..X` / `.#X` / `#..` |
 | Dagger | Two crossing cuts in one swing | 2.6 | 2.6 | 1×2 | `X` / `#` |
 | Hammer | Wound up at the side, then swept across; extra knockback | 0.8 | 3 | 2×3 | `XXX` / `XXX` / `.#.` |
+| Scythe | Two-handed, reaped up from lower left to upper right | 1.0 | 3.8 | 2×4 | `XXX` / `..#` / `.#.` |
 
-| Material | Tier | Durability | Blade | Greatsword | Spear | Dagger | Hammer |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Wood | N | 59 | 4 | 7 | 4.5 | 2.5 | 6 |
-| Stone | N | 131 | 5 | 8 | 5.5 | 3.5 | 7 |
-| Iron | I | 250 | 6 | 9 | 6.5 | 4.5 | 8 |
-| Diamond | IV | 1561 | 7 | 10 | 7.5 | 5.5 | 9 |
-| Netherite | V | 2031 | 8 | 11 | 8.5 | 6.5 | 10 |
+| Material | Tier | Durability | Blade | Greatsword | Spear | Dagger | Hammer | Scythe |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Wood | N | 59 | 4 | 7 | 4.5 | 2.5 | 6 | 5.5 |
+| Stone | N | 131 | 5 | 8 | 5.5 | 3.5 | 7 | 6.5 |
+| Iron | I | 250 | 6 | 9 | 6.5 | 4.5 | 8 | 7.5 |
+| Diamond | IV | 1561 | 7 | 10 | 7.5 | 5.5 | 9 | 8.5 |
+| Netherite | V | 2031 | 8 | 11 | 8.5 | 6.5 | 10 | 9.5 |
 
 Materials match vanilla tools (any planks, cobblestone-like stones, iron ingots, diamonds); netherite weapons are upgraded from diamond ones at a smithing table. Named weapons:
 
@@ -113,6 +114,16 @@ Materials match vanilla tools (any planks, cobblestone-like stones, iron ingots,
 | Salt Fang | Two crossing cuts in one swing | 5 | 2.6 | 2.6 |
 
 Damage is the tooltip value (including the 1 point of a bare hand).
+
+### Special weapons
+
+Three special weapons only answer a hunter who meets their requirements. Short of them, the weapon hits at half strength, swings slowly and gives no heavy blow; its tooltip lists the requirements, green when met and red when not.
+
+| Weapon | Branch | Requires | Special heavy blow | Found |
+| --- | --- | --- | --- | --- |
+| Snuffer's Hook | Scythe (8 damage) | The Snuffer brought down, strength 3 | After the reap, the farthest foe it caught is hooked to your feet and its attack broken off | Dropped by the Snuffer |
+| Mist-Lantern Staff | Spear (6 damage) | Intellect 4 | The lantern bursts ahead: everything within 3.5 blocks is hurt and set alight, for (6 + intellect) × (1 + the charge) | `..L` / `.#.` / `#..` (L soul lantern) |
+| Tide-Bell Maul | Hammer (13 damage) | Strength 5, constitution 3 | The bell tolls: everything within 4.5 blocks all around is thrown up | `IBI` / `.#.` / `.#.` (I iron block, B bell) |
 
 ## Playing
 
@@ -235,7 +246,19 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 | ![A hunter swings a netherite hammer, the body dragged round by its weight](images/swing.jpg) | ![A hunter halfway through a sideways roll on a drop station platform](images/roll.jpg) |
 
 - **Swings**: every blow has four beats: the wind-up strains harder towards its end and the arms shake, the strike breaks loose and accelerates, the weapon's weight carries the body past the line, and the recovery hauls it back. Heavy weapons wind up and recover longer.
-- **View**: in first person the view turns, dips and tilts with the swing and jolts on a hit. Press `J` to turn this off; the setting is kept in `config/mistinn-client.properties`.
+- **Sword qi**: every blow leaves a cut of vanilla-style pixel light where it lands, turned to the blow and mirrored for the left hand.
+- **Heavy blows**: with a weapon in hand, **hold use** to charge (a gauge appears under the crosshair) and **let go** to strike. A heavy blow hits everything in its reach, not only what the crosshair is on, for the weapon's damage × (1 + the charge), and 4% more per point of strength; at a full charge a bell chimes, and the blow breaks off the attack a creature it hits was winding up. Let go under 30% and nothing happens. You walk slowly and cannot sprint while charging, and stamina does not come back; letting go costs the swing's stamina × (1 + the charge) and 2 durability. Speed makes the charge quicker.
+
+| Branch | Full charge | Heavy blow |
+| --- | --- | --- |
+| Dagger | 0.6 s | Two crossing cuts across 90° in front, 0.6× each |
+| Blade | 0.8 s | A diagonal cut across 110° in front |
+| Spear | 0.9 s | Straight through a whole line, 2 blocks farther than usual |
+| Scythe | 1 s | A reap across 200° in front that drags what it catches toward you |
+| Hammer | 1.2 s | A sweep across 180° in front, with heavier knockback |
+| Greatsword | 1.3 s | A chop across 50° in front, 1 block farther, and the ground shakes where it lands (half damage) |
+
+- **View**: in first person the view turns, dips and tilts with the swing and jolts on a hit (harder for a heavy blow). Press `J` to turn this off; the setting is kept in `config/mistinn-client.properties`.
 - **Stamina**: 100 at most (3 more per point of constitution). Swings (misses too), sprinting and rolls cost it, and it starts coming back a second after you stop spending. At zero you cannot sprint or swing.
 
 | Weapon | Stamina per swing |
@@ -245,6 +268,7 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 | Spear | 13 |
 | Greatsword | 22 |
 | Hammer | 24 |
+| Scythe | 15 |
 | Anything else | 4 |
 
 - **Roll** (Left Alt): 22 stamina, in the direction you are moving, or a step back if you are not. You cannot be hit for 10 ticks on whole legs, fewer as they are hurt, and the roll gets shorter too.
@@ -305,6 +329,7 @@ A hunter starts growing once a keeper falls and its rust god salt comes home. Op
 | `K` | Mission journal |
 | Left Alt | Roll or dive, depending on leg injuries and painkillers |
 | Crouch while running | Slide (once learned) |
+| Hold use with a weapon | Charge; let go for a heavy blow |
 | Use the Hunter's Guide | Open the guide: pages, stats and skills |
 | `J` | Toggle the first-person swing view |
 | Click a cell | Pick up or put down |
@@ -368,7 +393,7 @@ Textures and models are original work by MoriTeahouse. Sound effects combine edi
 1. **The rest of the story**: chapter 2, *The Salt Road*, then the keepers of the Sunken Bell and the Rust Wheel, and the Mist Inn with the endings.
 2. **The rest of the forbidden zone**: fog that thickens near a lighthouse and on the minimap, a second bell that needs lamp oil, the fog wall of the lamp room, creatures of the mist and the keeper's mist doubles ([design, in Chinese](phase2-design.md)).
 3. **More keepers**: the Sunken Bell and the Rust Wheel.
-4. **Later**: levelling with salt at bells, more weapons and charged attacks, co-op.
+4. **Later**: achievements, co-op.
 
 ## Contributing
 

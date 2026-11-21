@@ -60,6 +60,13 @@ public final class MistinnAttachments {
 		.copyOnDeath()
 		.buildAndRegister(Mistinn.id("skills"));
 
+	/** What the hunter has achieved (a keeper brought down, ...). Kept through death. */
+	public static final AttachmentType<life.shizune.mistinn.achievement.Achievements> ACHIEVEMENTS = AttachmentRegistry.<life.shizune.mistinn.achievement.Achievements>builder()
+		.persistent(life.shizune.mistinn.achievement.Achievements.CODEC)
+		.syncWith(life.shizune.mistinn.achievement.Achievements.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
+		.copyOnDeath()
+		.buildAndRegister(Mistinn.id("achievements"));
+
 	/** Health of each body part. Not copied on death: a respawned hunter is whole. */
 	public static final AttachmentType<Body> BODY = AttachmentRegistry.<Body>builder()
 		.persistent(Body.CODEC)

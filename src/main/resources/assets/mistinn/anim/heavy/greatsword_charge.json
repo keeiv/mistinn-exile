@@ -1,0 +1,34 @@
+{
+	"_comment": "大劍 CLEAVE heavy, charging: both hands raised before the face, the blade standing up and leaning back over the head, the back arched.",
+	"keys": [0.0, 0.45, 1.0],
+	"eases": ["out_quad", "in_out_sine"],
+	"two_handed": true,
+	"pitch_follow": 0.3,
+	"first_person": {
+		"tx": [0, -0.09, -0.12],
+		"ty": [0, 0.27, 0.36],
+		"tz": [0, 0.105, 0.14],
+		"rx": [0, 36.0, 48],
+		"ry": [0, 0.0, 0],
+		"rz": [0, 7.5, 10]
+	},
+	"camera": {
+		"yaw": [0, 0.0, 0],
+		"pitch": [0, -1.5, -2.0],
+		"roll": [0, 0.375, 0.5]
+	},
+	"third_person": {
+		"arm_x": [-18, -81.0, -102],
+		"arm_y": [0, -24.0, -32],
+		"arm_z": [0, 0.0, 0],
+		"other_x": [0, 0.0, 0],
+		"other_y": [0, 0.0, 0],
+		"other_z": [0, 0.0, 0],
+		"body_y": [0, 7.5, 10],
+		"body_x": [0, -9.0, -12],
+		"front_leg": [0, -9.0, -12],
+		"back_leg": [0, 9.0, 12],
+		"item_x": [0, 26.25, 35],
+		"grip": [0, 0.75, 1]
+	}
+}

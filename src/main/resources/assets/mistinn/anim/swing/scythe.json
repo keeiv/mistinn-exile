@@ -1,0 +1,35 @@
+{
+	"_comment": "鐮刀 REAP: the blade brought down low on the left, reaped up and across to high on the right; both hands on the snath as it passes in front.",
+	"keys": [0.0, 0.1, 0.22, 0.42, 0.66, 1.0],
+	"eases": ["out_quad", "in_cubic", "out_cubic", "in_out_sine", "in_out_sine"],
+	"contact": 0.22,
+	"two_handed": true,
+	"pitch_follow": 0.3,
+	"first_person": {
+		"tx": [0, -0.2, 0.05, 0.25, 0.08, 0],
+		"ty": [0, -0.18, 0.1, 0.3, 0.1, 0],
+		"tz": [0, 0.04, -0.14, -0.04, 0, 0],
+		"rx": [0, -20, -40, -30, -10, 0],
+		"ry": [0, -25, 10, 25, 8, 0],
+		"rz": [0, -35, 25, 55, 18, 0]
+	},
+	"camera": {
+		"yaw": [0, -0.8, 1.0, 2.0, 0.6, 0],
+		"pitch": [0, 0.6, -0.6, -1.2, -0.4, 0],
+		"roll": [0, -0.8, 1.2, 2.0, 0.6, 0]
+	},
+	"third_person": {
+		"arm_x": [-18, -40, -92, -125, -60, -18],
+		"arm_y": [0, -45, -22, 35, 15, 0],
+		"arm_z": [0, -10, 0, -10, 0, 0],
+		"other_x": [0, -30, 0, -60, -30, 0],
+		"other_y": [0, 0, 0, 10, 0, 0],
+		"other_z": [0, -10, 0, -15, -10, 0],
+		"body_y": [0, -30, 10, 35, 12, 0],
+		"body_x": [0, 6, -2, -8, -2, 0],
+		"front_leg": [0, -6, -16, -18, -8, 0],
+		"back_leg": [0, 6, 12, 14, 6, 0],
+		"item_x": [0, -30, -50, -40, -15, 0],
+		"grip": [0, 0, 1, 0, 0, 0]
+	}
+}

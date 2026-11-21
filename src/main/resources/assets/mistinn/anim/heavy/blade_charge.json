@@ -1,0 +1,33 @@
+{
+	"_comment": "直刃 SLASH heavy, charging: the blade drawn high over the right shoulder, the body coiled right, the other hand out for balance.",
+	"keys": [0.0, 0.45, 1.0],
+	"eases": ["out_quad", "in_out_sine"],
+	"two_handed": false,
+	"pitch_follow": 0.5,
+	"first_person": {
+		"tx": [0, 0.09, 0.12],
+		"ty": [0, 0.165, 0.22],
+		"tz": [0, 0.075, 0.1],
+		"rx": [0, 22.5, 30],
+		"ry": [0, 11.25, 15],
+		"rz": [0, 30.0, 40]
+	},
+	"camera": {
+		"yaw": [0, 0.9, 1.2],
+		"pitch": [0, -0.75, -1.0],
+		"roll": [0, 0.9, 1.2]
+	},
+	"third_person": {
+		"arm_x": [-18, -124.5, -160],
+		"arm_y": [0, 18.75, 25],
+		"arm_z": [0, -11.25, -15],
+		"other_x": [0, -26.25, -35],
+		"other_y": [0, 0.0, 0],
+		"other_z": [0, -7.5, -10],
+		"body_y": [0, 26.25, 35],
+		"body_x": [0, -4.5, -6],
+		"front_leg": [0, -6.0, -8],
+		"back_leg": [0, 7.5, 10],
+		"item_x": [0, 0.0, 0]
+	}
+}

@@ -1,0 +1,34 @@
+{
+	"_comment": "鐮刀 REAP heavy, charging: the scythe drawn far back and low to the right, the other hand off the snath, the body coiled and crouched.",
+	"keys": [0.0, 0.45, 1.0],
+	"eases": ["out_quad", "in_out_sine"],
+	"two_handed": true,
+	"pitch_follow": 0.3,
+	"first_person": {
+		"tx": [0, 0.225, 0.3],
+		"ty": [0, -0.075, -0.1],
+		"tz": [0, 0.135, 0.18],
+		"rx": [0, -7.5, -10],
+		"ry": [0, 37.5, 50],
+		"rz": [0, 15.0, 20]
+	},
+	"camera": {
+		"yaw": [0, 1.5, 2.0],
+		"pitch": [0, 0.375, 0.5],
+		"roll": [0, 0.6, 0.8]
+	},
+	"third_person": {
+		"arm_x": [-18, -42.0, -50],
+		"arm_y": [0, 52.5, 70],
+		"arm_z": [0, 15.0, 20],
+		"other_x": [0, -30.0, -40],
+		"other_y": [0, 0.0, 0],
+		"other_z": [0, -15.0, -20],
+		"body_y": [0, 41.25, 55],
+		"body_x": [0, 4.5, 6],
+		"front_leg": [0, -10.5, -14],
+		"back_leg": [0, 10.5, 14],
+		"item_x": [0, -45.0, -60],
+		"grip": [0, 0.0, 0]
+	}
+}
