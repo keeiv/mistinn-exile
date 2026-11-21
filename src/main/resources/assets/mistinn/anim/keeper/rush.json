@@ -1,0 +1,18 @@
+{"_comment":"高速突襲: coils low, the spear drawn back at the hip and the free claw reaching (the tell, 0-14); bursts eight blocks bent almost flat (14-22), the spear driven straight out at the end (22); holds the lunge and hauls back up (22-42).",
+"keys":[0.0,0.285714,0.333333,0.380952,0.452381,0.52381,0.619048,0.809524,1.0],
+"eases":["in_out_sine","in_cubic","out_cubic","in_out_sine","out_back","linear","in_out_sine","in_out_sine"],
+"length":42,"limbs":{
+"body_x":[0,30,34,40,40,25,25,15,0],
+"body_y":[0,0,0,0,0,-25,-25,-10,0],
+"head_x":[0,15,15,10,10,5,5,5,0],
+"left_arm_x":[0,-45,-45,-20,-20,35,35,10,0],
+"left_arm_z":[0,-10,-10,-10,-10,-10,-10,-10,0],
+"left_leg_x":[0,25,25,45,-50,35,35,10,0],
+"right_arm_x":[0,40,40,40,40,-95,-92,-40,0],
+"right_arm_y":[0,25,25,25,25,-10,-10,0,0],
+"right_leg_x":[0,-30,-30,-55,40,-50,-50,-15,0]},
+"item":{
+"x":[0,0,0,0,0,-82,-80,-30,0]},
+"root":{
+"pitch":[0,15,18,32,32,22,20,6,0],
+"y":[0,-0.25,-0.3,-0.15,-0.15,-0.1,-0.1,0,0]}}

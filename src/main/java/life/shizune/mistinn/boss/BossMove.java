@@ -49,10 +49,17 @@ public record BossMove(String id, Kind kind, Weight weight, @Nullable SoundEvent
 		}
 	}
 
-	/** A blow: when it lands, what it can reach, which part it hits and how hard. */
-	public record Strike(int tick, HitShape shape, PartRule part, float damage) {
+	/**
+	 * A blow: when it lands, what it can reach, which part it hits and how hard. Blows sharing a group above 0
+	 * are one blow checked over several ticks (a slide along the floor): each hunter takes it at most once.
+	 */
+	public record Strike(int tick, HitShape shape, PartRule part, float damage, int group) {
 		/** The tick of a strike the move's script deals itself, at a moment of its own (a landing, the end of a pull). */
 		public static final int SCRIPTED = -1;
+
+		public Strike(final int tick, final HitShape shape, final PartRule part, final float damage) {
+			this(tick, shape, part, damage, 0);
+		}
 	}
 
 	/** How the move carries the body: keys of offsets along its facing (forward, to its right, up), linear between. */
@@ -167,6 +174,21 @@ public record BossMove(String id, Kind kind, Weight weight, @Nullable SoundEvent
 
 		public Builder strike(final int tick, final HitShape shape, final PartRule part, final float damage) {
 			this.strikes.add(new Strike(tick, shape, part, damage));
+			return this;
+		}
+
+		/** One blow carried along from tick {@code from} through {@code to}: whoever it reaches first takes it, once. */
+		public Builder along(final int from, final int to, final HitShape shape, final PartRule part, final float damage) {
+			int group = 1 + (int) this.strikes.stream().mapToInt(Strike::group).max().orElse(0);
+			for (int tick = from; tick <= to; tick++) {
+				this.strikes.add(new Strike(tick, shape, part, damage, group));
+			}
+			return this;
+		}
+
+		/** Straight ahead, {@code distance} blocks from tick {@code from} to tick {@code to}. */
+		public Builder dash(final int from, final int to, final double distance) {
+			this.motion = new Motion(List.of(new Motion.Key(from, 0.0, 0.0, 0.0), new Motion.Key(to, distance, 0.0, 0.0)));
 			return this;
 		}
 
