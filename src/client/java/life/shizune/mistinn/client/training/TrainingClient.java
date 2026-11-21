@@ -96,6 +96,7 @@ public final class TrainingClient {
 		if (dropTicks >= 0 && ++dropTicks > dropLength + DROP_FADE_IN + 40) {
 			dropTicks = -1;
 		}
+		StationAmbience.tick(mc, current, dropTicks >= 0);
 		if (current == null) {
 			lastBroadcast = -1;
 			broadcastTicks = 0;
