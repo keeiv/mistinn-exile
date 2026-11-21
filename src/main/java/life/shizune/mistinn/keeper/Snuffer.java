@@ -177,7 +177,8 @@ public class Snuffer extends Monster {
 		}
 		if (this.home == null) {
 			this.home = this.position();
-			this.runner.leash(this.home, ROOM_RADIUS);
+			// a dash may carry it into the corners of its room, not out of it
+			this.runner.leash(this.home, ROOM_RADIUS * Planner.ROOM_REACH);
 		}
 		this.brain.observe(level, this, this.home, ROOM_RADIUS);
 		UUID chosen = this.brain.target();
