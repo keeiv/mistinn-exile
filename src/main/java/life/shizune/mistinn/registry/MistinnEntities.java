@@ -2,6 +2,7 @@ package life.shizune.mistinn.registry;
 
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.keeper.Snuffer;
+import life.shizune.mistinn.station.StationHand;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -19,6 +20,12 @@ public final class MistinnEntities {
 		.clientTrackingRange(10)
 		.fireImmune());
 
+	/** The people of Rust Anchor, in the player model. */
+	public static final EntityType<StationHand> STATION_HAND = register("station_hand", EntityType.Builder.<StationHand>of(StationHand::new, MobCategory.MISC)
+		.sized(0.6F, 1.8F)
+		.eyeHeight(1.62F)
+		.clientTrackingRange(10));
+
 	private MistinnEntities() {
 	}
 
@@ -29,5 +36,6 @@ public final class MistinnEntities {
 
 	public static void init() {
 		FabricDefaultAttributeRegistry.register(SNUFFER, Snuffer.createAttributes());
+		FabricDefaultAttributeRegistry.register(STATION_HAND, StationHand.createAttributes());
 	}
 }
