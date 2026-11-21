@@ -139,8 +139,8 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 	}
 
 	/**
-	 * Poses the hunter's model through every new clip, frame by frame, and measures it: nothing
-	 * sinks into the floor, and neither arm runs into the head or the torso.
+	 * Poses the hunter's model through every heavy blow and every swing, frame by frame, and measures
+	 * it: nothing sinks into the floor, and neither arm runs into the head or the torso.
 	 */
 	private static void poseSandbox(final ClientGameTestContext context, final TestSingleplayerContext world) {
 		List<String> faults = new ArrayList<>();
@@ -158,22 +158,21 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 					float p = i / 28.0F;
 					measure(mc, style + " strike", p, out, state -> state.setData(HeavyClient.KEY, new HeavyClient.Pose(HeavyClient.Phase.STRIKE, style, p, 1.0F, 0.0F)));
 				}
-				if (style == WeaponStyle.REAP) {
-					for (int i = 1; i <= 28; i++) {
-						float p = i / 29.0F;
-						measure(mc, style + " swing", p, out, state -> {
-							HumanoidRenderState humanoid = (HumanoidRenderState) state;
-							humanoid.currentSwing = new LivingEntity.SwingDescription(InteractionHand.MAIN_HAND, new ItemStack(weapon).getAttackAnimation(), style.swingTicks);
-							humanoid.swingAnimation = p;
-						});
-					}
+				// every branch's light swing as well
+				for (int i = 1; i <= 28; i++) {
+					float p = i / 29.0F;
+					measure(mc, style + " swing", p, out, state -> {
+						HumanoidRenderState humanoid = (HumanoidRenderState) state;
+						humanoid.currentSwing = new LivingEntity.SwingDescription(InteractionHand.MAIN_HAND, new ItemStack(weapon).getAttackAnimation(), style.swingTicks);
+						humanoid.swingAnimation = p;
+					});
 				}
 				return out;
 			});
 			faults.addAll(found);
 		}
 		world.getServer().runOnServer(server -> player(server).setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY));
-		check(faults.isEmpty(), "every heavy blow and the scythe's swing stay clear of the floor, the head and the torso: " + faults);
+		check(faults.isEmpty(), "every heavy blow and every swing stay clear of the floor, the head and the torso: " + faults);
 	}
 
 	private static void measure(final Minecraft mc, final String what, final float p, final List<String> faults,
