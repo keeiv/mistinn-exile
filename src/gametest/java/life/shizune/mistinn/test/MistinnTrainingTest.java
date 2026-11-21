@@ -109,6 +109,18 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		try {
 			// The full course above proves how the last objective is earned. This world checks
 			// the other branch from the same final objective.
+			// a save built before the station: the course starts over on the new map
+			server(context, player -> {
+				player.setAttached(TrainingService.LESSON, TrainingLesson.RADIO);
+				player.setAttached(MistinnAttachments.BELL, net.minecraft.core.GlobalPos.of(player.level().dimension(), new BlockPos(0, 65, -64)));
+				TrainingGround.markUpgraded(player.level());
+			});
+			context.waitTicks(10);
+			server(context, player -> {
+				check(player.getAttached(TrainingService.LESSON) == TrainingLesson.ARRIVAL, "an upgraded save starts the course over");
+				check(!player.hasAttached(MistinnAttachments.BELL), "with no bell from the old quays");
+				check(player.distanceToSqr(Vec3.atBottomCenterOf(TrainingGround.ENTRY)) < 4.0, "back in the barracks");
+			});
 			server(context, player -> player.setAttached(TrainingService.LESSON, TrainingLesson.BOARD));
 			board(context);
 			deploy(context, WorldMode.FREE);
@@ -202,15 +214,24 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		waitLesson(context, TrainingLesson.WINDUP);
 		go(context, TrainingLesson.WINDUP);
 		context.waitTicks(10);
-		server(context, player -> {
-			Mob husk = player.level().getEntitiesOfClass(Mob.class, new AABB(TrainingLesson.WINDUP.target).inflate(12),
-				mob -> mob.entityTags().contains("mistinn.training_sparring")).getFirst();
-			check(!husk.isNoAi(), "the sparring husk fights back");
-			rested(player);
-			RollService.request(player, 0.0F);
-			// its blow, landing while the roll is on: it passes through
-			check(!player.hurtServer(player.level(), player.level().damageSources().mobAttack(husk), 4.0F), "the blow passes through the roll");
-		});
+		// the sparring husk comes on and winds up on its own; the hunter rolls as it lets go
+		boolean[] winds = {false};
+		for (int i = 0; i < 400 && !winds[0]; i++) {
+			server(context, player -> {
+				KeepWhole.of(player);
+				winds[0] = sparringWinds(player);
+			});
+			context.waitTicks(1);
+		}
+		check(winds[0], "the sparring husk comes on and winds up a blow");
+		for (int i = 0; i < 30 && context.computeOnClient(mc -> mc.player.getAttached(TrainingService.LESSON)) == TrainingLesson.WINDUP; i++) {
+			server(context, player -> {
+				rested(player);
+				KeepWhole.of(player);
+				RollService.request(player, 0.0F);
+			});
+			context.waitTicks(3);
+		}
 		waitLesson(context, TrainingLesson.SNEAK);
 		server(context, player -> {
 			// walking, not running: the listeners only hear the noise made on purpose below
@@ -223,8 +244,12 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 				mob -> mob.entityTags().contains("mistinn.training_caged")).size() == 3, "three listeners wait in the cages");
 			NoiseService.emit(player, NoiseService.Noise.SPRINT);
 		});
-		context.waitTicks(20);
+		context.waitTicks(60);
 		server(context, player -> {
+			for (Mob mob : player.level().getEntitiesOfClass(Mob.class, new AABB(TrainingLesson.SNEAK.target).inflate(16),
+				m -> m.entityTags().contains("mistinn.training_caged"))) {
+				check(mob.getZ() < -70.0 && mob.getZ() > -75.0 && mob.getY() >= 76.0, "a listener drawn by the noise stays in its cage: " + mob.position());
+			}
 			check(player.getAttached(TrainingService.LESSON) == TrainingLesson.SNEAK, "heard, the lesson starts over");
 			check(player.distanceToSqr(Vec3.atBottomCenterOf(TrainingGround.SNEAK_START)) < 4.0, "and the hunter is sent back to the pen's door");
 		});
@@ -314,7 +339,12 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		defeat(context, TrainingLesson.KEEPER, "mistinn.training_keeper");
 		waitLesson(context, TrainingLesson.REPORT);
 		go(context, TrainingLesson.REPORT);
-		server(context, player -> useBlock(player, TrainingLesson.REPORT.target, new ItemStack(MistinnItems.RUST_GOD_SALT)));
+		server(context, player -> {
+			// as if their part of the station were not loaded: the drop must still bring them up
+			player.level().getEntitiesOfClass(StationHand.class, player.getBoundingBox().inflate(256.0),
+				h -> h.role() == StaffRole.ROOMMATE || h.role() == StaffRole.COOK).forEach(StationHand::discard);
+			useBlock(player, TrainingLesson.REPORT.target, new ItemStack(MistinnItems.RUST_GOD_SALT));
+		});
 		waitLesson(context, TrainingLesson.BOARD);
 		farewell(context);
 		board(context);
@@ -332,6 +362,8 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		context.waitFor(mc -> mc.level.getEntitiesOfClass(StationHand.class, new AABB(TrainingLesson.BOARD.target).inflate(24.0),
 			h -> h.role() == StaffRole.COOK || h.role() == StaffRole.BELL_KEEPER).size() == 2, 200);
 		context.takeScreenshot("training-07-farewell");
+		context.waitFor(mc -> !mc.level.getEntitiesOfClass(StationHand.class, new AABB(TrainingLesson.BOARD.target).inflate(8.0),
+			h -> h.role() == StaffRole.ROOMMATE).isEmpty(), 200);
 		context.waitFor(mc -> TrainingClient.lastBroadcast() == StationBroadcast.FAREWELL, 400);
 		context.waitFor(mc -> mc.level.getEntitiesOfClass(StationHand.class, mc.player.getBoundingBox().inflate(256.0),
 			h -> h.role() == StaffRole.ROOMMATE).isEmpty(), 200);
@@ -407,6 +439,8 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 			{-58.5, 78.62, -88.5, -47.5, 79, -80.5},
 			{-38.5, 92.62, -114.5, -26.5, 101.5, -129.5},
 			{73.5, 139, 48.5, -4, 93, -44},
+			{15.5, 66.62, -12.5, 6, 66, -38},
+			{-5.5, 66.62, -6.5, 6, 64, -36},
 		};
 		// held in the air for the shots: no gravity, so the hunter neither falls nor lands in the sea
 		server(context, player -> player.setNoGravity(true));
@@ -462,6 +496,14 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 				&& h.getCustomName().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents t
 				&& t.getKey().startsWith(StaffRole.COOK.key() + ".bark.")).size() == 1, 200);
 		context.takeScreenshot("training-cook-bark");
+		server(context, player -> {
+			StationHand cook = player.level().getEntitiesOfClass(StationHand.class, player.getBoundingBox().inflate(8.0),
+				h -> h.role() == StaffRole.COOK).getFirst();
+			cook.interact(player, InteractionHand.MAIN_HAND, Vec3.ZERO);
+			check(has(player, Items.MUSHROOM_STEW), "the cook hands over the bowl of soup the greeting offers");
+		});
+		context.waitFor(mc -> mc.gui.screen() instanceof StationTalkScreen, 100);
+		context.runOnClient(mc -> mc.gui.setScreen(null));
 		int heard = context.computeOnClient(mc -> StationAmbience.played());
 		context.waitTicks(200);
 		check(context.computeOnClient(mc -> StationAmbience.played()) > heard, "by the mess the kitchen is heard at work");
@@ -497,6 +539,20 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 			context.runOnClient(mc -> ((StationTalkScreen) mc.gui.screen()).advance());
 		}
 		context.runOnClient(mc -> mc.gui.setScreen(null));
+	}
+
+	private static boolean sparringWinds(final ServerPlayer player) {
+		return player.level().getEntitiesOfClass(Mob.class, new AABB(TrainingLesson.WINDUP.target).inflate(16),
+			mob -> mob.entityTags().contains("mistinn.training_sparring")).stream().anyMatch(life.shizune.mistinn.enemy.WindupService::winding);
+	}
+
+	/** Keeps the hunter from being worn down by the sparring husk while the test waits for its windup. */
+	private static final class KeepWhole {
+		static void of(final ServerPlayer player) {
+			life.shizune.mistinn.body.BodyService.restoreAll(player);
+			player.removeAttached(MistinnAttachments.WOUNDS);
+			player.setHealth(player.getMaxHealth());
+		}
 	}
 
 	private static void rested(final ServerPlayer player) {

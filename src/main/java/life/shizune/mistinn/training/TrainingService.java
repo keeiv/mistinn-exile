@@ -89,6 +89,10 @@ public final class TrainingService {
 	private static final String SPARRING = "mistinn.training_sparring";
 	private static final String CAGED = "mistinn.training_caged";
 	private static final int PRACTICE_SKILL_SALT = 300;
+	/** Whether each sparring husk was winding up last tick. */
+	private static final java.util.Map<Integer, Boolean> WINDING = new java.util.HashMap<>();
+	/** Hunters the cook has given their soup. */
+	private static final java.util.Set<java.util.UUID> FED = new java.util.HashSet<>();
 	/** Where the forge's dummies stand, from the heavy blow lesson's spot: in an arc a full slash reaches. */
 	private static final double[][] DUMMIES = {{-1.2, 0.0}, {0.0, -0.5}, {1.2, 0.0}};
 	/** The listeners' cages in the pen. */
@@ -112,10 +116,17 @@ public final class TrainingService {
 			}
 		});
 		ServerTickEvents.END_SERVER_TICK.register(TrainingService::tick);
+		net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+			if (entity instanceof StationHand hand && level.dimension().equals(TrainingGround.KEY)) {
+				dedupe(hand, level);
+			}
+		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
 			life.shizune.mistinn.station.StationBarks.forgetAll();
 			life.shizune.mistinn.station.StationBroadcast.forgetAll();
 			StationCeremony.forgetAll();
+			WINDING.clear();
+			FED.clear();
 		});
 		ServerLivingEntityEvents.AFTER_DEATH.register(TrainingService::fallen);
 		UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
@@ -229,6 +240,46 @@ public final class TrainingService {
 		}
 	}
 
+	/**
+	 * A save built on the old quays, rebuilt as the station: the course starts over from the
+	 * barracks, without the old bell, death mark or creatures; the staff come back to their posts.
+	 */
+	private static void startOver(final ServerPlayer player, final ServerLevel range) {
+		TrainingGround.clearUpgraded(range);
+		player.setAttached(LESSON, TrainingLesson.ARRIVAL);
+		player.removeAttached(MistinnAttachments.BELL);
+		player.removeAttached(MistinnAttachments.ONE_TIME_BELL);
+		player.removeAttached(MistinnAttachments.DEATH_MARK);
+		for (Mob mob : range.getEntitiesOfClass(Mob.class, new AABB(BlockPos.ZERO).inflate(256.0),
+			mob -> mob instanceof StationHand || mob.entityTags().stream().anyMatch(tag -> tag.startsWith("mistinn.training")))) {
+			mob.discard();
+		}
+		move(player, range, ENTRY);
+	}
+
+	/** The staff member speaks to the hunter: the cook hands over the soup the greeting offers, once. */
+	public static void greeted(final ServerPlayer player, final StaffRole role) {
+		if (role == StaffRole.COOK && player.level().dimension().equals(TrainingGround.KEY) && FED.add(player.getUUID())) {
+			player.getInventory().add(new ItemStack(Items.MUSHROOM_STEW));
+		}
+	}
+
+	/** One of each member: a second copy loading from a part of the station left behind is let go. */
+	private static void dedupe(final StationHand hand, final ServerLevel level) {
+		if (StationCeremony.departed(hand.role())) {
+			hand.discard();
+			return;
+		}
+		for (StationHand other : level.getEntitiesOfClass(StationHand.class, new AABB(BlockPos.ZERO).inflate(256.0),
+			h -> h != hand && h.role() == hand.role() && !h.isRemoved())) {
+			if (other.entityTags().contains(StationHand.GATHERED)) {
+				hand.discard();
+				return;
+			}
+			other.discard();
+		}
+	}
+
 	/** What a member of the staff opens with: the topic of the lesson they lead, if it is the hunter's now. */
 	public static @Nullable String opening(final ServerPlayer player, final StaffRole role) {
 		TrainingLesson lesson = player.getAttached(LESSON);
@@ -244,6 +295,9 @@ public final class TrainingService {
 	}
 
 	private static void train(final ServerPlayer player, final ServerLevel range) {
+		if (TrainingGround.upgraded(range)) {
+			startOver(player, range);
+		}
 		TrainingLesson lesson = player.getAttached(LESSON);
 		if (player.gameMode() != GameType.SURVIVAL) {
 			// Training saves made before the interaction change still have Adventure on the player.
@@ -302,7 +356,18 @@ public final class TrainingService {
 					announce(player, TrainingLesson.STRIKE);
 				}
 			}
-			case WINDUP -> sparring(level, lesson.target);
+			case WINDUP -> {
+				sparring(level, lesson.target);
+				// learned when the husk lets its blow go while the hunter is mid-roll, in reach or not
+				for (Mob husk : tagged(level, lesson.target, SPARRING)) {
+					boolean now = life.shizune.mistinn.enemy.WindupService.winding(husk);
+					Boolean was = WINDING.put(husk.getId(), now);
+					if (Boolean.TRUE.equals(was) && !now && RollService.dodging(player)) {
+						announce(player, TrainingLesson.SNEAK);
+						break;
+					}
+				}
+			}
 			case SNEAK -> listen(player, level);
 			case SKILLS -> {
 				supply(player, MistinnItems.HUNTER_GUIDE, 1);

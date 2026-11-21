@@ -115,9 +115,11 @@ public final class StationCeremony {
 			return;
 		}
 		int t = FAREWELL.merge(id, 1, Integer::sum) - 1;
-		StationHand roommate = find(range, StaffRole.ROOMMATE);
 		if (t == 0) {
 			gather(range);
+		}
+		StationHand roommate = find(range, StaffRole.ROOMMATE);
+		if (t == 0) {
 			if (roommate != null) {
 				place(roommate, GATE, 180.0F);
 				roommate.setCustomName(Component.translatable(StaffRole.ROOMMATE.key() + ".farewell"));
@@ -166,16 +168,38 @@ public final class StationCeremony {
 		DROPS.put(hunter.getUUID(), new Drop(drop.next(), t + 1));
 	}
 
-	/** Everyone comes up to the deck to see the drop. */
+	/**
+	 * Everyone comes up to the deck to see the drop. Whoever's part of the station is not loaded
+	 * comes up all the same: they are set down on the deck, and the one left at the post is let go
+	 * when it loads ({@link TrainingService}).
+	 */
 	private static void gather(final ServerLevel range) {
 		for (Map.Entry<StaffRole, BlockPos> spot : SPOTS.entrySet()) {
-			StationHand hand = find(range, spot.getKey());
-			if (hand != null) {
-				hand.addTag(StationHand.GATHERED);
-				hand.getNavigation().stop();
-				place(hand, spot.getValue(), 180.0F);
-			}
+			bring(range, spot.getKey(), spot.getValue(), 180.0F);
 		}
+		bring(range, StaffRole.ROOMMATE, GATE, 180.0F);
+	}
+
+	private static void bring(final ServerLevel range, final StaffRole role, final BlockPos spot, final float yaw) {
+		if (DEPARTED.contains(role)) {
+			return;
+		}
+		StationHand hand = find(range, role);
+		if (hand == null) {
+			hand = life.shizune.mistinn.registry.MistinnEntities.STATION_HAND.create(range, net.minecraft.world.entity.EntitySpawnReason.STRUCTURE);
+			if (hand == null) {
+				return;
+			}
+			hand.setRole(role);
+			hand.setCustomName(Component.translatable(role.key()));
+			place(hand, spot, yaw);
+			hand.addTag(StationHand.GATHERED);
+			range.addFreshEntity(hand);
+			return;
+		}
+		hand.addTag(StationHand.GATHERED);
+		hand.getNavigation().stop();
+		place(hand, spot, yaw);
 	}
 
 	private static void place(final StationHand hand, final BlockPos pos, final float yaw) {
