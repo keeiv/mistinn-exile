@@ -78,16 +78,20 @@ final class StationParts {
 		}
 	}
 
-	/** Copper bars along the deck's edge, a weathered post every four and a lamp on every other post. */
+	/** Copper bars along the deck's edge, a weathered post every four, a lamp at each corner. */
 	static void railAround(final Builder b, final int x0, final int z0, final int x1, final int z1, final int y) {
-		rail(b, x0, z0, x1, z0, y);
-		rail(b, x0, z1, x1, z1, y);
-		rail(b, x0, z0, x0, z1, y);
-		rail(b, x1, z0, x1, z1, y);
+		rail(b, x0, z0, x1, z0, y, true);
+		rail(b, x0, z1, x1, z1, y, true);
+		rail(b, x0, z0, x0, z1, y, true);
+		rail(b, x1, z0, x1, z1, y, true);
 	}
 
-	/** A straight rail from one point to another along x or z. */
 	static void rail(final Builder b, final int x0, final int z0, final int x1, final int z1, final int y) {
+		rail(b, x0, z0, x1, z1, y, true);
+	}
+
+	/** A straight rail along x or z; {@code lamps} puts a lantern on its two end posts. */
+	static void rail(final Builder b, final int x0, final int z0, final int x1, final int z1, final int y, final boolean lamps) {
 		int n = Math.max(Math.abs(x1 - x0), Math.abs(z1 - z0));
 		int dx = Integer.signum(x1 - x0);
 		int dz = Integer.signum(z1 - z0);
@@ -96,13 +100,21 @@ final class StationParts {
 			int z = z0 + dz * i;
 			if (i % 4 == 0 || i == n) {
 				b.set(x, y + 1, z, FRAME);
-				if (i % 8 == 0) {
+				if (lamps && (i == 0 || i == n)) {
 					b.set(x, y + 2, z, Blocks.LANTERN);
 				}
 			} else {
 				b.set(x, y + 1, z, RAIL);
 			}
 		}
+	}
+
+	/** Bars all round a deck with no lamps on them: the cold top of the station. */
+	static void darkRailAround(final Builder b, final int x0, final int z0, final int x1, final int z1, final int y) {
+		rail(b, x0, z0, x1, z0, y, false);
+		rail(b, x0, z1, x1, z1, y, false);
+		rail(b, x0, z0, x0, z1, y, false);
+		rail(b, x1, z0, x1, z1, y, false);
 	}
 
 	/** Takes the rail out where a walkway or stair joins the deck. */
@@ -210,6 +222,188 @@ final class StationParts {
 			for (int z = z0 + 3; z < z1 - 1; z += 5) {
 				b.hanging(x, top - 1, z, Blocks.LANTERN);
 			}
+		}
+	}
+
+	/**
+	 * A pitched roof over a rectangle, overhanging it by one, its ridge along x ({@code alongX}) or
+	 * z, the two gable ends walled in {@code gable}. {@code y} is the first course of the roof.
+	 * Returns the height of the ridge.
+	 */
+	static int gable(final Builder b, final int x0, final int z0, final int x1, final int z1, final int y, final boolean alongX,
+		final Block stairs, final Block ridge, final Block gable) {
+		int lo = (alongX ? z0 : x0) - 1;
+		int hi = (alongX ? z1 : x1) + 1;
+		int from = (alongX ? x0 : z0) - 1;
+		int to = (alongX ? x1 : z1) + 1;
+		int k = 0;
+		while (lo + k < hi - k) {
+			int yy = y + k;
+			for (int a = from; a <= to; a++) {
+				if (alongX) {
+					b.stairs(a, yy, lo + k, stairs, Direction.SOUTH, false);
+					b.stairs(a, yy, hi - k, stairs, Direction.NORTH, false);
+				} else {
+					b.stairs(lo + k, yy, a, stairs, Direction.EAST, false);
+					b.stairs(hi - k, yy, a, stairs, Direction.WEST, false);
+				}
+			}
+			for (int c = lo + k + 1; c <= hi - k - 1; c++) {
+				if (alongX) {
+					b.set(x0, yy, c, gable);
+					b.set(x1, yy, c, gable);
+				} else {
+					b.set(c, yy, z0, gable);
+					b.set(c, yy, z1, gable);
+				}
+			}
+			k++;
+		}
+		if (lo + k == hi - k) {
+			for (int a = from; a <= to; a++) {
+				b.set(alongX ? a : lo + k, y + k, alongX ? lo + k : a, ridge);
+			}
+		}
+		return y + k;
+	}
+
+	/**
+	 * A hall: walls, then a steep pitched roof one block out from them with a window in each gable.
+	 * Returns the height of the ridge.
+	 */
+	static int hall(final Builder b, final int x0, final int z0, final int x1, final int z1, final int y, final int height,
+		final Block wall, final Block glass, final Block stairs, final Block ridge, final boolean alongX) {
+		walls(b, x0, z0, x1, z1, y, height, wall, glass, true);
+		int top = gable(b, x0, z0, x1, z1, y + height + 1, alongX, stairs, ridge, wall);
+		int mid = alongX ? (z0 + z1) / 2 : (x0 + x1) / 2;
+		int window = y + height + 1 + Math.max(1, (top - y - height - 1) / 2);
+		if (alongX) {
+			b.set(x0, window, mid, glass);
+			b.set(x1, window, mid, glass);
+		} else {
+			b.set(mid, window, z0, glass);
+			b.set(mid, window, z1, glass);
+		}
+		return top;
+	}
+
+	/**
+	 * The walls of a building without its roof: posts at the corners and every five, 2-high windows
+	 * set into each bay, a plank ceiling at {@code y + height + 1} and, if {@code lit}, lanterns
+	 * hung from it every five blocks.
+	 */
+	static void walls(final Builder b, final int x0, final int z0, final int x1, final int z1, final int y, final int height,
+		final Block wall, final Block glass, final boolean lit) {
+		for (int x = x0; x <= x1; x++) {
+			for (int z = z0; z <= z1; z++) {
+				boolean edgeX = x == x0 || x == x1;
+				boolean edgeZ = z == z0 || z == z1;
+				if (!edgeX && !edgeZ) {
+					continue;
+				}
+				int along = edgeZ ? x - x0 : z - z0;
+				boolean post = (edgeX && edgeZ) || along % 5 == 0;
+				for (int h = 1; h <= height; h++) {
+					boolean window = !post && (h == 2 || h == 3) && (along % 5 == 2 || along % 5 == 3);
+					b.set(x, y + h, z, post ? POST : window ? glass : wall);
+				}
+			}
+		}
+		b.fill(x0, y + height + 1, z0, x1, y + height + 1, z1, PLANK);
+		if (lit) {
+			for (int x = x0 + 3; x < x1 - 1; x += 5) {
+				for (int z = z0 + 3; z < z1 - 1; z += 5) {
+					b.hanging(x, y + height, z, Blocks.LANTERN);
+				}
+			}
+		}
+	}
+
+	/**
+	 * A shallow pitched roof: its skin rises half a block a step from each long edge to the ridge,
+	 * slabs and full blocks in turn, with a backing block under it, and the two gable ends filled
+	 * in {@code gable} below it. The ridge runs along z ({@code ridgeAlongZ}) or x.
+	 */
+	static void shallowRoof(final Builder b, final int x0, final int z0, final int x1, final int z1, final int eave, final boolean ridgeAlongZ,
+		final Block full, final Block slab, final Block gable) {
+		for (int x = x0; x <= x1; x++) {
+			for (int z = z0; z <= z1; z++) {
+				int d = ridgeAlongZ ? Math.min(x - x0, x1 - x) : Math.min(z - z0, z1 - z);
+				int y = eave + d / 2;
+				if (d % 2 == 0) {
+					b.slab(x, y, z, slab, false);
+				} else {
+					b.set(x, y, z, full);
+				}
+				if (d >= 2) {
+					b.set(x, y - 1, z, full);
+				}
+				boolean end = ridgeAlongZ ? z == z0 + 1 || z == z1 - 1 : x == x0 + 1 || x == x1 - 1;
+				if (end && d >= 1) {
+					for (int g = eave; g < y - (d >= 2 ? 1 : 0); g++) {
+						b.set(x, g, z, gable);
+					}
+				}
+			}
+		}
+	}
+
+	/** A hip roof: the skin rises half a block a step from every edge, slabs and full blocks in turn. */
+	static void hipRoof(final Builder b, final int x0, final int z0, final int x1, final int z1, final int eave, final Block full, final Block slab) {
+		for (int x = x0; x <= x1; x++) {
+			for (int z = z0; z <= z1; z++) {
+				int d = Math.min(Math.min(x - x0, x1 - x), Math.min(z - z0, z1 - z));
+				int y = eave + d / 2;
+				if (d % 2 == 0) {
+					b.slab(x, y, z, slab, false);
+				} else {
+					b.set(x, y, z, full);
+				}
+				if (d >= 2) {
+					b.fill(x, eave, z, x, y - 1, z, full);
+				}
+			}
+		}
+	}
+
+	/** A chain strung between two posts with lanterns hanging from it, along x. */
+	static void lanternString(final Builder b, final int x0, final int x1, final int z, final int y, final int[] lanterns) {
+		b.fill(x0, y - 4, z, x0, y, z, POST);
+		b.fill(x1, y - 4, z, x1, y, z, POST);
+		for (int x = x0 + 1; x < x1; x++) {
+			b.axis(x, y, z, Blocks.IRON_CHAIN, Direction.Axis.X);
+		}
+		for (int x : lanterns) {
+			b.hanging(x, y - 1, z, Blocks.LANTERN);
+		}
+	}
+
+	/** A small boat moored at the waterline, bow and stern along z. */
+	static void skiff(final Builder b, final int x0, final int z0, final int z1) {
+		for (int z = z0; z <= z1; z++) {
+			boolean end = z == z0 || z == z1;
+			b.set(x0 + 1, WATERLINE, z, BOARD);
+			b.set(x0 + 2, WATERLINE, z, BOARD);
+			if (!end) {
+				b.set(x0, WATERLINE, z, PLANK);
+				b.set(x0 + 3, WATERLINE, z, PLANK);
+				b.stairs(x0, WATERLINE + 1, z, WARM_STAIRS, Direction.WEST, false);
+				b.stairs(x0 + 3, WATERLINE + 1, z, WARM_STAIRS, Direction.EAST, false);
+			}
+		}
+		b.stairs(x0 + 1, WATERLINE + 1, z0, WARM_STAIRS, Direction.NORTH, false);
+		b.stairs(x0 + 2, WATERLINE + 1, z0, WARM_STAIRS, Direction.NORTH, false);
+		b.stairs(x0 + 1, WATERLINE + 1, z1, WARM_STAIRS, Direction.SOUTH, false);
+		b.stairs(x0 + 2, WATERLINE + 1, z1, WARM_STAIRS, Direction.SOUTH, false);
+	}
+
+	/** A buoy: a float, a post and a copper cap, a lantern on top if it marks a way in. */
+	static void buoy(final Builder b, final int x, final int z, final boolean lit) {
+		b.set(x, WATERLINE, z, PLANK);
+		b.set(x, WATERLINE + 1, z, Blocks.DARK_OAK_FENCE);
+		b.set(x, WATERLINE + 2, z, lit ? RUST : Blocks.CUT_COPPER_SLAB.waxed().exposed());
+		if (lit) {
+			b.set(x, WATERLINE + 3, z, Blocks.LANTERN);
 		}
 	}
 
