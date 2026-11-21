@@ -1,5 +1,5 @@
 {
-	"_comment": "戰鎚 SMASH: both hands wind it round to the right, a flat sweeping blow through the target that drags the body round to the left.",
+	"_comment": "戰鎚 SMASH: wound round to the right with the other hand off the haft; it takes the haft again as the head comes round, a flat sweeping blow that drags the body round to the left.",
 	"keys": [0.0, 0.10, 0.18, 0.40, 0.66, 1.0],
 	"eases": ["out_quad", "in_quart", "out_quart", "in_out_sine", "in_out_sine"],
 	"contact": 0.18,
@@ -19,16 +19,17 @@
 		"roll": [0, 0.8, -1.5, -2.5, -1.0, 0]
 	},
 	"third_person": {
-		"arm_x": [-18, -75, -85, -65, -40, -18],
-		"arm_y": [0, 60, -10, -70, -30, 0],
+		"arm_x": [-18, -75, -86, -82, -45, -18],
+		"arm_y": [0, 60, -24, -40, -20, 0],
 		"arm_z": [0, 20, 0, -10, -5, 0],
-		"other_x": [0, 0, 0, 0, 0, 0],
+		"other_x": [0, -40, -60, 0, -25, 0],
 		"other_y": [0, 0, 0, 0, 0, 0],
-		"other_z": [0, 0, 0, 0, 0, 0],
+		"other_z": [0, -20, -10, 0, -8, 0],
 		"body_y": [0, 40, -15, -50, -18, 0],
 		"body_x": [0, -4, 6, 10, 4, 0],
 		"front_leg": [0, 0, -18, -22, -10, 0],
 		"back_leg": [0, 0, 15, 18, 8, 0],
-		"item_x": [0, 0, -70, -70, -30, 0]
+		"item_x": [0, 0, -70, -70, -30, 0],
+		"grip": [1, 0, 1, 1, 0.2, 0]
 	}
 }
