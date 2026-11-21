@@ -65,8 +65,10 @@ The client game test opens a real game window, plays weapon swings, resting and 
 Photos for the README and the website are staged in the game with photo mode:
 
 ```powershell
-.uild.ps1 runClientGameTest -PphotoMode
+.\build.ps1 runClientGameTest -PphotoMode
 ```
+
+To reshoot only some scenes, add `-PphotoSet=`, for example `-PphotoSet=death,executions` (choices: `title`, `places`, `hunter`, `structures`, `lighthouse`, `death`, `executions`, `story`, `inventory`).
 
 Photo mode adds Sodium and Iris and shoots each scene at 1920×1080 on the highest settings into `build/run/clientGameTest/photos`. The shader pack is not shipped; put Complementary Reimagined r5.9.3 in `build/run/clientGameTest/shaderpacks` and enable it in `config/iris.properties` in the same run folder.
 
