@@ -1,7 +1,9 @@
 package life.shizune.mistinn.boss;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import life.shizune.mistinn.body.BodyService;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,6 +30,11 @@ public final class MoveRunner {
 	private int delayLeft;
 	private float facing;
 	private final Map<String, Object> notes = new HashMap<>();
+	/** Who a carried blow has already struck, by group: it lands once on each. */
+	private final Set<String> struck = new HashSet<>();
+	/** The room the body may not be carried out of (null: anywhere). */
+	private @Nullable Vec3 leashCentre;
+	private double leashRadius;
 
 	/** Begins a move from its first tick; whatever ran before is dropped. */
 	public void start(final Mob boss, final BossMove move) {
@@ -37,6 +44,7 @@ public final class MoveRunner {
 		this.delayLeft = 0;
 		this.facing = boss.getYRot();
 		this.notes.clear();
+		this.struck.clear();
 		if (move.tell() != null && boss.level() instanceof ServerLevel level) {
 			level.playSound(null, boss.blockPosition(), move.tell(), SoundSource.HOSTILE, 1.3F, 1.0F);
 		}
@@ -102,7 +110,8 @@ public final class MoveRunner {
 		if (!this.held) {
 			Vec3 step = move.motion().at(this.ticks + 1).subtract(move.motion().at(this.ticks));
 			if (step.lengthSqr() > 1.0E-8) {
-				boss.move(MoverType.SELF, this.world(step));
+				// moved as a body moves: a wall stops it, and so does the edge of its room
+				boss.move(MoverType.SELF, this.leashed(boss.position(), this.world(step)));
 			}
 			this.ticks++;
 		}
@@ -119,6 +128,35 @@ public final class MoveRunner {
 		this.notes.clear();
 	}
 
+	/** Keeps whatever a move carries inside a room: no step takes the body further than {@code radius} from {@code centre}. */
+	public void leash(final @Nullable Vec3 centre, final double radius) {
+		this.leashCentre = centre;
+		this.leashRadius = radius;
+	}
+
+	/** The part of a step that stays in the room (all of it, if it does not head out past the edge). */
+	private Vec3 leashed(final Vec3 from, final Vec3 step) {
+		Vec3 centre = this.leashCentre;
+		if (centre == null) {
+			return step;
+		}
+		double fx = from.x - centre.x;
+		double fz = from.z - centre.z;
+		double nx = fx + step.x;
+		double nz = fz + step.z;
+		double r2 = this.leashRadius * this.leashRadius;
+		if (nx * nx + nz * nz <= r2 || nx * nx + nz * nz <= fx * fx + fz * fz) {
+			return step;
+		}
+		// the fraction of the step that reaches the edge: |f + t s| = r
+		double a = step.x * step.x + step.z * step.z;
+		double b = 2.0 * (fx * step.x + fz * step.z);
+		double c = fx * fx + fz * fz - r2;
+		double t = c >= 0.0 ? 0.0 : (-b + Math.sqrt(Math.max(0.0, b * b - 4.0 * a * c))) / (2.0 * a);
+		t = Math.max(0.0, Math.min(1.0, t));
+		return new Vec3(step.x * t, step.y, step.z * t);
+	}
+
 	/** A local step (forward, up, to the right) turned into the world along the facing the move began with. */
 	private Vec3 world(final Vec3 local) {
 		float yaw = this.facing * Mth.DEG_TO_RAD;
@@ -130,6 +168,9 @@ public final class MoveRunner {
 	private void blow(final ServerLevel level, final Mob boss, final BossMove.Strike strike) {
 		for (Player player : level.getEntitiesOfClass(Player.class, boss.getBoundingBox().inflate(16.0))) {
 			if (player.isAlive() && !player.isSpectator() && strike.shape().hits(boss, player)) {
+				if (strike.group() > 0 && !this.struck.add(strike.group() + ":" + player.getUUID())) {
+					continue;
+				}
 				hit(level, boss, player, strike.part(), strike.damage());
 			}
 		}
