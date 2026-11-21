@@ -574,8 +574,14 @@ final class StationMap {
 			}
 		}
 		for (int x : new int[] {-56, -40}) {
-			for (int z : new int[] {-84, -78, -72}) {
+			for (int z : new int[] {-89, -84, -78, -72}) {
 				b.hanging(x, MID + 7, z, Blocks.LANTERN);
+			}
+		}
+		// a soul flame at each lamp stand's foot, so the stands read in the dark before they are lit
+		for (int dx : SIDES) {
+			for (int dz : SIDES) {
+				b.set(-48 + dx * 8, MID + 1, -81 + dz * 8, Blocks.SOUL_LANTERN);
 			}
 		}
 		// the north gate onto the cold stair
