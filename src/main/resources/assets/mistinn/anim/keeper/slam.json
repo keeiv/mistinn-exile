@@ -1,0 +1,17 @@
+{"_comment":"熄燈人 跳砸: sinks into a crouch (the tell, 0-20), springs and flies with the pole raised point down (20-30, held at 30 until it lands), drives the pole into the floor on landing and rises (30-56).",
+"keys":[0.0,0.178571,0.357143,0.428571,0.535714,0.582143,0.698214,0.860714,1.0],
+"eases":["out_quad","in_out_sine","out_cubic","in_out_sine","out_quad","out_quad","in_out_sine","in_out_sine"],
+"length":56,"pivot":0.0,"item":{
+"x":[0.0,0.0,0,80,90,60,60,20,0]},
+"limbs":{
+"body_x":[0,25,20,-12,-8,40,36,14,0],
+"head_x":[0,15,10,-15,-10,30,28,10,0],
+"left_arm_x":[0,40,40,-160,-165,-50,-48,-25,0],
+"left_arm_y":[0.0,0.0,0,20,25,20,20,10,0],
+"left_arm_z":[0,-10,-10,-5,0.0,0.0,0.0,0.0,0.0],
+"left_leg_x":[0,-30,-30,-15,-20,-40,-38,-12,0],
+"right_arm_x":[0,40,40,-165,-170,-45,-45,-25,0],
+"right_arm_z":[0,10,10,5,0.0,0.0,0.0,0.0,0.0],
+"right_leg_x":[0,-40,-40,-35,-40,-55,-52,-20,0]},
+"root":{
+"y":[0,-0.35,-0.3,0.0,-0.1,-0.5,-0.45,-0.18,0]}}

@@ -41,8 +41,11 @@ public class SnufferRenderer extends HumanoidMobRenderer<Snuffer, SnufferRenderS
 	public void extractRenderState(final Snuffer entity, final SnufferRenderState state, final float partialTicks) {
 		super.extractRenderState(entity, state, partialTicks);
 		state.soulFlame = entity.getItemBySlot(EquipmentSlot.HEAD).is(Items.SOUL_LANTERN);
-		state.action = entity.action();
-		state.actionTicks = entity.actionTicks() + partialTicks;
+		var move = entity.currentMove();
+		state.move = move == null ? null : move.id();
+		state.moveLength = move == null ? 0 : move.length();
+		// a held move (in the air, waiting to land) keeps its pose instead of creeping on between ticks
+		state.moveTicks = entity.moveTicks() + (entity.moveHeld() ? 0.0F : partialTicks);
 		state.turnSpeed = net.minecraft.util.Mth.wrapDegrees(entity.yBodyRot - entity.yBodyRotO);
 		// the model already is the lantern
 		state.headItem.clear();

@@ -98,16 +98,19 @@ public class MistinnMotionReelTest implements FabricClientGameTest {
 			world.getServer().runCommand("summon mistinn:snuffer " + (x + 0.5) + " " + y + " " + (z + 0.5) + " {Rotation:[0.0f,0.0f],Tags:[\"stage\"]}");
 			this.view(context, world, x + 0.5 - 4.6, y - 0.1, z + 0.5 + 1.0, -90.0F, -4.0F);
 			context.waitTicks(20);
-			for (life.shizune.mistinn.keeper.Snuffer.Move move : life.shizune.mistinn.keeper.Snuffer.Move.values()) {
+			for (life.shizune.mistinn.boss.BossMove move : life.shizune.mistinn.keeper.SnufferMoves.SET.moves()) {
+				if (!move.plannable()) {
+					continue;
+				}
 				world.getServer().runOnServer(server -> {
 					var keeper = server.overworld().getEntities(life.shizune.mistinn.registry.MistinnEntities.SNUFFER, e -> e.entityTags().contains("stage")).getFirst();
 					keeper.teleportTo(x + 0.5, y, z + 0.5);
 					keeper.setYRot(0.0F);
 					keeper.setYBodyRot(0.0F);
 					keeper.setYHeadRot(0.0F);
-					keeper.start(move);
+					keeper.perform(move.id());
 				});
-				String name = "keeper-" + move.name().toLowerCase(java.util.Locale.ROOT);
+				String name = "keeper-" + move.id();
 				for (int i = 0; i < 24; i++) {
 					context.waitTicks(2);
 					this.shot(context, name + "-" + pad(i), true);

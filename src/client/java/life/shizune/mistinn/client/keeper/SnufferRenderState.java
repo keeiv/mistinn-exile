@@ -1,15 +1,16 @@
 package life.shizune.mistinn.client.keeper;
 
-import life.shizune.mistinn.keeper.Snuffer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import org.jspecify.annotations.Nullable;
 
 /** 熄燈人 as the renderer sees it: the humanoid pose, its move, and which flame burns in its lantern. */
 public class SnufferRenderState extends HumanoidRenderState {
 	/** 冷焰: the dark half, when the lantern burns cold blue (a soul lantern in the head slot). */
 	public boolean soulFlame;
-	/** What the body is doing, and for how long (ticks, with the partial tick). */
-	public Snuffer.Action action = Snuffer.Action.NONE;
-	public float actionTicks;
+	/** The move the body is in (null: walking or standing), how far into it (ticks, with the partial tick), and its length. */
+	public @Nullable String move;
+	public float moveTicks;
+	public int moveLength;
 	/** How fast the body is turning, degrees per tick: the lantern swings out against it. */
 	public float turnSpeed;
 }
