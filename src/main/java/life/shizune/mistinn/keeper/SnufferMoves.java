@@ -407,6 +407,48 @@ public final class SnufferMoves {
 		})
 		.build();
 
+	// ── Feints: a real move's tell, then something else ──────────
+
+	/** The sweep's lean back and drawn pole, but no sweep: it turns into a thrust or a step aside. */
+	public static final BossMove FAKE_SWEEP = BossMove.builder("fake_sweep", Kind.FEINT)
+		.tell(MistinnSounds.SNUFFER_SWEEP, 16).timing(0, 8).imitates("sweep")
+		.range(0.0, 4.5).cooldown(20).families("sweep")
+		.seen(SWEEP.tellEffect()).build();
+
+	/** The hook drawn back on its rattling chain, and not thrown: it steps back, or leaps. */
+	public static final BossMove FAKE_HOOK = BossMove.builder("fake_hook", Kind.FEINT)
+		.tell(MistinnSounds.SNUFFER_HOOK, 14).timing(0, 8).imitates("hook")
+		.range(0.0, 12.5).cooldown(20).families("hook")
+		.seen(HOOK.tellEffect()).build();
+
+	/** The spear drawn back level, and it drops low instead: into the leg sweep. */
+	public static final BossMove FAKE_THRUST = BossMove.builder("fake_thrust", Kind.FEINT)
+		.tell(MistinnSounds.SNUFFER_THRUST, 10).timing(0, 8).imitates("thrust")
+		.range(0.0, 6.5).cooldown(20).families("thrust").build();
+
+	// ── Signals: honest, so they can be learned ───────────────────
+
+	/** The spear spun once round in the claws: a thrust is coming (the thrust, the three thrusts, the rush). */
+	public static final BossMove TWIRL = BossMove.builder("twirl", Kind.SIGNAL)
+		.tell(MistinnSounds.SNUFFER_TWIRL, 0).timing(0, 30).signals("thrust").cooldown(60).build();
+
+	/** The lantern swung round on its neck, the eye flaring: a lantern blow is coming. */
+	public static final BossMove LANTERN_SWING = BossMove.builder("lantern_swing", Kind.SIGNAL)
+		.tell(MistinnSounds.SNUFFER_LANTERN_SWING, 0).timing(0, 30).signals("lantern").cooldown(60)
+		.seen((level, boss, target, tick) -> level.sendParticles(boss instanceof Snuffer keeper && keeper.dark() ? ParticleTypes.SOUL_FIRE_FLAME : ParticleTypes.FLAME,
+			boss.getX(), boss.getEyeY() + 0.5, boss.getZ(), 2, 0.25, 0.2, 0.25, 0.02))
+		.build();
+
+	/** The chain drawn taut across the chest: the hook is coming. */
+	public static final BossMove CHAIN_PULL = BossMove.builder("chain_pull", Kind.SIGNAL)
+		.tell(MistinnSounds.SNUFFER_CHAIN_PULL, 0).timing(0, 26).signals("hook").cooldown(60).build();
+
+	/** Sunk low on its haunches, claws on the floor: it is about to lunge (the slide, the leaps). */
+	public static final BossMove CROUCH = BossMove.builder("crouch", Kind.SIGNAL)
+		.tell(MistinnSounds.SNUFFER_CROUCH, 0).timing(0, 24).signals("lunge").cooldown(60)
+		.seen((level, boss, target, tick) -> level.sendParticles(ParticleTypes.WHITE_ASH, boss.getX(), boss.getY() + 0.1, boss.getZ(), 3, 0.5, 0.02, 0.5, 0.0))
+		.build();
+
 	/** Thrown off balance by the lit lamps: hunched and swaying. Suffered, never chosen. */
 	public static final BossMove STAGGER = BossMove.builder("stagger", Kind.REACTION)
 		.unannounced(0).timing(0, Snuffer.STAGGER_TICKS)
@@ -417,9 +459,15 @@ public final class SnufferMoves {
 		STEP_LEFT, STEP_RIGHT, BACK_STEP, CIRCLE, BACK_JUMP,
 		DOUBLE_SWEEP, SPIN, THRUST, TRIPLE_THRUST, OVERHEAD, UPSWING, LEG_SWEEP, BUTT, LANTERN_BASH, GRAB_THROW,
 		SLAM_WAVE, DELAYED_SLAM, HOOK_SLAM, HOOK_THRUST, CHAIN_SWEEP,
+		FAKE_SWEEP, FAKE_HOOK, FAKE_THRUST,
+		TWIRL, LANTERN_SWING, CHAIN_PULL, CROUCH,
 		STAGGER), List.of(
 		// what flows into what: a combo is a path through these, chosen as it goes
 		new MoveSet.Link("sweep", "thrust", 17, 28),
+		// a feint turns before its blow would have landed
+		new MoveSet.Link("fake_sweep", "thrust", 10, 16), new MoveSet.Link("fake_sweep", "step_left", 10, 16), new MoveSet.Link("fake_sweep", "step_right", 10, 16),
+		new MoveSet.Link("fake_hook", "back_step", 8, 14), new MoveSet.Link("fake_hook", "slam", 8, 14),
+		new MoveSet.Link("fake_thrust", "leg_sweep", 6, 10),
 		new MoveSet.Link("step_left", "sweep", 14, 20), new MoveSet.Link("step_left", "thrust", 14, 20), new MoveSet.Link("step_left", "overhead", 14, 20),
 		new MoveSet.Link("step_right", "sweep", 14, 20), new MoveSet.Link("step_right", "thrust", 14, 20), new MoveSet.Link("step_right", "overhead", 14, 20),
 		new MoveSet.Link("back_step", "hook", 14, 22), new MoveSet.Link("back_step", "slam", 14, 22),

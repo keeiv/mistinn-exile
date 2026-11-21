@@ -274,7 +274,7 @@ public final class Planner {
 		if (signalOwed && (move.kind() == BossMove.Kind.FEINT || move.kind() == BossMove.Kind.SIGNAL)) {
 			return null;
 		}
-		if (signalOwed && move.kind() == BossMove.Kind.ATTACK && !move.in(node.signal)) {
+		if (signalOwed && !move.strikes().isEmpty() && !move.in(node.signal)) {
 			return null;
 		}
 		Vec3 hunter = this.hunterAt(now, node, start);
@@ -307,7 +307,10 @@ public final class Planner {
 				readyAfter = 1.0 - ready * outcome.rolled();
 				shift = shift.add(flat(hunter.subtract(node.boss)).normalize().scale(outcome.push()));
 				value -= this.risk(now, move, bossAfter, this.hunterAt(now, node, start + length));
-			} else if (move.kind() == BossMove.Kind.SIGNAL || move.kind() == BossMove.Kind.IDLE) {
+			} else if (move.kind() == BossMove.Kind.SIGNAL) {
+				// a promise it keeps: worth showing from a distance it can follow up from, while the hunter is not pressing it
+				value += distance >= 3.0 && distance <= 10.0 && now.hunterAction() != PlayerAction.SWING ? 0.9 : 0.05;
+			} else if (move.kind() == BossMove.Kind.IDLE) {
 				value += 0.05;
 			}
 			value += this.spacing(now, bossAfter, this.hunterAt(now, node, start + length));
@@ -330,7 +333,7 @@ public final class Planner {
 		if (move.kind() == BossMove.Kind.SIGNAL && move.signals() != null) {
 			signal = move.signals();
 			signalUntil = end + SIGNAL_TICKS;
-		} else if (move.kind() == BossMove.Kind.ATTACK && signalOwed) {
+		} else if (!move.strikes().isEmpty() && signalOwed) {
 			signal = null;
 		}
 		double score = node.score + value * Math.pow(DISCOUNT, start / 20.0);

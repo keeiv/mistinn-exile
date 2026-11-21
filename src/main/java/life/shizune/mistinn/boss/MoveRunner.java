@@ -67,9 +67,9 @@ public final class MoveRunner {
 		return this.held;
 	}
 
-	/** Past the blows: from here another move may take over, as the links allow. */
+	/** Past the blows (or, for a feint, any time): from here another move may take over, as the links allow. */
 	public boolean inChainWindow() {
-		return this.current != null && this.ticks >= this.current.windup() + this.current.active();
+		return this.current != null && (this.current.kind() == BossMove.Kind.FEINT || this.ticks >= this.current.windup() + this.current.active());
 	}
 
 	/** Holds the blow {@code ticks} longer at the last tick of the tell, to wait out a roll begun too early. */
