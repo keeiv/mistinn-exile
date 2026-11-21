@@ -213,14 +213,25 @@ public final class HeavyService {
 
 	// ── The blow ──────────────────────────────────────────────────
 
+	/**
+	 * A roll or a slide ends a charge in progress, on the server and on the hunter's own client alike,
+	 * without letting it go: no heavy blow is ever let go mid-roll, so neither side has to judge that.
+	 */
+	public static void breakCharge(final Player player) {
+		if (player.isUsingItem() && player.getUseItem().getItem() instanceof WeaponItem) {
+			player.stopUsingItem();
+		}
+	}
+
 	/** The hunter let go after charging for {@code ticks}; returns whether a heavy blow is on its way. */
 	public static boolean release(final ServerPlayer player, final ItemStack stack, final int ticks) {
 		WeaponStyle style = WeaponStyle.of(stack);
 		if (style == null || player.isDeadOrDying()) {
 			return false;
 		}
-		Refusal refusal = refusal(player, stack);
-		if (refusal != Refusal.NONE && refusal != Refusal.NO_STAMINA) {
+		// only what the hunter's client also checks before it shows the strike: the weapon must answer
+		SpecialWeapon unfit = SpecialWeapon.of(stack);
+		if (unfit != null && !unfit.fits(player)) {
 			return false;
 		}
 		float charge = charge(player, style, ticks);
@@ -487,11 +498,18 @@ public final class HeavyService {
 
 	public static void register() {
 		ServerTickEvents.END_SERVER_TICK.register(HeavyService::tick);
+		// a blow does not outlive its hunter's session or the world it was let go in
+		net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> forget(handler.getPlayer().getUUID()));
+		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPING.register(server -> forgetAll());
 		ServerTickEvents.END_SERVER_TICK.register(SpecialWeapon::tick);
 		PayloadTypeRegistry.clientboundPlay().register(HeavyAnimPayload.TYPE, HeavyAnimPayload.CODEC);
 	}
 
-	/** Test hook: drops every blow still on its way. */
+	private static void forget(final UUID player) {
+		PENDING.removeIf(strike -> strike.player().equals(player));
+	}
+
+	/** Drops every blow still on its way (when the server stops; also a test hook). */
 	public static void forgetAll() {
 		PENDING.clear();
 	}

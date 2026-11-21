@@ -123,8 +123,9 @@ public final class RollService {
 		}
 		StaminaService.spend(player, cost(kind));
 		LAST.put(player.getUUID(), now);
-		// a roll breaks off any treatment in hand
+		// a roll breaks off any treatment in hand, and a heavy blow being charged
 		TreatmentService.interrupt(player);
+		life.shizune.mistinn.weapon.HeavyService.breakCharge(player);
 		if (kind == Kind.ROLL) {
 			DODGE.put(player.getUUID(), dodgeTicks(player, body));
 		}

@@ -91,6 +91,8 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 			killGoesToTheBlowsWeapon(context, world, arena);
 			slideMissPaysNothing(context, world, arena);
 			heavyStaysInItsWorld(context, world, arena);
+			rollBreaksTheCharge(context, world, arena);
+			fireKillIsTheHunters(context, world, arena);
 			frames(context, world, arena);
 		}
 	}
@@ -694,6 +696,59 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 			player.teleportTo(server.overworld(), arena.getX() + 0.5, arena.getY(), arena.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
 		});
 		context.waitTicks(20);
+	}
+
+	/**
+	 * A roll ends a charge on both sides without letting it go: with the real keys, charge, roll, let go,
+	 * and nothing is struck, so the hunter never sees a blow the server did not land.
+	 */
+	private static void rollBreaksTheCharge(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		stand(context, world, arena, iron(WeaponStyle.SLASH), Skills.EMPTY);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			player.getMainHandItem().getItem().use(server.overworld(), player, InteractionHand.MAIN_HAND);
+			check(player.isUsingItem(), "the charge starts");
+			life.shizune.mistinn.stamina.RollService.request(player, 90.0F);
+			check(!player.isUsingItem(), "a roll ends it on the server");
+			player.setAttached(MistinnAttachments.STAMINA, StaminaService.max(player));
+		});
+		context.waitTicks(30);
+		int target = husk(world, arena, 0.9, 2.5);
+		context.waitTicks(20);
+		context.getInput().holdKey(options -> options.keyUse);
+		context.waitTicks(20);
+		check(context.computeOnClient(mc -> mc.player.isUsingItem()), "holding the use key charges");
+		context.getInput().pressKey(options -> java.util.Arrays.stream(options.keyMappings).filter(k -> k.getName().equals("key.mistinn.roll")).findFirst().orElseThrow());
+		context.waitTicks(2);
+		check(!context.computeOnClient(mc -> mc.player.isUsingItem()), "the roll ends the charge on the hunter's own client");
+		check(!world.getServer().computeOnServer(server -> player(server).isUsingItem()), "and on the server");
+		context.getInput().releaseKey(options -> options.keyUse);
+		context.waitTicks(12);
+		check(lost(world, target) == 0.0F, "letting go after the roll strikes nothing: lost " + lost(world, target));
+		context.waitTicks(20);
+	}
+
+	/** A creature that dies of the lantern's fire after the burst is still the hunter's kill. */
+	private static void fireKillIsTheHunters(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		stand(context, world, arena, MistinnItems.LANTERN_STAFF, skills(0, 0, 4));
+		int target = husk(world, arena, 0.0, 3.0);
+		world.getServer().runOnServer(server -> life.shizune.mistinn.achievement.AchievementService.clear(player(server)));
+		heavyLanded(context, world, 1.0F);
+		// counted from after the burst, whose own achievement pays too
+		int salt = world.getServer().computeOnServer(server -> {
+			check(mob(server, target).getRemainingFireTicks() > 0 || mob(server, target).isOnFire(), "the burst sets it alight");
+			mob(server, target).setHealth(1.0F);
+			return life.shizune.mistinn.salt.SaltService.get(player(server));
+		});
+		for (int i = 0; i < 100 && world.getServer().computeOnServer(server -> mob(server, target) != null && mob(server, target).isAlive()); i++) {
+			context.waitTicks(1);
+		}
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			int gained = life.shizune.mistinn.salt.SaltService.get(player) - salt;
+			check(gained >= 200, "the fire's kill pays the hunter the husk's salt: " + gained);
+			check(life.shizune.mistinn.achievement.AchievementService.has(player, "kill:spear"), "and counts for the staff's branch");
+		});
 	}
 
 	// ── For the eye ───────────────────────────────────────────────

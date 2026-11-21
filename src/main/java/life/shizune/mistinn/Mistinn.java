@@ -66,7 +66,8 @@ public class Mistinn implements ModInitializer {
 			if (entity instanceof ServerPlayer player) {
 				GridService.onDeath(player);
 				ResidueService.onDeath(player);
-			} else if (source.getEntity() instanceof ServerPlayer killer) {
+			} else if ((source.getEntity() instanceof ServerPlayer ? source.getEntity() : entity.getLastHurtByPlayer()) instanceof ServerPlayer killer) {
+				// a creature that dies of what a hunter's blow left it (the lantern's fire, a fall) is still their kill
 				SaltService.reward(killer, entity);
 				life.shizune.mistinn.achievement.AchievementService.killed(killer, entity instanceof net.minecraft.world.entity.monster.Enemy);
 			}

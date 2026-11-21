@@ -87,6 +87,7 @@ public final class SlideService {
 		StaminaService.spend(player, COST);
 		LAST.put(player.getUUID(), now);
 		TreatmentService.interrupt(player);
+		life.shizune.mistinn.weapon.HeavyService.breakCharge(player);
 		SLIDES.put(player.getUUID(), new Slide(TICKS, Mth.wrapDegrees(yaw), new HashSet<>()));
 		player.level().playSound(null, player.blockPosition(), MistinnSounds.SLIDE, SoundSource.PLAYERS, 0.9F, 0.95F + player.getRandom().nextFloat() * 0.1F);
 		Body body = BodyService.get(player);
