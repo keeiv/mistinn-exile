@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import java.util.Set;
 import java.util.function.Consumer;
 import life.shizune.mistinn.client.death.MissionEndScreen;
+import life.shizune.mistinn.client.station.StationTalkScreen;
 import life.shizune.mistinn.client.story.StoryCardScreen;
 import life.shizune.mistinn.client.title.ModeSelectScreen;
 import life.shizune.mistinn.client.training.TrainingClient;
@@ -18,6 +19,8 @@ import life.shizune.mistinn.registry.MistinnBlocks;
 import life.shizune.mistinn.registry.MistinnItems;
 import life.shizune.mistinn.residue.DeathMark;
 import life.shizune.mistinn.salt.SaltService;
+import life.shizune.mistinn.station.StaffRole;
+import life.shizune.mistinn.station.StationHand;
 import life.shizune.mistinn.story.StoryService;
 import life.shizune.mistinn.story.WorldMode;
 import life.shizune.mistinn.training.TrainingGround;
@@ -136,6 +139,10 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		waitLesson(context, TrainingLesson.ARRIVAL);
 
 		go(context, TrainingLesson.ARRIVAL);
+		waitLesson(context, TrainingLesson.QUARTERMASTER);
+		check(context.computeOnClient(mc -> TrainingLesson.QUARTERMASTER.target.equals(TrainingGuide.target(mc, TrainingLesson.QUARTERMASTER))),
+			"the arrow points at the quartermaster");
+		talk(context, StaffRole.QUARTERMASTER, "kit");
 		waitLesson(context, TrainingLesson.GEAR);
 		check(context.computeOnClient(mc -> TrainingLesson.KIT.equals(TrainingGuide.target(mc, TrainingLesson.GEAR))),
 			"the guide points at the gear chest");
@@ -327,6 +334,23 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 	private static void go(final ClientGameTestContext context, final TrainingLesson step, final int south) {
 		server(context, player -> move(player, step.target.south(south)));
 		context.waitTicks(12);
+	}
+
+	/** Walks up to a member of the staff, right-clicks them and hears out what they open with. */
+	private static void talk(final ClientGameTestContext context, final StaffRole role, final String opening) {
+		context.waitFor(mc -> !mc.level.getEntitiesOfClass(StationHand.class, mc.player.getBoundingBox().inflate(64.0), hand -> hand.role() == role).isEmpty(), 200);
+		server(context, player -> {
+			StationHand hand = player.level().getEntitiesOfClass(StationHand.class, player.getBoundingBox().inflate(64.0), h -> h.role() == role).getFirst();
+			move(player, hand.blockPosition().east(2));
+			hand.interact(player, InteractionHand.MAIN_HAND, Vec3.ZERO);
+		});
+		context.waitFor(mc -> mc.gui.screen() instanceof StationTalkScreen talk && opening.equals(talk.topic()), 100);
+		context.waitTicks(30);
+		context.takeScreenshot("training-talk-" + role.id);
+		for (int i = 0; i < 16 && context.computeOnClient(mc -> mc.gui.screen() instanceof StationTalkScreen talk && talk.topic() != null); i++) {
+			context.runOnClient(mc -> ((StationTalkScreen) mc.gui.screen()).advance());
+		}
+		context.runOnClient(mc -> mc.gui.setScreen(null));
 	}
 
 	private static void move(final ServerPlayer player, final BlockPos pos) {

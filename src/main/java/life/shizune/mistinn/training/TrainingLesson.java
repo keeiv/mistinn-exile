@@ -3,15 +3,18 @@ package life.shizune.mistinn.training;
 import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
+import life.shizune.mistinn.station.StaffRole;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
+import org.jspecify.annotations.Nullable;
 
 /** The instructor's route down the training pier. The ids are shared by saves and translations. */
 public enum TrainingLesson implements StringRepresentable {
 	ARRIVAL("arrival", 4, true),
-	GEAR("gear", -4, true),
+	QUARTERMASTER("quartermaster", new BlockPos(-5, 65, -5), StaffRole.QUARTERMASTER, "kit"),
+	GEAR("gear", -4),
 	PACK("pack", -4),
 	SPRINT("sprint", -18, true),
 	ROLL("roll", -18),
@@ -46,15 +49,28 @@ public enum TrainingLesson implements StringRepresentable {
 	public final String id;
 	public final BlockPos target;
 	public final boolean radio;
+	/** Who leads this lesson in person, and the topic of theirs that, heard out, completes it. */
+	public final @Nullable StaffRole staff;
+	public final @Nullable String talk;
 
 	TrainingLesson(final String id, final int z) {
 		this(id, z, false);
 	}
 
 	TrainingLesson(final String id, final int z, final boolean radio) {
+		this(id, new BlockPos(0, 65, z), radio, null, null);
+	}
+
+	TrainingLesson(final String id, final BlockPos target, final StaffRole staff, final String talk) {
+		this(id, target, false, staff, talk);
+	}
+
+	TrainingLesson(final String id, final BlockPos target, final boolean radio, final @Nullable StaffRole staff, final @Nullable String talk) {
 		this.id = id;
-		this.target = new BlockPos(0, 65, z);
+		this.target = target;
 		this.radio = radio;
+		this.staff = staff;
+		this.talk = talk;
 	}
 
 	public String key() {

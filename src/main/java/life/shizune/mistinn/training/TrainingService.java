@@ -24,6 +24,8 @@ import life.shizune.mistinn.story.RadioBlock;
 import life.shizune.mistinn.story.StoryService;
 import life.shizune.mistinn.story.StoryStep;
 import life.shizune.mistinn.story.WorldMode;
+import life.shizune.mistinn.station.StaffRole;
+import life.shizune.mistinn.station.StationHand;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
@@ -78,6 +80,7 @@ public final class TrainingService {
 	private static final String STRIKE_TARGET = "mistinn.training_target";
 	private static final String KEEPER_TARGET = "mistinn.training_keeper";
 	private static final String POD_SEAT = "mistinn.training_seat";
+	private static final String STAFF = "mistinn.training_staff";
 	private static final int PRACTICE_SALT = 20;
 	private static final int COURSE_REACH = 8;
 
@@ -149,10 +152,47 @@ public final class TrainingService {
 		if (range == null) {
 			return;
 		}
+		if (server.getTickCount() % 20 == 0) {
+			staff(range);
+		}
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 			if (player.isAlive() && server.isSingleplayerOwner(player.nameAndId())) {
 				train(player, range);
 			}
+		}
+	}
+
+	/** Puts back any member of the staff missing from a loaded post. */
+	private static void staff(final ServerLevel level) {
+		for (TrainingGround.Post post : TrainingGround.POSTS) {
+			if (!level.isPositionEntityTicking(post.pos())
+				|| !level.getEntitiesOfClass(StationHand.class, new AABB(post.pos()).inflate(24.0), hand -> hand.role() == post.role()).isEmpty()) {
+				continue;
+			}
+			StationHand hand = MistinnEntities.STATION_HAND.create(level, EntitySpawnReason.STRUCTURE);
+			if (hand != null) {
+				hand.setRole(post.role());
+				hand.addTag(STAFF);
+				hand.setCustomName(Component.translatable(post.role().key()));
+				hand.snapTo(post.pos().getX() + 0.5, post.pos().getY(), post.pos().getZ() + 0.5, post.yaw(), 0.0F);
+				hand.setYHeadRot(post.yaw());
+				hand.setYBodyRot(post.yaw());
+				level.addFreshEntity(hand);
+			}
+		}
+	}
+
+	/** What a member of the staff opens with: the topic of the lesson they lead, if it is the hunter's now. */
+	public static @Nullable String opening(final ServerPlayer player, final StaffRole role) {
+		TrainingLesson lesson = player.getAttached(LESSON);
+		return lesson != null && lesson.staff == role && owner(player) ? lesson.talk : null;
+	}
+
+	/** The hunter heard a topic out; the lesson it completes moves on. */
+	public static void heard(final ServerPlayer player, final StaffRole role, final String topic) {
+		TrainingLesson lesson = player.getAttached(LESSON);
+		if (lesson != null && lesson.staff == role && topic.equals(lesson.talk) && at(player, lesson)) {
+			announce(player, TrainingLesson.values()[lesson.ordinal() + 1]);
 		}
 	}
 
@@ -189,8 +229,11 @@ public final class TrainingService {
 		switch (lesson) {
 			case ARRIVAL -> {
 				if (near(player, lesson.target, 2.5)) {
-					announce(player, TrainingLesson.GEAR);
+					announce(player, TrainingLesson.QUARTERMASTER);
 				}
+			}
+			case QUARTERMASTER -> {
+				// completed by hearing the quartermaster out
 			}
 			case GEAR, PACK -> equipment(player, level, lesson);
 			case SPRINT -> {

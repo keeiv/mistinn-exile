@@ -2,7 +2,9 @@ package life.shizune.mistinn.training;
 
 import com.mojang.serialization.Codec;
 import life.shizune.mistinn.Mistinn;
+import java.util.List;
 import life.shizune.mistinn.registry.MistinnBlocks;
+import life.shizune.mistinn.station.StaffRole;
 import life.shizune.mistinn.story.RadioBlock;
 import life.shizune.mistinn.world.Builder;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
@@ -37,6 +39,12 @@ public final class TrainingGround {
 	private static final Block STONE = Blocks.DEEPSLATE_BRICKS;
 	private static final Block BEAM = Blocks.POLISHED_DEEPSLATE;
 	private static final int[] SIDES = {-1, 1};
+	/** Where each member of the staff keeps their post, and which way they face. */
+	public static final List<Post> POSTS = List.of(
+		new Post(StaffRole.QUARTERMASTER, new BlockPos(-5, 65, -5), -90.0F));
+
+	public record Post(StaffRole role, BlockPos pos, float yaw) {
+	}
 
 	private TrainingGround() {
 	}
