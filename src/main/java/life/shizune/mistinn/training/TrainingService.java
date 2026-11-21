@@ -99,6 +99,10 @@ public final class TrainingService {
 			}
 		});
 		ServerTickEvents.END_SERVER_TICK.register(TrainingService::tick);
+		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+			life.shizune.mistinn.station.StationBarks.forgetAll();
+			life.shizune.mistinn.station.StationBroadcast.forgetAll();
+		});
 		ServerLivingEntityEvents.AFTER_DEATH.register(TrainingService::fallen);
 		UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
 			if (!level.dimension().equals(TrainingGround.KEY) || !hit.getBlockPos().equals(TrainingLesson.BOARD_BUTTON)) {
@@ -158,6 +162,12 @@ public final class TrainingService {
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 			if (player.isAlive() && server.isSingleplayerOwner(player.nameAndId())) {
 				train(player, range);
+				if (player.level() == range && player.getAttached(LESSON) != null) {
+					life.shizune.mistinn.station.StationBroadcast.tick(player);
+					if (server.getTickCount() % 5 == 0) {
+						life.shizune.mistinn.station.StationBarks.tick(range, player);
+					}
+				}
 			}
 		}
 	}
@@ -166,7 +176,7 @@ public final class TrainingService {
 	private static void staff(final ServerLevel level) {
 		for (TrainingGround.Post post : TrainingGround.POSTS) {
 			if (!level.isPositionEntityTicking(post.pos())
-				|| !level.getEntitiesOfClass(StationHand.class, new AABB(post.pos()).inflate(24.0), hand -> hand.role() == post.role()).isEmpty()) {
+				|| !level.getEntitiesOfClass(StationHand.class, new AABB(post.pos()).inflate(64.0), hand -> hand.role() == post.role()).isEmpty()) {
 				continue;
 			}
 			StationHand hand = MistinnEntities.STATION_HAND.create(level, EntitySpawnReason.STRUCTURE);
@@ -177,6 +187,9 @@ public final class TrainingService {
 				hand.snapTo(post.pos().getX() + 0.5, post.pos().getY(), post.pos().getZ() + 0.5, post.yaw(), 0.0F);
 				hand.setYHeadRot(post.yaw());
 				hand.setYBodyRot(post.yaw());
+				if (post.role() == StaffRole.DOCK_WORKER_4) {
+					hand.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.FISHING_ROD));
+				}
 				level.addFreshEntity(hand);
 			}
 		}

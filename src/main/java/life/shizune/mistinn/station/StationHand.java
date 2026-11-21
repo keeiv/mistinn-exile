@@ -48,6 +48,7 @@ public class StationHand extends PathfinderMob {
 
 	@Override
 	protected void registerGoals() {
+		this.goalSelector.addGoal(5, new RouteGoal(this));
 		this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
 	}

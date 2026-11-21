@@ -134,6 +134,7 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		context.waitTicks(40);
 		context.takeScreenshot("training-02-arrival");
 		overview(context);
+		crewAtWork(context);
 		context.runOnClient(mc -> ClientPlayNetworking.send(new TrainingService.DeployPayload(true)));
 		context.waitTicks(10);
 		waitLesson(context, TrainingLesson.ARRIVAL);
@@ -340,6 +341,42 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 				move(player, TrainingGround.ENTRY);
 			});
 		}
+	}
+
+	/**
+	 * The station is busy: everyone is at their post, Helm's first announcement has come over the
+	 * speakers, the cook calls out to a hunter who comes near, and the dock hands are on the move.
+	 */
+	private static void crewAtWork(final ClientGameTestContext context) {
+		java.util.Set<StaffRole> posted = new java.util.HashSet<>();
+		for (TrainingGround.Post post : TrainingGround.POSTS) {
+			posted.add(post.role());
+		}
+		context.waitFor(mc -> mc.level.getEntitiesOfClass(StationHand.class, mc.player.getBoundingBox().inflate(256.0))
+			.stream().map(StationHand::role).collect(java.util.stream.Collectors.toSet()).containsAll(posted), 400);
+		context.waitFor(mc -> TrainingClient.lastBroadcast() == 0, 600);
+		double[] start = new double[3];
+		server(context, player -> {
+			StationHand hand = player.level().getEntitiesOfClass(StationHand.class, player.getBoundingBox().inflate(256.0),
+				h -> h.role() == StaffRole.DOCK_WORKER_1).getFirst();
+			start[0] = hand.getX();
+			start[1] = hand.getZ();
+			StationHand cook = player.level().getEntitiesOfClass(StationHand.class, player.getBoundingBox().inflate(256.0),
+				h -> h.role() == StaffRole.COOK).getFirst();
+			move(player, cook.blockPosition().relative(cook.getDirection(), 3));
+		});
+		context.waitFor(mc -> mc.level.getEntitiesOfClass(StationHand.class, mc.player.getBoundingBox().inflate(8.0),
+			h -> h.role() == StaffRole.COOK && h.isCustomNameVisible() && h.getCustomName() != null
+				&& h.getCustomName().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents t
+				&& t.getKey().startsWith(StaffRole.COOK.key() + ".bark.")).size() == 1, 200);
+		context.takeScreenshot("training-cook-bark");
+		context.waitTicks(200);
+		server(context, player -> {
+			StationHand hand = player.level().getEntitiesOfClass(StationHand.class, player.getBoundingBox().inflate(256.0),
+				h -> h.role() == StaffRole.DOCK_WORKER_1).getFirst();
+			check(Math.hypot(hand.getX() - start[0], hand.getZ() - start[1]) > 3.0, "the dock hand carries crates along the quay");
+			move(player, TrainingGround.ENTRY);
+		});
 	}
 
 	private static void go(final ClientGameTestContext context, final TrainingLesson step) {

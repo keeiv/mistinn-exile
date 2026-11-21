@@ -36,7 +36,32 @@ public final class TrainingGround {
 
 	/** Where each member of the staff keeps their post, and which way they face. */
 	public static final List<Post> POSTS = List.of(
-		new Post(StaffRole.QUARTERMASTER, new BlockPos(5, 65, 4), 0.0F));
+		new Post(StaffRole.ROOMMATE, new BlockPos(-21, 65, 18), 90.0F),
+		new Post(StaffRole.QUARTERMASTER, new BlockPos(5, 65, 4), 0.0F),
+		new Post(StaffRole.COOK, new BlockPos(-42, 77, -21), -90.0F),
+		new Post(StaffRole.SMITH, new BlockPos(-54, 77, -50), -90.0F),
+		new Post(StaffRole.INSTRUCTOR, new BlockPos(-22, 77, -44), 0.0F),
+		new Post(StaffRole.SCOUT, new BlockPos(0, 77, -60), 90.0F),
+		new Post(StaffRole.DOCTOR, new BlockPos(40, 77, -44), 90.0F),
+		new Post(StaffRole.ARCHIVIST, new BlockPos(43, 77, -75), 0.0F),
+		new Post(StaffRole.BELL_KEEPER, new BlockPos(5, 77, -92), -90.0F),
+		new Post(StaffRole.RADIO_OPERATOR, new BlockPos(-14, 77, -88), -90.0F),
+		new Post(StaffRole.CRANE_OPERATOR, new BlockPos(-24, 91, -116), 90.0F),
+		new Post(StaffRole.DOCK_WORKER_1, new BlockPos(8, 65, 15), -90.0F),
+		new Post(StaffRole.DOCK_WORKER_2, new BlockPos(-4, 65, 20), 0.0F),
+		new Post(StaffRole.DOCK_WORKER_3, new BlockPos(-20, 65, 2), -90.0F),
+		new Post(StaffRole.DOCK_WORKER_4, new BlockPos(15, 65, -11), 180.0F));
+
+	/** The dock hands' rounds, starting from their posts. */
+	private static final java.util.Map<StaffRole, List<BlockPos>> ROUTES = java.util.Map.of(
+		StaffRole.DOCK_WORKER_1, List.of(new BlockPos(8, 65, 15), new BlockPos(18, 65, 13)),
+		StaffRole.DOCK_WORKER_2, List.of(new BlockPos(-4, 65, 20), new BlockPos(2, 65, 9)),
+		StaffRole.DOCK_WORKER_3, List.of(new BlockPos(-20, 65, 2), new BlockPos(-6, 65, 14), new BlockPos(15, 65, -6)));
+
+	/** The stops on this member's round; empty for those who keep to one post. */
+	public static List<BlockPos> route(final StaffRole role) {
+		return ROUTES.getOrDefault(role, List.of());
+	}
 
 	/** Safe places on each deck, for a hunter fished out of the water. */
 	public static final List<BlockPos> LANDINGS = List.of(

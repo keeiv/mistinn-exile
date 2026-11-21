@@ -30,6 +30,11 @@ public final class TrainingClient {
 	private static final int ASH = 0xFFB8B0A0;
 	private static @Nullable TrainingLesson last;
 	private static int radioTicks;
+	/** Helm's announcement on screen: which line, how long it has left, and the last one heard in this save. */
+	private static final int BROADCAST_TICKS = 160;
+	private static int broadcastLine;
+	private static int broadcastTicks;
+	private static int lastBroadcast = -1;
 
 	private TrainingClient() {
 	}
@@ -56,8 +61,28 @@ public final class TrainingClient {
 			? null : mc.player.getAttached(TrainingService.LESSON);
 	}
 
+	/** Helm speaks over the station's speakers: a chime, then the line typed out at the top of the screen. */
+	public static void broadcast(final int line) {
+		broadcastLine = line;
+		broadcastTicks = BROADCAST_TICKS;
+		lastBroadcast = line;
+		Minecraft.getInstance().getSoundManager().play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+			net.minecraft.sounds.SoundEvents.NOTE_BLOCK_CHIME.value(), 0.75F, 0.6F));
+	}
+
+	/** The last announcement heard at this station, or -1. */
+	public static int lastBroadcast() {
+		return lastBroadcast;
+	}
+
 	public static void tick(final Minecraft mc) {
 		TrainingLesson current = current(mc);
+		if (current == null) {
+			lastBroadcast = -1;
+			broadcastTicks = 0;
+		} else if (broadcastTicks > 0) {
+			broadcastTicks--;
+		}
 		if (current != last) {
 			last = current;
 			radioTicks = current != null && current.radio ? 120 : 0;
@@ -99,7 +124,27 @@ public final class TrainingClient {
 		if (radioTicks > 0) {
 			drawRadio(g, mc, lesson);
 		}
+		if (broadcastTicks > 0) {
+			drawBroadcast(g, mc);
+		}
 		TrainingGuide.drawDirection(g, mc, lesson);
+	}
+
+	private static void drawBroadcast(final GuiGraphicsExtractor g, final Minecraft mc) {
+		String text = net.minecraft.locale.Language.getInstance().getOrDefault(life.shizune.mistinn.station.StationBroadcast.key(broadcastLine));
+		int shown = Math.min(text.length(), (int) ((BROADCAST_TICKS - broadcastTicks) * 1.5F));
+		int width = Math.min(g.guiWidth() - 32, 300);
+		var rows = mc.font.split(Component.literal(text.substring(0, shown)), width - 14);
+		int left = (g.guiWidth() - width) / 2;
+		int top = 8;
+		g.fill(left, top, left + width, top + 19 + Math.max(1, rows.size()) * 11, 0xC00A0C10);
+		g.fill(left, top, left + width, top + 1, GOLD);
+		g.text(mc.font, Component.translatable("training.mistinn.broadcast"), left + 7, top + 5, GOLD, true);
+		int y = top + 17;
+		for (var row : rows) {
+			g.text(mc.font, row, left + 7, y, PAPER, true);
+			y += 11;
+		}
 	}
 
 	private static void drawRadio(final GuiGraphicsExtractor g, final Minecraft mc, final TrainingLesson lesson) {
