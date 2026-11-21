@@ -77,6 +77,8 @@ public class Snuffer extends Monster {
 	private @Nullable Vec3 home;
 	/** Ticks left of plain walking the brain asked for. */
 	private int walking;
+	/** Whom the move in hand was aimed at when it began: a move does not change its mind halfway. */
+	private @Nullable LivingEntity aimedAt;
 	private boolean dark;
 	private int staggered;
 	private int snuffTimer;
@@ -186,7 +188,7 @@ public class Snuffer extends Monster {
 			this.staggered--;
 			this.getNavigation().stop();
 			level.sendParticles(ParticleTypes.SMOKE, this.getX(), this.getEyeY() + 0.3, this.getZ(), 2, 0.2, 0.2, 0.2, 0.01);
-			this.runner.tick(level, this, target);
+			this.runner.tick(level, this, this.aimed());
 			this.syncMove();
 			return;
 		}
@@ -200,7 +202,7 @@ public class Snuffer extends Monster {
 			if (next != null && next.move() != Planner.WALK) {
 				this.perform(next.move().id(), next.delay());
 			}
-			this.runner.tick(level, this, target);
+			this.runner.tick(level, this, this.aimed());
 			this.syncMove();
 			return;
 		}
@@ -223,6 +225,12 @@ public class Snuffer extends Monster {
 		this.perform(decision.move().id(), decision.delay());
 	}
 
+	/** The move's target, while it is still there to be struck. */
+	private @Nullable LivingEntity aimed() {
+		LivingEntity target = this.aimedAt;
+		return target != null && target.isAlive() && !target.isRemoved() && target.level() == this.level() ? target : null;
+	}
+
 	/** The phase of the fight, as its moves know it. */
 	private String phase() {
 		return this.dark ? "dark" : "light";
@@ -241,6 +249,7 @@ public class Snuffer extends Monster {
 		this.getNavigation().stop();
 		this.walking = 0;
 		LivingEntity target = this.getTarget();
+		this.aimedAt = target;
 		this.brain.started(move, delay, target instanceof Player player ? player.getUUID() : null, this.position(), this.level().getGameTime());
 		this.syncMove();
 	}

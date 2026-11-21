@@ -1,0 +1,17 @@
+{"_comment":"掃腿: drops low with the spear laid flat along the floor behind it (the tell, 0-10); sweeps it round at ankle height (10); rises (10-26).",
+"keys":[0.0,0.307692,0.384615,0.5,0.692308,1.0],
+"eases":["out_quad","in_cubic","out_cubic","linear","in_out_sine"],
+"length":26,"limbs":{
+"body_x":[0,45,45,45,45,0],
+"body_y":[0,40,42,-45,-40,0],
+"head_x":[0,15,15,15,15,0],
+"left_arm_x":[0,10,10,10,10,0],
+"left_leg_x":[0,30,30,30,30,0],
+"right_arm_x":[0,-20,-20,-20,-20,0],
+"right_arm_y":[0,70,70,-70,-70,0],
+"right_arm_z":[0,35,35,30,30,0],
+"right_leg_x":[0,-60,-60,-60,-60,0]},
+"root":{
+"pitch":[0,20,20,20,20,0],
+"y":[0,-0.5,-0.5,-0.5,-0.5,0],
+"yaw":[0,0,0,-20,-20,0]}}

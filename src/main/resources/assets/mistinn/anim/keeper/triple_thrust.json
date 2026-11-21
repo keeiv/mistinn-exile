@@ -1,0 +1,16 @@
+{"_comment":"三連刺: draws the spear back low at the hip (the tell, 0-14); thrusts at 14 and 20, pulling back between, and lunges into the third and deepest at 27; recovers slowly (27-46).",
+"keys":[0.0,0.26087,0.304348,0.326087,0.391304,0.456522,0.521739,0.608696,0.695652,1.0],
+"eases":["out_quad","in_cubic","out_cubic","in_out_sine","out_cubic","in_out_sine","out_back","linear","in_out_sine"],
+"length":46,"limbs":{
+"body_x":[0,10,10,18,18,18,10,30,30,0],
+"body_y":[0,30,32,-15,25,-15,40,-30,-30,0],
+"left_arm_x":[0,-70,-70,10,10,10,10,30,30,0],
+"left_leg_x":[0,-15,-15,20,20,20,-20,40,40,0],
+"right_arm_x":[0,-50,-50,-90,-70,-92,-55,-98,-95,0],
+"right_arm_y":[0,35,35,-5,25,-5,40,-10,-10,0],
+"right_leg_x":[0,15,15,-25,-25,-25,20,-55,-55,0]},
+"item":{
+"x":[0,-45,-45,-86,-62,-88,-50,-92,-88,0]},
+"root":{
+"pitch":[0,0,0,10,4,12,0,22,22,0],
+"y":[0,0,0,0,0,0,0,-0.1,-0.1,0]}}

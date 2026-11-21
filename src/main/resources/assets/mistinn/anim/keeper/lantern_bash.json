@@ -1,0 +1,15 @@
+{"_comment":"燈籠砸擊: draws its lantern head far back on the bent neck, the eye flaring (the tell, 0-14); smashes it forward into the face (14); shakes it off (14-34).",
+"keys":[0.0,0.352941,0.411765,0.470588,0.647059,0.794118,1.0],
+"eases":["in_out_sine","in_cubic","out_back","linear","in_out_sine","in_out_sine"],
+"length":34,"limbs":{
+"body_x":[0,-20,-20,45,45,45,0],
+"head_x":[0,-45,-50,55,45,45,0],
+"head_z":[0,0,0,0,15,-15,0],
+"left_arm_x":[0,20,20,-30,-30,-30,0],
+"left_arm_z":[0,-25,-25,-10,-10,-10,0],
+"left_leg_x":[0,0,0,20,20,20,0],
+"right_arm_x":[0,20,20,-30,-30,-30,0],
+"right_arm_z":[0,25,25,10,10,10,0],
+"right_leg_x":[0,0,0,-25,-25,-25,0]},
+"root":{
+"pitch":[0,-10,-10,22,22,22,0]}}
