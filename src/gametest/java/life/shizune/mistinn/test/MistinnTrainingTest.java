@@ -185,8 +185,9 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		waitLesson(context, TrainingLesson.REPAIR);
 		holdAndUse(context, MistinnItems.ARMOR_REPAIR_KITS.getFirst(), 1);
 		waitLesson(context, TrainingLesson.CRAFT);
+		go(context, TrainingLesson.CRAFT);
 		server(context, player -> {
-			check(player.level().getBlockState(new BlockPos(4, 65, -50)).is(net.minecraft.world.level.block.Blocks.CRAFTING_TABLE),
+			check(player.level().getBlockState(TrainingLesson.CRAFTING_TABLE).is(net.minecraft.world.level.block.Blocks.CRAFTING_TABLE),
 				"the lesson provides a crafting station");
 			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(MistinnItems.ORE_BELL));
 		});
@@ -206,7 +207,7 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		server(context, player -> {
 			DeathMark mark = player.getAttached(MistinnAttachments.DEATH_MARK);
 			check(mark != null && mark.salt() >= 20, "the failed exercise made a real residue mark");
-			check(player.distanceToSqr(0.5, 65, -63.5) < 12.0, "the bell brought the hunter back");
+			check(player.distanceToSqr(Vec3.atBottomCenterOf(TrainingLesson.BELL.target)) < 12.0, "the bell brought the hunter back");
 			player.setGameMode(GameType.ADVENTURE);
 			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.COBBLESTONE, 3));
 			move(player, mark.pos().pos().south(2));
@@ -235,10 +236,8 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		check(context.computeOnClient(mc -> TrainingLesson.LAMP_POSITIONS.contains(TrainingGuide.target(mc, TrainingLesson.LAMPS))),
 			"the guide points at a lamp while the lamp lesson is active");
 		server(context, player -> {
-			for (int x : new int[] {-4, 4}) {
-				for (int z : new int[] {-103, -113}) {
-					useBlock(player, new BlockPos(x, 65, z), ItemStack.EMPTY);
-				}
+			for (BlockPos lamp : TrainingLesson.LAMP_POSITIONS) {
+				useBlock(player, lamp, ItemStack.EMPTY);
 			}
 		});
 		waitLesson(context, TrainingLesson.KEEPER);
@@ -259,7 +258,7 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 	private static void board(final ClientGameTestContext context) {
 		go(context, TrainingLesson.BOARD);
 		server(context, player -> {
-			BlockPos button = new BlockPos(0, 66, -131);
+			BlockPos button = TrainingLesson.BOARD_BUTTON;
 			var hit = new BlockHitResult(Vec3.atCenterOf(button), Direction.SOUTH, button, false);
 			UseBlockCallback.EVENT.invoker().interact(player, player.level(), InteractionHand.MAIN_HAND, hit);
 			check(player.isPassenger(), "the hunter physically boards the pod");
@@ -305,24 +304,40 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		}
 	}
 
+	/** The station from the places it is meant to be seen from, HUD hidden, then back to the barracks. */
 	private static void overview(final ClientGameTestContext context) {
-		server(context, player -> {
-			player.getAbilities().mayfly = true;
-			player.getAbilities().flying = true;
-			player.onUpdateAbilities();
-			player.teleportTo(player.level(), 22.5, 88.0, -1.5, Set.of(), 155.0F, 24.0F, true);
-		});
+		double[][] views = {
+			// camera x, y, z, then the point it looks at
+			{-28, 78, -11, -15, 65, 12},
+			{6, 66, -7, 6, 75, -29},
+			{24, 78, -29, 6, 90, -29},
+			{-58, 80, -92, -48, 77, -81},
+			{-37, 92, -114, -27, 98, -137},
+			{70, 118, 48, 0, 72, -50},
+		};
+		// held in the air for the shots: no gravity, so the hunter neither falls nor lands in the sea
+		server(context, player -> player.setNoGravity(true));
 		context.runOnClient(mc -> mc.gui.hud.toggle());
 		try {
-			context.waitTicks(30);
-			context.takeScreenshot("training-map-overview");
+			for (int i = 0; i < views.length; i++) {
+				double[] v = views[i];
+				double dx = v[3] - v[0];
+				double dy = v[4] - v[1];
+				double dz = v[5] - v[2];
+				float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
+				float pitch = (float) -Math.toDegrees(Math.atan2(dy, Math.hypot(dx, dz)));
+				server(context, player -> {
+					player.teleportTo(player.level(), v[0], v[1] - player.getEyeHeight(), v[2], Set.of(), yaw, pitch, true);
+					player.setDeltaMovement(Vec3.ZERO);
+				});
+				context.waitTicks(i == 0 ? 60 : 30);
+				context.takeScreenshot("training-station-" + (i + 1));
+			}
 		} finally {
 			context.runOnClient(mc -> mc.gui.hud.toggle());
 			server(context, player -> {
-				move(player, new BlockPos(0, 65, 10));
-				player.getAbilities().mayfly = false;
-				player.getAbilities().flying = false;
-				player.onUpdateAbilities();
+				player.setNoGravity(false);
+				move(player, TrainingGround.ENTRY);
 			});
 		}
 	}
@@ -341,7 +356,7 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		context.waitFor(mc -> !mc.level.getEntitiesOfClass(StationHand.class, mc.player.getBoundingBox().inflate(64.0), hand -> hand.role() == role).isEmpty(), 200);
 		server(context, player -> {
 			StationHand hand = player.level().getEntitiesOfClass(StationHand.class, player.getBoundingBox().inflate(64.0), h -> h.role() == role).getFirst();
-			move(player, hand.blockPosition().east(2));
+			move(player, hand.blockPosition().relative(hand.getDirection(), 3));
 			hand.interact(player, InteractionHand.MAIN_HAND, Vec3.ZERO);
 		});
 		context.waitFor(mc -> mc.gui.screen() instanceof StationTalkScreen talk && opening.equals(talk.topic()), 100);

@@ -75,7 +75,7 @@ public final class TrainingService {
 		.copyOnDeath()
 		.buildAndRegister(Mistinn.id("training_lesson"));
 
-	private static final BlockPos ENTRY = new BlockPos(0, 65, 10);
+	private static final BlockPos ENTRY = TrainingGround.ENTRY;
 	private static final BlockPos SEAT = TrainingLesson.DEPLOY.target;
 	private static final String STRIKE_TARGET = "mistinn.training_target";
 	private static final String KEEPER_TARGET = "mistinn.training_keeper";
@@ -208,6 +208,9 @@ public final class TrainingService {
 			if (!move(player, range, lesson == TrainingLesson.DEPLOY ? SEAT : checkpoint)) {
 				return;
 			}
+		} else if (player.isInWater() && lesson != TrainingLesson.DEPLOY) {
+			// fallen off a deck: fished out onto the nearest one
+			move(player, range, TrainingGround.landing(player.position()));
 		}
 		if (lesson == null) {
 			// Send the first objective after the client enters the range, where its new player receives it.

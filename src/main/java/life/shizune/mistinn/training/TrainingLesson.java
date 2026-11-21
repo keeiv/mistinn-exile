@@ -10,41 +10,41 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.Nullable;
 
-/** The instructor's route down the training pier. The ids are shared by saves and translations. */
+/** The course through Rust Anchor Station, lesson by lesson. The ids are shared by saves and translations. */
 public enum TrainingLesson implements StringRepresentable {
-	ARRIVAL("arrival", 4, true),
-	QUARTERMASTER("quartermaster", new BlockPos(-5, 65, -5), StaffRole.QUARTERMASTER, "kit"),
-	GEAR("gear", -4),
-	PACK("pack", -4),
-	SPRINT("sprint", -18, true),
-	ROLL("roll", -18),
-	STRIKE("strike", -32, true),
-	SALT("salt", -32),
-	TOURNIQUET("tourniquet", -48, true),
-	SPLINT("splint", -48),
-	PAINKILLER("painkiller", -48),
-	SURGERY("surgery", -48),
-	INJECTOR("injector", -48),
-	REPAIR("repair", -48),
-	CRAFT("craft", -50),
-	BELL("bell", -64, true),
-	FALL("fall", -77, true),
-	RECOVER("recover", -77, true),
-	RADIO("radio", -92, true),
-	LAMPS("lamps", -108, true),
-	KEEPER("keeper", -108),
-	REPORT("report", -121, true),
-	BOARD("board", -128, true),
-	DEPLOY("deploy", -129);
+	ARRIVAL("arrival", new BlockPos(-6, 65, 16), true),
+	QUARTERMASTER("quartermaster", new BlockPos(5, 65, 4), StaffRole.QUARTERMASTER, "kit"),
+	GEAR("gear", new BlockPos(5, 65, 9), false),
+	PACK("pack", new BlockPos(5, 65, 9), false),
+	SPRINT("sprint", new BlockPos(-22, 77, -42), true),
+	ROLL("roll", new BlockPos(-22, 77, -42), false),
+	STRIKE("strike", new BlockPos(-21, 77, -56), true),
+	SALT("salt", new BlockPos(-21, 77, -56), false),
+	TOURNIQUET("tourniquet", new BlockPos(38, 77, -41), true),
+	SPLINT("splint", new BlockPos(38, 77, -41), false),
+	PAINKILLER("painkiller", new BlockPos(38, 77, -41), false),
+	SURGERY("surgery", new BlockPos(38, 77, -41), false),
+	INJECTOR("injector", new BlockPos(38, 77, -41), false),
+	REPAIR("repair", new BlockPos(38, 77, -41), false),
+	CRAFT("craft", new BlockPos(45, 77, -13), false),
+	BELL("bell", new BlockPos(12, 77, -88), true),
+	FALL("fall", new BlockPos(12, 77, -98), true),
+	RECOVER("recover", new BlockPos(12, 77, -98), true),
+	RADIO("radio", new BlockPos(-17, 77, -86), true),
+	LAMPS("lamps", new BlockPos(-48, 77, -81), true),
+	KEEPER("keeper", new BlockPos(-48, 77, -81), false),
+	REPORT("report", new BlockPos(-33, 91, -110), true),
+	BOARD("board", new BlockPos(-27, 91, -128), true),
+	DEPLOY("deploy", new BlockPos(-27, 91, -129), false);
 
 	public static final Codec<TrainingLesson> CODEC = StringRepresentable.fromEnum(TrainingLesson::values);
 	public static final StreamCodec<ByteBuf, TrainingLesson> STREAM_CODEC = ByteBufCodecs.fromCodec(CODEC);
-	public static final BlockPos KIT = new BlockPos(-3, 65, -4);
-	public static final BlockPos CRAFTING_TABLE = new BlockPos(4, 65, -50);
-	public static final BlockPos BOARD_BUTTON = new BlockPos(0, 66, -131);
+	public static final BlockPos KIT = new BlockPos(7, 65, 6);
+	public static final BlockPos CRAFTING_TABLE = new BlockPos(48, 77, -13);
+	public static final BlockPos BOARD_BUTTON = new BlockPos(-27, 92, -131);
 	public static final List<BlockPos> LAMP_POSITIONS = List.of(
-		new BlockPos(-4, 65, -103), new BlockPos(4, 65, -103),
-		new BlockPos(-4, 65, -113), new BlockPos(4, 65, -113));
+		new BlockPos(-55, 77, -88), new BlockPos(-41, 77, -88),
+		new BlockPos(-55, 77, -74), new BlockPos(-41, 77, -74));
 
 	public final String id;
 	public final BlockPos target;
@@ -53,12 +53,8 @@ public enum TrainingLesson implements StringRepresentable {
 	public final @Nullable StaffRole staff;
 	public final @Nullable String talk;
 
-	TrainingLesson(final String id, final int z) {
-		this(id, z, false);
-	}
-
-	TrainingLesson(final String id, final int z, final boolean radio) {
-		this(id, new BlockPos(0, 65, z), radio, null, null);
+	TrainingLesson(final String id, final BlockPos target, final boolean radio) {
+		this(id, target, radio, null, null);
 	}
 
 	TrainingLesson(final String id, final BlockPos target, final StaffRole staff, final String talk) {
