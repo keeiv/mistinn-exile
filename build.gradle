@@ -91,6 +91,16 @@ if (project.hasProperty("animSheet")) {
 	}
 }
 
+// Boss reel (-PbossReel): a minute of the Snuffer against a hunter played by key presses, frame by frame, for
+// the gameplay video (best with -PphotoMode for the shaders).
+if (project.hasProperty("bossReel")) {
+	loom.runs.configureEach {
+		if (name == "clientGameTest") {
+			vmArg "-Dmistinn.bossreel=true"
+		}
+	}
+}
+
 // Keeper sheet (-PkeeperSheet): every keeper clip frozen at its beats, side and front, to judge its body and moves.
 if (project.hasProperty("keeperSheet")) {
 	loom.runs.configureEach {
