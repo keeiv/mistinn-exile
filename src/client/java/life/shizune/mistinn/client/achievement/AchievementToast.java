@@ -40,6 +40,12 @@ public final class AchievementToast implements HudElement {
 		}
 	}
 
+	/** Leaving a world: notices earned there are not shown in the next. */
+	public static void forgetAll() {
+		WAITING.clear();
+		showing = null;
+	}
+
 	/** The achievement on screen now, or null (also for the tests). */
 	public static @Nullable Achievement showing() {
 		advance();

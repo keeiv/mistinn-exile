@@ -52,6 +52,10 @@ public class MistinnClient implements ClientModInitializer {
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.weapon.HeavyService.HeavyAnimPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.anim.HeavyClient.received(payload));
 		life.shizune.mistinn.weapon.WeaponItem.releasedOnClient = life.shizune.mistinn.client.anim.HeavyClient::released;
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			life.shizune.mistinn.client.anim.HeavyClient.forgetAll();
+			life.shizune.mistinn.client.achievement.AchievementToast.forgetAll();
+		});
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.achievement.AchievementService.EarnedPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.achievement.AchievementToast.push(payload.id()));
 		life.shizune.mistinn.weapon.HeavyService.clientBusy = life.shizune.mistinn.client.move.RollClient::busy;

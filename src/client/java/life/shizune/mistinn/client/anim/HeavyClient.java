@@ -85,12 +85,19 @@ public final class HeavyClient {
 			return;
 		}
 		float charge = HeavyService.charge(player, style, held);
-		HeavyService.Refusal refusal = HeavyService.refusal(player, player.getMainHandItem());
-		if (charge < HeavyService.MIN_CHARGE || (refusal != HeavyService.Refusal.NONE && refusal != HeavyService.Refusal.NO_STAMINA)) {
+		// only what the server also knows: a roll or slide here is judged by the server, which holds the charge
+		life.shizune.mistinn.weapon.SpecialWeapon special = life.shizune.mistinn.weapon.SpecialWeapon.of(player.getMainHandItem());
+		if (charge < HeavyService.MIN_CHARGE || (special != null && !special.fits(player))) {
 			return;
 		}
 		STRIKES.put(player.getId(), new Strike(style, charge, now()));
 		CameraSwing.heavy(style);
+	}
+
+	/** Leaving a world: no strike carries over to whoever has the same id in the next. */
+	public static void forgetAll() {
+		STRIKES.clear();
+		preview = null;
 	}
 
 	/** Test hook: starts a strike on any entity as if its hunter had let go. */
@@ -110,7 +117,7 @@ public final class HeavyClient {
 			if (t >= 0.0F && t < 1.0F) {
 				return new Pose(Phase.STRIKE, strike.style(), t, strike.charge(), now + partial);
 			}
-			if (t >= 1.0F) {
+			if (t >= 1.0F || t < 0.0F) {
 				STRIKES.remove(entity.getId());
 			}
 		}

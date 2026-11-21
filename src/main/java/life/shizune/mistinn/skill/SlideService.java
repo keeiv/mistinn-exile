@@ -129,8 +129,9 @@ public final class SlideService {
 			if (!slide.struck().add(target.getId())) {
 				continue;
 			}
-			target.hurtServer(level, player.damageSources().playerAttack(player), KICK);
-			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.SLIDE_KICK);
+			if (target.hurtServer(level, player.damageSources().playerAttack(player), KICK)) {
+				life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.SLIDE_KICK);
+			}
 			// a lighthouse keeper is too heavy to be lifted off its feet
 			if (!(target instanceof life.shizune.mistinn.keeper.Snuffer)) {
 				target.push(0.0, LIFT, 0.0);

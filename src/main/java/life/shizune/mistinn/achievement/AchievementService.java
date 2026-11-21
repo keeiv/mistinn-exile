@@ -88,7 +88,9 @@ public final class AchievementService {
 			return;
 		}
 		grant(player, Achievement.FIRST_KILL);
-		WeaponStyle style = WeaponStyle.of(player.getMainHandItem());
+		// a heavy blow lands ticks after it is let go: the kill is the weapon's that struck, not the one in hand now
+		WeaponStyle landing = life.shizune.mistinn.weapon.HeavyService.landing();
+		WeaponStyle style = landing != null ? landing : WeaponStyle.of(player.getMainHandItem());
 		if (style == null) {
 			return;
 		}

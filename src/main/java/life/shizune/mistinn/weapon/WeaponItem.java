@@ -36,7 +36,8 @@ public class WeaponItem extends Item {
 			if (player instanceof ServerPlayer hunter) {
 				refuse(hunter, stack, refusal);
 			}
-			return InteractionResult.FAIL;
+			// a pass, so whatever is in the other hand still gets the use key
+			return InteractionResult.PASS;
 		}
 		if (player instanceof ServerPlayer hunter) {
 			life.shizune.mistinn.medical.TreatmentService.interrupt(hunter);
