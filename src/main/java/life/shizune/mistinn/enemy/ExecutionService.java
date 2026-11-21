@@ -244,7 +244,8 @@ public final class ExecutionService {
 			&& (sequence.finisher().ranged() || player.level().getGameTime() - sequence.start() == sequence.finisher().kill());
 	}
 
-	private static boolean downed(final Body body) {
+	/** Both legs destroyed: the hunter can be finished. */
+	public static boolean downed(final Body body) {
 		return body.destroyed(BodyPart.LEFT_LEG) && body.destroyed(BodyPart.RIGHT_LEG);
 	}
 

@@ -81,6 +81,10 @@ public final class WindupService {
 		if (mob.hasAttached(WINDUP)) {
 			return true;
 		}
+		// the one gate for "may this creature strike now": a pack member waiting its turn may not
+		if (!PackService.mayStrike(mob)) {
+			return true;
+		}
 		EnemyRig rig = EnemyRig.of(mob.getType());
 		if (rig == null || rig.windupTicks() <= 0 || !(target instanceof ServerPlayer hunter) || !BodyService.applies(hunter)
 			|| ExecutionService.holdsMob(mob)) {
