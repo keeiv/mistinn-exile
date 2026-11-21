@@ -98,6 +98,8 @@ public final class StaminaService {
 			}
 			if (player.isSprinting()) {
 				spend(player, SPRINT * legStrain(player));
+				// running feet carry; the service lets one through every half second
+				life.shizune.mistinn.enemy.NoiseService.emit(player, life.shizune.mistinn.enemy.NoiseService.Noise.SPRINT);
 				if (get(player) <= 0.0F) {
 					player.setSprinting(false);
 				}

@@ -75,6 +75,7 @@ public final class TreatmentService {
 		CHANNELS.put(player.getUUID(), new Channel(item, hand, slot, item.target(player), treatment, ticks, new int[] {0}));
 		slow(player, treatment.slow);
 		player.setSprinting(false);
+		life.shizune.mistinn.enemy.NoiseService.emit(player, life.shizune.mistinn.enemy.NoiseService.Noise.TREATMENT);
 		broadcast(player, new TreatmentPayload(player.getId(), treatment.ordinal(), ticks, Item.getId(item), RESULT_RUNNING));
 	}
 

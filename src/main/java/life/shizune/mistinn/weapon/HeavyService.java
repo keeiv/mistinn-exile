@@ -260,6 +260,7 @@ public final class HeavyService {
 		}
 		TreatmentService.interrupt(player);
 		player.resetAttackStrengthTicker();
+		life.shizune.mistinn.enemy.NoiseService.emit(player, life.shizune.mistinn.enemy.NoiseService.Noise.HEAVY);
 		ServerLevel level = player.level();
 		PENDING.add(new Strike(player.getUUID(), level.dimension(), style, special, shape, charge, damage, level.getGameTime() + shape.landTicks(), shape.hits()));
 		Weapons.Profile profile = Weapons.profile(stack);
