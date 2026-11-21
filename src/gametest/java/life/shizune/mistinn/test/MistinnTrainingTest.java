@@ -308,12 +308,12 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 	private static void overview(final ClientGameTestContext context) {
 		double[][] views = {
 			// camera x, y, z, then the point it looks at
-			{-28, 78, -11, -15, 65, 12},
-			{6, 66, -7, 6, 75, -29},
-			{24, 78, -29, 6, 90, -29},
-			{-58, 80, -92, -48, 77, -81},
-			{-37, 92, -114, -27, 98, -137},
-			{70, 118, 48, 0, 72, -50},
+			{0.5, 66.62, 26.5, -3.5, 68, 8.5},
+			{25.5, 73.5, -34.5, 5.5, 81, -34.5},
+			{-16, 80, -36, 6, 96, -34},
+			{-58.5, 78.62, -88.5, -47.5, 79, -80.5},
+			{-38.5, 92.62, -114.5, -26.5, 101.5, -129.5},
+			{73.5, 139, 48.5, -4, 93, -44},
 		};
 		// held in the air for the shots: no gravity, so the hunter neither falls nor lands in the sea
 		server(context, player -> player.setNoGravity(true));
