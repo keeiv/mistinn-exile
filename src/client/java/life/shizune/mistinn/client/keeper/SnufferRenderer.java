@@ -46,6 +46,10 @@ public class SnufferRenderer extends HumanoidMobRenderer<Snuffer, SnufferRenderS
 		state.moveLength = move == null ? 0 : move.length();
 		// a held move (in the air, waiting to land) keeps its pose instead of creeping on between ticks
 		state.moveTicks = entity.moveTicks() + (entity.moveHeld() ? 0.0F : partialTicks);
+		// standing with nothing to do, it now and then tilts its lantern, shifts its weight or heaves a breath
+		boolean still = move == null && state.walkAnimationSpeed < 0.05F;
+		state.idle = still ? SnufferModel.idle(entity.getId(), state.ageInTicks) : null;
+		state.idleTicks = SnufferModel.idleTicks(state.ageInTicks);
 		state.turnSpeed = net.minecraft.util.Mth.wrapDegrees(entity.yBodyRot - entity.yBodyRotO);
 		// the model already is the lantern
 		state.headItem.clear();
@@ -68,8 +72,8 @@ public class SnufferRenderer extends HumanoidMobRenderer<Snuffer, SnufferRenderS
 
 	@Override
 	protected void scale(final SnufferRenderState state, final PoseStack poseStack) {
-		// 2.7 blocks from the 37-pixel frame (ring to soles), and a little narrower than tall
-		poseStack.scale(1.1F, 1.17F, 1.1F);
+		// about three blocks from the 39-pixel frame (ring to soles), bent to a little under, and narrower than tall
+		poseStack.scale(1.12F, 1.22F, 1.12F);
 	}
 
 	/** 燈焰: the flame and the light on the lantern floor, full bright, warm or cold. */

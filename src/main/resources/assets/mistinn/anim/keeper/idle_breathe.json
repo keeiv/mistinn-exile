@@ -1,0 +1,12 @@
+{"_comment":"喘息: a long heave through the empty lantern: shoulders rise and the claws open, then it settles lower than before and lifts back.",
+"keys":[0.0,0.35,0.5,0.8,1.0],
+"eases":["in_out_sine","in_out_sine","out_quad","in_out_sine"],
+"length":60,"limbs":{
+"body_x":[0,-6,-5,6,0],
+"head_x":[0,-10,-8,10,0],
+"right_arm_z":[0,10,9,2,0],
+"left_arm_z":[0,-10,-9,-2,0],
+"right_arm_x":[0,-4,-4,4,0],
+"left_arm_x":[0,-4,-4,4,0]},
+"root":{
+"y":[0,0.04,0.03,-0.05,0]}}
