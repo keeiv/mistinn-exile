@@ -192,6 +192,12 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 
 ## Vanilla monsters and executions
 
+| | |
+| --- | --- |
+| ![At sunset on the grass by a drop station, a husk twists the hunter's arm up behind their back and bends to bite the shoulder](images/execution-grapple.jpg) | ![A warden has slammed the hunter into the ground and bends over them, fists swinging](images/execution-fist-slam.jpg) |
+| ![A ravager has thrown the hunter down on the grass and bites into their belly, shaking them](images/execution-charge.jpg) | ![An enderman holds the hunter's head in both hands and lifts them off the ground, about to break the neck](images/execution-neck-twist.jpg) |
+| ![A skeleton stands with its bow drawn and looses an arrow at the hunter kneeling across from it](images/execution-headshot.jpg) | ![The mission-end screen after an execution: the word executed in crimson, and below it the heart bitten open with a knife in it](images/mission-end-execution.jpg) |
+
 - **Stalking and windups**: a monster that has a hunter closes in low. Before each melee blow it winds up (zombies and spiders quickly, wardens and ravagers slowly) with a cry, then lunges. A roll or a step back during the windup avoids it; backing off too far is chased a short way.
 - **Voices**: 35 creatures (zombies, piglins, the warden, endermen, spiders, wolves with a set for each of their seven variants, polar bears and more) speak with CC0 recordings from OpenGameArt, layered and reshaped. Skeletons and the creaking have no throat; their windups are bone and wood.
 - **Executions**: when both legs are destroyed, a monster in reach pins the hunter and kills them. Each family has its own paired move:
