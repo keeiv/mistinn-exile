@@ -53,6 +53,7 @@ public final class StationTalk {
 
 	/** Opens a talk with this member on the hunter's screen. */
 	public static void open(final ServerPlayer hunter, final StationHand hand) {
+		TrainingService.greeted(hunter, hand.role());
 		String lesson = TrainingService.opening(hunter, hand.role());
 		ServerPlayNetworking.send(hunter, new OpenPayload(hand.getId(), hand.role(), lesson == null ? HELLO : lesson, topics(hand.role())));
 	}

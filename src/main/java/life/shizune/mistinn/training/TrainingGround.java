@@ -35,6 +35,8 @@ public final class TrainingGround {
 	/** Saves from before the station: the old chain of quays. */
 	private static final AttachmentType<Boolean> BUILT = AttachmentRegistry.createPersistent(Mistinn.id("training_ground_built"), Codec.BOOL);
 	private static final AttachmentType<Integer> BUILT_VERSION = AttachmentRegistry.createPersistent(Mistinn.id("training_ground_version"), Codec.INT);
+	/** Set when an old save's quays were cleared for the station: the owner's course starts over. */
+	private static final AttachmentType<Boolean> UPGRADED = AttachmentRegistry.createPersistent(Mistinn.id("training_ground_upgraded"), Codec.BOOL);
 
 	/** Where each member of the staff keeps their post, and which way they face. */
 	public static final List<Post> POSTS = List.of(
@@ -101,10 +103,23 @@ public final class TrainingGround {
 		if (level.getAttachedOrElse(BUILT, false)) {
 			clearQuays(b);
 			level.removeAttached(BUILT);
+			markUpgraded(level);
 		}
 		StationMap.build(b);
 		level.setAttached(BUILT_VERSION, VERSION);
 		Mistinn.LOGGER.info("Built Rust Anchor Station in {} ms", (System.nanoTime() - started) / 1_000_000L);
+	}
+
+	public static void markUpgraded(final ServerLevel level) {
+		level.setAttached(UPGRADED, true);
+	}
+
+	public static boolean upgraded(final ServerLevel level) {
+		return level.getAttachedOrElse(UPGRADED, false);
+	}
+
+	static void clearUpgraded(final ServerLevel level) {
+		level.removeAttached(UPGRADED);
 	}
 
 	/** Takes the old quays, towers and rocks back down to open water. */

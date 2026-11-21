@@ -364,7 +364,7 @@ final class StationMap {
 		b.fill(1, MID, -64, 9, MID, -56, GRATE);
 		// three cages along the north wall
 		for (int x0 : new int[] {-2, 6, 14}) {
-			b.fill(x0, MID + 1, -75, x0 + 6, MID + 1, -75, STONE);
+			b.fill(x0, MID + 1, -75, x0 + 6, MID + 4, -75, STONE);
 			for (int x = x0; x <= x0 + 6; x++) {
 				b.fill(x, MID + 1, -70, x, MID + 4, -70, RAIL);
 			}
@@ -531,7 +531,11 @@ final class StationMap {
 		for (int k = 0; k < 4; k++) {
 			b.fill(16 + k, MID + 25 + k, -104 + k, 24 - k, MID + 25 + k, -96 - k, k == 0 ? WEATHERED : HULL);
 		}
-		b.facing(20, MID + 29, -100, Blocks.LIGHTNING_ROD.waxed().oxidized(), Direction.UP);
+		// the station's lamp on top: the one light still burning on this coast
+		b.fill(19, MID + 29, -101, 21, MID + 30, -99, Blocks.STAINED_GLASS.yellow());
+		b.fill(20, MID + 29, -100, 20, MID + 30, -100, Blocks.SHROOMLIGHT);
+		b.fill(19, MID + 31, -101, 21, MID + 31, -99, HULL);
+		b.facing(20, MID + 32, -100, Blocks.LIGHTNING_ROD.waxed().oxidized(), Direction.UP);
 	}
 
 	private static void radioRoom(final Builder b) {
