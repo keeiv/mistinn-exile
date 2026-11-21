@@ -19,6 +19,16 @@
     ],
     "subtitle": "subtitles.mistinn.weapon.scythe.swing"
   },
+  "ui.achievement": {
+    "sounds": [
+      {
+        "name": "mistinn:block/golden_bell/rest_1",
+        "pitch": 1.25,
+        "volume": 0.7
+      }
+    ],
+    "subtitle": "subtitles.mistinn.ui.achievement"
+  },
   "player.charge_full": {
     "sounds": [
       {

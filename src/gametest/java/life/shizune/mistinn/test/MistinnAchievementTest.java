@@ -1,0 +1,367 @@
+package life.shizune.mistinn.test;
+
+import java.nio.file.Path;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import life.shizune.mistinn.achievement.Achievement;
+import life.shizune.mistinn.achievement.AchievementService;
+import life.shizune.mistinn.achievement.Achievements;
+import life.shizune.mistinn.bell.BellService;
+import life.shizune.mistinn.body.BodyPart;
+import life.shizune.mistinn.body.BodyService;
+import life.shizune.mistinn.client.achievement.AchievementToast;
+import life.shizune.mistinn.client.death.DeathScene;
+import life.shizune.mistinn.client.death.MissionEndScreen;
+import life.shizune.mistinn.client.guide.HunterGuideScreen;
+import life.shizune.mistinn.enemy.WindupService;
+import life.shizune.mistinn.grid.Area;
+import life.shizune.mistinn.grid.GridInventory;
+import life.shizune.mistinn.grid.GridService;
+import life.shizune.mistinn.grid.Placed;
+import life.shizune.mistinn.keeper.Snuffer;
+import life.shizune.mistinn.registry.MistinnAttachments;
+import life.shizune.mistinn.registry.MistinnBlocks;
+import life.shizune.mistinn.registry.MistinnEntities;
+import life.shizune.mistinn.registry.MistinnItems;
+import life.shizune.mistinn.residue.ResidueService;
+import life.shizune.mistinn.salt.SaltService;
+import life.shizune.mistinn.skill.SkillService;
+import life.shizune.mistinn.skill.SkillTree;
+import life.shizune.mistinn.skill.Skills;
+import life.shizune.mistinn.skill.SlideService;
+import life.shizune.mistinn.stamina.RollService;
+import life.shizune.mistinn.stamina.StaminaService;
+import life.shizune.mistinn.medical.SurgeryKitItem;
+import life.shizune.mistinn.weapon.HeavyService;
+import life.shizune.mistinn.weapon.WeaponMaterial;
+import life.shizune.mistinn.weapon.WeaponStyle;
+import com.mojang.serialization.JsonOps;
+import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
+import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
+import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
+import net.fabricmc.fabric.api.client.gametest.v1.screenshot.TestScreenshotOptions;
+import net.minecraft.client.gui.screens.DeathScreen;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.zombie.Husk;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
+
+/** 成就: each earned the way it is earned in play, paid once, kept through death, shown on screen and in the guide. */
+@SuppressWarnings("UnstableApiUsage")
+public final class MistinnAchievementTest implements FabricClientGameTest {
+	@Override
+	public void runTest(final ClientGameTestContext context) {
+		if (TestFilter.skip(getClass())) {
+			return;
+		}
+		if (Boolean.getBoolean("mistinn.photo") || Boolean.getBoolean("mistinn.animsheet")
+			|| Boolean.getBoolean("mistinn.reel") || Boolean.getBoolean("mistinn.medreel") || Boolean.getBoolean("mistinn.bossreel")) {
+			return;
+		}
+		try (TestSingleplayerContext world = context.worldBuilder().create()) {
+			world.getConnection().waitForChunksRender();
+			world.getServer().runCommand("gamemode survival @a");
+			world.getServer().runCommand("difficulty easy");
+			world.getServer().runCommand("time set noon");
+			world.getServer().runCommand("gamerule advance_time false");
+			context.waitTicks(10);
+			BlockPos arena = world.getServer().computeOnServer(MistinnAchievementTest::arena);
+			world.getServer().runOnServer(server -> {
+				AchievementService.clear(player(server));
+				SaltService.set(player(server), 0);
+			});
+			recordSurvivesSaving();
+			huntsAndWeapons(context, world, arena);
+			toastSlidesIn(context);
+			skillsAndStats(context, world, arena);
+			heavyBlows(context, world, arena);
+			rollAndSlide(context, world, arena);
+			keeperSurgeryAndBell(context, world, arena);
+			deathKeepsThemAndResidue(context, world);
+			guidePage(context, world);
+		}
+	}
+
+	private static void recordSurvivesSaving() {
+		Achievements some = new Achievements(new LinkedHashSet<>(List.of("first_kill", "kill:blade", "snuffer")));
+		check(Achievements.CODEC.parse(JsonOps.INSTANCE, Achievements.CODEC.encodeStart(JsonOps.INSTANCE, some).getOrThrow()).getOrThrow().equals(some), "the record survives saving");
+	}
+
+	// ── The arena ─────────────────────────────────────────────────
+
+	private static BlockPos arena(final MinecraftServer server) {
+		ServerPlayer player = player(server);
+		BlockPos pos = player.blockPosition().above(30).immutable();
+		for (BlockPos floor : BlockPos.betweenClosed(pos.offset(-8, -1, -8), pos.offset(8, -1, 16))) {
+			player.level().setBlockAndUpdate(floor, Blocks.STONE.defaultBlockState());
+		}
+		for (BlockPos air : BlockPos.betweenClosed(pos.offset(-8, 0, -8), pos.offset(8, 4, 16))) {
+			player.level().setBlockAndUpdate(air, Blocks.AIR.defaultBlockState());
+		}
+		return pos;
+	}
+
+	private static void stand(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena, final Item weapon) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			for (var entity : server.overworld().getEntities((net.minecraft.world.entity.Entity) null, new AABB(arena).inflate(20.0), e -> !(e instanceof ServerPlayer))) {
+				entity.discard();
+			}
+			HeavyService.forgetAll();
+			player.teleportTo(server.overworld(), arena.getX() + 0.5, arena.getY(), arena.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
+			player.getInventory().setSelectedSlot(0);
+			player.setItemInHand(InteractionHand.MAIN_HAND, weapon == null ? ItemStack.EMPTY : new ItemStack(weapon));
+			BodyService.restoreAll(player);
+			player.setAttached(MistinnAttachments.STAMINA, StaminaService.max(player));
+		});
+		context.waitTicks(4);
+	}
+
+	private static int husk(final TestSingleplayerContext world, final BlockPos arena, final double dx, final double dz, final float health) {
+		return world.getServer().computeOnServer(server -> {
+			Husk mob = EntityTypes.HUSK.create(server.overworld(), EntitySpawnReason.COMMAND);
+			mob.setNoAi(true);
+			mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(health);
+			mob.setHealth(health);
+			mob.snapTo(arena.getX() + 0.5 + dx, arena.getY(), arena.getZ() + 0.5 + dz, 180.0F, 0.0F);
+			server.overworld().addFreshEntity(mob);
+			return mob.getId();
+		});
+	}
+
+	private static boolean has(final TestSingleplayerContext world, final Achievement achievement) {
+		return world.getServer().computeOnServer(server -> AchievementService.has(player(server), achievement));
+	}
+
+	private static Item iron(final WeaponStyle style) {
+		return MistinnItems.WEAPONS.get(style).get(WeaponMaterial.IRON);
+	}
+
+	// ── Earning them ──────────────────────────────────────────────
+
+	/** A monster brought down: the first hunt; one with every branch: the armory. Each pays once. */
+	private static void huntsAndWeapons(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		check(!has(world, Achievement.FIRST_KILL), "nothing earned yet");
+		WeaponStyle[] styles = WeaponStyle.values();
+		for (int i = 0; i < styles.length; i++) {
+			stand(context, world, arena, iron(styles[i]));
+			int id = husk(world, arena, 0.0, 2.0, 20.0F);
+			int before = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
+			world.getServer().runOnServer(server -> {
+				LivingEntity mob = (LivingEntity) server.overworld().getEntity(id);
+				mob.hurtServer(server.overworld(), player(server).damageSources().playerAttack(player(server)), 1000.0F);
+			});
+			context.waitTicks(2);
+			int gained = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - before;
+			if (i == 0) {
+				check(has(world, Achievement.FIRST_KILL), "the first monster brought down is the first hunt");
+				check(gained == 20 + Achievement.FIRST_KILL.reward, "it pays the husk's 20 salt and the achievement's 50: " + gained);
+				check(!has(world, Achievement.SIX_BRANCHES), "one branch is not the armory");
+			} else if (i < styles.length - 1) {
+				check(gained == 20, "later kills pay only the husk's salt: " + gained);
+			} else {
+				check(has(world, Achievement.SIX_BRANCHES), "a monster down with each of the six branches is the armory");
+				check(gained == 20 + Achievement.SIX_BRANCHES.reward, "which pays 600: " + gained);
+			}
+		}
+	}
+
+	/** The notice slides in at the top right when an achievement is earned, and away again. */
+	private static void toastSlidesIn(final ClientGameTestContext context) {
+		check(context.computeOnClient(mc -> AchievementToast.showing()) != null, "the notice is up after an achievement");
+		context.waitTicks(10);
+		context.takeScreenshot(TestScreenshotOptions.of("toast").disableCounterPrefix().withDestinationDir(Path.of("achievements")));
+		// the first hunt's notice and then the armory's, each about four and a half seconds
+		context.waitFor(mc -> AchievementToast.showing() == null, 400);
+	}
+
+	private static void skillsAndStats(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		stand(context, world, arena, null);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			SkillService.set(player, Skills.EMPTY);
+			GridService.set(player, GridInventory.EMPTY.with(Area.SAFE, List.of(new Placed(0, 0, 0, false, new ItemStack(MistinnItems.RUST_GOD_SALT)))));
+			SaltService.set(player, 4999);
+			check(!AchievementService.has(player, Achievement.RICH.id), "4999 salt is not yet a salt merchant");
+			SaltService.add(player, 1);
+			check(AchievementService.has(player, Achievement.RICH.id), "carrying 5000 is");
+			SaltService.add(player, 20000);
+			check(SkillService.unlock(player, SkillTree.ROOT) == SkillService.Result.UNLOCKED, "the slide is learned");
+			check(AchievementService.has(player, Achievement.FIRST_SKILL.id), "the first skill");
+			for (int i = 1; i <= 4; i++) {
+				SkillService.unlock(player, "strength_" + i);
+			}
+			check(!AchievementService.has(player, Achievement.STAT_FIVE.id), "four strength is not mastery");
+			SkillService.unlock(player, "strength_5");
+			check(AchievementService.has(player, Achievement.STAT_FIVE.id), "five is");
+			SkillService.unlock(player, "speed_1");
+			SkillService.unlock(player, "constitution_1");
+			check(!AchievementService.has(player, Achievement.ALL_STATS.id), "three stats is not all round");
+			SkillService.unlock(player, "intellect_1");
+			check(AchievementService.has(player, Achievement.ALL_STATS.id), "all four is");
+		});
+	}
+
+	private static void heavyBlows(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		stand(context, world, arena, iron(WeaponStyle.SLASH));
+		int[] two = {husk(world, arena, -1.0, 2.0, 200.0F), husk(world, arena, 1.0, 2.0, 200.0F)};
+		context.waitTicks(2);
+		world.getServer().runOnServer(server -> HeavyService.release(player(server), player(server).getMainHandItem(), 40));
+		context.waitTicks(10);
+		check(!has(world, Achievement.HEAVY_THREE), "two at one blow is not three");
+		int third = husk(world, arena, 0.0, 2.6, 200.0F);
+		world.getServer().runOnServer(server -> {
+			player(server).setAttached(MistinnAttachments.STAMINA, StaminaService.max(player(server)));
+			LivingEntity mob = (LivingEntity) server.overworld().getEntity(third);
+			mob.setAttached(WindupService.WINDUP, new WindupService.Windup(server.overworld().getGameTime(), 200, player(server).getId(), false));
+			HeavyService.release(player(server), player(server).getMainHandItem(), 40);
+		});
+		context.waitTicks(10);
+		check(has(world, Achievement.HEAVY_THREE), "three at one blow");
+		check(has(world, Achievement.BREAK_WINDUP), "and the full charge broke off the third's attack");
+		check(!has(world, Achievement.SPECIAL_WEAPON), "an iron blade is no special weapon");
+		stand(context, world, arena, MistinnItems.LANTERN_STAFF);
+		world.getServer().runOnServer(server -> SkillService.set(player(server), new Skills(Set.of(SkillTree.ROOT, "intellect_1", "intellect_2", "intellect_3", "intellect_4"))));
+		husk(world, arena, 0.0, 3.0, 200.0F);
+		context.waitTicks(2);
+		world.getServer().runOnServer(server -> HeavyService.release(player(server), player(server).getMainHandItem(), 40));
+		context.waitTicks(10);
+		check(has(world, Achievement.SPECIAL_WEAPON), "the lantern's own burst, with intellect enough, is the weapon answering");
+	}
+
+	private static void rollAndSlide(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		stand(context, world, arena, null);
+		int attacker = husk(world, arena, 0.0, 1.5, 200.0F);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			LivingEntity mob = (LivingEntity) server.overworld().getEntity(attacker);
+			player.hurtServer(server.overworld(), server.overworld().damageSources().mobAttack(mob), 4.0F);
+			check(!AchievementService.has(player, Achievement.PERFECT_ROLL.id), "a hit taken standing is no close shave");
+			RollService.request(player, 90.0F);
+			player.hurtServer(server.overworld(), server.overworld().damageSources().mobAttack(mob), 4.0F);
+			check(AchievementService.has(player, Achievement.PERFECT_ROLL.id), "a blow rolled through is");
+		});
+		context.waitTicks(30);
+		stand(context, world, arena, null);
+		husk(world, arena, 0.0, 1.0, 200.0F);
+		context.waitTicks(2);
+		world.getServer().runOnServer(server -> check(SlideService.request(player(server), 0.0F), "the slide starts"));
+		context.waitTicks(12);
+		check(has(world, Achievement.SLIDE_KICK), "and sweeping a monster off its feet is swept away");
+	}
+
+	private static void keeperSurgeryAndBell(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		stand(context, world, arena, null);
+		int before = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
+		world.getServer().runOnServer(server -> {
+			Snuffer keeper = MistinnEntities.SNUFFER.create(server.overworld(), EntitySpawnReason.COMMAND);
+			keeper.setNoAi(true);
+			keeper.snapTo(arena.getX() + 0.5, arena.getY(), arena.getZ() + 8.5, 180.0F, 0.0F);
+			server.overworld().addFreshEntity(keeper);
+			keeper.kill(server.overworld());
+		});
+		context.waitTicks(5);
+		check(has(world, Achievement.SNUFFER), "the Snuffer falling near is remembered");
+		int gained = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - before;
+		check(gained == Achievement.SNUFFER.reward, "and pays 1000 (it was not the hunter's own blow): " + gained);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			player.removeAttached(MistinnAttachments.WOUNDS);
+			BodyService.set(player, BodyService.get(player).with(BodyPart.LEFT_ARM, 0.0F));
+			ItemStack kit = new ItemStack(MistinnItems.SURGERY_KIT);
+			player.setItemInHand(InteractionHand.MAIN_HAND, kit);
+			((SurgeryKitItem) kit.getItem()).finish(player, kit, InteractionHand.MAIN_HAND);
+			check(!BodyService.get(player).destroyed(BodyPart.LEFT_ARM), "the kit brings the arm back");
+			check(AchievementService.has(player, Achievement.REVIVE_LIMB.id), "steady hands");
+			BlockPos bell = arena.offset(3, 0, 0);
+			server.overworld().setBlockAndUpdate(bell, MistinnBlocks.GOLDEN_BELL.defaultBlockState());
+			check(BellService.rest(player, bell), "resting at a bell");
+			check(AchievementService.has(player, Achievement.BELL.id), "is the bell");
+		});
+	}
+
+	/** Dying keeps every achievement; taking the residue back from the gravestone is one more. */
+	private static void deathKeepsThemAndResidue(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		int before = world.getServer().computeOnServer(server -> AchievementService.earned(player(server)));
+		world.getServer().runCommand("kill @a");
+		context.waitForScreen(DeathScreen.class);
+		context.waitFor(mc -> mc.gui.screen() instanceof MissionEndScreen && DeathScene.seconds() > DeathScene.SCREEN + 1.8F, 600);
+		double[] at = context.computeOnClient(mc -> {
+			double[] gui = ((MissionEndScreen) mc.gui.screen()).choiceCentre(0);
+			double scale = mc.getWindow().getGuiScale();
+			return new double[] {gui[0] * scale, gui[1] * scale};
+		});
+		context.getInput().setCursorPos(at[0], at[1]);
+		context.waitTicks(2);
+		context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT);
+		context.waitFor(mc -> mc.player != null && mc.player.isAlive() && !(mc.gui.screen() instanceof MissionEndScreen), 200);
+		context.waitFor(mc -> mc.player.getAttached(MistinnAttachments.DEATH_MARK) != null, 200);
+		context.waitTicks(ResidueService.STONE_DELAY + 20);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			check(AchievementService.earned(player) == before, "the respawned hunter keeps every achievement: " + AchievementService.earned(player) + " of " + before);
+			BlockPos stone = player.getAttached(MistinnAttachments.DEATH_MARK).pos().pos();
+			check(ResidueService.open(player, stone), "the gravestone opens");
+			check(AchievementService.has(player, Achievement.RESIDUE.id), "and taking the residue back is gathered back");
+		});
+	}
+
+	private static void guidePage(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		int server = world.getServer().computeOnServer(s -> AchievementService.earned(player(s)));
+		context.waitTicks(5);
+		int client = context.computeOnClient(mc -> AchievementService.earned(mc.player));
+		check(client == server && client == Achievement.values().length, "the client knows all fifteen: " + client + " / " + server);
+		// a fresh record, half earned, for the picture of the page
+		world.getServer().runOnServer(s -> {
+			ServerPlayer player = player(s);
+			Set<String> half = new LinkedHashSet<>();
+			for (Achievement each : Achievement.values()) {
+				if (each.ordinal() % 2 == 0) {
+					half.add(each.id);
+				}
+			}
+			player.setAttached(MistinnAttachments.ACHIEVEMENTS, new Achievements(half));
+		});
+		context.waitTicks(5);
+		context.runOnClient(mc -> mc.gui.setScreen(new HunterGuideScreen()));
+		context.waitTicks(5);
+		HunterGuideScreen screen = context.computeOnClient(mc -> (HunterGuideScreen) mc.gui.screen());
+		click(context, context.computeOnClient(mc -> screen.tabCentre(HunterGuideScreen.Tab.ACHIEVEMENTS)));
+		check(context.computeOnClient(mc -> screen.tab()) == HunterGuideScreen.Tab.ACHIEVEMENTS, "the fourth bookmark opens the achievements");
+		context.waitTicks(3);
+		context.takeScreenshot(TestScreenshotOptions.of("guide-achievements-1").disableCounterPrefix().withDestinationDir(Path.of("achievements")));
+		click(context, context.computeOnClient(mc -> screen.nextPage()));
+		check(context.computeOnClient(mc -> screen.achievementSpread()) == 1, "the arrow turns to the rest");
+		context.waitTicks(3);
+		context.takeScreenshot(TestScreenshotOptions.of("guide-achievements-2").disableCounterPrefix().withDestinationDir(Path.of("achievements")));
+		context.runOnClient(mc -> mc.gui.setScreen(null));
+	}
+
+	private static void click(final ClientGameTestContext context, final double[] gui) {
+		double scale = context.computeOnClient(mc -> mc.getWindow().getGuiScale());
+		context.getInput().setCursorPos(gui[0] * scale, gui[1] * scale);
+		context.waitTicks(2);
+		context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT);
+		context.waitTicks(2);
+	}
+
+	static ServerPlayer player(final MinecraftServer server) {
+		return server.getPlayerList().getPlayers().getFirst();
+	}
+
+	static void check(final boolean condition, final String message) {
+		if (!condition) {
+			throw new AssertionError(message);
+		}
+	}
+}

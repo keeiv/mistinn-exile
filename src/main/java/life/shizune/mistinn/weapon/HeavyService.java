@@ -277,13 +277,21 @@ public final class HeavyService {
 		double amount = strike.damage() * shape.share();
 		boolean full = strike.charge() >= 0.999F;
 		LivingEntity farthest = null;
+		int struck = 0;
 		for (LivingEntity target : hit) {
 			if (!blow(player, target, amount, shape, full, strike.special())) {
 				continue;
 			}
+			struck++;
 			if (farthest == null || target.distanceToSqr(player) > farthest.distanceToSqr(player)) {
 				farthest = target;
 			}
+		}
+		if (struck >= 3) {
+			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.HEAVY_THREE);
+		}
+		if (struck > 0 && strike.special() != null) {
+			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.SPECIAL_WEAPON);
 		}
 		if (shape.impact() > 0.0) {
 			Vec3 look = flatLook(player);
@@ -296,8 +304,8 @@ public final class HeavyService {
 		}
 		if (strike.special() == SpecialWeapon.SNUFFER_HOOK && farthest != null) {
 			drag(player, farthest, HOOK_PULL);
-			if (farthest instanceof Mob mob) {
-				WindupService.interrupt(mob);
+			if (farthest instanceof Mob mob && WindupService.interrupt(mob)) {
+				life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.BREAK_WINDUP);
 			}
 			level.playSound(null, farthest.getX(), farthest.getY(), farthest.getZ(), MistinnSounds.HOOK_PULL, SoundSource.PLAYERS, 1.0F, 1.0F);
 		}
@@ -338,8 +346,8 @@ public final class HeavyService {
 		if (special == SpecialWeapon.LANTERN_STAFF) {
 			target.igniteForSeconds(2.0F);
 		}
-		if (full && target instanceof Mob mob) {
-			WindupService.interrupt(mob);
+		if (full && target instanceof Mob mob && WindupService.interrupt(mob)) {
+			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.BREAK_WINDUP);
 		}
 		Weapons.Profile profile = Weapons.profile(player.getMainHandItem());
 		if (profile != null) {

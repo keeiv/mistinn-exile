@@ -271,7 +271,8 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				player.getInventory().setItem(2, ItemStack.EMPTY);
 				return SaltService.get(player);
 			});
-			check(recovered == 1234, "all salt came back, got " + recovered);
+			// and the first residue taken back is an achievement, which pays its own salt
+			check(recovered == 1234 + life.shizune.mistinn.achievement.Achievement.RESIDUE.reward, "all salt came back, with the achievement's, got " + recovered);
 			context.waitTicks(10);
 			context.takeScreenshot("residue-recovered");
 

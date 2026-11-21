@@ -16,6 +16,9 @@ public abstract class PlayerDodgeMixin {
 	@Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
 	private void mistinn$dodge(final ServerLevel level, final DamageSource source, final float damage, final CallbackInfoReturnable<Boolean> cir) {
 		if (RollService.dodging((Player) (Object) this) && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+			if (source.getEntity() != null && (Object) this instanceof net.minecraft.server.level.ServerPlayer hunter) {
+				life.shizune.mistinn.achievement.AchievementService.grant(hunter, life.shizune.mistinn.achievement.Achievement.PERFECT_ROLL);
+			}
 			cir.setReturnValue(false);
 		}
 	}

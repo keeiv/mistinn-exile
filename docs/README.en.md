@@ -45,6 +45,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 - [Swings, stamina and rolls](#swings-stamina-and-rolls)
 - [The fog-shore lighthouse and the Snuffer](#the-fog-shore-lighthouse-and-the-snuffer)
 - [Stats and skills](#stats-and-skills)
+- [Achievements](#achievements)
 - [Controls](#controls)
 - [Tiers and gear](#tiers-and-gear)
 - [Grid inventory](#grid-inventory)
@@ -74,7 +75,8 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Vanilla monsters | Their voices are built from CC0 recordings, lower and more savage; their movement and poses are remade for each rig. They stalk low once they have a hunter, and every melee blow has a windup you can see and hear, and roll away from. A hunter whose legs are both destroyed is executed: see [Vanilla monsters and executions](#vanilla-monsters-and-executions). |
 | Stamina and rolls | Swings, sprints and rolls cost stamina. The legs determine how far a roll goes and the arms shape its motion. Badly injured legs can force a dive, whose landing strains the upper body. |
 | Title screen | An original misty shore with a dead lighthouse: drifting fog, glinting water and a last ember in the lamp room. |
-| Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: eleven pages on the world, the mission and the rules, the stats and the skill tree. |
+| Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: eleven pages on the world, the mission and the rules, the stats, the skill tree and the achievements. |
+| Achievements | Fifteen of them, from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer. A notice slides in at the top right and pays some salt; all are listed on the guide's deeds page. See [Achievements](#achievements). |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V; each with its own durability, protection, capacity, layout and a two-line story. |
@@ -319,6 +321,32 @@ A hunter starts growing once a keeper falls and its rust god salt comes home. Op
 - **Slide** (crouch while running): feet first for about five blocks, slowing as it goes; 18 stamina, a 1.2 second cooldown, and it breaks off a treatment in hand. Every hostile creature in the way is swept off its feet for 3 damage, once each. The slide gives no dodge, and two dead legs cannot slide.
 - Skills are saved with the hunter and kept through death. The guide's Stats page shows what each stat does for you now, and the salt and rust god salt you carry.
 
+## Achievements
+
+| | |
+| --- | --- |
+| ![The deeds page of the Hunter's Guide: how many are earned and the salt they paid, then the achievements one per row, earned ones bright and the rest dim](images/guide-achievements.png) | ![The achievement notice at the top right of the screen: the emblem and name on a strip of paper](images/achievement-toast.png) |
+
+When you do something worth remembering, a notice slides in at the top right, a bell chimes and some salt is paid (the first time only). Every achievement is listed on the **deeds** page of the Hunter's Guide: earned ones bright, the rest dim, with the count and the salt earned at the top. Achievements are saved and kept through death; bringing down the Snuffer is also what the Snuffer's Hook asks for.
+
+| Achievement | How | Salt |
+| --- | --- | --- |
+| First Hunt | Bring down a monster yourself | 50 |
+| Armory | Bring one down with each of the six branches: blade, greatsword, spear, dagger, hammer, scythe | 600 |
+| Three in One | Hit three or more with one heavy blow | 200 |
+| Broken Off | Break off a monster's attack with a full heavy blow | 200 |
+| Close Shave | Roll through an attack | 150 |
+| Swept Away | Hit a monster with a slide | 150 |
+| First Skill | Learn the slide in the guide | 100 |
+| Mastery | Bring any stat to 5 | 300 |
+| All Round | At least 1 in all four stats | 200 |
+| Chosen | Land a special weapon's own heavy blow | 400 |
+| Snuffer Slain | The Snuffer falls with you near | 1000 |
+| Steady Hands | Save a destroyed part with a surgery kit | 150 |
+| The Bell | Rest at a golden bell | 50 |
+| Gathered Back | Take your residue back from your gravestone | 100 |
+| Salt Merchant | Carry 5000 salt | – |
+
 ## Controls
 
 | Input | Action |
@@ -397,7 +425,7 @@ Textures and models are original work by MoriTeahouse. Sound effects combine edi
 1. **The rest of the story**: chapter 2, *The Salt Road*, then the keepers of the Sunken Bell and the Rust Wheel, and the Mist Inn with the endings.
 2. **The rest of the forbidden zone**: fog that thickens near a lighthouse and on the minimap, a second bell that needs lamp oil, the fog wall of the lamp room, creatures of the mist and the keeper's mist doubles ([design, in Chinese](phase2-design.md)).
 3. **More keepers**: the Sunken Bell and the Rust Wheel.
-4. **Later**: achievements, co-op.
+4. **Later**: co-op.
 
 ## Contributing
 

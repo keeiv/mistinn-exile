@@ -195,6 +195,7 @@ public final class ResidueService {
 			player.sendSystemMessage(things > 0
 				? Component.translatable("message.mistinn.residue.recovered_items", stone.salt(), things)
 				: Component.translatable("message.mistinn.residue.recovered", stone.salt()), true);
+			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.RESIDUE);
 		} else {
 			crumble(level, pos);
 			player.sendSystemMessage(Component.translatable("message.mistinn.residue.faded"), true);

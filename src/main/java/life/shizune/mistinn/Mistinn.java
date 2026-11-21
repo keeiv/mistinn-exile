@@ -52,6 +52,7 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.skill.SkillService.register();
 		life.shizune.mistinn.skill.SlideService.register();
 		life.shizune.mistinn.weapon.HeavyService.register();
+		life.shizune.mistinn.achievement.AchievementService.register();
 		ExecutionService.init();
 		life.shizune.mistinn.enemy.WindupService.init();
 		life.shizune.mistinn.registry.MistinnEntities.init();
@@ -67,6 +68,7 @@ public class Mistinn implements ModInitializer {
 				ResidueService.onDeath(player);
 			} else if (source.getEntity() instanceof ServerPlayer killer) {
 				SaltService.reward(killer, entity);
+				life.shizune.mistinn.achievement.AchievementService.killed(killer, entity instanceof net.minecraft.world.entity.monster.Enemy);
 			}
 		});
 

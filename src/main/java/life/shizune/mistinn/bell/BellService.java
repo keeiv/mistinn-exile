@@ -60,6 +60,7 @@ public final class BellService {
 			pos.getX() + 0.5, pos.getY() + 0.8, pos.getZ() + 0.5, oneTime ? 6 : 24, 0.4, 0.5, 0.4, 0.02);
 		player.sendSystemMessage(Component.translatable(oneTime ? "message.mistinn.bell.rest_once" : "message.mistinn.bell.rest"), true);
 		StoryService.rested(player);
+		life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.BELL);
 		return true;
 	}
 
