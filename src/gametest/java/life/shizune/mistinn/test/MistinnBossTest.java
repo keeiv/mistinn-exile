@@ -4,6 +4,11 @@ import java.util.Set;
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
 import life.shizune.mistinn.boss.BossMove;
+import life.shizune.mistinn.boss.Observation;
+import life.shizune.mistinn.boss.PlayerAction;
+import life.shizune.mistinn.boss.PlayerModel;
+import life.shizune.mistinn.boss.PlayerTrace;
+import life.shizune.mistinn.boss.Response;
 import life.shizune.mistinn.client.anim.Clip;
 import life.shizune.mistinn.keeper.Snuffer;
 import life.shizune.mistinn.keeper.SnufferMoves;
@@ -19,6 +24,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /** The bosses: their moves, the brain that picks them, and that the keeper's old rules still hold. */
 @SuppressWarnings("UnstableApiUsage")
@@ -35,6 +41,9 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			return;
 		}
 		context.runOnClient(mc -> everyMoveHasATell());
+		seesFourTicksLate();
+		predictsStraightRuns();
+		learnsRollSide();
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			world.getConnection().waitForChunksRender();
 			world.getServer().runCommand("difficulty normal");
@@ -131,6 +140,44 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			check(player.distanceToSqr(stage.getX() + 8.5, stage.getY(), stage.getZ() - 8.5) < 9.0, "and the hunter is not dragged back: " + player.position());
 			clear(server, stage);
 		});
+	}
+
+	// ── Seeing and guessing ───────────────────────────────────────
+
+	/** The brain sees a hunter as they were four ticks ago, never as they are now. */
+	private static void seesFourTicksLate() {
+		PlayerTrace trace = new PlayerTrace();
+		trace.record(observation(10, Vec3.ZERO, Vec3.ZERO));
+		check(trace.seen(13) == null, "what happened at tick 10 is not seen at 13");
+		Observation seen = trace.seen(14);
+		check(seen != null && seen.time() == 10, "and is seen at 14: " + seen);
+	}
+
+	/** A hunter running straight is met where they will be, not where they were. */
+	private static void predictsStraightRuns() {
+		PlayerTrace trace = new PlayerTrace();
+		Vec3 velocity = new Vec3(0.28, 0.0, -0.1);
+		for (long time = 0; time <= 20; time++) {
+			trace.record(observation(time, velocity.scale(time), velocity));
+		}
+		Vec3 guess = new PlayerModel().predict(trace, 20, 10);
+		Vec3 truth = velocity.scale(30);
+		check(guess.distanceTo(truth) < 0.3, "ten ticks ahead of a straight run, off by " + guess.distanceTo(truth));
+	}
+
+	/** A hunter who mostly rolls left from the sweep is expected to roll left. */
+	private static void learnsRollSide() {
+		PlayerModel model = new PlayerModel();
+		for (int i = 0; i < 6; i++) {
+			model.learn("sweep", Response.ROLL_LEFT);
+		}
+		model.learn("sweep", Response.ROLL_RIGHT);
+		double left = model.responses("sweep").get(Response.ROLL_LEFT);
+		check(left > 0.6, "six left rolls in seven make a left roll likely, not " + left);
+	}
+
+	static Observation observation(final long time, final Vec3 pos, final Vec3 velocity) {
+		return new Observation(time, pos, velocity, 0.0F, PlayerAction.WALK, 100.0F, false, 3.0);
 	}
 
 	// ── Helpers ───────────────────────────────────────────────────
