@@ -2,9 +2,12 @@ package life.shizune.mistinn.keeper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import life.shizune.mistinn.boss.BossBrain;
 import life.shizune.mistinn.boss.BossMove;
 import life.shizune.mistinn.boss.MoveRunner;
 import life.shizune.mistinn.boss.MoveSet;
+import life.shizune.mistinn.boss.Planner;
 import life.shizune.mistinn.registry.MistinnBlocks;
 import life.shizune.mistinn.registry.MistinnItems;
 import life.shizune.mistinn.registry.MistinnSounds;
@@ -32,14 +35,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
-import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -68,7 +71,12 @@ public class Snuffer extends Monster {
 
 	private final ServerBossEvent bar = new ServerBossEvent(java.util.UUID.randomUUID(), Component.translatable("entity.mistinn.snuffer"), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.NOTCHED_10);
 	private final MoveRunner runner = new MoveRunner();
-	private int cooldown = 40;
+	/** Its mind for this fight: kept in memory only, never saved. */
+	private final BossBrain brain = new BossBrain(SnufferMoves.SET, new Planner(SnufferMoves.SET, RandomSource.create()));
+	/** Where its room is: where it first stood since it was loaded. */
+	private @Nullable Vec3 home;
+	/** Ticks left of plain walking the brain asked for. */
+	private int walking;
 	private boolean dark;
 	private int staggered;
 	private int snuffTimer;
@@ -97,9 +105,8 @@ public class Snuffer extends Monster {
 	@Override
 	protected void registerGoals() {
 		this.goalSelector.addGoal(0, new FloatGoal(this));
+		// whom it goes after is the brain's to decide
 		this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 16.0F));
-		this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-		this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
 	}
 
 	@Override
@@ -166,7 +173,14 @@ public class Snuffer extends Monster {
 		if (this.dark) {
 			this.darkRoom(level);
 		}
-		LivingEntity target = this.getTarget();
+		if (this.home == null) {
+			this.home = this.position();
+		}
+		this.brain.observe(level, this, this.home, ROOM_RADIUS);
+		UUID chosen = this.brain.target();
+		Player hunter = chosen == null ? null : level.getPlayerByUUID(chosen);
+		this.setTarget(hunter);
+		LivingEntity target = hunter;
 		if (this.staggered > 0) {
 			this.staggered--;
 			this.getNavigation().stop();
@@ -180,47 +194,59 @@ public class Snuffer extends Monster {
 			if (target != null) {
 				this.getLookControl().setLookAt(target, 30.0F, 30.0F);
 			}
+			// a move in the window where it may hand over: the brain may chain the next one in
+			BossBrain.Decision next = this.brain.decide(level, this, this.runner, this.phase());
+			if (next != null && next.move() != Planner.WALK) {
+				this.perform(next.move().id(), next.delay());
+			}
 			this.runner.tick(level, this, target);
 			this.syncMove();
-			if (!this.runner.running()) {
-				this.cooldown = 10 + this.random.nextInt(20);
-			}
 			return;
 		}
 		if (target == null || !target.isAlive()) {
+			this.walking = 0;
 			return;
 		}
 		this.getLookControl().setLookAt(target, 30.0F, 30.0F);
-		double distance = this.distanceTo(target);
-		if (distance > 3.0) {
+		if (this.walking > 0) {
+			this.walking--;
 			this.getNavigation().moveTo(target, 1.0);
-		} else {
-			this.getNavigation().stop();
+			return;
 		}
-		if (--this.cooldown <= 0 && this.hasLineOfSight(target)) {
-			String chosen = this.choose(distance);
-			if (chosen != null) {
-				this.perform(chosen);
-			}
+		BossBrain.Decision decision = this.brain.decide(level, this, this.runner, this.phase());
+		if (decision == null || decision.move() == Planner.WALK) {
+			this.walking = decision == null ? 5 : decision.move().length();
+			this.getNavigation().moveTo(target, 1.0);
+			return;
 		}
+		this.perform(decision.move().id(), decision.delay());
 	}
 
-	private @Nullable String choose(final double distance) {
-		float roll = this.random.nextFloat();
-		if (distance < 4.5) {
-			return roll < 0.45F ? "sweep" : roll < 0.75F ? "slam" : "hook";
-		}
-		if (distance < 12.0) {
-			return roll < 0.6F ? "hook" : "slam";
-		}
-		return null;
+	/** The phase of the fight, as its moves know it. */
+	private String phase() {
+		return this.dark ? "dark" : "light";
 	}
 
 	/** Starts a move from its tell, dropping whatever ran before. Public so the game tests can call each one. */
 	public void perform(final String id) {
-		this.runner.start(this, SnufferMoves.SET.get(id));
+		this.perform(id, 0);
+	}
+
+	/** Starts a move, holding its blow {@code delay} ticks at the end of the tell. */
+	public void perform(final String id, final int delay) {
+		BossMove move = SnufferMoves.SET.get(id);
+		this.runner.start(this, move);
+		this.runner.delay(delay);
 		this.getNavigation().stop();
+		this.walking = 0;
+		LivingEntity target = this.getTarget();
+		this.brain.started(move, delay, target instanceof Player player ? player.getUUID() : null, this.position(), this.level().getGameTime());
 		this.syncMove();
+	}
+
+	/** Its mind, for the game tests. */
+	public BossBrain brain() {
+		return this.brain;
 	}
 
 	/** A dead keeper finishes nothing it began. */
