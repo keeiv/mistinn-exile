@@ -94,7 +94,11 @@ public final class SkillService {
 	public static void register() {
 		// the modifiers are transient: every join and every respawn puts them back
 		ServerPlayerEvents.JOIN.register(SkillService::refresh);
-		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> refresh(newPlayer));
+		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+			// the saved copy of the skills reaches the new body only after this event: take them from the old one now
+			newPlayer.setAttached(MistinnAttachments.SKILLS, get(oldPlayer));
+			refresh(newPlayer);
+		});
 		PayloadTypeRegistry.serverboundPlay().register(UnlockPayload.TYPE, UnlockPayload.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(UnlockResultPayload.TYPE, UnlockResultPayload.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(UnlockPayload.TYPE, (payload, context) -> {
