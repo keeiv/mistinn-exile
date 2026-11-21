@@ -100,6 +100,7 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			slideTakesTheLegs(context, world, stage);
 			rushClosesTheGap(context, world, stage);
 			grabLetsGoOfTheGone(context, world, stage);
+			lampsAreTheRooms(context, world, stage);
 			seesHuntersInTheCorners(context, world, stage);
 			interruptedMovesLetGo(context, world, stage);
 			mistAmbushHasATell(context, world, stage);
@@ -992,6 +993,35 @@ public final class MistinnBossTest implements FabricClientGameTest {
 	private static void carriedBlowsCount() {
 		double landing = new Planner(SnufferMoves.SET, RandomSource.create(3)).landing(standing(new Vec3(0.0, 0.0, 6.0), PlayerAction.IDLE), SnufferMoves.SLIDE);
 		check(landing > 0.3, "six blocks away, the slide reaches the hunter along the way: " + landing);
+	}
+
+	/** Its four lamps are its room's, wherever in the room it stands: lit while it is off to one side, they still stagger it. */
+	private static void lampsAreTheRooms(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		List<BlockPos> lamps = List.of(stage.offset(-8, 0, -8), stage.offset(8, 0, -8), stage.offset(-8, 0, 8), stage.offset(8, 0, 8));
+		world.getServer().runOnServer(server -> {
+			for (BlockPos lamp : lamps) {
+				server.overworld().setBlockAndUpdate(lamp, life.shizune.mistinn.registry.MistinnBlocks.LAMP_STAND.defaultBlockState());
+			}
+			keeper(server, stage).setHealth(Snuffer.MAX_HEALTH * 0.4F);
+		});
+		context.waitTicks(5);
+		world.getServer().runOnServer(server -> {
+			Snuffer keeper = keeper(server, stage);
+			check(keeper.dark(), "below half, the room has gone dark");
+			// off to one side of its room: the far lamps are more than twelve blocks from where it stands
+			keeper.teleportTo(stage.getX() + 6.5, stage.getY(), stage.getZ() + 6.5);
+			for (BlockPos lamp : lamps) {
+				server.overworld().setBlockAndUpdate(lamp, server.overworld().getBlockState(lamp).setValue(life.shizune.mistinn.keeper.LampStandBlock.LIT, true));
+			}
+		});
+		context.waitTicks(3);
+		world.getServer().runOnServer(server -> {
+			check(keeper(server, stage).staggered(), "four lit lamps stagger it, wherever in its room it stands");
+			for (BlockPos lamp : lamps) {
+				server.overworld().setBlockAndUpdate(lamp, Blocks.AIR.defaultBlockState());
+			}
+			clear(server, stage);
+		});
 	}
 
 	// ── Helpers ───────────────────────────────────────────────────
