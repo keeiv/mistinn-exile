@@ -18,6 +18,7 @@ public abstract class PlayerDodgeMixin {
 		if (RollService.dodging((Player) (Object) this) && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
 			if (source.getEntity() != null && (Object) this instanceof net.minecraft.server.level.ServerPlayer hunter) {
 				life.shizune.mistinn.achievement.AchievementService.grant(hunter, life.shizune.mistinn.achievement.Achievement.PERFECT_ROLL);
+				life.shizune.mistinn.training.TrainingService.dodged(hunter);
 			}
 			cir.setReturnValue(false);
 		}

@@ -10,6 +10,16 @@ import life.shizune.mistinn.client.title.ModeSelectScreen;
 import life.shizune.mistinn.client.training.TrainingClient;
 import life.shizune.mistinn.client.training.TrainingCompleteScreen;
 import life.shizune.mistinn.client.training.TrainingGuide;
+import life.shizune.mistinn.achievement.AchievementService;
+import life.shizune.mistinn.enemy.NoiseService;
+import life.shizune.mistinn.skill.SkillService;
+import life.shizune.mistinn.skill.SkillTree;
+import life.shizune.mistinn.skill.SlideService;
+import life.shizune.mistinn.skill.Stat;
+import life.shizune.mistinn.stamina.RollService;
+import life.shizune.mistinn.stamina.StaminaService;
+import life.shizune.mistinn.weapon.HeavyService;
+import life.shizune.mistinn.weapon.WeaponStyle;
 import life.shizune.mistinn.grid.Area;
 import life.shizune.mistinn.grid.GridInventory;
 import life.shizune.mistinn.grid.GridService;
@@ -158,6 +168,15 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		waitLesson(context, TrainingLesson.PACK);
 		server(context, player -> GridService.set(player, GridService.get(player).with(Area.BACKPACK,
 			java.util.List.of(new Placed(0, 0, 0, true, new ItemStack(MistinnItems.SPLINT))))));
+		waitLesson(context, TrainingLesson.HEAVY);
+		go(context, TrainingLesson.HEAVY);
+		context.waitTicks(10);
+		server(context, player -> {
+			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(MistinnItems.ANCHOR_BLADE));
+			rested(player);
+			int ticks = HeavyService.chargeTicks(player, WeaponStyle.SLASH);
+			check(HeavyService.release(player, player.getMainHandItem(), ticks), "a full heavy blow is let go into the forge's dummies");
+		});
 		waitLesson(context, TrainingLesson.SPRINT);
 		go(context, TrainingLesson.SPRINT);
 		server(context, player -> player.setSprinting(true));
@@ -165,11 +184,50 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		context.waitFor(mc -> mc.player != null && mc.player.onGround(), 200);
 		context.getInput().pressKey(options -> java.util.Arrays.stream(options.keyMappings)
 			.filter(key -> key.getName().equals("key.mistinn.roll")).findFirst().orElseThrow());
+		waitLesson(context, TrainingLesson.SLIDE);
+		go(context, TrainingLesson.SLIDE);
+		server(context, player -> {
+			check(SkillService.get(player).has(SkillTree.ROOT), "the drill yard lends the slide for the lesson");
+			rested(player);
+			player.setSprinting(true);
+			check(SlideService.request(player, 180.0F), "a trial slide goes");
+		});
 		waitLesson(context, TrainingLesson.STRIKE);
 		go(context, TrainingLesson.STRIKE);
 		defeat(context, TrainingLesson.STRIKE, "mistinn.training_target");
 		waitLesson(context, TrainingLesson.SALT);
 		holdAndUse(context, MistinnItems.SALT, 1);
+		waitLesson(context, TrainingLesson.WINDUP);
+		go(context, TrainingLesson.WINDUP);
+		context.waitTicks(10);
+		server(context, player -> {
+			Mob husk = player.level().getEntitiesOfClass(Mob.class, new AABB(TrainingLesson.WINDUP.target).inflate(12),
+				mob -> mob.entityTags().contains("mistinn.training_sparring")).getFirst();
+			check(!husk.isNoAi(), "the sparring husk fights back");
+			rested(player);
+			RollService.request(player, 0.0F);
+			// its blow, landing while the roll is on: it passes through
+			check(!player.hurtServer(player.level(), player.level().damageSources().mobAttack(husk), 4.0F), "the blow passes through the roll");
+		});
+		waitLesson(context, TrainingLesson.SNEAK);
+		server(context, player -> {
+			// walking, not running: the listeners only hear the noise made on purpose below
+			player.setSprinting(false);
+			move(player, new BlockPos(9, 77, -66));
+		});
+		context.waitTicks(10);
+		server(context, player -> {
+			check(player.level().getEntitiesOfClass(Mob.class, new AABB(TrainingLesson.SNEAK.target).inflate(16),
+				mob -> mob.entityTags().contains("mistinn.training_caged")).size() == 3, "three listeners wait in the cages");
+			NoiseService.emit(player, NoiseService.Noise.SPRINT);
+		});
+		context.waitTicks(20);
+		server(context, player -> {
+			check(player.getAttached(TrainingService.LESSON) == TrainingLesson.SNEAK, "heard, the lesson starts over");
+			check(player.distanceToSqr(Vec3.atBottomCenterOf(TrainingGround.SNEAK_START)) < 4.0, "and the hunter is sent back to the pen's door");
+		});
+		go(context, TrainingLesson.SNEAK, 1);
+		server(context, player -> useBlock(player, TrainingLesson.SNEAK.target, ItemStack.EMPTY));
 		waitLesson(context, TrainingLesson.TOURNIQUET);
 		go(context, TrainingLesson.TOURNIQUET);
 		context.waitTicks(20);
@@ -191,6 +249,13 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 			check(player.level().getBlockState(TrainingLesson.CRAFTING_TABLE).is(net.minecraft.world.level.block.Blocks.CRAFTING_TABLE),
 				"the lesson provides a crafting station");
 			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(MistinnItems.ORE_BELL));
+		});
+		waitLesson(context, TrainingLesson.SKILLS);
+		go(context, TrainingLesson.SKILLS);
+		server(context, player -> {
+			check(SaltService.get(player) >= SkillService.MINOR_PRICE, "the archive hands out salt to practise with: " + SaltService.get(player));
+			check(has(player, MistinnItems.HUNTER_GUIDE), "and the guide");
+			check(SkillService.unlock(player, Stat.STRENGTH.id + "_1") == SkillService.Result.UNLOCKED, "a practice point buys a stat");
 		});
 		waitLesson(context, TrainingLesson.BELL);
 		go(context, TrainingLesson.BELL);
@@ -284,6 +349,8 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 			check(!player.hasAttached(MistinnAttachments.BELL) && SaltService.get(player) == 0, "course resources stay at the range");
 			check(player.gameMode() == GameType.SURVIVAL, "normal play starts in survival");
 			check((StoryService.get(player) != null) == (mode == WorldMode.STORY), "only Story starts the prologue");
+			check(SkillService.get(player).unlocked().isEmpty(), "what was learned for practice is taken back at the drop");
+			check(AchievementService.earned(player) == 0, "achievements earned in training do not count");
 		});
 		if (mode == WorldMode.STORY) {
 			context.waitForScreen(StoryCardScreen.class);
@@ -403,6 +470,27 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 			context.runOnClient(mc -> ((StationTalkScreen) mc.gui.screen()).advance());
 		}
 		context.runOnClient(mc -> mc.gui.setScreen(null));
+	}
+
+	private static void rested(final ServerPlayer player) {
+		player.setAttached(MistinnAttachments.STAMINA, StaminaService.max(player));
+	}
+
+	private static boolean has(final ServerPlayer player, final Item item) {
+		for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+			if (player.getInventory().getItem(slot).is(item)) {
+				return true;
+			}
+		}
+		GridInventory grid = GridService.get(player);
+		for (Area area : Area.values()) {
+			for (Placed placed : grid.items(area)) {
+				if (placed.stack().is(item)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private static void move(final ServerPlayer player, final BlockPos pos) {
