@@ -20,6 +20,7 @@ import life.shizune.mistinn.skill.SkillTree;
 import life.shizune.mistinn.skill.Skills;
 import life.shizune.mistinn.skill.SlideService;
 import life.shizune.mistinn.skill.Stat;
+import life.shizune.mistinn.client.guide.HunterGuideScreen;
 import life.shizune.mistinn.client.move.RollClient;
 import life.shizune.mistinn.stamina.RollService;
 import life.shizune.mistinn.stamina.StaminaService;
@@ -81,6 +82,8 @@ public final class MistinnSkillTest implements FabricClientGameTest {
 			slideKicksWhatItMeets(context, world, lane);
 			noSlideOnDeadLegs(world);
 			slideFrames(context, world, lane);
+			guideOpensItsOwnScreen(context, world);
+			skillsTabUnlocks(context, world);
 		}
 	}
 
@@ -465,6 +468,75 @@ public final class MistinnSkillTest implements FabricClientGameTest {
 			}
 		});
 		world.getServer().runOnServer(server -> SkillService.set(player(server), Skills.EMPTY));
+	}
+
+
+	// ── The guide ─────────────────────────────────────────────────
+
+	/** Using the guide opens its own screen, on the guide's pages; its pages turn. */
+	private static void guideOpensItsOwnScreen(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		world.getServer().runCommand("item replace entity @a weapon.mainhand with mistinn:hunter_guide");
+		context.runOnClient(mc -> mc.player.snapTo(mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.getYRot(), 60.0F));
+		context.waitTicks(5);
+		context.getInput().pressKey(options -> options.keyUse);
+		context.waitForScreen(HunterGuideScreen.class);
+		HunterGuideScreen screen = context.computeOnClient(mc -> (HunterGuideScreen) mc.gui.screen());
+		check(context.computeOnClient(mc -> screen.tab()) == HunterGuideScreen.Tab.PAGES, "the guide opens on its pages");
+		context.waitTicks(5);
+		context.takeScreenshot(TestScreenshotOptions.of("guide-pages").disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("guide")));
+		click(context, context.computeOnClient(mc -> screen.nextPage()));
+		check(context.computeOnClient(mc -> screen.spread()) == 1, "the arrow turns to the next two pages");
+		click(context, context.computeOnClient(mc -> screen.tabCentre(HunterGuideScreen.Tab.STATS)));
+		check(context.computeOnClient(mc -> screen.tab()) == HunterGuideScreen.Tab.STATS, "the stats bookmark opens the stats");
+		context.waitTicks(5);
+		context.takeScreenshot(TestScreenshotOptions.of("guide-stats").disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("guide")));
+	}
+
+	/** On the skills page, a node is chosen with one click and bought with the second. */
+	private static void skillsTabUnlocks(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			SkillService.set(player, Skills.EMPTY);
+			GridService.set(player, GridInventory.EMPTY);
+			player.getInventory().setItem(5, new ItemStack(MistinnItems.RUST_GOD_SALT, 1));
+			SaltService.set(player, 650);
+		});
+		context.waitTicks(5);
+		HunterGuideScreen screen = context.computeOnClient(mc -> (HunterGuideScreen) mc.gui.screen());
+		click(context, context.computeOnClient(mc -> screen.tabCentre(HunterGuideScreen.Tab.SKILLS)));
+		check(context.computeOnClient(mc -> screen.tab()) == HunterGuideScreen.Tab.SKILLS, "the skills bookmark opens the tree");
+		double[] slide = context.computeOnClient(mc -> screen.nodeCentre(SkillTree.ROOT));
+		click(context, slide);
+		context.waitTicks(5);
+		check(!world.getServer().computeOnServer(server -> SkillService.get(player(server)).has(SkillTree.ROOT)), "one click only chooses the node");
+		click(context, slide);
+		context.waitTicks(10);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			check(SkillService.get(player).has(SkillTree.ROOT), "the second click learns the slide");
+			check(rustSalt(player) == 0, "and the rust salt is spent");
+		});
+		// the first strength node on the same page, with salt
+		double[] strength = context.computeOnClient(mc -> screen.nodeCentre("strength_1"));
+		click(context, strength);
+		context.waitTicks(3);
+		click(context, strength);
+		context.waitTicks(10);
+		check(world.getServer().computeOnServer(server -> SkillService.get(player(server)).has("strength_1") && SaltService.get(player(server)) == 450), "and the first strength node, for 200 salt");
+		context.getInput().setCursorPos(0.0, 0.0);
+		context.waitTicks(5);
+		context.takeScreenshot(TestScreenshotOptions.of("guide-skills").disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("guide")));
+		context.runOnClient(mc -> mc.gui.setScreen(null));
+		world.getServer().runOnServer(server -> SkillService.set(player(server), Skills.EMPTY));
+	}
+
+	/** Clicks at a point given in GUI pixels. */
+	private static void click(final ClientGameTestContext context, final double[] gui) {
+		double scale = context.computeOnClient(mc -> mc.getWindow().getGuiScale());
+		context.getInput().setCursorPos(gui[0] * scale, gui[1] * scale);
+		context.waitTicks(2);
+		context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT);
+		context.waitTicks(2);
 	}
 
 	// ── Helpers ───────────────────────────────────────────────────

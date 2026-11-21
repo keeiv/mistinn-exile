@@ -46,6 +46,16 @@
     ],
     "subtitle": "subtitles.mistinn.weapon.hit.netherite"
   },
+  "ui.skill.unlock": {
+    "sounds": [
+      {
+        "name": "mistinn:block/golden_bell/rest_1",
+        "pitch": 1.4,
+        "volume": 0.6
+      }
+    ],
+    "subtitle": "subtitles.mistinn.ui.skill.unlock"
+  },
   "item.guide.open": {
     "sounds": [
       "mistinn:item/guide/open_1",

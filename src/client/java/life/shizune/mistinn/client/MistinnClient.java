@@ -45,6 +45,10 @@ public class MistinnClient implements ClientModInitializer {
 		KeyMapping roll = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.roll", InputConstants.KEY_LALT, CATEGORY)
 		);
+		// the guide opens its own screen, and hears back from the server about skills it bought
+		life.shizune.mistinn.story.HunterGuideItem.opener = () -> net.minecraft.client.Minecraft.getInstance().gui.setScreen(new life.shizune.mistinn.client.guide.HunterGuideScreen());
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.skill.SkillService.UnlockResultPayload.TYPE,
+			(payload, context) -> life.shizune.mistinn.client.guide.HunterGuideScreen.answered(payload));
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.stamina.RollService.RollAnimPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.move.RollClient.received(payload));
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.medical.TreatmentService.TreatmentPayload.TYPE,
