@@ -17,6 +17,9 @@ import net.minecraft.world.item.equipment.Equippable;
 import life.shizune.mistinn.weapon.WeaponMaterial;
 import life.shizune.mistinn.weapon.WeaponStyle;
 import life.shizune.mistinn.weapon.Weapons;
+import life.shizune.mistinn.weapon.SpecialWeapon;
+import life.shizune.mistinn.weapon.WeaponItem;
+import net.minecraft.world.item.component.UseEffects;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.SwingAnimationType;
 import net.minecraft.network.chat.Component;
@@ -55,12 +58,17 @@ public final class MistinnItems {
 	public static final Item MIST_SPEAR = named("mist_spear", WeaponStyle.THRUST, 7.0, 1.5, 800, MistinnSounds.MIST_SPEAR_SWING, MistinnSounds.MIST_SPEAR_HIT);
 	public static final Item SALT_FANG = named("salt_fang", WeaponStyle.FLURRY, 4.0, -0.4, 600, MistinnSounds.SALT_FANG_SWING, MistinnSounds.SALT_FANG_HIT);
 
-	/** Every branch in every material: wooden_blade ... netherite_hammer. */
+	/** Every branch in every material: wooden_blade ... netherite_scythe. */
 	public static final Map<WeaponStyle, Map<WeaponMaterial, Item>> WEAPONS = materialWeapons();
+
+	/** The special weapons: each answers only a hunter who meets its requirements. */
+	public static final Item SNUFFER_HOOK = special(SpecialWeapon.SNUFFER_HOOK, WeaponStyle.REAP, 7.0, 1.0, 900, MistinnSounds.SCYTHE_SWING, MistinnSounds.HIT_IRON);
+	public static final Item LANTERN_STAFF = special(SpecialWeapon.LANTERN_STAFF, WeaponStyle.THRUST, 5.0, 1.5, 700, MistinnSounds.MIST_SPEAR_SWING, MistinnSounds.MIST_SPEAR_HIT);
+	public static final Item TIDE_MAUL = special(SpecialWeapon.TIDE_MAUL, WeaponStyle.SMASH, 12.0, 0.3, 1400, MistinnSounds.HAMMER_SWING, MistinnSounds.BELL_GREATSWORD_HIT);
 
 	/** 追獵者手冊: the world's story and the rules of the hunt, given to every hunter on arrival. */
 	/** Pages of the guide's text (item.mistinn.hunter_guide.page.N), read as spreads in its screen. */
-	public static final int GUIDE_PAGES = 10;
+	public static final int GUIDE_PAGES = 11;
 	public static final Item HUNTER_GUIDE = register("hunter_guide", life.shizune.mistinn.story.HunterGuideItem::new, new Item.Properties().stacksTo(1));
 
 	public static final Item GOLDEN_BELL = block("golden_bell", MistinnBlocks.GOLDEN_BELL, new Item.Properties().rarity(Rarity.RARE));
@@ -197,7 +205,7 @@ public final class MistinnItems {
 				if (material == WeaponMaterial.NETHERITE) {
 					properties.fireResistant();
 				}
-				Item item = register(material.prefix + "_" + style.id, Item::new, properties);
+				Item item = register(material.prefix + "_" + style.id, WeaponItem::new, properties);
 				Weapons.add(item, new Weapons.Profile(style, material, style.swingSound(), material.hitSound(), material.pitch));
 				byMaterial.put(material, item);
 			}
@@ -207,8 +215,15 @@ public final class MistinnItems {
 	}
 
 	private static Item named(final String name, final WeaponStyle style, final double damage, final double reach, final int durability, final SoundEvent swing, final SoundEvent hit) {
-		Item item = register(name, Item::new, weaponProperties(style, damage, reach, durability));
+		Item item = register(name, WeaponItem::new, weaponProperties(style, damage, reach, durability));
 		Weapons.add(item, new Weapons.Profile(style, null, swing, hit, 1.0F));
+		return item;
+	}
+
+	private static Item special(final SpecialWeapon special, final WeaponStyle style, final double damage, final double reach, final int durability, final SoundEvent swing, final SoundEvent hit) {
+		Item item = register(special.id, WeaponItem::new, weaponProperties(style, damage, reach, durability).rarity(Rarity.RARE));
+		Weapons.add(item, new Weapons.Profile(style, null, swing, hit, 1.0F));
+		special.bind(item);
 		return item;
 	}
 
@@ -245,6 +260,8 @@ public final class MistinnItems {
 			.attributes(attributes.build())
 			.component(DataComponents.WEAPON, new Weapon(1, style == WeaponStyle.CLEAVE || style == WeaponStyle.SMASH ? 3.0F : 0.0F))
 			.component(DataComponents.ATTACK_ANIMATION, new SwingAnimation(SwingAnimationType.WHACK, style.swingTicks))
+			// charging a heavy blow: no sprinting, a slow step
+			.component(DataComponents.USE_EFFECTS, new UseEffects(false, true, 0.45F))
 			.enchantable(14);
 	}
 

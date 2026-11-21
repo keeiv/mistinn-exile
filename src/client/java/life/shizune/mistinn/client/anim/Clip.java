@@ -216,6 +216,11 @@ public final class Clip {
 		return in * out;
 	}
 
+	/** {@link #weight} without the take-over: for clips that start from the pose the last one held. */
+	public float weightOut(final float p) {
+		return smooth((1.0F - p) / (1.0F - this.keys[this.keys.length - 2]));
+	}
+
 	/** {@link #weight} without the hand-back: for clips that end in a held pose. */
 	public float weightIn(final float p) {
 		return smooth(p / this.keys[1]);

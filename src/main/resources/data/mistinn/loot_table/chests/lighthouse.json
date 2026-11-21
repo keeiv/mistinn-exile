@@ -60,6 +60,11 @@
         },
         {
           "type": "minecraft:item",
+          "name": "mistinn:diamond_scythe",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
           "name": "mistinn:helmet_2",
           "weight": 4
         },

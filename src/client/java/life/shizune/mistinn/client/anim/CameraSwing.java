@@ -26,6 +26,8 @@ public final class CameraSwing {
 	private static boolean loaded;
 	/** Time of the last hit, for the jolt. */
 	private static long hitAt = Long.MIN_VALUE;
+	/** Whether the coming jolt is a heavy blow's. */
+	private static boolean heavyHit;
 
 	private CameraSwing() {
 	}
@@ -71,6 +73,7 @@ public final class CameraSwing {
 	 * only meets the target at the swing's contact beat: the jolt waits for it.
 	 */
 	public static void hit() {
+		heavyHit = false;
 		long delay = 0L;
 		LocalPlayer player = Minecraft.getInstance().player;
 		WeaponStyle style = player == null ? null : WeaponStyle.of(player.getMainHandItem());
@@ -79,6 +82,13 @@ public final class CameraSwing {
 			delay = (long) (ticks * 50_000_000L);
 		}
 		hitAt = System.nanoTime() + delay;
+	}
+
+	/** Called when the local player lets a heavy blow go: a harder jolt at its contact. */
+	public static void heavy(final WeaponStyle style) {
+		int ticks = life.shizune.mistinn.weapon.HeavyService.shape(style, null).landTicks();
+		hitAt = System.nanoTime() + ticks * 50_000_000L;
+		heavyHit = true;
 	}
 
 	/** Adds the swing and jolt to the view; called while vanilla tilts the view for damage. */
@@ -108,13 +118,25 @@ public final class CameraSwing {
 			pitch += sway[1];
 			roll += sway[2];
 		}
+		HeavyClient.Pose heavyPose = HeavyClient.sample(player, partialTicks);
+		if (enabled() && heavyPose != null) {
+			int side = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
+			float[] sway = {0.0F, 0.0F, 0.0F};
+			HeavyClient.camera(heavyPose, side, sway);
+			yaw += sway[0];
+			pitch += sway[1];
+			roll += sway[2];
+		}
 		float since = (System.nanoTime() - hitAt) / 1.0E9F;
 		if (enabled() && since >= 0.0F && since < 0.25F) {
 			// the blade bites: the view is knocked down once and settles, without ringing
 			float k = 1.0F - since / 0.25F;
 			float kick = Mth.sin(Math.min(since / 0.04F, 1.0F) * Mth.HALF_PI) * k * k;
-			pitch += 1.6F * kick;
-			roll += 0.6F * kick;
+			float strength = heavyHit ? 2.6F : 1.0F;
+			pitch += 1.6F * kick * strength;
+			roll += 0.6F * kick * strength;
+		} else if (since >= 0.25F) {
+			heavyHit = false;
 		}
 		if (yaw != 0.0F || pitch != 0.0F || roll != 0.0F) {
 			pose.rotateDegrees(Axis.ZP, roll);

@@ -36,6 +36,11 @@
         },
         {
           "type": "minecraft:item",
+          "name": "mistinn:iron_scythe",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
           "name": "mistinn:diamond_blade",
           "weight": 1
         },

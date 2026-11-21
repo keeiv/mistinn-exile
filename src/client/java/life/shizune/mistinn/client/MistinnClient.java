@@ -2,7 +2,7 @@ package life.shizune.mistinn.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import life.shizune.mistinn.Mistinn;
-import life.shizune.mistinn.client.anim.SwingTrails;
+import life.shizune.mistinn.client.anim.SwordQi;
 import life.shizune.mistinn.client.body.BodyHud;
 import life.shizune.mistinn.client.enemy.ExecutionView;
 import life.shizune.mistinn.client.map.MinimapHud;
@@ -49,6 +49,10 @@ public class MistinnClient implements ClientModInitializer {
 		life.shizune.mistinn.story.HunterGuideItem.opener = () -> net.minecraft.client.Minecraft.getInstance().gui.setScreen(new life.shizune.mistinn.client.guide.HunterGuideScreen());
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.skill.SkillService.UnlockResultPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.guide.HunterGuideScreen.answered(payload));
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.weapon.HeavyService.HeavyAnimPayload.TYPE,
+			(payload, context) -> life.shizune.mistinn.client.anim.HeavyClient.received(payload));
+		life.shizune.mistinn.weapon.WeaponItem.releasedOnClient = life.shizune.mistinn.client.anim.HeavyClient::released;
+		life.shizune.mistinn.weapon.HeavyService.clientBusy = life.shizune.mistinn.client.move.RollClient::busy;
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.stamina.RollService.RollAnimPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.move.RollClient.received(payload));
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.medical.TreatmentService.TreatmentPayload.TYPE,
@@ -75,11 +79,13 @@ public class MistinnClient implements ClientModInitializer {
 		HudElementRegistry.addLast(Mistinn.id("story"), new life.shizune.mistinn.client.story.StoryHud());
 		HudElementRegistry.addLast(Mistinn.id("training"), TrainingClient::draw);
 		LevelExtractionEvents.END_EXTRACTION.register(TrainingGuide::extract);
-		LevelExtractionEvents.END_EXTRACTION.register(SwingTrails::extract);
+		LevelExtractionEvents.END_EXTRACTION.register(SwordQi::extract);
 		LevelRenderEvents.COLLECT_SUBMITS.register(TrainingGuide::submit);
-		LevelRenderEvents.COLLECT_SUBMITS.register(SwingTrails::submit);
+		LevelRenderEvents.COLLECT_SUBMITS.register(SwordQi::submit);
 		// "正在使用 …" and its progress bar above the hotbar
 		HudElementRegistry.addLast(Mistinn.id("treatment"), new life.shizune.mistinn.client.medical.TreatmentHud());
+		// the heavy blow's charge, under the crosshair
+		HudElementRegistry.addLast(Mistinn.id("charge"), new life.shizune.mistinn.client.combat.ChargeHud());
 		// hunters see their body parts where the hearts were
 		HudElementRegistry.replaceElement(VanillaHudElements.HEALTH_BAR, BodyHud::new);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.HEALTH_BAR, Mistinn.id("stamina"), new life.shizune.mistinn.client.body.StaminaHud());
@@ -97,6 +103,7 @@ public class MistinnClient implements ClientModInitializer {
 		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.keeper.SnufferModel.LAYER, life.shizune.mistinn.client.keeper.SnufferModel::definition);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SNUFFER, life.shizune.mistinn.client.keeper.SnufferRenderer::new);
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> TierText.decorate(stack, lines));
+		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> life.shizune.mistinn.client.combat.WeaponText.decorate(stack, lines));
 
 		ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
 			life.shizune.mistinn.client.move.RollClient.tick(minecraft, roll);

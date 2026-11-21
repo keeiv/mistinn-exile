@@ -47,6 +47,11 @@ public abstract class ThirdPersonItemSwingMixin {
 				return;
 			}
 		}
+		life.shizune.mistinn.client.anim.HeavyClient.Pose heavy = state.getData(life.shizune.mistinn.client.anim.HeavyClient.KEY);
+		if (heavy != null && arm == state.mainArm) {
+			life.shizune.mistinn.client.anim.HeavyClient.thirdPersonItem(heavy, poseStack);
+			return;
+		}
 		if (state.currentSwing == null || state.swingAnimation <= 0.0F || state.currentSwing.hand().asArm(state.mainArm) != arm) {
 			return;
 		}

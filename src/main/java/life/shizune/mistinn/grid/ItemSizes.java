@@ -40,6 +40,9 @@ public final class ItemSizes {
 		put(1, 4, MistinnItems.BELL_GREATSWORD);
 		put(1, 5, MistinnItems.MIST_SPEAR);
 		put(1, 2, MistinnItems.SALT_FANG);
+		put(2, 4, MistinnItems.SNUFFER_HOOK);
+		put(1, 5, MistinnItems.LANTERN_STAFF);
+		put(2, 4, MistinnItems.TIDE_MAUL);
 		// repair kits grow with their tier (III, IV, V, VI); the surgery roll is long, the injector
 		// and the bottle fit a cell
 		int[][] armorKits = {{1, 2}, {1, 3}, {2, 2}, {2, 2}};
@@ -57,6 +60,7 @@ public final class ItemSizes {
 				case CLEAVE, THRUST -> new int[] {1, 4};
 				case FLURRY -> new int[] {1, 2};
 				case SMASH -> new int[] {2, 3};
+				case REAP -> new int[] {2, 4};
 			};
 			byMaterial.values().forEach(item -> put(size[0], size[1], item));
 		});

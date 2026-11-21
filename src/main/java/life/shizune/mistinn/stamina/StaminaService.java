@@ -45,6 +45,7 @@ public final class StaminaService {
 			case THRUST -> 13.0F;
 			case CLEAVE -> 22.0F;
 			case SMASH -> 24.0F;
+			case REAP -> 15.0F;
 		};
 	}
 
@@ -100,6 +101,10 @@ public final class StaminaService {
 				if (get(player) <= 0.0F) {
 					player.setSprinting(false);
 				}
+				continue;
+			}
+			// holding a heavy blow back is no rest
+			if (player.isUsingItem() && player.getUseItem().getItem() instanceof life.shizune.mistinn.weapon.WeaponItem) {
 				continue;
 			}
 			int delay = DELAY.getOrDefault(player.getUUID(), 0);

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": "minecraft:stick",
+    "B": "minecraft:bell",
+    "I": "minecraft:iron_block"
+  },
+  "pattern": [
+    "IBI",
+    " # ",
+    " # "
+  ],
+  "result": {
+    "id": "mistinn:tide_maul"
+  }
+}

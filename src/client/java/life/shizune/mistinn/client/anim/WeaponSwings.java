@@ -49,7 +49,11 @@ public final class WeaponSwings {
 
 	/** Moves the held item; called in place of the vanilla swing, after the arm transform. */
 	public static void firstPerson(final WeaponStyle style, final float p, final PoseStack pose, final int side) {
-		Clip clip = clip(style);
+		firstPerson(clip(style), p, pose, side);
+	}
+
+	/** {@link #firstPerson(WeaponStyle, float, PoseStack, int)} for any clip with a first-person group. */
+	public static void firstPerson(final Clip clip, final float p, final PoseStack pose, final int side) {
 		pose.translate(side * clip.at("first_person.tx", p), clip.at("first_person.ty", p), clip.at("first_person.tz", p));
 		pose.rotateDegrees(Axis.YP, side * clip.at("first_person.ry", p));
 		pose.rotateDegrees(Axis.ZP, side * clip.at("first_person.rz", p));
@@ -58,7 +62,10 @@ public final class WeaponSwings {
 
 	/** The view's sway with the swing: yaw, pitch and roll in degrees. */
 	public static void camera(final WeaponStyle style, final float p, final int side, final float[] out) {
-		Clip clip = clip(style);
+		camera(clip(style), p, side, out);
+	}
+
+	public static void camera(final Clip clip, final float p, final int side, final float[] out) {
 		out[0] += side * clip.at("camera.yaw", p);
 		out[1] += clip.at("camera.pitch", p);
 		out[2] += side * clip.at("camera.roll", p);
@@ -73,7 +80,14 @@ public final class WeaponSwings {
 	 */
 	public static void thirdPerson(final WeaponStyle style, final float p, final HumanoidModel<?> model, final ModelPart arm, final ModelPart other, final int side, final float ageScale) {
 		Clip clip = clip(style);
-		float w = clip.weight(p);
+		thirdPerson(clip, p, clip.weight(p), model, arm, other, side, ageScale);
+	}
+
+	/**
+	 * Poses the model from any swing-shaped clip, owning the pose by {@code w} (1 replaces the
+	 * arms' pose outright, 0 leaves it).
+	 */
+	public static void thirdPerson(final Clip clip, final float p, final float w, final HumanoidModel<?> model, final ModelPart arm, final ModelPart other, final int side, final float ageScale) {
 		float bodyY = side * clip.rad("third_person.body_y", p);
 		model.body.yRot = bodyY;
 		model.body.xRot += clip.rad("third_person.body_x", p);
@@ -88,7 +102,15 @@ public final class WeaponSwings {
 		arm.yRot = Mth.lerp(w, arm.yRot, side * clip.rad("third_person.arm_y", p)) + bodyY;
 		arm.zRot = Mth.lerp(w, arm.zRot, side * clip.rad("third_person.arm_z", p));
 		if (clip.flag("two_handed")) {
-			grip(model, arm, other, side, w);
+			// a clip may let the other hand off the grip (its "grip" track below 1) where the
+			// model's arms could not reach it without passing through the head or the torso
+			float hold = clip.has("third_person.grip") ? Mth.clamp(clip.at("third_person.grip", p), 0.0F, 1.0F) : 1.0F;
+			if (hold < 1.0F) {
+				other.xRot = Mth.lerp(w, other.xRot, clip.rad("third_person.other_x", p));
+				other.yRot = Mth.lerp(w, other.yRot, side * clip.rad("third_person.other_y", p)) + bodyY;
+				other.zRot = Mth.lerp(w, other.zRot, side * clip.rad("third_person.other_z", p));
+			}
+			grip(model, arm, other, side, w * hold);
 		} else {
 			other.xRot = Mth.lerp(w, other.xRot, clip.rad("third_person.other_x", p));
 			other.yRot = Mth.lerp(w, other.yRot, side * clip.rad("third_person.other_y", p)) + bodyY;
@@ -103,7 +125,11 @@ public final class WeaponSwings {
 
 	/** Tilts the held item about the grip (degrees about the hand's x axis), before it is drawn. */
 	public static void thirdPersonItem(final WeaponStyle style, final float p, final PoseStack pose) {
-		float tilt = clip(style).at("third_person.item_x", p);
+		thirdPersonItem(clip(style), p, pose);
+	}
+
+	public static void thirdPersonItem(final Clip clip, final float p, final PoseStack pose) {
+		float tilt = clip.at("third_person.item_x", p);
 		if (tilt != 0.0F) {
 			pose.rotateDegrees(Axis.XP, tilt);
 		}

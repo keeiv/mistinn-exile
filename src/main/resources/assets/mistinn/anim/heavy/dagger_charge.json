@@ -1,0 +1,33 @@
+{
+	"_comment": "短刃 FLURRY heavy, charging: crouched low, the wrist cocked back over the right shoulder.",
+	"keys": [0.0, 0.45, 1.0],
+	"eases": ["out_quad", "in_out_sine"],
+	"two_handed": false,
+	"pitch_follow": 0.5,
+	"first_person": {
+		"tx": [0, 0.105, 0.14],
+		"ty": [0, 0.03, 0.04],
+		"tz": [0, 0.06, 0.08],
+		"rx": [0, 11.25, 15],
+		"ry": [0, 16.5, 22],
+		"rz": [0, 26.25, 35]
+	},
+	"camera": {
+		"yaw": [0, 0.6, 0.8],
+		"pitch": [0, 0.0, 0],
+		"roll": [0, 0.6, 0.8]
+	},
+	"third_person": {
+		"arm_x": [-18, -57.0, -70],
+		"arm_y": [0, 33.75, 45],
+		"arm_z": [0, 15.0, 20],
+		"other_x": [0, -22.5, -30],
+		"other_y": [0, 0.0, 0],
+		"other_z": [0, -9.0, -12],
+		"body_y": [0, 18.75, 25],
+		"body_x": [0, 6.0, 8],
+		"front_leg": [0, -10.5, -14],
+		"back_leg": [0, 7.5, 10],
+		"item_x": [0, 0.0, 0]
+	}
+}
