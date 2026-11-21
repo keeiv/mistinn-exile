@@ -248,9 +248,26 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 					keeper.setYBodyRot(160.0F);
 				});
 
-				// ── The keeper in its lamp room ──────────────────────────
-				frame(context, world, room.offset(4, 1, -1), room.offset(0, 1, 4), false);
+				// ── The keeper in its lamp room, close: turned to the low sun, which lights its face from behind the camera ──
+				world.getServer().runOnServer(server -> {
+					Snuffer keeper = keeper(server, room);
+					keeper.snapTo(room.getX() + 0.5, room.getY(), room.getZ() + 4.5, 90.0F, 0.0F);
+					keeper.setYHeadRot(90.0F);
+					keeper.setYBodyRot(90.0F);
+				});
+				frame(context, world, room.offset(-4, 1, 4), room.offset(0, 1, 4), false);
 				shot(context, "snuffer", true);
+
+				// ── Three of its moves, frozen where they read best: the spear twirled (a thrust is coming), the slide, the rush's thrust ──
+				for (String[] pose : new String[][] {{"twirl", "0.42"}, {"slide", "0.4"}, {"rush", "0.56"}}) {
+					context.runOnClient(mc -> {
+						life.shizune.mistinn.client.keeper.SnufferModel.previewClip = pose[0];
+						life.shizune.mistinn.client.keeper.SnufferModel.previewProgress = Float.parseFloat(pose[1]);
+					});
+					context.waitTicks(3);
+					shot(context, "snuffer-" + pose[0], true);
+				}
+				context.runOnClient(mc -> life.shizune.mistinn.client.keeper.SnufferModel.previewClip = null);
 
 				// ── The dark half: lamps lit against the night ───────────
 				world.getServer().runCommand("time set 15000");
@@ -262,7 +279,8 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 						level.setBlockAndUpdate(lamp, level.getBlockState(lamp).setValue(LampStandBlock.LIT, true));
 					}
 				});
-				frame(context, world, room.offset(-5, 2, -3), room.offset(0, 1, 4), false);
+				// the same close view, now by night: the lantern burns cold and the lamps glow behind it
+				frame(context, world, room.offset(-4, 1, 4), room.offset(0, 1, 4), false);
 				shot(context, "snuffer-dark", true);
 			}
 
