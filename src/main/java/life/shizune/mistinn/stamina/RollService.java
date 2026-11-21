@@ -80,18 +80,18 @@ public final class RollService {
 	}
 
 	/** How much of the legs is left, 0 to 1. */
-	public static float legShare(final Body body) {
-		return (body.get(BodyPart.LEFT_LEG) + body.get(BodyPart.RIGHT_LEG)) / (2.0F * BodyPart.MAX);
+	public static float legShare(final Player player, final Body body) {
+		return Math.min(1.0F, (body.get(BodyPart.LEFT_LEG) + body.get(BodyPart.RIGHT_LEG)) / (2.0F * BodyService.max(player)));
 	}
 
-	/** Ticks of dodge a roll gives: ten on whole legs, four on legs nearly gone. */
-	public static int dodgeTicks(final Body body) {
-		return Math.round(4.0F + 6.0F * legShare(body));
+	/** Ticks of dodge a roll gives: ten on whole legs, four on legs nearly gone; speed adds to it. */
+	public static int dodgeTicks(final Player player, final Body body) {
+		return Math.round(4.0F + 6.0F * legShare(player, body)) + life.shizune.mistinn.skill.SkillService.rollDodgeBonus(player);
 	}
 
-	/** Horizontal speed the roll starts with. */
-	public static float rollSpeed(final Body body) {
-		return 0.95F * (0.45F + 0.55F * legShare(body));
+	/** Horizontal speed the roll starts with; speed adds to it. */
+	public static float rollSpeed(final Player player, final Body body) {
+		return 0.95F * (0.45F + 0.55F * legShare(player, body)) * life.shizune.mistinn.skill.SkillService.rollSpeedScale(player);
 	}
 
 	public static float cost(final Kind kind) {
@@ -124,7 +124,7 @@ public final class RollService {
 		// a roll breaks off any treatment in hand
 		TreatmentService.interrupt(player);
 		if (kind == Kind.ROLL) {
-			DODGE.put(player.getUUID(), dodgeTicks(body));
+			DODGE.put(player.getUUID(), dodgeTicks(player, body));
 		}
 		if (numb && body.destroyedCount() > 0) {
 			// the body pays for what it cannot feel, all over and heavier
@@ -135,8 +135,8 @@ public final class RollService {
 		player.level().playSound(null, player.blockPosition(), kind == Kind.ROLL ? MistinnSounds.ROLL : MistinnSounds.DIVE, SoundSource.PLAYERS, 0.8F, 0.95F + player.getRandom().nextFloat() * 0.1F);
 		// a broken arm hangs like a dead one
 		RollAnimPayload anim = new RollAnimPayload(player.getId(), kind.ordinal(), payload.yaw(),
-			life.shizune.mistinn.body.WoundService.broken(player, BodyPart.LEFT_ARM) ? 0.0F : body.get(BodyPart.LEFT_ARM) / BodyPart.MAX,
-			life.shizune.mistinn.body.WoundService.broken(player, BodyPart.RIGHT_ARM) ? 0.0F : body.get(BodyPart.RIGHT_ARM) / BodyPart.MAX);
+			life.shizune.mistinn.body.WoundService.broken(player, BodyPart.LEFT_ARM) ? 0.0F : Math.min(1.0F, body.get(BodyPart.LEFT_ARM) / BodyService.max(player)),
+			life.shizune.mistinn.body.WoundService.broken(player, BodyPart.RIGHT_ARM) ? 0.0F : Math.min(1.0F, body.get(BodyPart.RIGHT_ARM) / BodyService.max(player)));
 		for (ServerPlayer watcher : PlayerLookup.tracking(player)) {
 			ServerPlayNetworking.send(watcher, anim);
 		}

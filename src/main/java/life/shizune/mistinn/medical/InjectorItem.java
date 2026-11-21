@@ -36,7 +36,7 @@ public class InjectorItem extends TreatmentItem {
 	public @Nullable String refusal(final ServerPlayer player, final ItemStack stack) {
 		var body = BodyService.get(player);
 		for (BodyPart part : BodyPart.values()) {
-			if (!body.destroyed(part) && body.get(part) < BodyPart.MAX) {
+			if (!body.destroyed(part) && body.get(part) < BodyService.max(player)) {
 				return null;
 			}
 		}

@@ -118,7 +118,9 @@ public final class BodyHud implements HudElement {
 		if (health <= 0.0F) {
 			return DEAD;
 		}
-		float share = Mth.clamp(health / BodyPart.MAX, 0.0F, 1.0F);
+		// against the hunter's own ceiling, which constitution raises
+		LocalPlayer player = Minecraft.getInstance().player;
+		float share = Mth.clamp(health / (player != null ? BodyService.max(player) : BodyPart.MAX), 0.0F, 1.0F);
 		int r;
 		int gr;
 		if (share > 0.5F) {

@@ -9,8 +9,10 @@ public enum BodyPart {
 	LEFT_LEG("left_leg"),
 	RIGHT_LEG("right_leg");
 
-	/** Health of every part when whole. */
+	/** Health of every part when whole, before constitution raises it (see {@code SkillService.partCeiling}). */
 	public static final float MAX = 80.0F;
+	/** No part ever holds more than this, whatever the hunter's constitution. */
+	public static final float CEILING = 120.0F;
 	/** Parts at zero that kill. */
 	public static final int LETHAL_DESTROYED = 3;
 
