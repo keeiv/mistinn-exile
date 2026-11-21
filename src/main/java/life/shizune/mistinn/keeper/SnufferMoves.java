@@ -449,6 +449,101 @@ public final class SnufferMoves {
 		.seen((level, boss, target, tick) -> level.sendParticles(ParticleTypes.WHITE_ASH, boss.getX(), boss.getY() + 0.1, boss.getZ(), 3, 0.5, 0.02, 0.5, 0.0))
 		.build();
 
+	// ── The dark half ─────────────────────────────────────────────
+
+	/** Tick the ambush shows itself again, behind the hunter: its tell (a whisper, a far bell) came at tick 0. */
+	public static final int AMBUSH_APPEARS = 20;
+
+	/**
+	 * 熄燈: turns its lantern on a lit lamp stand and draws the flame out through the crack. Not chosen: the room's
+	 * rule calls it when a lamp has burned long enough after a stagger.
+	 */
+	public static final BossMove SNUFF = BossMove.builder("snuff", Kind.REACTION)
+		.tell(MistinnSounds.SNUFFER_SNUFF, 12).timing(0, 12).families("dark")
+		.script(context -> {
+			if (context.tick() == 12 && context.boss instanceof Snuffer keeper) {
+				keeper.snuffOne(context.level);
+			}
+		})
+		.build();
+
+	/** Sinks into the dark and is gone; a whisper, a far bell; it stands up again behind the hunter and strikes. */
+	public static final BossMove MIST_AMBUSH = BossMove.builder("mist_ambush", Kind.ATTACK).weight(Weight.HEAVY)
+		.tell(MistinnSounds.SNUFFER_MIST_AMBUSH, 24).timing(2, 20)
+		.strike(24, new HitShape.Sector(3.5, 70.0, 3.0), TORSO, 9.0F)
+		.range(3.0, 14.0).cooldown(100).families("ambush", "dark")
+		.script(SnufferMoves::ambush)
+		.build();
+
+	/** Soul fire poured along the shaft and swept wide across the front: it burns. */
+	public static final BossMove SOUL_SWEEP = BossMove.builder("soul_sweep", Kind.ATTACK).weight(Weight.HEAVY)
+		.tell(MistinnSounds.SNUFFER_SOUL_SWEEP, 18).timing(2, 22)
+		.strike(18, new HitShape.Sector(7.0, 110.0, 3.0), SWEEP_PART, 8.0F)
+		.range(0.0, 7.0).cooldown(30).families("lantern", "dark")
+		.seen((level, boss, target, tick) -> level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, boss.getX(), boss.getEyeY() + 0.3, boss.getZ(), 4, 0.4, 0.3, 0.4, 0.02))
+		.script(context -> {
+			if (context.tick() != 18) {
+				return;
+			}
+			context.boss.swing(InteractionHand.MAIN_HAND, context.boss.getMainHandItem().getAttackAnimation(), true);
+			context.level.playSound(null, context.boss.blockPosition(), SoundEvents.BLAZE_SHOOT, SoundSource.HOSTILE, 1.4F, 0.5F);
+			Vec3 facing = HitShape.facing(context.boss);
+			for (int i = -9; i <= 9; i++) {
+				double angle = Math.toRadians(i * 12.0);
+				Vec3 dir = new Vec3(facing.x * Math.cos(angle) - facing.z * Math.sin(angle), 0.0, facing.x * Math.sin(angle) + facing.z * Math.cos(angle));
+				for (double r = 1.5; r <= 7.0; r += 1.4) {
+					context.level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, context.boss.getX() + dir.x * r, context.boss.getY() + 1.0, context.boss.getZ() + dir.z * r, 1, 0.1, 0.1, 0.1, 0.0);
+				}
+			}
+			for (Player player : context.level.getEntitiesOfClass(Player.class, context.boss.getBoundingBox().inflate(8.0))) {
+				if (context.move().strikes().getFirst().shape().hits(context.boss, player)) {
+					player.igniteForSeconds(4.0F);
+				}
+			}
+		})
+		.build();
+
+	/** Gone at tick 4; at {@link #AMBUSH_APPEARS}, behind the hunter (or as near behind as the room allows), facing them. */
+	private static void ambush(final MoveRunner.Context context) {
+		int tick = context.tick();
+		var boss = context.boss;
+		if (tick == 4) {
+			boss.setInvisible(true);
+			context.level.sendParticles(ParticleTypes.LARGE_SMOKE, boss.getX(), boss.getY() + 1.2, boss.getZ(), 30, 0.4, 0.8, 0.4, 0.02);
+		} else if (tick == AMBUSH_APPEARS) {
+			if (context.target != null) {
+				Vec3 behind = behind(context);
+				boss.teleportTo(behind.x, behind.y, behind.z);
+				Vec3 to = context.target.position().subtract(behind);
+				float yaw = (float) Math.toDegrees(Math.atan2(-to.x, to.z));
+				boss.setYRot(yaw);
+				boss.setYHeadRot(yaw);
+				boss.setYBodyRot(yaw);
+			}
+			boss.setInvisible(false);
+			context.level.sendParticles(ParticleTypes.LARGE_SMOKE, boss.getX(), boss.getY() + 1.2, boss.getZ(), 30, 0.4, 0.8, 0.4, 0.02);
+			context.level.playSound(null, boss.blockPosition(), SoundEvents.BELL_RESONATE, SoundSource.HOSTILE, 1.2F, 0.6F);
+		} else if (tick == 24) {
+			boss.swing(InteractionHand.MAIN_HAND, boss.getMainHandItem().getAttackAnimation(), true);
+		}
+	}
+
+	/** A spot two blocks behind the hunter, as they face, with room to stand; failing that, beside them, then where it is. */
+	private static Vec3 behind(final MoveRunner.Context context) {
+		var target = context.target;
+		Vec3 look = Vec3.directionFromRotation(0.0F, target.getYRot());
+		for (double degrees : new double[] {0.0, 45.0, -45.0, 90.0, -90.0, 135.0, -135.0, 180.0}) {
+			double angle = Math.toRadians(degrees);
+			Vec3 back = new Vec3(-look.x * Math.cos(angle) + look.z * Math.sin(angle), 0.0, -look.z * Math.cos(angle) - look.x * Math.sin(angle));
+			Vec3 at = target.position().add(back.scale(2.2));
+			if (context.level.noCollision(context.boss, context.boss.getBoundingBox().move(at.subtract(context.boss.position())))
+				&& !context.level.noCollision(context.boss, context.boss.getBoundingBox().move(at.subtract(context.boss.position())).move(0.0, -0.5, 0.0))) {
+				return at;
+			}
+		}
+		return context.boss.position();
+	}
+
 	/** Thrown off balance by the lit lamps: hunched and swaying. Suffered, never chosen. */
 	public static final BossMove STAGGER = BossMove.builder("stagger", Kind.REACTION)
 		.unannounced(0).timing(0, Snuffer.STAGGER_TICKS)
@@ -461,6 +556,7 @@ public final class SnufferMoves {
 		SLAM_WAVE, DELAYED_SLAM, HOOK_SLAM, HOOK_THRUST, CHAIN_SWEEP,
 		FAKE_SWEEP, FAKE_HOOK, FAKE_THRUST,
 		TWIRL, LANTERN_SWING, CHAIN_PULL, CROUCH,
+		SNUFF, MIST_AMBUSH, SOUL_SWEEP,
 		STAGGER), List.of(
 		// what flows into what: a combo is a path through these, chosen as it goes
 		new MoveSet.Link("sweep", "thrust", 17, 28),
