@@ -111,6 +111,8 @@ public class MistinnClient implements ClientModInitializer {
 		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.keeper.SnufferModel.LAYER, life.shizune.mistinn.client.keeper.SnufferModel::definition);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SNUFFER, life.shizune.mistinn.client.keeper.SnufferRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.STATION_HAND, life.shizune.mistinn.client.station.StationHandRenderer::new);
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.station.StationBroadcast.Payload.TYPE,
+			(payload, context) -> life.shizune.mistinn.client.training.TrainingClient.broadcast(payload.line()));
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.station.StationTalk.OpenPayload.TYPE,
 			(payload, context) -> context.client().gui.setScreen(new life.shizune.mistinn.client.station.StationTalkScreen(
 				payload.entity(), payload.role(), payload.opening(), payload.topics())));

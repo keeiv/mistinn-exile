@@ -24,8 +24,18 @@ public final class StationTalk {
 	/** What a member opens with when no lesson of theirs is due. */
 	public static final String HELLO = "hello";
 	/** The questions each member can always be asked, in menu order. */
-	private static final Map<StaffRole, List<String>> TOPICS = Map.of(
-		StaffRole.QUARTERMASTER, List.of("tiers", "cover", "grid", "mask", "station"));
+	private static final Map<StaffRole, List<String>> TOPICS = Map.ofEntries(
+		Map.entry(StaffRole.ROOMMATE, List.of("scared", "before", "came")),
+		Map.entry(StaffRole.QUARTERMASTER, List.of("tiers", "cover", "grid", "mask", "station")),
+		Map.entry(StaffRole.COOK, List.of("salt", "food", "gossip", "station")),
+		Map.entry(StaffRole.SMITH, List.of("branches", "heavy", "special", "scar")),
+		Map.entry(StaffRole.INSTRUCTOR, List.of("stamina", "roll", "slide", "windup", "why")),
+		Map.entry(StaffRole.SCOUT, List.of("hearing", "smell", "pack", "stare", "outside")),
+		Map.entry(StaffRole.DOCTOR, List.of("body", "bleed", "fracture", "meds", "patients")),
+		Map.entry(StaffRole.ARCHIVIST, List.of("guide", "stats", "skills", "achievements", "map", "records")),
+		Map.entry(StaffRole.BELL_KEEPER, List.of("bell", "death", "wall", "return", "light")),
+		Map.entry(StaffRole.RADIO_OPERATOR, List.of("radio", "helm", "static")),
+		Map.entry(StaffRole.CRANE_OPERATOR, List.of("pod", "count")));
 
 	private StationTalk() {
 	}

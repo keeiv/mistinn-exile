@@ -12,6 +12,8 @@ import life.shizune.mistinn.registry.MistinnItems;
 import life.shizune.mistinn.salt.SaltService;
 import life.shizune.mistinn.stamina.StaminaService;
 import life.shizune.mistinn.station.StaffRole;
+import life.shizune.mistinn.station.StationBarks;
+import life.shizune.mistinn.station.StationBroadcast;
 import life.shizune.mistinn.station.StationHand;
 import life.shizune.mistinn.station.StationTalk;
 import life.shizune.mistinn.weapon.HeavyService;
@@ -66,15 +68,23 @@ public final class MistinnStationTest implements FabricClientGameTest {
 	private static void everyLineIsWritten(final ClientGameTestContext context) {
 		context.runOnClient(mc -> {
 			Language language = Language.getInstance();
-			StaffRole role = StaffRole.QUARTERMASTER;
-			check(language.has(role.key()) && language.has(role.key() + ".title"), "the quartermaster has a name and a post");
-			check(!StationTalkScreen.lines(role, StationTalk.HELLO).isEmpty(), "and a greeting");
-			check(!StationTalkScreen.lines(role, "kit").isEmpty(), "and the kit lesson");
-			for (String topic : StationTalk.topics(role)) {
-				check(language.has(role.key() + ".ask." + topic), "every question has its wording: " + topic);
-				check(!StationTalkScreen.lines(role, topic).isEmpty(), "and its answer: " + topic);
+			for (StaffRole role : StaffRole.values()) {
+				check(language.has(role.key()) && language.has(role.key() + ".title"), role.id + " has a name and a post");
+				check(!StationTalkScreen.lines(role, StationTalk.HELLO).isEmpty(), role.id + " has a greeting");
+				for (String topic : StationTalk.topics(role)) {
+					check(language.has(role.key() + ".ask." + topic), role.id + ": every question has its wording: " + topic);
+					check(!StationTalkScreen.lines(role, topic).isEmpty(), role.id + ": and its answer: " + topic);
+				}
+				check(StationBarks.count(role) > 0, role.id + " has something to say in passing");
+				for (int n = 0; n < StationBarks.count(role); n++) {
+					check(language.has(StationBarks.key(role, n)), role.id + ": every passing line is written: " + n);
+				}
 			}
+			check(!StationTalkScreen.lines(StaffRole.QUARTERMASTER, "kit").isEmpty(), "the quartermaster has the kit lesson");
 			check(language.has("staff.mistinn.bye") && language.has("staff.mistinn.ask"), "the goodbye and the prompt are written");
+			for (int n = 0; n < StationBroadcast.LINES; n++) {
+				check(language.has(StationBroadcast.key(n)), "every announcement is written: " + n);
+			}
 		});
 	}
 
