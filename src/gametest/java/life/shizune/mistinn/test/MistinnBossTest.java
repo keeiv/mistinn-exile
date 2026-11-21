@@ -18,6 +18,7 @@ import life.shizune.mistinn.boss.PlayerTrace;
 import life.shizune.mistinn.boss.Planner;
 import life.shizune.mistinn.boss.Response;
 import life.shizune.mistinn.client.anim.Clip;
+import life.shizune.mistinn.client.keeper.SnufferModel;
 import life.shizune.mistinn.keeper.Snuffer;
 import life.shizune.mistinn.keeper.SnufferMoves;
 import life.shizune.mistinn.registry.MistinnEntities;
@@ -51,6 +52,7 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			return;
 		}
 		context.runOnClient(mc -> everyMoveHasATell());
+		context.runOnClient(mc -> idlesPlayWhenWaiting());
 		seesFourTicksLate();
 		predictsStraightRuns();
 		learnsRollSide();
@@ -528,6 +530,32 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			check(keeper.getTarget() == player(server), "a hunter is: " + keeper.getTarget());
 			clear(server, stage);
 		});
+	}
+
+	// ── The body ──────────────────────────────────────────────────
+
+	/** Standing with nothing to do, the keeper now and then plays one of its idles; each has its clip, and keepers are not in step. */
+	private static void idlesPlayWhenWaiting() {
+		java.util.Set<String> seen = new java.util.HashSet<>();
+		int quiet = 0;
+		for (int age = 0; age < 3000; age++) {
+			String idle = SnufferModel.idle(17, age);
+			if (idle == null) {
+				quiet++;
+			} else {
+				seen.add(idle);
+			}
+		}
+		for (String idle : SnufferModel.IDLES) {
+			check(Clip.find("keeper/" + idle) != null, idle + " has its clip");
+			check(seen.contains(idle), idle + " is played now and then");
+		}
+		check(quiet > 0, "and now and then it does nothing at all");
+		java.util.Set<String> together = new java.util.HashSet<>();
+		for (int id = 0; id < 20; id++) {
+			together.add(String.valueOf(SnufferModel.idle(id, 10)));
+		}
+		check(together.size() > 1, "twenty keepers do not all idle in step: " + together);
 	}
 
 	// ── Helpers ───────────────────────────────────────────────────
