@@ -7,6 +7,7 @@ import life.shizune.mistinn.client.death.MissionEndScreen;
 import life.shizune.mistinn.client.station.StationTalkScreen;
 import life.shizune.mistinn.client.story.StoryCardScreen;
 import life.shizune.mistinn.client.title.ModeSelectScreen;
+import life.shizune.mistinn.client.training.StationAmbience;
 import life.shizune.mistinn.client.training.TrainingClient;
 import life.shizune.mistinn.client.training.TrainingCompleteScreen;
 import life.shizune.mistinn.client.training.TrainingGuide;
@@ -360,7 +361,9 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		click(context, destination[0], destination[1]);
 		// three bells, the station falls quiet and dark, then the drop
 		context.waitFor(mc -> TrainingClient.dropping(), 100);
+		int sounds = context.computeOnClient(mc -> StationAmbience.played());
 		context.waitTicks(110);
+		check(context.computeOnClient(mc -> StationAmbience.played()) == sounds, "the station falls silent for the drop");
 		server(context, player -> check(player.level().getEntitiesOfClass(StationHand.class, player.getBoundingBox().inflate(256.0),
 			h -> h.role() != StaffRole.CRANE_OPERATOR).isEmpty(), "by the third bell no one is left but the crane operator"));
 		context.waitFor(mc -> mc.player != null && mc.player.level().dimension().equals(Level.OVERWORLD), 1000);
@@ -459,7 +462,9 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 				&& h.getCustomName().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents t
 				&& t.getKey().startsWith(StaffRole.COOK.key() + ".bark.")).size() == 1, 200);
 		context.takeScreenshot("training-cook-bark");
+		int heard = context.computeOnClient(mc -> StationAmbience.played());
 		context.waitTicks(200);
+		check(context.computeOnClient(mc -> StationAmbience.played()) > heard, "by the mess the kitchen is heard at work");
 		server(context, player -> {
 			StationHand hand = player.level().getEntitiesOfClass(StationHand.class, player.getBoundingBox().inflate(256.0),
 				h -> h.role() == StaffRole.DOCK_WORKER_1).getFirst();
