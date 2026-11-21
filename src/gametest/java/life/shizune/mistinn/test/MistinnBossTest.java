@@ -99,6 +99,7 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			slideTakesTheLegs(context, world, stage);
 			rushClosesTheGap(context, world, stage);
 			grabLetsGoOfTheGone(context, world, stage);
+			seesHuntersInTheCorners(context, world, stage);
 			interruptedMovesLetGo(context, world, stage);
 			mistAmbushHasATell(context, world, stage);
 			slamWaveReachesFurther(context, world, stage);
@@ -958,6 +959,24 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		world.getServer().runOnServer(server -> {
 			Snuffer keeper = keeper(server, stage);
 			check(!keeper.isNoGravity() && keeper.getY() < stage.getY() + 0.2, "and a stagger brings it down: " + keeper.position());
+			clear(server, stage);
+		});
+	}
+
+	/** A hunter backed into a corner of a square room, further from its centre than the room's radius, is still seen and gone after. */
+	private static void seesHuntersInTheCorners(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		BlockPos corner = stage.offset(12, -1, 12);
+		world.getServer().runOnServer(server -> {
+			server.overworld().setBlockAndUpdate(corner, Blocks.STONE.defaultBlockState());
+			ServerPlayer player = player(server);
+			player.teleportTo(server.overworld(), corner.getX() + 0.5, stage.getY(), corner.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
+			keeper(server, stage).getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(40.0);
+		});
+		context.waitTicks(10);
+		world.getServer().runOnServer(server -> {
+			Snuffer keeper = keeper(server, stage);
+			check(keeper.getTarget() == player(server), "a hunter in the corner, 17 blocks from the centre, is still the keeper's: " + keeper.getTarget());
+			server.overworld().setBlockAndUpdate(corner, Blocks.AIR.defaultBlockState());
 			clear(server, stage);
 		});
 	}
