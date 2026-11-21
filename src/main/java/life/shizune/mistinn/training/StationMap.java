@@ -65,6 +65,19 @@ final class StationMap {
 		b.settle();
 	}
 
+	/**
+	 * Undoes the bridges the second station got wrong, before it is built again: rails left across
+	 * the ends of five walkways, and the bell court's bridge that led out over the water.
+	 */
+	static void repairBridges(final Builder b) {
+		int[][] walkways = {{-44, -36, -40, -33}, {-8, -62, -6, -58}, {43, -28, 47, -25}, {-3, -90, -1, -86}, {-33, -84, -29, -80}};
+		for (int[] w : walkways) {
+			b.clear(w[0], MID + 1, w[1], w[2], MID + 2, w[3]);
+		}
+		b.fill(25, StationParts.SEA_FLOOR, -92, 31, StationParts.WATERLINE, -88, Blocks.WATER);
+		b.clear(25, StationParts.WATERLINE + 1, -92, 31, MID + 2, -88);
+	}
+
 	// ---- the waterline: docks, barracks, the quartermaster's store, the warehouse ----
 
 	private static void docks(final Builder b) {
@@ -282,7 +295,7 @@ final class StationMap {
 	private static void forge(final Builder b) {
 		StationParts.deck(b, -62, -60, -38, -37, MID, Blocks.POLISHED_DEEPSLATE, false);
 		StationParts.gap(b, -38, -52, -38, -46, MID);
-		StationParts.walk(b, -44, -36, -40, -33, MID);
+		StationParts.walk(b, -44, -36, -40, -33, MID, true);
 		StationParts.gap(b, -44, -37, -40, -37, MID);
 		StationParts.gap(b, -44, -32, -40, -32, MID);
 		StationParts.hall(b, -60, -58, -46, -42, MID, 6, STONE, Blocks.STAINED_GLASS.orange(), Blocks.DEEPSLATE_TILE_STAIRS, Blocks.DEEPSLATE_TILES, false);
@@ -309,7 +322,7 @@ final class StationMap {
 	private static void drillYard(final Builder b) {
 		StationParts.deck(b, -37, -68, -9, -38, MID, Blocks.SMOOTH_STONE, false);
 		StationParts.gap(b, -37, -52, -37, -46, MID);
-		StationParts.walk(b, -28, -37, -24, -33, MID);
+		StationParts.walk(b, -28, -37, -24, -33, MID, true);
 		StationParts.gap(b, -28, -38, -24, -38, MID);
 		StationParts.gap(b, -28, -32, -24, -32, MID);
 		// the run lane, marked in rust
@@ -356,7 +369,7 @@ final class StationMap {
 
 	private static void pen(final Builder b) {
 		StationParts.deck(b, -5, -76, 25, -50, MID, Blocks.DEEPSLATE_TILES, false);
-		StationParts.walk(b, -8, -62, -6, -58, MID);
+		StationParts.walk(b, -8, -62, -6, -58, MID, false);
 		StationParts.gap(b, -9, -62, -9, -58, MID);
 		StationParts.gap(b, -5, -62, -5, -58, MID);
 		StationParts.gap(b, 25, -53, 25, -51, MID);
@@ -417,7 +430,7 @@ final class StationMap {
 
 	private static void workshop(final Builder b) {
 		StationParts.deck(b, 38, -24, 56, 3, MID, Blocks.POLISHED_ANDESITE, false);
-		StationParts.walk(b, 43, -28, 47, -25, MID);
+		StationParts.walk(b, 43, -28, 47, -25, MID, true);
 		StationParts.gap(b, 43, -29, 47, -29, MID);
 		StationParts.gap(b, 43, -24, 47, -24, MID);
 		StationParts.walls(b, 40, -22, 54, -4, MID, 5, Blocks.TUFF_BRICKS, Blocks.STAINED_GLASS.yellow(), true);
@@ -445,8 +458,9 @@ final class StationMap {
 	}
 
 	private static void archive(final Builder b) {
-		StationParts.deck(b, 32, -82, 54, -60, MID, Blocks.DARK_OAK_PLANKS, false);
-		StationParts.walk(b, 40, -59, 44, -54, MID);
+		StationParts.deck(b, 32, -86, 54, -60, MID, Blocks.DARK_OAK_PLANKS, false);
+		StationParts.gap(b, 32, -86, 32, -82, MID);
+		StationParts.walk(b, 40, -59, 44, -54, MID, true);
 		StationParts.gap(b, 40, -60, 44, -60, MID);
 		StationParts.gap(b, 40, -53, 44, -53, MID);
 		StationParts.hall(b, 34, -80, 52, -62, MID, 7, STONE, Blocks.STAINED_GLASS.brown(), WARM_STAIRS, PLANK, true);
@@ -465,9 +479,8 @@ final class StationMap {
 
 	private static void bellCourt(final Builder b) {
 		StationParts.deck(b, 0, -104, 24, -80, MID, Blocks.POLISHED_DEEPSLATE, false);
-		StationParts.walk(b, 25, -92, 31, -88, MID);
-		StationParts.gap(b, 24, -92, 24, -88, MID);
-		StationParts.gap(b, 32, -74, 32, -70, MID);
+		StationParts.walk(b, 25, -86, 31, -82, MID, false);
+		StationParts.gap(b, 24, -86, 24, -82, MID);
 		ringFloor(b, 12, -88, 5, Blocks.GOLD_BLOCK, Blocks.POLISHED_DEEPSLATE, MID);
 		ringFloor(b, 12, -88, 2, RUST, Blocks.CHISELED_TUFF_BRICKS, MID);
 		b.set(12, MID + 1, -88, MistinnBlocks.GOLDEN_BELL);
@@ -488,6 +501,13 @@ final class StationMap {
 			}
 		}
 		b.fill(1, MID + 7, -102, 3, MID + 7, -82, Blocks.DEEPSLATE_TILE_SLAB);
+		// the way to the radio room goes through the wall of numbers, under an arch
+		b.clear(1, MID + 1, -89, 3, MID + 3, -87);
+		for (int z : new int[] {-90, -86}) {
+			b.fill(1, MID + 1, z, 3, MID + 4, z, Blocks.POLISHED_DEEPSLATE);
+			b.set(3, MID + 4, z, Blocks.SOUL_LANTERN);
+		}
+		b.fill(1, MID + 4, -89, 3, MID + 4, -87, Blocks.CHISELED_DEEPSLATE);
 		belfry(b);
 	}
 
@@ -540,7 +560,7 @@ final class StationMap {
 
 	private static void radioRoom(final Builder b) {
 		StationParts.deck(b, -28, -96, -4, -72, MID, Blocks.POLISHED_ANDESITE, false);
-		StationParts.walk(b, -3, -90, -1, -86, MID);
+		StationParts.walk(b, -3, -90, -1, -86, MID, false);
 		StationParts.gap(b, -4, -90, -4, -86, MID);
 		StationParts.gap(b, 0, -90, 0, -86, MID);
 		StationParts.walls(b, -26, -94, -8, -78, MID, 5, Blocks.TUFF_BRICKS, Blocks.STAINED_GLASS.cyan(), true);
@@ -568,7 +588,7 @@ final class StationMap {
 
 	private static void lampHall(final Builder b) {
 		StationParts.deck(b, -62, -96, -34, -66, MID, Blocks.POLISHED_BLACKSTONE_BRICKS, false);
-		StationParts.walk(b, -33, -84, -29, -80, MID);
+		StationParts.walk(b, -33, -84, -29, -80, MID, false);
 		StationParts.gap(b, -34, -84, -34, -80, MID);
 		StationParts.gap(b, -28, -84, -28, -80, MID);
 		StationParts.walls(b, -60, -94, -36, -68, MID, 9, STONE, Blocks.STAINED_GLASS.gray(), false);

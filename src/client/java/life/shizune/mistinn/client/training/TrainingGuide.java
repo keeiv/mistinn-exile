@@ -56,10 +56,19 @@ public final class TrainingGuide {
 		};
 	}
 
+	/** Where to lead the hunter now: along the course's route toward the lesson's spot, or the spot when near. */
+	public static @Nullable BlockPos lead(final Minecraft mc, final TrainingLesson lesson) {
+		BlockPos spot = target(mc, lesson);
+		if (spot == null || mc.player == null) {
+			return spot;
+		}
+		return life.shizune.mistinn.training.TrainingGround.nextStop(mc.player.position(), lesson, spot);
+	}
+
 	public static void extract(final LevelExtractionContext context) {
 		Minecraft mc = Minecraft.getInstance();
 		TrainingLesson lesson = TrainingClient.current(mc);
-		BlockPos target = lesson == null || mc.gui.hud.isHidden() || mc.gui.screen() != null ? null : target(mc, lesson);
+		BlockPos target = lesson == null || mc.gui.hud.isHidden() || mc.gui.screen() != null ? null : lead(mc, lesson);
 		Vec3 marker = target == null ? null : Vec3.atCenterOf(target).add(0.0, 1.30, 0.0);
 		((FabricRenderState) context.levelState()).setData(MARK, marker);
 	}
@@ -91,7 +100,7 @@ public final class TrainingGuide {
 	}
 
 	static void drawDirection(final GuiGraphicsExtractor graphics, final Minecraft mc, final TrainingLesson lesson) {
-		BlockPos target = target(mc, lesson);
+		BlockPos target = lead(mc, lesson);
 		if (target == null) {
 			return;
 		}

@@ -122,11 +122,15 @@ final class StationParts {
 		b.clear(x0, y + 1, z0, x1, y + 2, z1);
 	}
 
-	/** A walkway between decks: dark planks with a grate down the middle, rails on its long sides. */
-	static void walk(final Builder b, final int x0, final int z0, final int x1, final int z1, final int y) {
+	/**
+	 * A walkway between decks, running along z ({@code alongZ}) or x: dark planks with a grate down
+	 * the middle and rails on the two sides it runs between, its two ends left open. Which way it
+	 * runs is said, not guessed from its shape: a short wide bridge would otherwise get its rails
+	 * across its ends.
+	 */
+	static void walk(final Builder b, final int x0, final int z0, final int x1, final int z1, final int y, final boolean alongZ) {
 		b.fill(x0, y, z0, x1, y, z1, PLANK);
 		b.fill(x0, y - 1, z0, x1, y - 1, z1, BEAM);
-		boolean alongZ = Math.abs(z1 - z0) >= Math.abs(x1 - x0);
 		if (alongZ) {
 			int mid = (x0 + x1) / 2;
 			b.fill(mid, y, z0, mid, y, z1, GRATE);
