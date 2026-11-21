@@ -19,10 +19,7 @@ import life.shizune.mistinn.weapon.WeaponStyle;
 import life.shizune.mistinn.weapon.Weapons;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.SwingAnimationType;
-import net.minecraft.world.item.WrittenBookItem;
-import net.minecraft.world.item.component.WrittenBookContent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.network.Filterable;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -62,11 +59,9 @@ public final class MistinnItems {
 	public static final Map<WeaponStyle, Map<WeaponMaterial, Item>> WEAPONS = materialWeapons();
 
 	/** 追獵者手冊: the world's story and the rules of the hunt, given to every hunter on arrival. */
-	public static final int GUIDE_PAGES = 9;
-	public static final Item HUNTER_GUIDE = register("hunter_guide", WrittenBookItem::new, new Item.Properties()
-		.stacksTo(1)
-		.component(DataComponents.WRITTEN_BOOK_CONTENT, guideContent())
-		.component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false));
+	/** Pages of the guide's text (item.mistinn.hunter_guide.page.N), read as spreads in its screen. */
+	public static final int GUIDE_PAGES = 10;
+	public static final Item HUNTER_GUIDE = register("hunter_guide", life.shizune.mistinn.story.HunterGuideItem::new, new Item.Properties().stacksTo(1));
 
 	public static final Item GOLDEN_BELL = block("golden_bell", MistinnBlocks.GOLDEN_BELL, new Item.Properties().rarity(Rarity.RARE));
 	public static final Item ORE_BELL = block("ore_bell", MistinnBlocks.ORE_BELL, new Item.Properties());
@@ -108,13 +103,6 @@ public final class MistinnItems {
 	private MistinnItems() {
 	}
 
-	private static WrittenBookContent guideContent() {
-		List<Filterable<Component>> pages = new java.util.ArrayList<>();
-		for (int i = 1; i <= GUIDE_PAGES; i++) {
-			pages.add(Filterable.passThrough(Component.translatable("item.mistinn.hunter_guide.page." + i)));
-		}
-		return new WrittenBookContent(Filterable.passThrough("追獵者手冊"), "鏽錨站", 0, pages, true);
-	}
 
 	private static ResourceKey<EquipmentAsset> asset(final Tier tier) {
 		return ResourceKey.create(EquipmentAssets.ROOT_ID, Mistinn.id("hunter_" + tier.id()));
