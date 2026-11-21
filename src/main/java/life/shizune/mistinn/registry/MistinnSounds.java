@@ -65,6 +65,21 @@ public final class MistinnSounds {
 	public static final SoundEvent SNUFFER_HOOK = register("entity.snuffer.hook");
 	public static final SoundEvent SNUFFER_SLIDE = register("entity.snuffer.slide");
 	public static final SoundEvent SNUFFER_RUSH = register("entity.snuffer.rush");
+	public static final SoundEvent SNUFFER_STEP_LEFT = register("entity.snuffer.step_left");
+	public static final SoundEvent SNUFFER_STEP_RIGHT = register("entity.snuffer.step_right");
+	public static final SoundEvent SNUFFER_BACK_STEP = register("entity.snuffer.back_step");
+	public static final SoundEvent SNUFFER_CIRCLE = register("entity.snuffer.circle");
+	public static final SoundEvent SNUFFER_BACK_JUMP = register("entity.snuffer.back_jump");
+	public static final SoundEvent SNUFFER_DOUBLE_SWEEP = register("entity.snuffer.double_sweep");
+	public static final SoundEvent SNUFFER_SPIN = register("entity.snuffer.spin");
+	public static final SoundEvent SNUFFER_THRUST = register("entity.snuffer.thrust");
+	public static final SoundEvent SNUFFER_TRIPLE_THRUST = register("entity.snuffer.triple_thrust");
+	public static final SoundEvent SNUFFER_OVERHEAD = register("entity.snuffer.overhead");
+	public static final SoundEvent SNUFFER_UPSWING = register("entity.snuffer.upswing");
+	public static final SoundEvent SNUFFER_LEG_SWEEP = register("entity.snuffer.leg_sweep");
+	public static final SoundEvent SNUFFER_BUTT = register("entity.snuffer.butt");
+	public static final SoundEvent SNUFFER_LANTERN_BASH = register("entity.snuffer.lantern_bash");
+	public static final SoundEvent SNUFFER_GRAB_THROW = register("entity.snuffer.grab_throw");
 	// the grid inventory, heard only by its owner
 	public static final SoundEvent GRID_PICKUP = register("ui.grid.pickup");
 	public static final SoundEvent GRID_PLACE = register("ui.grid.place");

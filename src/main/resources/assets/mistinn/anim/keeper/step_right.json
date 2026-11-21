@@ -1,0 +1,14 @@
+{"_comment":"側步（右）: dips toward the side it will go, the chain swinging (the tell, 0-8); a long sideways hop (8-14); lands low and turns back on the hunter (14-20).",
+"keys":[0.0,0.3,0.55,0.7,1.0],
+"eases":["out_quad","out_cubic","in_quad","in_out_sine"],
+"length":20,"limbs":{
+"body_x":[0,0,0,20,0],
+"body_z":[0,12,-6,4,0],
+"head_z":[0,-8,6,6,0],
+"left_arm_z":[0,-20,-35,-35,0],
+"left_leg_z":[0,-10,5,-8,0],
+"right_arm_z":[0,20,35,35,0],
+"right_leg_z":[0,10,25,8,0]},
+"root":{
+"roll":[0,6,-10,4,0],
+"y":[0,-0.18,0.25,-0.2,0]}}

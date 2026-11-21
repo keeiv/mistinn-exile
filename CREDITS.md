@@ -63,6 +63,36 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `entity/snuffer/slide_2.ogg` | `oga_creature_1:breath`; `oga_monster_vol1:monster-12`; `synth:salt grinding under a crouch` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/rush_1.ogg` | `oga_monster_sfx:monster-5`; `synth:chain links drawn taut, a rush of air` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/rush_2.ogg` | `oga_snarls:monster-snarl-5#8`; `synth:chain links drawn taut, a rush of air` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/step_left_1.ogg` | `synth:a scuff and the chain swinging` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/step_left_2.ogg` | `synth:a scuff and the chain swinging` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/step_right_1.ogg` | `synth:a scuff and the chain swinging` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/step_right_2.ogg` | `synth:a scuff and the chain swinging` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/back_step_1.ogg` | `oga_snarls:monster-snarl-attack#2`; `synth:a heel dragged back through salt` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/back_step_2.ogg` | `oga_snarls:monster-snarls#2`; `synth:a heel dragged back through salt` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/circle_1.ogg` | `oga_monster_sfx:monster-4`; `synth:slow chain links` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/circle_2.ogg` | `oga_monster_vol1:monster-9`; `synth:slow chain links` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/back_jump_1.ogg` | `synth:a hiss through the lantern and a hard push off the floor` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/back_jump_2.ogg` | `synth:a hiss through the lantern and a hard push off the floor` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/double_sweep_1.ogg` | `synth:iron dragged round twice` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/double_sweep_2.ogg` | `synth:iron dragged round twice` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/spin_1.ogg` | `oga_snarls:monsters-snarls-3#4`; `synth:the pole whirled, cutting the air` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/spin_2.ogg` | `oga_snarls:monster-snarl-attack#6`; `synth:the pole whirled, cutting the air` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/thrust_1.ogg` | `synth:a sharp breath and the spear's iron ticking as it is drawn back` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/thrust_2.ogg` | `synth:a sharp breath and the spear's iron ticking as it is drawn back` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/triple_thrust_1.ogg` | `oga_snarls:monster-snarl-5#5`; `synth:three quick ticks of iron` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/triple_thrust_2.ogg` | `oga_monster_sfx:monster-1`; `synth:three quick ticks of iron` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/overhead_1.ogg` | `oga_snarls:monster-snarl-5#7`; `synth:the spear raised, its iron singing` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/overhead_2.ogg` | `oga_monster_vol1:monster-11`; `synth:the spear raised, its iron singing` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/upswing_1.ogg` | `synth:iron scraped low to high` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/upswing_2.ogg` | `synth:iron scraped low to high` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/leg_sweep_1.ogg` | `synth:the pole laid along the floor, grinding salt` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/leg_sweep_2.ogg` | `synth:the pole laid along the floor, grinding salt` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/butt_1.ogg` | `oga_monster_vol1:Monster-2`; `synth:the spear turned round, a knock of wood` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/butt_2.ogg` | `oga_snarls:monster-snarls#2`; `synth:the spear turned round, a knock of wood` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/lantern_bash_1.ogg` | `synth:the lantern rattling on its neck, the flame flaring` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/lantern_bash_2.ogg` | `synth:the lantern rattling on its neck, the flame flaring` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/grab_throw_1.ogg` | `oga_snarls:monsters-snarls-3#1`; `synth:claws creaking open` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/grab_throw_2.ogg` | `oga_snarls:monster-snarl-attack#4`; `synth:claws creaking open` | CC0 1.0 sources + project synthesis |
 | `execution/bite_1.ogg` | `oga_creature_2:attack_03`; `oga_creature_1:eat_03`; `oga_creature_2:slime_06`; `synth:teeth` | CC0 1.0 sources + project synthesis |
 | `execution/bite_2.ogg` | `oga_creature_2:attack_02`; `oga_creature_1:eat_03`; `oga_creature_2:slime_07`; `synth:teeth` | CC0 1.0 sources + project synthesis |
 | `execution/bite_3.ogg` | `oga_creature_2:attack_02`; `oga_creature_1:eat_04`; `oga_creature_2:slime_07`; `synth:teeth` | CC0 1.0 sources + project synthesis |
