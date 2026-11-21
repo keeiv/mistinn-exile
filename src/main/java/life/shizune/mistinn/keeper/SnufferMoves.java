@@ -105,12 +105,235 @@ public final class SnufferMoves {
 		})
 		.build();
 
+	// ── Parts a blow can be aimed at ──────────────────────────────
+
+	private static final PartRule TORSO = PartRule.always(BodyService.Hit.on(BodyPart.TORSO, false));
+	private static final PartRule HEAD = PartRule.always(BodyService.Hit.on(BodyPart.HEAD, false));
+	private static final PartRule FACE = PartRule.always(BodyService.Hit.on(BodyPart.HEAD, true));
+	private static final PartRule LEGS = PartRule.always(BodyService.Hit.LEGS);
+	private static final PartRule ARMS = (boss, player, random) -> BodyService.Hit.on(random.nextBoolean() ? BodyPart.LEFT_ARM : BodyPart.RIGHT_ARM, false);
+
+	/** The pole whipped through: the swing shown, the air cut, at each given tick. */
+	private static BossMove.Script swings(final float pitch, final int... ticks) {
+		return context -> {
+			for (int tick : ticks) {
+				if (context.tick() == tick) {
+					context.boss.swing(InteractionHand.MAIN_HAND, context.boss.getMainHandItem().getAttackAnimation(), true);
+					context.level.playSound(null, context.boss.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE, 1.4F, pitch);
+				}
+			}
+		};
+	}
+
+	private static BossMove.Motion keys(final BossMove.Motion.Key... keys) {
+		return new BossMove.Motion(List.of(keys));
+	}
+
+	private static BossMove.Motion.Key key(final int tick, final double forward, final double side, final double up) {
+		return new BossMove.Motion.Key(tick, forward, side, up);
+	}
+
+	// ── Movement ──────────────────────────────────────────────────
+
+	/** A long hop to its left, landing low to come back in from the side. */
+	public static final BossMove STEP_LEFT = BossMove.builder("step_left", Kind.MOVEMENT).weight(Weight.LIGHT)
+		.tell(MistinnSounds.SNUFFER_STEP_LEFT, 8).timing(6, 6)
+		.motion(keys(key(8, 0, 0, 0), key(14, 0, -2.5, 0))).range(0.0, 6.0).families("step").build();
+
+	/** The same, to its right. */
+	public static final BossMove STEP_RIGHT = BossMove.builder("step_right", Kind.MOVEMENT).weight(Weight.LIGHT)
+		.tell(MistinnSounds.SNUFFER_STEP_RIGHT, 8).timing(6, 6)
+		.motion(keys(key(8, 0, 0, 0), key(14, 0, 2.5, 0))).range(0.0, 6.0).families("step").build();
+
+	/** Rocks forward as if to come in, then springs three blocks back: room for the hook or the leap. */
+	public static final BossMove BACK_STEP = BossMove.builder("back_step", Kind.MOVEMENT).weight(Weight.LIGHT)
+		.tell(MistinnSounds.SNUFFER_BACK_STEP, 8).timing(6, 8)
+		.motion(keys(key(8, 0, 0, 0), key(14, -3.0, 0, 0))).range(0.0, 5.0).families("step").build();
+
+	/** Stalks round the hunter at middle distance, never looking away, waiting. */
+	public static final BossMove CIRCLE = BossMove.builder("circle", Kind.MOVEMENT).weight(Weight.LIGHT)
+		.tell(MistinnSounds.SNUFFER_CIRCLE, 8).timing(20, 4)
+		.motion(keys(key(8, 0, 0, 0), key(18, 0.8, 2.2, 0), key(28, 1.0, 4.0, 0))).range(3.0, 9.0).cooldown(20).families("step").build();
+
+	/** Pressed too close: a crouch, and a leap back out of reach. */
+	public static final BossMove BACK_JUMP = BossMove.builder("back_jump", Kind.MOVEMENT).weight(Weight.LIGHT)
+		.tell(MistinnSounds.SNUFFER_BACK_JUMP, 8).timing(8, 8)
+		.motion(keys(key(8, 0, 0, 0), key(12, -2.5, 0, 0.9), key(16, -5.0, 0, 0))).range(0.0, 3.5).cooldown(30).families("step").build();
+
+	// ── Close in ──────────────────────────────────────────────────
+
+	/** The sweep, and the backhand straight after it. */
+	public static final BossMove DOUBLE_SWEEP = BossMove.builder("double_sweep", Kind.ATTACK).weight(Weight.HEAVY)
+		.tell(MistinnSounds.SNUFFER_DOUBLE_SWEEP, 16).timing(12, 20)
+		.strike(16, new HitShape.Sector(5.0, 100.0, 3.0), SWEEP_PART, 6.0F)
+		.strike(26, new HitShape.Sector(5.0, 100.0, 3.0), SWEEP_PART, 6.0F)
+		.motion(keys(key(20, 0, 0, 0), key(26, 0.8, 0, 0))).range(0.0, 4.5).cooldown(20).families("sweep")
+		.seen((level, boss, target, tick) -> level.sendParticles(ParticleTypes.FLAME, boss.getX(), boss.getEyeY() + 0.4, boss.getZ(), 3, 0.15, 0.15, 0.15, 0.01))
+		.script(swings(0.6F, 16, 26)).build();
+
+	/** Spins all the way round with the pole flat: for whoever stands too close, on any side. */
+	public static final BossMove SPIN = BossMove.builder("spin", Kind.ATTACK).weight(Weight.HEAVY)
+		.tell(MistinnSounds.SNUFFER_SPIN, 18).timing(8, 22)
+		.along(20, 24, new HitShape.Circle(3.8, false), SWEEP_PART, 6.0F)
+		.range(0.0, 3.5).cooldown(30).families("spin")
+		.script(swings(0.5F, 20, 23)).build();
+
+	/** The spear drawn back level and lunged straight out: long and narrow. */
+	public static final BossMove THRUST = BossMove.builder("thrust", Kind.ATTACK).weight(Weight.LIGHT)
+		.tell(MistinnSounds.SNUFFER_THRUST, 10).timing(2, 14)
+		.strike(10, new HitShape.Capsule(5.5, 0.6, 2.0), TORSO, 6.0F)
+		.motion(keys(key(6, 0, 0, 0), key(10, 1.5, 0, 0))).range(0.0, 6.5).families("thrust")
+		.script(swings(1.1F, 10)).build();
+
+	/** Three thrusts, the last lunged deepest and hardest. */
+	public static final BossMove TRIPLE_THRUST = BossMove.builder("triple_thrust", Kind.ATTACK).weight(Weight.HEAVY)
+		.tell(MistinnSounds.SNUFFER_TRIPLE_THRUST, 14).timing(14, 18)
+		.strike(14, new HitShape.Capsule(5.0, 0.6, 2.0), TORSO, 4.0F)
+		.strike(20, new HitShape.Capsule(5.0, 0.6, 2.0), TORSO, 4.0F)
+		.strike(27, new HitShape.Capsule(6.0, 0.6, 2.0), TORSO, 8.0F)
+		.motion(keys(key(13, 0, 0, 0), key(15, 0.6, 0, 0), key(20, 0.6, 0, 0), key(21, 1.2, 0, 0), key(26, 1.2, 0, 0), key(28, 2.2, 0, 0)))
+		.range(0.0, 6.0).cooldown(30).families("thrust")
+		.script(swings(1.0F, 14, 20, 27)).build();
+
+	/** The spear raised high in both claws and brought straight down on the head. */
+	public static final BossMove OVERHEAD = BossMove.builder("overhead", Kind.ATTACK).weight(Weight.HEAVY)
+		.tell(MistinnSounds.SNUFFER_OVERHEAD, 16).timing(2, 20)
+		.strike(16, new HitShape.Capsule(4.5, 0.6, 3.0), HEAD, 8.0F)
+		.range(0.0, 5.0).cooldown(10).families("overhead")
+		.script(context -> {
+			if (context.tick() == 16) {
+				context.boss.swing(InteractionHand.MAIN_HAND, context.boss.getMainHandItem().getAttackAnimation(), true);
+				context.level.playSound(null, context.boss.blockPosition(), SoundEvents.ANVIL_LAND, SoundSource.HOSTILE, 0.7F, 0.5F);
+			}
+		})
+		.build();
+
+	/** Ripped up from low on the left, across the arms. Quick. */
+	public static final BossMove UPSWING = BossMove.builder("upswing", Kind.ATTACK).weight(Weight.LIGHT)
+		.tell(MistinnSounds.SNUFFER_UPSWING, 9).timing(2, 14)
+		.strike(9, new HitShape.Sector(4.0, 60.0, 3.0), ARMS, 5.0F)
+		.range(0.0, 4.0).families("upswing")
+		.script(swings(0.9F, 9)).build();
+
+	/** The pole swept round at ankle height: the legs. */
+	public static final BossMove LEG_SWEEP = BossMove.builder("leg_sweep", Kind.ATTACK).weight(Weight.LIGHT)
+		.tell(MistinnSounds.SNUFFER_LEG_SWEEP, 10).timing(2, 14)
+		.strike(10, new HitShape.Sector(4.5, 95.0, 1.0), LEGS, 5.0F)
+		.range(0.0, 4.5).families("legsweep")
+		.script(swings(0.7F, 10)).build();
+
+	/** Spear turned round, butt first, rammed into the chest to drive a close hunter off. */
+	public static final BossMove BUTT = BossMove.builder("butt", Kind.ATTACK).weight(Weight.LIGHT)
+		.tell(MistinnSounds.SNUFFER_BUTT, 8).timing(2, 10)
+		.strike(8, new HitShape.Capsule(2.2, 0.7, 2.0), TORSO, 4.0F)
+		.range(0.0, 2.5).cooldown(20).families("butt")
+		.script(context -> {
+			if (context.tick() == 8) {
+				for (Player player : context.level.getEntitiesOfClass(Player.class, context.boss.getBoundingBox().inflate(3.0))) {
+					if (context.move().strikes().getFirst().shape().hits(context.boss, player)) {
+						Vec3 away = player.position().subtract(context.boss.position()).multiply(1.0, 0.0, 1.0);
+						Vec3 push = away.lengthSqr() < 1.0E-4 ? Vec3.ZERO : away.normalize().scale(1.1);
+						player.setDeltaMovement(push.x, 0.35, push.z);
+						player.needsSync = true;
+					}
+				}
+				context.level.playSound(null, context.boss.blockPosition(), SoundEvents.SHIELD_BLOCK.value(), SoundSource.HOSTILE, 1.0F, 0.6F);
+			}
+		})
+		.build();
+
+	/** The lantern head drawn back on its neck and smashed into the face; in the dark it burns. */
+	public static final BossMove LANTERN_BASH = BossMove.builder("lantern_bash", Kind.ATTACK).weight(Weight.HEAVY)
+		.tell(MistinnSounds.SNUFFER_LANTERN_BASH, 14).timing(2, 18)
+		.strike(14, new HitShape.Capsule(2.8, 0.7, 3.0), FACE, 7.0F)
+		.motion(keys(key(10, 0, 0, 0), key(14, 0.8, 0, 0))).range(0.0, 3.0).cooldown(10).families("lantern")
+		.seen((level, boss, target, tick) -> level.sendParticles(boss instanceof Snuffer keeper && keeper.dark() ? ParticleTypes.SOUL_FIRE_FLAME : ParticleTypes.FLAME,
+			boss.getX(), boss.getEyeY() + 0.6, boss.getZ(), 2, 0.2, 0.2, 0.2, 0.02))
+		.script(context -> {
+			if (context.tick() == 14) {
+				context.level.playSound(null, context.boss.blockPosition(), SoundEvents.GLASS_BREAK, SoundSource.HOSTILE, 0.8F, 0.6F);
+				if (context.boss instanceof Snuffer keeper && keeper.dark()) {
+					for (Player player : context.level.getEntitiesOfClass(Player.class, context.boss.getBoundingBox().inflate(4.0))) {
+						if (context.move().strikes().getFirst().shape().hits(context.boss, player)) {
+							player.igniteForSeconds(3.0F);
+						}
+					}
+				}
+			}
+		})
+		.build();
+
+	/** Both claws reach out; whoever they close on is hauled up and slammed into the floor. */
+	public static final BossMove GRAB_THROW = BossMove.builder("grab_throw", Kind.ATTACK).weight(Weight.GRAB)
+		.tell(MistinnSounds.SNUFFER_GRAB_THROW, 16).timing(12, 22)
+		.strike(BossMove.Strike.SCRIPTED, new HitShape.Grab(2.8), TORSO, 9.0F)
+		.range(0.0, 2.8).cooldown(40).families("grab")
+		.script(SnufferMoves::grab)
+		.build();
+
+	/** Tick the claws close (on whoever is in reach); held until the throw at {@link #THROW}. */
+	private static final int CLUTCH = 16;
+	private static final int THROW = 28;
+
+	/** Catches the target in reach at {@link #CLUTCH}, holds them up before it, and slams them down at {@link #THROW}; lets go of anyone gone. */
+	private static void grab(final MoveRunner.Context context) {
+		int tick = context.tick();
+		BossMove.Strike strike = context.move().strikes().getFirst();
+		if (tick == CLUTCH) {
+			if (context.target instanceof ServerPlayer player && player.isAlive() && strike.shape().hits(context.boss, player)) {
+				context.note("held", player);
+				context.level.playSound(null, player.blockPosition(), SoundEvents.PLAYER_ATTACK_KNOCKBACK, SoundSource.HOSTILE, 1.2F, 0.6F);
+			}
+			return;
+		}
+		ServerPlayer held = context.note("held");
+		if (held == null || tick < CLUTCH || tick > THROW) {
+			return;
+		}
+		// dead, gone elsewhere, or no longer a hunter: let go
+		if (!held.isAlive() || held.level() != context.level || held.isSpectator() || held.isCreative() || held.distanceTo(context.boss) > 5.0) {
+			context.note("held", null);
+			return;
+		}
+		Vec3 facing = HitShape.facing(context.boss);
+		Vec3 front = context.boss.position().add(facing.scale(1.4));
+		if (tick < THROW) {
+			double lift = 0.6 + (tick - CLUTCH) * 0.09;
+			held.teleportTo(context.level, front.x, context.boss.getY() + lift, front.z, java.util.Set.of(), held.getYRot(), held.getXRot(), false);
+			held.setDeltaMovement(Vec3.ZERO);
+			held.needsSync = true;
+			return;
+		}
+		held.teleportTo(context.level, front.x, context.boss.getY(), front.z, java.util.Set.of(), held.getYRot(), held.getXRot(), false);
+		context.strikeOne(held, strike);
+		held.setDeltaMovement(0.0, 0.25, 0.0);
+		held.needsSync = true;
+		context.level.playSound(null, held.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 0.6F, 1.6F);
+		context.level.sendParticles(ParticleTypes.WHITE_ASH, held.getX(), held.getY() + 0.1, held.getZ(), 40, 0.8, 0.1, 0.8, 0.05);
+		context.note("held", null);
+	}
+
 	/** Thrown off balance by the lit lamps: hunched and swaying. Suffered, never chosen. */
 	public static final BossMove STAGGER = BossMove.builder("stagger", Kind.REACTION)
 		.unannounced(0).timing(0, Snuffer.STAGGER_TICKS)
 		.build();
 
-	public static final MoveSet SET = new MoveSet(List.of(SWEEP, SLAM, HOOK, SLIDE, RUSH, STAGGER), List.of());
+	public static final MoveSet SET = new MoveSet(List.of(
+		SWEEP, SLAM, HOOK, SLIDE, RUSH,
+		STEP_LEFT, STEP_RIGHT, BACK_STEP, CIRCLE, BACK_JUMP,
+		DOUBLE_SWEEP, SPIN, THRUST, TRIPLE_THRUST, OVERHEAD, UPSWING, LEG_SWEEP, BUTT, LANTERN_BASH, GRAB_THROW,
+		STAGGER), List.of(
+		// what flows into what: a combo is a path through these, chosen as it goes
+		new MoveSet.Link("sweep", "thrust", 17, 28),
+		new MoveSet.Link("step_left", "sweep", 14, 20), new MoveSet.Link("step_left", "thrust", 14, 20), new MoveSet.Link("step_left", "overhead", 14, 20),
+		new MoveSet.Link("step_right", "sweep", 14, 20), new MoveSet.Link("step_right", "thrust", 14, 20), new MoveSet.Link("step_right", "overhead", 14, 20),
+		new MoveSet.Link("back_step", "hook", 14, 22), new MoveSet.Link("back_step", "slam", 14, 22),
+		new MoveSet.Link("thrust", "leg_sweep", 12, 20),
+		new MoveSet.Link("leg_sweep", "overhead", 12, 20),
+		new MoveSet.Link("upswing", "overhead", 11, 18),
+		new MoveSet.Link("slide", "upswing", 18, 26),
+		new MoveSet.Link("back_jump", "slam", 16, 24),
+		new MoveSet.Link("circle", "rush", 20, 32), new MoveSet.Link("circle", "thrust", 20, 32)));
 
 	/** The leap at tick 20; in the air through 30, held there until it comes down; the landing strikes. */
 	private static void slam(final MoveRunner.Context context) {
