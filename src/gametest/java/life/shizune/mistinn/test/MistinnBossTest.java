@@ -89,6 +89,9 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			delayHoldsTheBlow(context, world, stage);
 			forgetsAfterTheFight(world, stage);
 			ignoresNonHunters(context, world, stage);
+			dashStopsAtWalls(context, world, stage);
+			slideTakesTheLegs(context, world, stage);
+			rushClosesTheGap(context, world, stage);
 		}
 	}
 
@@ -558,6 +561,81 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		check(together.size() > 1, "twenty keepers do not all idle in step: " + together);
 	}
 
+	// ── Slide and rush ────────────────────────────────────────────
+
+	/** Sliding or rushing at a wall, the keeper stops in front of it, never inside it; nor does it rush out of its room. */
+	private static void dashStopsAtWalls(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		for (String move : List.of("slide", "rush")) {
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				// the hunter out of the way: this is about the keeper and the wall
+				player(server).teleportTo(level, stage.getX() - 7.5, stage.getY(), stage.getZ() - 7.5, Set.of(), 0.0F, 0.0F, true);
+				for (BlockPos wall : BlockPos.betweenClosed(stage.offset(-3, 0, 4), stage.offset(3, 3, 4))) {
+					level.setBlockAndUpdate(wall, Blocks.STONE.defaultBlockState());
+				}
+				keeper(server, stage).perform(move);
+			});
+			context.waitTicks(SnufferMoves.SET.get(move).length() + 2);
+			world.getServer().runOnServer(server -> {
+				Snuffer keeper = keeper(server, stage);
+				check(keeper.getZ() < stage.getZ() + 4.0 - keeper.getBbWidth() / 2.0 + 0.01, move + " stops at the wall: " + keeper.position());
+				check(server.overworld().noCollision(keeper), move + " leaves the keeper clear of the blocks: " + keeper.position());
+				for (BlockPos wall : BlockPos.betweenClosed(stage.offset(-3, 0, 4), stage.offset(3, 3, 4))) {
+					server.overworld().setBlockAndUpdate(wall, Blocks.AIR.defaultBlockState());
+				}
+				clear(server, stage);
+			});
+		}
+		// at the edge of its room, facing out: the rush stops at the room's edge
+		world.getServer().runOnServer(server -> {
+			Snuffer keeper = keeper(server, stage);
+			keeper.leash(Vec3.atBottomCenterOf(stage), 6.0);
+			keeper.snapTo(stage.getX() + 0.5, stage.getY(), stage.getZ() + 3.5, 0.0F, 0.0F);
+			keeper.perform("rush");
+		});
+		context.waitTicks(SnufferMoves.SET.get("rush").length() + 2);
+		world.getServer().runOnServer(server -> {
+			Snuffer keeper = keeper(server, stage);
+			double out = keeper.position().subtract(Vec3.atBottomCenterOf(stage)).horizontalDistance();
+			check(out <= 6.05, "the rush stops at the edge of the room, not " + out + " out");
+			clear(server, stage);
+		});
+	}
+
+	/** The slide runs along the floor and takes the legs, and only the legs. */
+	private static void slideTakesTheLegs(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 4.5, Set.of(), 180.0F, 0.0F, true);
+			BodyService.restoreAll(player);
+			keeper(server, stage).perform("slide");
+		});
+		context.waitTicks(SnufferMoves.SET.get("slide").length() + 2);
+		world.getServer().runOnServer(server -> {
+			life.shizune.mistinn.body.Body body = BodyService.get(player(server));
+			check(body.get(BodyPart.LEFT_LEG) < BodyPart.MAX && body.get(BodyPart.RIGHT_LEG) < BodyPart.MAX, "the slide takes both legs: " + body);
+			check(body.get(BodyPart.HEAD) == BodyPart.MAX && body.get(BodyPart.TORSO) == BodyPart.MAX, "and nothing above them: " + body);
+			clear(server, stage);
+		});
+	}
+
+	/** A hunter ten blocks away is reached by the rush and struck in the body within a second of its tell. */
+	private static void rushClosesTheGap(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 9.5, Set.of(), 180.0F, 0.0F, true);
+			BodyService.restoreAll(player);
+			keeper(server, stage).perform("rush");
+		});
+		BossMove rush = SnufferMoves.SET.get("rush");
+		context.waitTicks(rush.windup() + 20);
+		world.getServer().runOnServer(server -> {
+			life.shizune.mistinn.body.Body body = BodyService.get(player(server));
+			check(body.get(BodyPart.TORSO) < BodyPart.MAX, "nine blocks away, the rush lands within a second of its tell: " + body);
+			clear(server, stage);
+		});
+	}
+
 	// ── Helpers ───────────────────────────────────────────────────
 
 	static ServerPlayer player(final MinecraftServer server) {
@@ -585,6 +663,8 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		server.overworld().getEntitiesOfClass(Snuffer.class, new AABB(stage).inflate(40), keeper -> keeper.entityTags().contains(TAG))
 			.forEach(net.minecraft.world.entity.Entity::discard);
 		BodyService.restoreAll(player(server));
+		// a wound left open by one check would go on bleeding into the next
+		life.shizune.mistinn.body.WoundService.clearAll(player(server));
 	}
 
 	static void check(final boolean condition, final String message) {

@@ -375,6 +375,20 @@
     ],
     "subtitle": "subtitles.mistinn.entity.snuffer.hook"
   },
+  "entity.snuffer.slide": {
+    "sounds": [
+      "mistinn:entity/snuffer/slide_1",
+      "mistinn:entity/snuffer/slide_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.snuffer.slide"
+  },
+  "entity.snuffer.rush": {
+    "sounds": [
+      "mistinn:entity/snuffer/rush_1",
+      "mistinn:entity/snuffer/rush_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.snuffer.rush"
+  },
   "ui.grid.pickup": {
     "sounds": [
       "mistinn:ui/grid/pickup_1",

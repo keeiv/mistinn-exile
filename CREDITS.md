@@ -59,6 +59,10 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `entity/snuffer/step_4.ogg` | `kenney_impact:footstep_concrete_002`; `kenney_rpg:handleCoins`; `synth:grit` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/sweep_1.ogg` | `vsco_ce:gongscrape_mf`; `kenney_impact:impactMetal_medium_001` | CC0 1.0 sources |
 | `entity/snuffer/sweep_2.ogg` | `vsco_ce:gongscrape_mf`; `kenney_impact:impactMetal_medium_002` | CC0 1.0 sources |
+| `entity/snuffer/slide_1.ogg` | `oga_creature_2:breath_02`; `oga_snarls:monsters-snarls-3#2`; `synth:salt grinding under a crouch` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/slide_2.ogg` | `oga_creature_1:breath`; `oga_monster_vol1:monster-12`; `synth:salt grinding under a crouch` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/rush_1.ogg` | `oga_monster_sfx:monster-5`; `synth:chain links drawn taut, a rush of air` | CC0 1.0 sources + project synthesis |
+| `entity/snuffer/rush_2.ogg` | `oga_snarls:monster-snarl-5#8`; `synth:chain links drawn taut, a rush of air` | CC0 1.0 sources + project synthesis |
 | `execution/bite_1.ogg` | `oga_creature_2:attack_03`; `oga_creature_1:eat_03`; `oga_creature_2:slime_06`; `synth:teeth` | CC0 1.0 sources + project synthesis |
 | `execution/bite_2.ogg` | `oga_creature_2:attack_02`; `oga_creature_1:eat_03`; `oga_creature_2:slime_07`; `synth:teeth` | CC0 1.0 sources + project synthesis |
 | `execution/bite_3.ogg` | `oga_creature_2:attack_02`; `oga_creature_1:eat_04`; `oga_creature_2:slime_07`; `synth:teeth` | CC0 1.0 sources + project synthesis |
