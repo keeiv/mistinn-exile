@@ -26,7 +26,7 @@ public final class TrainingGround {
 	public static final String PACK_ID = "mistinn:training";
 	public static final ResourceKey<Level> KEY = ResourceKey.create(Registries.DIMENSION, Mistinn.id("training_ground"));
 	/** The station as it is built now; a save built by an older version is cleared and built again. */
-	public static final int VERSION = 2;
+	public static final int VERSION = 3;
 	/** Where a hunter heard in the listening pen is sent back to: its west door. */
 	public static final BlockPos SNEAK_START = new BlockPos(-3, 77, -60);
 	/** Where a hunter wakes: the barracks, between the bunks. */
@@ -77,6 +77,72 @@ public final class TrainingGround {
 	public record Post(StaffRole role, BlockPos pos, float yaw) {
 	}
 
+	/** One stop on the course's route: where a hunter's feet are, and what is there. */
+	public record Waypoint(String name, BlockPos pos) {
+	}
+
+	/**
+	 * The course, walked from the bunk to the pod: every lesson's spot, and the door, bridge end or
+	 * stair between them, in order. Each leg is meant to be walked straight; the route test walks
+	 * every one of them, and the guide arrow leads along them.
+	 */
+	public static final List<Waypoint> ROUTE = List.of(
+		new Waypoint("barracks bunks", ENTRY),
+		new Waypoint("barracks door", new BlockPos(-11, 65, 16)),
+		new Waypoint("arrival", new BlockPos(-6, 65, 16)),
+		new Waypoint("stores counter", new BlockPos(5, 65, 8)),
+		new Waypoint("stair landing", new BlockPos(-5, 65, -5)),
+		new Waypoint("stair head", new BlockPos(-21, 77, -5)),
+		new Waypoint("market, east of the mess", new BlockPos(-28, 77, -10)),
+		new Waypoint("north of the mess", new BlockPos(-28, 77, -30)),
+		new Waypoint("forge bridge, market end", new BlockPos(-42, 77, -31)),
+		new Waypoint("forge bridge, forge end", new BlockPos(-42, 77, -38)),
+		new Waypoint("heavy blow", new BlockPos(-42, 77, -45)),
+		new Waypoint("forge to drill yard", new BlockPos(-36, 77, -49)),
+		new Waypoint("sprint", new BlockPos(-22, 77, -42)),
+		new Waypoint("slide", new BlockPos(-32, 77, -50)),
+		new Waypoint("strike", new BlockPos(-21, 77, -53)),
+		new Waypoint("pen bridge, drill end", new BlockPos(-11, 77, -60)),
+		new Waypoint("pen bridge, pen end", new BlockPos(-3, 77, -60)),
+		new Waypoint("scout's lamp", new BlockPos(10, 77, -65)),
+		new Waypoint("pen to infirmary", new BlockPos(23, 77, -52)),
+		new Waypoint("infirmary deck", new BlockPos(27, 77, -52)),
+		new Waypoint("infirmary west door", new BlockPos(27, 77, -41)),
+		new Waypoint("infirmary", new BlockPos(38, 77, -39)),
+		new Waypoint("infirmary south door", new BlockPos(45, 77, -32)),
+		new Waypoint("workshop bridge", new BlockPos(45, 77, -27)),
+		new Waypoint("workshop north door", new BlockPos(45, 77, -21)),
+		new Waypoint("workshop table", new BlockPos(45, 77, -13)),
+		new Waypoint("back to the workshop door", new BlockPos(45, 77, -21)),
+		new Waypoint("back over the workshop bridge", new BlockPos(45, 77, -27)),
+		new Waypoint("back into the infirmary", new BlockPos(45, 77, -32)),
+		new Waypoint("infirmary north door", new BlockPos(42, 77, -50)),
+		new Waypoint("archive bridge", new BlockPos(42, 77, -57)),
+		new Waypoint("archive south door", new BlockPos(42, 77, -63)),
+		new Waypoint("archive", new BlockPos(43, 77, -71)),
+		new Waypoint("archive west door", new BlockPos(33, 77, -71)),
+		new Waypoint("archive deck, north-west", new BlockPos(33, 77, -84)),
+		new Waypoint("bell court bridge", new BlockPos(28, 77, -84)),
+		new Waypoint("bell court, east", new BlockPos(21, 77, -84)),
+		new Waypoint("golden bell", new BlockPos(12, 77, -86)),
+		new Waypoint("fall", new BlockPos(12, 77, -98)),
+		new Waypoint("back at the bell", new BlockPos(12, 77, -86)),
+		new Waypoint("radio bridge, bell end", new BlockPos(2, 77, -88)),
+		new Waypoint("radio bridge, radio end", new BlockPos(-6, 77, -88)),
+		new Waypoint("radio room east door", new BlockPos(-9, 77, -86)),
+		new Waypoint("radio", new BlockPos(-17, 77, -84)),
+		new Waypoint("radio room west door", new BlockPos(-27, 77, -82)),
+		new Waypoint("lamp hall bridge", new BlockPos(-35, 77, -82)),
+		new Waypoint("lamp hall east door", new BlockPos(-38, 77, -82)),
+		new Waypoint("lamp hall", new BlockPos(-48, 77, -79)),
+		new Waypoint("lamp hall north gate", new BlockPos(-46, 77, -95)),
+		new Waypoint("cold stair top", new BlockPos(-46, 91, -112)),
+		new Waypoint("drop platform", new BlockPos(-40, 91, -112)),
+		new Waypoint("report console", new BlockPos(-33, 91, -108)),
+		new Waypoint("beside the console", new BlockPos(-36, 91, -108)),
+		new Waypoint("past the console", new BlockPos(-36, 91, -112)),
+		new Waypoint("pod", new BlockPos(-27, 91, -127)));
+
 	private TrainingGround() {
 	}
 
@@ -100,6 +166,9 @@ public final class TrainingGround {
 		}
 		long started = System.nanoTime();
 		Builder b = new Builder(level, new BlockPos(0, 64, 0), RandomSource.create(0x52555354414E4348L));
+		if (level.getAttachedOrElse(BUILT_VERSION, 0) == 2) {
+			StationMap.repairBridges(b);
+		}
 		if (level.getAttachedOrElse(BUILT, false)) {
 			clearQuays(b);
 			level.removeAttached(BUILT);
@@ -108,6 +177,68 @@ public final class TrainingGround {
 		StationMap.build(b);
 		level.setAttached(BUILT_VERSION, VERSION);
 		Mistinn.LOGGER.info("Built Rust Anchor Station in {} ms", (System.nanoTime() - started) / 1_000_000L);
+	}
+
+	/** Within this far of a lesson's spot, the guide points at the spot itself, not along the route. */
+	public static final double NEAR_SPOT = 8.0;
+
+	/** Where on the route each lesson is, in course order (the route visits some places twice). */
+	private static java.util.Map<TrainingLesson, Integer> stops;
+
+	/** Where on the route this lesson's spot is. */
+	public static int stop(final TrainingLesson lesson) {
+		if (stops == null) {
+			java.util.Map<TrainingLesson, Integer> found = new java.util.EnumMap<>(TrainingLesson.class);
+			int cursor = 0;
+			for (TrainingLesson each : TrainingLesson.values()) {
+				int best = cursor;
+				for (int i = cursor; i < ROUTE.size(); i++) {
+					if (ROUTE.get(i).pos().distSqr(each.target) < ROUTE.get(best).pos().distSqr(each.target)) {
+						best = i;
+					}
+				}
+				found.put(each, best);
+				cursor = best;
+			}
+			stops = found;
+		}
+		return stops.get(lesson);
+	}
+
+	/**
+	 * Where the guide should lead a hunter at {@code at} who is making for this lesson: the end of
+	 * the leg of the route they are nearest to, so the way goes over the bridges and up the stairs
+	 * rather than straight at the spot across the water; near the spot, the spot itself.
+	 */
+	public static BlockPos nextStop(final Vec3 at, final TrainingLesson lesson, final BlockPos spot) {
+		int goal = stop(lesson);
+		if (goal == 0 || at.distanceTo(Vec3.atBottomCenterOf(spot)) <= NEAR_SPOT) {
+			return spot;
+		}
+		int leg = 0;
+		double nearest = Double.MAX_VALUE;
+		for (int i = 0; i < goal; i++) {
+			double d = toSegment(at, Vec3.atBottomCenterOf(ROUTE.get(i).pos()), Vec3.atBottomCenterOf(ROUTE.get(i + 1).pos()));
+			// where the route goes back the way it came, the later leg is the one being walked
+			if (d <= nearest + 1.0E-6) {
+				nearest = d;
+				leg = i;
+			}
+		}
+		return leg + 1 >= goal ? spot : ROUTE.get(leg + 1).pos();
+	}
+
+	private static double toSegment(final Vec3 p, final Vec3 a, final Vec3 b) {
+		Vec3 ab = b.subtract(a);
+		double len = ab.lengthSqr();
+		double t = len == 0.0 ? 0.0 : Math.max(0.0, Math.min(1.0, p.subtract(a).dot(ab) / len));
+		return p.distanceTo(a.add(ab.scale(t)));
+	}
+
+	/** Test hook: builds the station again as if this level had been built by {@code version}. */
+	public static void rebuildFrom(final ServerLevel level, final int version) {
+		level.setAttached(BUILT_VERSION, version);
+		ensureBuilt(level);
 	}
 
 	public static void markUpgraded(final ServerLevel level) {
