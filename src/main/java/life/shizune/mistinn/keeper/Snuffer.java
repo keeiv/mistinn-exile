@@ -175,6 +175,7 @@ public class Snuffer extends Monster {
 		}
 		if (this.home == null) {
 			this.home = this.position();
+			this.runner.leash(this.home, ROOM_RADIUS);
 		}
 		this.brain.observe(level, this, this.home, ROOM_RADIUS);
 		UUID chosen = this.brain.target();
@@ -242,6 +243,12 @@ public class Snuffer extends Monster {
 		LivingEntity target = this.getTarget();
 		this.brain.started(move, delay, target instanceof Player player ? player.getUUID() : null, this.position(), this.level().getGameTime());
 		this.syncMove();
+	}
+
+	/** Keeps what its moves carry inside a room (the room it first stood in, unless told otherwise). */
+	public void leash(final Vec3 centre, final double radius) {
+		this.home = centre;
+		this.runner.leash(centre, radius);
 	}
 
 	/** Its mind, for the game tests. */

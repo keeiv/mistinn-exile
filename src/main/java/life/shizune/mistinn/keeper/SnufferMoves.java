@@ -73,12 +73,44 @@ public final class SnufferMoves {
 		.script(SnufferMoves::hook)
 		.build();
 
+	/** Drops into a crouch, then slides feet first along the floor six blocks: whoever it reaches loses their footing, legs first. */
+	public static final BossMove SLIDE = BossMove.builder("slide", Kind.MOVEMENT).weight(Weight.LIGHT)
+		.tell(MistinnSounds.SNUFFER_SLIDE, 10).timing(8, 14)
+		.dash(10, 18, 6.0)
+		.along(10, 18, new HitShape.Capsule(1.4, 0.8, 1.2), PartRule.always(BodyService.Hit.LEGS), 5.0F)
+		.range(2.0, 7.0).families("slide", "lunge")
+		.seen((level, boss, target, tick) -> level.sendParticles(ParticleTypes.WHITE_ASH, boss.getX(), boss.getY() + 0.1, boss.getZ(), 4, 0.4, 0.02, 0.4, 0.0))
+		.script(context -> {
+			if (context.tick() >= 10 && context.tick() <= 18) {
+				context.level.sendParticles(ParticleTypes.WHITE_ASH, context.boss.getX(), context.boss.getY() + 0.05, context.boss.getZ(), 10, 0.5, 0.05, 0.5, 0.02);
+			}
+		})
+		.build();
+
+	/** Coils, then bursts eight blocks in under half a second and drives the spear into the body at the end of it. */
+	public static final BossMove RUSH = BossMove.builder("rush", Kind.MOVEMENT).weight(Weight.HEAVY)
+		.tell(MistinnSounds.SNUFFER_RUSH, 14).timing(10, 18)
+		.dash(14, 22, 8.0)
+		.strike(22, new HitShape.Capsule(3.2, 0.7, 2.0), PartRule.always(BodyService.Hit.on(BodyPart.TORSO, false)), 8.0F)
+		.range(5.0, 11.0).families("rush", "thrust")
+		.seen((level, boss, target, tick) -> level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, boss.getX(), boss.getEyeY() + 0.3, boss.getZ(), 1, 0.1, 0.1, 0.1, 0.01))
+		.script(context -> {
+			if (context.tick() >= 14 && context.tick() < 22) {
+				context.level.sendParticles(ParticleTypes.CLOUD, context.boss.getX(), context.boss.getY() + 0.3, context.boss.getZ(), 2, 0.2, 0.1, 0.2, 0.0);
+			}
+			if (context.tick() == 22) {
+				context.boss.swing(InteractionHand.MAIN_HAND, context.boss.getMainHandItem().getAttackAnimation(), true);
+				context.level.playSound(null, context.boss.blockPosition(), SoundEvents.TRIDENT_THROW.value(), SoundSource.HOSTILE, 1.4F, 0.6F);
+			}
+		})
+		.build();
+
 	/** Thrown off balance by the lit lamps: hunched and swaying. Suffered, never chosen. */
 	public static final BossMove STAGGER = BossMove.builder("stagger", Kind.REACTION)
 		.unannounced(0).timing(0, Snuffer.STAGGER_TICKS)
 		.build();
 
-	public static final MoveSet SET = new MoveSet(List.of(SWEEP, SLAM, HOOK, STAGGER), List.of());
+	public static final MoveSet SET = new MoveSet(List.of(SWEEP, SLAM, HOOK, SLIDE, RUSH, STAGGER), List.of());
 
 	/** The leap at tick 20; in the air through 30, held there until it comes down; the landing strikes. */
 	private static void slam(final MoveRunner.Context context) {

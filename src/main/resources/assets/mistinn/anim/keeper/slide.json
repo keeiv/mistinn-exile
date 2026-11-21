@@ -1,0 +1,15 @@
+{"_comment":"滑鏟: drops into a crouch, spear swung back (the tell, 0-10); slides feet first along the floor, legs out, sweeping the hunter's legs (10-18); pushes back up (18-32).",
+"keys":[0.0,0.25,0.3125,0.375,0.5625,0.75,1.0],
+"eases":["out_quad","in_cubic","out_cubic","linear","out_quad","in_out_sine"],
+"length":32,"limbs":{
+"body_x":[0,35,40,25,22,30,0],
+"head_x":[0,20,25,35,32,15,0],
+"left_arm_x":[0,-35,-35,25,25,-10,0],
+"left_arm_z":[0,-10,-10,-25,-25,-10,0],
+"left_leg_x":[0,25,25,-20,-15,20,0],
+"right_arm_x":[0,45,45,-10,-10,10,0],
+"right_arm_z":[0,15,15,55,60,20,0],
+"right_leg_x":[0,-45,-45,-40,-45,-30,0]},
+"root":{
+"pitch":[0,12,18,-55,-58,5,0],
+"y":[0,-0.35,-0.45,-0.75,-0.78,-0.3,0]}}
