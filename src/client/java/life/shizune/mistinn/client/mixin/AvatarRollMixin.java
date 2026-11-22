@@ -45,6 +45,8 @@ public abstract class AvatarRollMixin {
 			state.deathTime = 0.0F;
 			state.hasRedOverlay = false;
 		}
+		state.setData(life.shizune.mistinn.client.view.RunPose.KEY, death == null && execution == null && state.getData(RollClient.KEY) == null
+			? life.shizune.mistinn.client.view.RunPose.sample(entity) : null);
 		// through their own eyes: nothing worn on the head is drawn, nor what a hand holds up in front of the eye
 		boolean own = OwnBody.inWorldPass() && entity == net.minecraft.client.Minecraft.getInstance().player && OwnBody.active();
 		state.setData(OwnBody.KEY, own ? Boolean.TRUE : null);
@@ -65,6 +67,13 @@ public abstract class AvatarRollMixin {
 	private void mistinn$standBack(final AvatarRenderState state, final PoseStack pose, final float bodyRot, final float entityScale, final CallbackInfo ci) {
 		if (Boolean.TRUE.equals(state.getData(OwnBody.KEY))) {
 			pose.translate(0.0F, 0.0F, OwnBody.BACK * entityScale);
+		}
+		Float run = state.getData(life.shizune.mistinn.client.view.RunPose.KEY);
+		if (run != null) {
+			// leaning into the run about the feet, and down a little at each footfall
+			float[] root = life.shizune.mistinn.client.view.RunPose.root(state, run);
+			pose.translate(0.0F, -root[1] * entityScale, 0.0F);
+			pose.rotateDegrees(Axis.XP, -root[0]);
 		}
 	}
 

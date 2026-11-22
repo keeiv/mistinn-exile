@@ -85,6 +85,8 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 			}
 			check(felt, "a five-block drop is felt in the view");
 
+			runsLikeARunner(context, world, stage);
+
 			// seen from outside nothing is left out
 			context.runOnClient(mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
 			context.waitTicks(3);
@@ -113,6 +115,65 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 		check(ViewMotion.impact(3.0F) > 0.0F && ViewMotion.impact(3.0F) < ViewMotion.impact(8.0F) && ViewMotion.impact(8.0F) == 1.0F, "a longer fall lands harder");
 		check(ViewMotion.dip(0.05F) > 0.5F && ViewMotion.dip(0.3F) < ViewMotion.dip(0.1F) && ViewMotion.dip(ViewMotion.LANDING) == 0.0F,
 			"the dip comes fast and is gone in a third of a second");
+	}
+
+	/**
+	 * At a sprint the body leans into the run and both hands are carried further forward than at a walk, in the same
+	 * stride; nothing sinks into the floor. Stills from the side and through the hunter's own eyes.
+	 */
+	private static void runsLikeARunner(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		look(context, world, stage, 0.0F);
+		world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY));
+		context.waitTicks(5);
+		float quarter = Mth.HALF_PI / 0.6662F;
+		float[][] got = new float[2][];
+		for (int i = 0; i < 2; i++) {
+			Float run = i == 0 ? null : 1.0F;
+			got[i] = context.computeOnClient(mc -> {
+				java.util.List<ClipProbe.Box> boxes = ClipProbe.boxes(mc, mc.player, net.minecraft.world.phys.Vec3.ZERO, 0.0F, state -> {
+					state.walkAnimationSpeed = 1.0F;
+					state.walkAnimationPos = quarter;
+					state.setData(life.shizune.mistinn.client.view.RunPose.KEY, run);
+					state.setData(OwnBody.KEY, null);
+				}, false, null, null);
+				float hands = 0.0F;
+				int arms = 0;
+				float head = 0.0F;
+				for (ClipProbe.Box box : boxes) {
+					if (box.path().equals("/right_arm") || box.path().equals("/left_arm")) {
+						hands += box.center().z;
+						arms++;
+					}
+					if (box.path().equals("/head")) {
+						head = box.center().z;
+					}
+				}
+				return new float[] {hands / Math.max(1, arms), head, ClipProbe.reach(boxes, -1.0F)};
+			});
+		}
+		check(got[1][1] > got[0][1] + 0.1F, "at a sprint the body leans into the run: head " + got[1][1] + " against " + got[0][1]);
+		check(got[1][0] > got[0][0] + 0.05F, "and the arms are carried forward: " + got[1][0] + " against " + got[0][0]);
+		check(got[1][2] > -0.08F, "nothing sinks into the floor: lowest " + got[1][2]);
+
+		// stills: every runner on screen held at one point of the stride
+		context.runOnClient(mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
+		world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst()
+			.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 0.5, Set.of(), 60.0F, 10.0F, true));
+		for (int i = 0; i < 3; i++) {
+			float at = quarter * (0.5F + i);
+			context.runOnClient(mc -> life.shizune.mistinn.client.view.RunPose.preview = new float[] {1.0F, at});
+			context.waitTicks(3);
+			context.takeScreenshot("ownbody-run-behind-" + i);
+		}
+		context.runOnClient(mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
+		look(context, world, stage, 35.0F);
+		for (int i = 0; i < 3; i++) {
+			float at = quarter * (0.5F + i);
+			context.runOnClient(mc -> life.shizune.mistinn.client.view.RunPose.preview = new float[] {1.0F, at});
+			context.waitTicks(3);
+			context.takeScreenshot("ownbody-run-eyes-" + i);
+		}
+		context.runOnClient(mc -> life.shizune.mistinn.client.view.RunPose.preview = null);
 	}
 
 	private static void look(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage, final float pitch) {
