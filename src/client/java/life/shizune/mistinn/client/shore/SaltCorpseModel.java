@@ -11,6 +11,8 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.model.monster.zombie.ZombieModel;
 import net.minecraft.client.renderer.entity.state.ZombieRenderState;
+import net.minecraft.util.Mth;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 鹽屍的模型: a drowned man the salt has dried out. A shrunken skull with dark sockets, a hole for a nose and
@@ -24,8 +26,26 @@ import net.minecraft.client.renderer.entity.state.ZombieRenderState;
 public class SaltCorpseModel extends ZombieModel<ZombieRenderState> {
 	public static final ModelLayerLocation LAYER = new ModelLayerLocation(Mistinn.id("salt_corpse"), "main");
 
+	/** How far, in radians, the slack jaw stirs on its own, and how much wider it gapes at a hunter. */
+	private static final float JAW_STIR = 0.09F;
+	private static final float JAW_GAPE = 0.35F;
+
+	/** The slack jaw; null on the armour layers, which have none. */
+	private final @Nullable ModelPart jaw;
+
 	public SaltCorpseModel(final ModelPart root) {
 		super(root);
+		this.jaw = this.head.hasChild("jaw") ? this.head.getChild("jaw") : null;
+	}
+
+	/** Its slack jaw hangs and stirs on its own, and gapes when it turns on a hunter. */
+	@Override
+	public void setupAnim(final ZombieRenderState state) {
+		super.setupAnim(state);
+		if (this.jaw == null) {
+			return;
+		}
+		this.jaw.xRot += JAW_STIR * (0.5F + 0.5F * Mth.sin(state.ageInTicks * 0.17F)) + (state.isAggressive ? JAW_GAPE : 0.0F);
 	}
 
 	public static LayerDefinition definition() {
