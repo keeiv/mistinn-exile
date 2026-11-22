@@ -302,6 +302,8 @@ public class Snuffer extends Monster {
 		for (ServerPlayer player : this.bar.getPlayers()) {
 			player.sendSystemMessage(Component.translatable("message.mistinn.snuffer.dark"), true);
 		}
+		// 霧中分身: two shades come up out of the dark beside it
+		life.shizune.mistinn.shore.MistShade.summonClones(level, this);
 	}
 
 	private void darkRoom(final ServerLevel level) {

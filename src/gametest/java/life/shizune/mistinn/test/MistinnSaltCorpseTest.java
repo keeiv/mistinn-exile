@@ -160,7 +160,7 @@ public final class MistinnSaltCorpseTest implements FabricClientGameTest {
 			ServerPlayer player = player(server);
 			int brought = 0;
 			for (int i = 0; i < 40; i++) {
-				net.minecraft.world.entity.Mob corpse = ShoreSpawner.tryOnce(player, i % 3 == 2);
+				net.minecraft.world.entity.Mob corpse = ShoreSpawner.tryOnce(player, i % 3 == 2 ? MistinnEntities.LAMP_THRALL : MistinnEntities.SALT_CORPSE);
 				if (corpse != null) {
 					brought++;
 					double distance = Math.hypot(corpse.getX() - player.getX(), corpse.getZ() - player.getZ());

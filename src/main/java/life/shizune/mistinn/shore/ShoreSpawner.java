@@ -17,8 +17,9 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * The dead come up out of the shore mist. A hunter inside a lighthouse's mist now and then finds
- * something a little way off in it: a salt corpse, on its feet or lying where it fell, waiting; or
- * a lamp thrall, its lantern a blue point in the grey. Never more than a few round one hunter;
+ * something a little way off in it: a salt corpse, on its feet or lying where it fell, waiting; a
+ * lamp thrall, its lantern a blue point in the grey; or a shade, half there. Never more than a few
+ * round one hunter;
  * never in the open land, never for a hunter who cannot be hurt.
  */
 public final class ShoreSpawner {
@@ -30,8 +31,9 @@ public final class ShoreSpawner {
 	/** How far off they come up: out of sight in the thick of the mist, not at the hunter's elbow. */
 	public static final int CLOSEST = 18;
 	public static final int FARTHEST = 32;
-	/** The share of them that are lamp thralls. */
-	private static final float THRALLS = 0.35F;
+	/** The share of them that are lamp thralls, and that are shades; the rest are corpses. */
+	private static final float THRALLS = 0.3F;
+	private static final float SHADES = 0.2F;
 
 	private ShoreSpawner() {
 	}
@@ -57,11 +59,12 @@ public final class ShoreSpawner {
 
 	/** One try at bringing one of them up in the mist round the hunter; what came up, or null. */
 	public static @Nullable Mob tryOnce(final ServerPlayer hunter) {
-		return tryOnce(hunter, hunter.getRandom().nextFloat() < THRALLS);
+		float roll = hunter.getRandom().nextFloat();
+		return tryOnce(hunter, roll < THRALLS ? MistinnEntities.LAMP_THRALL : roll < THRALLS + SHADES ? MistinnEntities.MIST_SHADE : MistinnEntities.SALT_CORPSE);
 	}
 
-	/** One try at bringing a thrall, or else a corpse, up in the mist round the hunter (also a test hook). */
-	public static @Nullable Mob tryOnce(final ServerPlayer hunter, final boolean thrall) {
+	/** One try at bringing one of this kind up in the mist round the hunter (also a test hook). */
+	public static @Nullable Mob tryOnce(final ServerPlayer hunter, final net.minecraft.world.entity.EntityType<? extends Mob> kind) {
 		ServerLevel level = hunter.level();
 		if (!level.dimension().equals(Level.OVERWORLD) || !inMist(level, hunter.getX(), hunter.getZ())) {
 			return null;
@@ -87,8 +90,7 @@ public final class ShoreSpawner {
 			if (!level.noCollision(MistinnEntities.SALT_CORPSE.getSpawnAABB(x + 0.5, y, z + 0.5))) {
 				continue;
 			}
-			Mob creature = thrall ? MistinnEntities.LAMP_THRALL.create(level, EntitySpawnReason.EVENT)
-				: MistinnEntities.SALT_CORPSE.create(level, EntitySpawnReason.EVENT);
+			Mob creature = kind.create(level, EntitySpawnReason.EVENT);
 			if (creature == null) {
 				return null;
 			}
@@ -104,7 +106,8 @@ public final class ShoreSpawner {
 
 	/** How many of the mist's creatures are round the hunter. */
 	public static int round(final ServerLevel level, final ServerPlayer hunter) {
-		return level.getEntitiesOfClass(Mob.class, hunter.getBoundingBox().inflate(NEAR), mob -> mob instanceof SaltCorpse || mob instanceof LampThrall).size();
+		return level.getEntitiesOfClass(Mob.class, hunter.getBoundingBox().inflate(NEAR),
+			mob -> mob instanceof SaltCorpse || mob instanceof LampThrall || mob instanceof MistShade).size();
 	}
 
 	/** Whether a place is inside some lighthouse's mist. */

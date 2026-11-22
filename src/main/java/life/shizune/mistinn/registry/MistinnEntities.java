@@ -3,6 +3,7 @@ package life.shizune.mistinn.registry;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.keeper.Snuffer;
 import life.shizune.mistinn.shore.LampThrall;
+import life.shizune.mistinn.shore.MistShade;
 import life.shizune.mistinn.shore.SaltCorpse;
 import life.shizune.mistinn.station.StationHand;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -34,6 +35,12 @@ public final class MistinnEntities {
 		.eyeHeight(1.74F)
 		.clientTrackingRange(8));
 
+	/** 霧影: the shape a lost hunter leaves in the fog; only ever met in the mist; its touch blinds. */
+	public static final EntityType<MistShade> MIST_SHADE = register("mist_shade", EntityType.Builder.<MistShade>of(MistShade::new, MobCategory.MONSTER)
+		.sized(0.6F, 1.95F)
+		.eyeHeight(1.74F)
+		.clientTrackingRange(8));
+
 	/** The people of Rust Anchor, in the player model. */
 	public static final EntityType<StationHand> STATION_HAND = register("station_hand", EntityType.Builder.<StationHand>of(StationHand::new, MobCategory.MISC)
 		.sized(0.6F, 1.8F)
@@ -53,5 +60,6 @@ public final class MistinnEntities {
 		FabricDefaultAttributeRegistry.register(STATION_HAND, StationHand.createAttributes());
 		FabricDefaultAttributeRegistry.register(SALT_CORPSE, SaltCorpse.createAttributes());
 		FabricDefaultAttributeRegistry.register(LAMP_THRALL, LampThrall.createAttributes());
+		FabricDefaultAttributeRegistry.register(MIST_SHADE, MistShade.createAttributes());
 	}
 }
