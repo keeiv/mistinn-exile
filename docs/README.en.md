@@ -45,6 +45,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 - [Death and the end of the mission](#death-and-the-end-of-the-mission)
 - [Swings, stamina and rolls](#swings-stamina-and-rolls)
 - [The fog-shore lighthouse and the Snuffer](#the-fog-shore-lighthouse-and-the-snuffer)
+- [The fog-bell station and the Sunken Bell](#the-fog-bell-station-and-the-sunken-bell)
 - [Stats and skills](#stats-and-skills)
 - [Achievements](#achievements)
 - [Controls](#controls)
@@ -77,12 +78,13 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Stamina and rolls | Swings, sprints and rolls cost stamina. The legs determine how far a roll goes and the arms shape its motion. Badly injured legs can force a dive, whose landing strains the upper body. |
 | Title screen | An original misty shore with a dead lighthouse: drifting fog, glinting water and a last ember in the lamp room. |
 | Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: eleven pages on the world, the mission and the rules, the stats, the skill tree and the achievements. |
-| Achievements | Fifteen of them, from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer. A notice slides in at the top right and pays some salt; all are listed on the guide's deeds page. See [Achievements](#achievements). |
+| Achievements | Sixteen of them, from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer and the Sunken Bell. A notice slides in at the top right and pays some salt; all are listed on the guide's deeds page. See [Achievements](#achievements). |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V; each with its own durability, protection, capacity, layout and a two-line story. |
 | Grid inventory | Four pockets, the chest rig's and backpack's grids, and a safe box kept through death. Every item takes a footprint by kind and can be rotated. Packs, rigs and some medical supplies have sprites drawn for their footprints. Packs and rigs also show on the body. Survival and adventure use the mod's own inventory screen and seal off the 27 vanilla slots. |
 | Fog-shore lighthouses | Dead lighthouses on the coast; the lamp room at the top is held by the first keeper, **the Snuffer**, whose every move strikes a set part of the body. The fight has its own music, which turns more frantic in its dark half. |
+| Fog-bell stations | Bell towers on reefs in the shallows off the misty shore, held by the second keeper, **the Sunken Bell**. Each toll of its bell rolls a ring out along the floor and thickens the mist by a layer; a fully charged heavy blow rings its own bell and thins the mist again. See [The fog-bell station and the Sunken Bell](#the-fog-bell-station-and-the-sunken-bell). |
 | Stats and skills | Bring back a keeper's rust god salt to learn the **slide**, the first major skill, on the guide's skills page; after that, salt buys strength, speed, constitution and intellect a point at a time. See [Stats and skills](#stats-and-skills). |
 | Languages | Traditional Chinese and English. |
 
@@ -317,6 +319,19 @@ Rust Anchor says the coasts at the world's edge are lined with dead lighthouses,
 - It drops **the Rust God's salt block**, 3000 salt, and a 30% chance of one piece of tier III–IV gear.
 - In the lamp room, or within 32 blocks once it is wounded, the keeper's fight music plays. Below half health, a low bell marks the blackout and leads into the dark track. The music stops when the fight is over.
 
+## The fog-bell station and the Sunken Bell
+
+Now and then, in the shallows off the misty shore, a **fog-bell station** stands on a reef: in the old days a bell was rung here in the mist to guide the boats in. A golden bell waits in a stone shrine where the boats tied up. The square tower has three floors, the lowest half under water, a stair climbing its walls and stores that get better the higher they are; on top, in an open belfry, a great bell hangs, and the second keeper, **the Sunken Bell**, waits beneath it.
+
+The Sunken Bell is a drowned bell-ringer, his head and shoulders sealed in a cracked bronze bell grown over with verdigris and barnacles, the bell's chained tongue in his fists. He is shorter than the Snuffer but far broader, and thinks with the same brain that looks ahead and learns you.
+
+- 360 health and 10 armour; he cannot be pushed, and has a boss bar.
+- **Toll**: he strikes his own bell with the clapper and a ring rolls out along the floor. Standing on the floor where it passes takes a blow to the head; jump it or roll through it. The bell hums before a toll.
+- **Mist layers**: each toll thickens the mist of his room by a layer, and how far you see shrinks from 16 blocks down to 4.5, the map with it; a layer thins after fifteen quiet seconds. At the fourth layer he gives the **deep toll**: three tolls, each ring further than the last.
+- **Ringing it back**: a fully charged heavy blow rings his own bell at him and thins the mist a layer; three in a row throw him off balance for five seconds, taking half again as much damage, and thin the mist by two more.
+- Below half health the bell cracks: his tolls come double and the mist is slower to thin.
+- He drops the **Rust God's salt block**, 3500 salt, and a 30% chance of a piece of tier III–IV gear.
+
 ## Stats and skills
 
 | | |
@@ -358,6 +373,7 @@ When you do something worth remembering, a notice slides in at the top right, a 
 | All Round | At least 1 in all four stats | 200 |
 | Chosen | Land a special weapon's own heavy blow | 400 |
 | Snuffer Slain | The Snuffer falls with you near | 1000 |
+| Sunken Bell Silenced | The Sunken Bell falls with you near | 1200 |
 | Steady Hands | Save a destroyed part with a surgery kit | 150 |
 | The Bell | Rest at a golden bell | 50 |
 | Gathered Back | Take your residue back from your gravestone | 100 |
@@ -439,7 +455,7 @@ Textures and models are original work by MoriTeahouse. Sound effects combine edi
 ## What comes next
 
 1. **The rest of the story**: chapter 2, *The Salt Road*, then the keepers of the Sunken Bell and the Rust Wheel, and the Mist Inn with the endings.
-2. **The second keeper, the Sunken Bell**: a half-sunk fog-bell tower out on the reef. Every toll of its bell thickens the mist by a layer, and a fully charged heavy blow rings its own bell and thins it again ([design, in Chinese](phase3-design.md)).
+2. **More of the Sunken Bell**: the mist wall of the belfry, its cracked-bell grab and its own spoils ([design, in Chinese](phase3-design.md)).
 3. **The Rust Wheel**: a rolling, ramming machine with its weak point on the axle at its back, built on the same keeper moves and brain.
 4. **Later**: co-op.
 
