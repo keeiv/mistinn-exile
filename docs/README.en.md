@@ -24,6 +24,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 [Features](#features) ·
 [Playing](#playing) ·
 [Phase 2 design](phase2-design.md) (Chinese) ·
+[Phase 3 design](phase3-design.md) (Chinese) ·
 [Contributing](CONTRIBUTING.en.md)
 
 </div>
@@ -438,8 +439,8 @@ Textures and models are original work by MoriTeahouse. Sound effects combine edi
 ## What comes next
 
 1. **The rest of the story**: chapter 2, *The Salt Road*, then the keepers of the Sunken Bell and the Rust Wheel, and the Mist Inn with the endings.
-2. **The rest of the forbidden zone**: fog that thickens near a lighthouse and on the minimap, a second bell that needs lamp oil, the fog wall of the lamp room, creatures of the mist and the keeper's mist doubles ([design, in Chinese](phase2-design.md)).
-3. **More keepers**: the Sunken Bell and the Rust Wheel.
+2. **The second keeper, the Sunken Bell**: a half-sunk fog-bell tower out on the reef. Every toll of its bell thickens the mist by a layer, and a fully charged heavy blow rings its own bell and thins it again ([design, in Chinese](phase3-design.md)).
+3. **The Rust Wheel**: a rolling, ramming machine with its weak point on the axle at its back, built on the same keeper moves and brain.
 4. **Later**: co-op.
 
 ## Contributing
