@@ -105,6 +105,9 @@ public final class CameraSwing {
 		if (drop > 0.0F) {
 			pose.translate(0.0F, drop, 0.0F);
 		}
+		if (enabled()) {
+			life.shizune.mistinn.client.view.ViewMotion.apply(pose, player, partialTicks);
+		}
 		float yaw = extra[0];
 		float pitch = extra[1];
 		float roll = extra[2];

@@ -6,6 +6,7 @@ import life.shizune.mistinn.client.anim.Clip;
 import life.shizune.mistinn.client.anim.Poser;
 import life.shizune.mistinn.client.enemy.ExecutionView;
 import life.shizune.mistinn.client.move.RollClient;
+import life.shizune.mistinn.client.view.OwnBody;
 import life.shizune.mistinn.stamina.RollService;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
@@ -43,6 +44,27 @@ public abstract class AvatarRollMixin {
 		if (death != null || execution != null) {
 			state.deathTime = 0.0F;
 			state.hasRedOverlay = false;
+		}
+		// through their own eyes: nothing worn on the head is drawn, nor what a hand holds up in front of the eye
+		boolean own = OwnBody.inWorldPass() && entity == net.minecraft.client.Minecraft.getInstance().player && OwnBody.active();
+		state.setData(OwnBody.KEY, own ? Boolean.TRUE : null);
+		if (own) {
+			state.headEquipment = net.minecraft.world.item.ItemStack.EMPTY;
+			state.headItem.clear();
+			state.heldOnHead.clear();
+			state.wornHeadType = null;
+			state.setData(life.shizune.mistinn.client.gear.MaskLayer.KEY, null);
+			if (OwnBody.raised(partialTicks) > 0.0F) {
+				(state.mainArm == net.minecraft.world.entity.HumanoidArm.RIGHT ? state.rightHandItemState : state.leftHandItemState).clear();
+			}
+		}
+	}
+
+	/** The body stands a little behind the eye, so the hunter looks down their own chest and never out of it. */
+	@Inject(method = "setupRotations(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V", at = @At("TAIL"))
+	private void mistinn$standBack(final AvatarRenderState state, final PoseStack pose, final float bodyRot, final float entityScale, final CallbackInfo ci) {
+		if (Boolean.TRUE.equals(state.getData(OwnBody.KEY))) {
+			pose.translate(0.0F, 0.0F, OwnBody.BACK * entityScale);
 		}
 	}
 
