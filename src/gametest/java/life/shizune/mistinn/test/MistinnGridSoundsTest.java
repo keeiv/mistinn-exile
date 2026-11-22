@@ -45,7 +45,14 @@ public final class MistinnGridSoundsTest implements FabricClientGameTest {
 				is(Items.APPLE, Material.PLAIN, "an apple");
 				for (Material material : Material.values()) {
 					check(mc.getSoundManager().getSoundEvent(material.place().location()) != null, material + "'s sound is in the loaded sound list");
+					check(mc.getSoundManager().getSoundEvent(material.pickup().location()) != null, material + "'s lifting sound is in the list too");
 				}
+				// lifted, a blade knocks as metal and a bottle clinks; cloth is the plain rustle it always was
+				check(GridSounds.pickup(new ItemStack(MistinnItems.WEAPONS.get(WeaponStyle.SLASH).get(WeaponMaterial.IRON))) == life.shizune.mistinn.registry.MistinnSounds.GRID_PICKUP_METAL,
+					"an iron blade is lifted as metal");
+				check(GridSounds.pickup(new ItemStack(Items.POTION)) == life.shizune.mistinn.registry.MistinnSounds.GRID_PICKUP_GLASS, "a potion as glass");
+				check(GridSounds.pickup(new ItemStack(MistinnItems.BACKPACKS.get(1))) == life.shizune.mistinn.registry.MistinnSounds.GRID_PICKUP,
+					"a backpack with the plain rustle");
 			});
 		}
 	}

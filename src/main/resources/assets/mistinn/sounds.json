@@ -1137,5 +1137,53 @@
       "mistinn:ui/grid/place_wood_3"
     ],
     "subtitle": "subtitles.mistinn.ui.grid.place.wood"
+  },
+  "ui.grid.pickup.metal": {
+    "sounds": [
+      "mistinn:ui/grid/pickup_metal_1",
+      "mistinn:ui/grid/pickup_metal_2",
+      "mistinn:ui/grid/pickup_metal_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.pickup.metal"
+  },
+  "ui.grid.pickup.plate": {
+    "sounds": [
+      "mistinn:ui/grid/pickup_plate_1",
+      "mistinn:ui/grid/pickup_plate_2",
+      "mistinn:ui/grid/pickup_plate_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.pickup.plate"
+  },
+  "ui.grid.pickup.grain": {
+    "sounds": [
+      "mistinn:ui/grid/pickup_grain_1",
+      "mistinn:ui/grid/pickup_grain_2",
+      "mistinn:ui/grid/pickup_grain_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.pickup.grain"
+  },
+  "ui.grid.pickup.glass": {
+    "sounds": [
+      "mistinn:ui/grid/pickup_glass_1",
+      "mistinn:ui/grid/pickup_glass_2",
+      "mistinn:ui/grid/pickup_glass_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.pickup.glass"
+  },
+  "ui.grid.pickup.paper": {
+    "sounds": [
+      "mistinn:ui/grid/pickup_paper_1",
+      "mistinn:ui/grid/pickup_paper_2",
+      "mistinn:ui/grid/pickup_paper_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.pickup.paper"
+  },
+  "ui.grid.pickup.wood": {
+    "sounds": [
+      "mistinn:ui/grid/pickup_wood_1",
+      "mistinn:ui/grid/pickup_wood_2",
+      "mistinn:ui/grid/pickup_wood_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.pickup.wood"
   }
 }

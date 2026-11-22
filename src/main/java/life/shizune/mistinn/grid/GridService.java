@@ -99,7 +99,7 @@ public final class GridService {
 		set(player, inv.with(area, items));
 		menu.setCarried(taken.stack().copy());
 		menu.broadcastChanges();
-		cue(player, MistinnSounds.GRID_PICKUP);
+		cue(player, GridSounds.pickup(taken.stack()));
 	}
 
 	/** Puts the cursor's stack down at (section, x, y), merging onto a matching stack there. */
@@ -267,10 +267,11 @@ public final class GridService {
 		Inventory inventory = player.getInventory();
 		for (int slot = 0; slot < Inventory.getSelectionSize(); slot++) {
 			if (inventory.getItem(slot).isEmpty()) {
-				inventory.setItem(slot, items.remove(index).stack().copy());
+				ItemStack lifted = items.remove(index).stack().copy();
+				inventory.setItem(slot, lifted);
 				set(player, inv.with(area, items));
 				player.containerMenu.broadcastChanges();
-				cue(player, MistinnSounds.GRID_PICKUP);
+				cue(player, GridSounds.pickup(lifted));
 				return;
 			}
 		}

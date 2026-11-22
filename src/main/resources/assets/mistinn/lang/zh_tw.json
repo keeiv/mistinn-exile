@@ -1165,5 +1165,11 @@
   "subtitles.mistinn.ui.grid.place.grain": "鹽粒沙沙",
   "subtitles.mistinn.ui.grid.place.glass": "瓶子輕碰",
   "subtitles.mistinn.ui.grid.place.paper": "放下書頁",
-  "subtitles.mistinn.ui.grid.place.wood": "放下木頭"
+  "subtitles.mistinn.ui.grid.place.wood": "放下木頭",
+  "subtitles.mistinn.ui.grid.pickup.metal": "拿起金屬物件",
+  "subtitles.mistinn.ui.grid.pickup.plate": "拿起護甲",
+  "subtitles.mistinn.ui.grid.pickup.grain": "鹽粒滑動",
+  "subtitles.mistinn.ui.grid.pickup.glass": "瓶子輕響",
+  "subtitles.mistinn.ui.grid.pickup.paper": "書頁翻動",
+  "subtitles.mistinn.ui.grid.pickup.wood": "拿起木頭"
 }

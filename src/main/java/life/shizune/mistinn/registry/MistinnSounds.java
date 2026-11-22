@@ -136,6 +136,13 @@ public final class MistinnSounds {
 	public static final SoundEvent MIST_SHADE_DEATH = register("entity.mist_shade.death");
 	// the grid inventory, heard only by its owner
 	public static final SoundEvent GRID_PICKUP = register("ui.grid.pickup");
+	/** Lifted out of the pack, by what it is made of (cloth is the plain rustle). */
+	public static final SoundEvent GRID_PICKUP_METAL = register("ui.grid.pickup.metal");
+	public static final SoundEvent GRID_PICKUP_PLATE = register("ui.grid.pickup.plate");
+	public static final SoundEvent GRID_PICKUP_GRAIN = register("ui.grid.pickup.grain");
+	public static final SoundEvent GRID_PICKUP_GLASS = register("ui.grid.pickup.glass");
+	public static final SoundEvent GRID_PICKUP_PAPER = register("ui.grid.pickup.paper");
+	public static final SoundEvent GRID_PICKUP_WOOD = register("ui.grid.pickup.wood");
 	public static final SoundEvent GRID_PLACE = register("ui.grid.place");
 	/** Set down in the pack, by what it is made of. */
 	public static final SoundEvent GRID_PLACE_METAL = register("ui.grid.place.metal");
