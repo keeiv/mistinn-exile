@@ -88,6 +88,8 @@ Commit only files related to the change. Never commit `build/`, `run/`, `.gradle
 
 Pushing a tag `vX.Y.Z` builds that commit and publishes the mod's JAR as a GitHub Release, with the changes since the last one. Set `version` in `gradle.properties` to the version being released and merge that to `main` through a PR; run the full client game test locally (CI has no display, and the release does not run it); then tag `main` and push the tag. The tag must match `version`, or the release fails.
 
+After a release, the [launcher](https://github.com/keeiv/mistinn-launcher) brings out a build with the new mod embedded within the hour. With a `LAUNCHER_DISPATCH_TOKEN` secret in this repository (a token that may run the launcher repository's workflows), it is told the moment the release is out.
+
 ## Reporting problems
 
 Report on the [MoriTeahouse site](https://moriteahouse.shizune.life/account) with the Minecraft and mod versions, steps to reproduce and `logs/latest.log`.

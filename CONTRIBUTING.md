@@ -128,6 +128,8 @@ git tag v0.1.1
 git push origin v0.1.1
 ```
 
+發布後，[霧宿啟動器](https://github.com/keeiv/mistinn-launcher)會在一小時內自動出一個內嵌新版模組的版本。在本倉庫設定 `LAUNCHER_DISPATCH_TOKEN` 這個 secret（一個能執行啟動器倉庫工作流程的金鑰）的話，發布當下就會通知它。
+
 ## 回報問題
 
 請到[森之宿茶室官網](https://moriteahouse.shizune.life/account)回報（作品選「霧宿：追放」），附上 Minecraft 與模組版本、重現步驟，以及 `logs/latest.log`。

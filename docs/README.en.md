@@ -133,7 +133,9 @@ Four special weapons only answer a hunter who meets their requirements. Short of
 
 ## Playing
 
-You need Minecraft Java Edition 26.3, [Fabric Loader](https://fabricmc.net/use/) 0.20.1 or newer, [Fabric API](https://modrinth.com/mod/fabric-api) and Java 25. Put `mistinn-<version>.jar` and Fabric API in your `mods` folder and enter a survival world.
+The easiest way is the [Mistinn Launcher](https://github.com/keeiv/mistinn-launcher/releases): it downloads the game, Java, Fabric and this mod, and tunes the settings to your computer. For now it is an offline launcher: play with an offline account.
+
+To install it yourself: you need Minecraft Java Edition 26.3, [Fabric Loader](https://fabricmc.net/use/) 0.20.1 or newer, [Fabric API](https://modrinth.com/mod/fabric-api) and Java 25. Put `mistinn-<version>.jar` and Fabric API in your `mods` folder and enter a survival world.
 
 > [!NOTE]
 > Only Minecraft 26.3 is supported. Creative mode keeps the vanilla inventory; the grid inventory is active in survival and adventure.

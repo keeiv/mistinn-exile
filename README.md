@@ -144,7 +144,9 @@
 
 ## 開始遊玩
 
-需要 Minecraft Java 版 26.3、[Fabric Loader](https://fabricmc.net/use/) 0.20.1 以上、[Fabric API](https://modrinth.com/mod/fabric-api) 與 Java 25。
+最簡單的方式是用[霧宿啟動器](https://github.com/keeiv/mistinn-launcher/releases)：它會下載遊戲、Java、Fabric 與本模組，並依你的電腦調好設定。目前是離線啟動器，請使用離線帳號遊玩。
+
+自己安裝的話，需要 Minecraft Java 版 26.3、[Fabric Loader](https://fabricmc.net/use/) 0.20.1 以上、[Fabric API](https://modrinth.com/mod/fabric-api) 與 Java 25。
 
 1. 安裝 Fabric Loader，建立 26.3 的設定檔。
 2. 把 `mistinn-<版本>.jar` 與 Fabric API 放進 `mods` 資料夾。
