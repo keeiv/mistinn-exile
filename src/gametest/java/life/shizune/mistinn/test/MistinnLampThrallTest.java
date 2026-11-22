@@ -1,6 +1,9 @@
 package life.shizune.mistinn.test;
 
+import java.util.List;
 import java.util.Set;
+import life.shizune.mistinn.client.enemy.EnemyMotion;
+import life.shizune.mistinn.client.shore.LampThrallModel;
 import life.shizune.mistinn.body.BodyService;
 import life.shizune.mistinn.enemy.EnemyRig;
 import life.shizune.mistinn.registry.MistinnAttachments;
@@ -15,6 +18,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.minecraft.client.CameraType;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -53,9 +57,84 @@ public final class MistinnLampThrallTest implements FabricClientGameTest {
 			BlockPos arena = arena(world);
 			context.waitTicks(10);
 			world.getServer().runOnServer(server -> check(EnemyRig.of(MistinnEntities.LAMP_THRALL) == EnemyRig.UNDEAD, "it fights as the undead do"));
+			drawnOnItsOwnFrame(context, world, arena);
 			flaresThenRushes(context, world, arena);
 			heavyBlowBreaksTheFlare(context, world, arena);
 		}
+	}
+
+	/**
+	 * It is drawn on its own frame, not the zombie's: bent forward, so the hood hangs out ahead of its feet, no
+	 * taller than the space it takes, and nothing of it, cloak or tatters, sinks into the ground, standing or rocked back.
+	 */
+	private static void drawnOnItsOwnFrame(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		for (float side : new float[] {-1.0F, 0.0F, 1.0F}) {
+			float[] shape = context.computeOnClient(mc -> {
+				LampThrall entity = MistinnEntities.LAMP_THRALL.create(mc.level, EntitySpawnReason.COMMAND);
+				// a model only, never added to the world: it still needs an id to be drawn
+				entity.setId(-4242);
+				check(((LivingEntityRenderer<?, ?, ?>) mc.getEntityRenderDispatcher().getRenderer(entity)).getModel() instanceof LampThrallModel,
+					"it is drawn on its own frame");
+				List<ClipProbe.Box> rest = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> { }, true, null, null);
+				List<ClipProbe.Box> rocked = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> {
+					EnemyMotion.Sample sample = state.getData(EnemyMotion.KEY);
+					state.setData(EnemyMotion.KEY, sample.rocked(1.0F, side));
+				}, true, null, null);
+				// facing south: ahead is +z
+				return new float[] {reach(rest, -1.0F), reach(rocked, -1.0F), reach(rest, 1.0F), meanZ(rest, "/head"), meanZ(rest, "/right_leg", "/left_leg")};
+			});
+			check(shape[0] > -0.06F, "standing, nothing of it sinks into the ground: lowest " + shape[0]);
+			check(shape[1] > -0.06F && shape[1] > shape[0] - 0.05F, "rocked back (side " + side + "), nothing sinks into the ground: lowest " + shape[1]);
+			check(shape[2] < 1.95F, "no taller than the space it takes: top " + shape[2]);
+			check(shape[3] - shape[4] > 0.15F, "bent forward, its hood hangs out ahead of its feet: " + (shape[3] - shape[4]));
+		}
+		// a still from the side, for the eye
+		int id = world.getServer().computeOnServer(server -> {
+			ServerPlayer player = player(server);
+			player.setGameMode(GameType.CREATIVE);
+			player.teleportTo(server.overworld(), arena.getX() + 0.5, arena.getY(), arena.getZ() - 2.5, Set.of(), 0.0F, 12.0F, true);
+			LampThrall thrall = MistinnEntities.LAMP_THRALL.create(server.overworld(), EntitySpawnReason.COMMAND);
+			thrall.setNoAi(true);
+			thrall.snapTo(arena.getX() + 0.5, arena.getY(), arena.getZ() + 0.5, 90.0F, 0.0F);
+			thrall.setYHeadRot(90.0F);
+			thrall.setYBodyRot(90.0F);
+			server.overworld().addFreshEntity(thrall);
+			return thrall.getId();
+		});
+		context.waitTicks(10);
+		context.takeScreenshot("thrall-00-frame");
+		world.getServer().runOnServer(server -> {
+			server.overworld().getEntity(id).discard();
+			player(server).setGameMode(GameType.SURVIVAL);
+		});
+	}
+
+	/** The lowest (-1) or highest (1) any of the boxes reaches. */
+	private static float reach(final List<ClipProbe.Box> boxes, final float up) {
+		float most = -Float.MAX_VALUE;
+		for (ClipProbe.Box box : boxes) {
+			float half = 0.0F;
+			for (int i = 0; i < 3; i++) {
+				half += box.half()[i] * Math.abs(box.axes()[i].y);
+			}
+			most = Math.max(most, up * box.center().y + half);
+		}
+		return up * most;
+	}
+
+	/** Where along z, on average, the boxes under these parts sit. */
+	private static float meanZ(final List<ClipProbe.Box> boxes, final String... parts) {
+		float sum = 0.0F;
+		int count = 0;
+		for (ClipProbe.Box box : boxes) {
+			for (String part : parts) {
+				if (box.path().startsWith(part)) {
+					sum += box.center().z;
+					count++;
+				}
+			}
+		}
+		return count == 0 ? Float.NaN : sum / count;
 	}
 
 	private static void flaresThenRushes(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
