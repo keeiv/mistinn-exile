@@ -1047,9 +1047,27 @@ public final class Structures {
 		keeperCottage(b);
 		b.settle();
 		b.spawn(MistinnEntities.SNUFFER, 0, LAMP_ROOM + 1, 3, 180.0F);
+		lighthouseDead(b);
 		// the mist gathers round every lighthouse, wherever it was built
 		ShoreMist.remember(b.level(), b.at(0, LAMP_ROOM + 1, 0));
 		return b.at(0, LAMP_ROOM + 1, 0);
+	}
+
+	/** Where the dead might lie about a lighthouse: on its footing, clear of the door and the shrine. */
+	private static final int[][] DEAD = {{-6, -3}, {5, -6}, {-4, 6}, {6, 4}, {-6, 1}};
+
+	/** A few hunters who did not come back lie about the footing, salt-crusted, waiting. */
+	private static void lighthouseDead(final Builder b) {
+		int laid = 0;
+		for (int[] at : DEAD) {
+			if (laid >= 3) {
+				return;
+			}
+			if (b.get(at[0], 1, at[1]).isAir() && b.get(at[0], 2, at[1]).isAir() && b.get(at[0], 0, at[1]).isSolid()) {
+				b.spawn(MistinnEntities.SALT_CORPSE, at[0], 1, at[1], b.random().nextFloat() * 360.0F, corpse -> corpse.lieDormant(true));
+				laid++;
+			}
+		}
 	}
 
 	/** Outer radius of the tower's wall at a height: it tapers as it climbs. */

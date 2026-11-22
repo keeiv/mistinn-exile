@@ -100,7 +100,7 @@ public enum ExecutionMove {
 	}
 
 	public static @Nullable ExecutionMove of(final Mob mob) {
-		Identifier id = EntityType.getKey(mob.getType());
+		Identifier id = EnemyRig.kin(mob.getType());
 		if (!id.getNamespace().equals("minecraft")) {
 			return null;
 		}
