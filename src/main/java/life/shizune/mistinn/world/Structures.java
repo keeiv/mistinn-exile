@@ -1212,7 +1212,17 @@ public final class Structures {
 		b.facing(1, floor + 1, -2, Blocks.LECTERN, Direction.SOUTH);
 		b.candles(0, floor + 1, -3, Blocks.CANDLE, 2, false);
 		b.set(3, floor + 1, 0, Blocks.LANTERN);
+		// halfway up, a golden bell whose lamp has gone out: lamp oil lights it again
+		for (int[] at : LANDING_BELL) {
+			if (!b.get(at[0], floor, at[1]).isAir() && b.get(at[0], floor + 1, at[1]).isAir() && b.get(at[0], floor + 2, at[1]).isAir()) {
+				b.set(at[0], floor + 1, at[1], MistinnBlocks.GOLDEN_BELL.defaultBlockState().setValue(life.shizune.mistinn.block.GoldenBellBlock.OILED, false));
+				return;
+			}
+		}
 	}
+
+	/** Where on the landing the unlit bell may stand, first choice first. */
+	private static final int[][] LANDING_BELL = {{-2, 1}, {-3, 0}, {-2, -1}, {-1, 2}, {1, 2}, {2, 1}, {-3, 1}, {-1, -3}};
 
 	/** The weight shaft: a cage of bars, a short-snapped chain, the weight smashed below. */
 	private static void lighthouseShaft(final Builder b) {

@@ -1,6 +1,9 @@
 {
   "variants": {
-    "": {
+    "oiled=false": {
+      "model": "mistinn:block/golden_bell"
+    },
+    "oiled=true": {
       "model": "mistinn:block/golden_bell"
     }
   }

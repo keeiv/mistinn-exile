@@ -38,6 +38,7 @@ public final class Tiers {
 			FIXED.put(MistinnItems.HELMET_REPAIR_KITS.get(i), kit);
 		}
 		FIXED.put(MistinnItems.GOLDEN_BELL, Tier.V);
+		FIXED.put(MistinnItems.LAMP_OIL, Tier.II);
 		FIXED.put(MistinnItems.RUST_GOD_SALT, Tier.VI);
 		MistinnItems.WEAPONS.values().forEach(byMaterial -> byMaterial.forEach((material, item) -> FIXED.put(item, material.tier)));
 		for (Tier tier : Tier.values()) {

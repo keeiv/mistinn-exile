@@ -43,6 +43,7 @@ public final class MistinnTab {
 				output.accept(MistinnItems.LAMP_STAND);
 				output.accept(MistinnItems.SALT);
 				output.accept(MistinnItems.RUST_GOD_SALT);
+				output.accept(MistinnItems.LAMP_OIL);
 				MistinnItems.HELMETS.forEach(output::accept);
 				MistinnItems.MASKS.forEach(output::accept);
 				MistinnItems.ARMORS.forEach(output::accept);

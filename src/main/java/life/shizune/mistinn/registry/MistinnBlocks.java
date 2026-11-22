@@ -23,7 +23,7 @@ public final class MistinnBlocks {
 			.mapColor(MapColor.GOLD)
 			.strength(-1.0F, 3600000.0F)
 			.sound(SoundType.ANVIL)
-			.lightLevel(state -> 7)
+			.lightLevel(state -> state.getValue(GoldenBellBlock.OILED) ? 7 : 0)
 			.noOcclusion()
 			.pushReaction(PushReaction.IMMOVEABLE)
 	);
