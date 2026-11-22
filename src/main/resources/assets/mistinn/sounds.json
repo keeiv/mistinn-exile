@@ -1194,5 +1194,107 @@
       }
     ],
     "subtitle": "subtitles.mistinn.ambient.shore_mist"
+  },
+  "voice.male.hurt": {
+    "sounds": [
+      "mistinn:voice/male/hurt_1",
+      "mistinn:voice/male/hurt_2",
+      "mistinn:voice/male/hurt_3"
+    ],
+    "subtitle": "subtitles.mistinn.voice.hurt"
+  },
+  "voice.male.hurt_bad": {
+    "sounds": [
+      "mistinn:voice/male/hurt_bad_1",
+      "mistinn:voice/male/hurt_bad_2"
+    ],
+    "subtitle": "subtitles.mistinn.voice.hurt_bad"
+  },
+  "voice.male.effort": {
+    "sounds": [
+      "mistinn:voice/male/effort_1",
+      "mistinn:voice/male/effort_2"
+    ],
+    "subtitle": "subtitles.mistinn.voice.effort"
+  },
+  "voice.male.land": {
+    "sounds": [
+      "mistinn:voice/male/land_1",
+      "mistinn:voice/male/land_2"
+    ],
+    "subtitle": "subtitles.mistinn.voice.land"
+  },
+  "voice.male.death": {
+    "sounds": [
+      "mistinn:voice/male/death_1"
+    ],
+    "subtitle": "subtitles.mistinn.voice.death"
+  },
+  "voice.male.breath": {
+    "sounds": [
+      "mistinn:voice/male/breath_1",
+      "mistinn:voice/male/breath_2",
+      "mistinn:voice/male/breath_3"
+    ],
+    "subtitle": "subtitles.mistinn.voice.breath"
+  },
+  "voice.male.pant": {
+    "sounds": [
+      "mistinn:voice/male/pant_1",
+      "mistinn:voice/male/pant_2",
+      "mistinn:voice/male/pant_3"
+    ],
+    "subtitle": "subtitles.mistinn.voice.pant"
+  },
+  "voice.female.hurt": {
+    "sounds": [
+      "mistinn:voice/female/hurt_1",
+      "mistinn:voice/female/hurt_2",
+      "mistinn:voice/female/hurt_3"
+    ],
+    "subtitle": "subtitles.mistinn.voice.hurt"
+  },
+  "voice.female.hurt_bad": {
+    "sounds": [
+      "mistinn:voice/female/hurt_bad_1",
+      "mistinn:voice/female/hurt_bad_2"
+    ],
+    "subtitle": "subtitles.mistinn.voice.hurt_bad"
+  },
+  "voice.female.effort": {
+    "sounds": [
+      "mistinn:voice/female/effort_1",
+      "mistinn:voice/female/effort_2"
+    ],
+    "subtitle": "subtitles.mistinn.voice.effort"
+  },
+  "voice.female.land": {
+    "sounds": [
+      "mistinn:voice/female/land_1",
+      "mistinn:voice/female/land_2"
+    ],
+    "subtitle": "subtitles.mistinn.voice.land"
+  },
+  "voice.female.death": {
+    "sounds": [
+      "mistinn:voice/female/death_1"
+    ],
+    "subtitle": "subtitles.mistinn.voice.death"
+  },
+  "voice.female.breath": {
+    "sounds": [
+      "mistinn:voice/female/breath_1",
+      "mistinn:voice/female/breath_2",
+      "mistinn:voice/female/breath_3"
+    ],
+    "subtitle": "subtitles.mistinn.voice.breath"
+  },
+  "voice.female.pant": {
+    "sounds": [
+      "mistinn:voice/female/pant_1",
+      "mistinn:voice/female/pant_2",
+      "mistinn:voice/female/pant_3"
+    ],
+    "subtitle": "subtitles.mistinn.voice.pant"
   }
 }

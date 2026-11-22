@@ -1172,5 +1172,18 @@
   "subtitles.mistinn.ui.grid.pickup.glass": "Bottle clinks",
   "subtitles.mistinn.ui.grid.pickup.paper": "Pages turn",
   "subtitles.mistinn.ui.grid.pickup.wood": "Wood lifted",
-  "subtitles.mistinn.ambient.shore_mist": "Surf and wind in the mist"
+  "subtitles.mistinn.ambient.shore_mist": "Surf and wind in the mist",
+  "voice.mistinn.title": "Your Voice",
+  "voice.mistinn.question": "Which voice will you hunt with? It is heard when you are struck, when you strain, when you are out of breath.",
+  "voice.mistinn.male": "A man's voice",
+  "voice.mistinn.female": "A girl's voice",
+  "voice.mistinn.listen": "Listen",
+  "voice.mistinn.note": "Kept with this hunter.",
+  "subtitles.mistinn.voice.hurt": "Hunter cries out",
+  "subtitles.mistinn.voice.hurt_bad": "Hunter cries out in pain",
+  "subtitles.mistinn.voice.effort": "Hunter strains",
+  "subtitles.mistinn.voice.land": "Hunter lands hard",
+  "subtitles.mistinn.voice.death": "Hunter falls",
+  "subtitles.mistinn.voice.breath": "Hunter breathes hard",
+  "subtitles.mistinn.voice.pant": "Hunter pants"
 }

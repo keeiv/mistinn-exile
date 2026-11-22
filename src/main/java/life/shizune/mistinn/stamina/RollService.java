@@ -137,6 +137,7 @@ public final class RollService {
 			LANDING.put(player.getUUID(), new Landing(DIVE_LANDING, DIVE_IMPACT, false));
 		}
 		player.level().playSound(null, player.blockPosition(), kind == Kind.ROLL ? MistinnSounds.ROLL : MistinnSounds.DIVE, SoundSource.PLAYERS, 0.8F, 0.95F + player.getRandom().nextFloat() * 0.1F);
+		life.shizune.mistinn.voice.Voice.effort(player);
 		// a broken arm hangs like a dead one
 		RollAnimPayload anim = new RollAnimPayload(player.getId(), kind.ordinal(), payload.yaw(),
 			life.shizune.mistinn.body.WoundService.broken(player, BodyPart.LEFT_ARM) ? 0.0F : Math.min(1.0F, body.get(BodyPart.LEFT_ARM) / BodyService.max(player)),

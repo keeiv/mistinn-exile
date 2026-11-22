@@ -184,6 +184,22 @@ public final class MistinnSounds {
 	private MistinnSounds() {
 	}
 
+	// a hunter's own voice, a man's and a girl's: synthesized (see CREDITS.md)
+	public static final SoundEvent VOICE_MALE_HURT = register("voice.male.hurt");
+	public static final SoundEvent VOICE_MALE_HURT_BAD = register("voice.male.hurt_bad");
+	public static final SoundEvent VOICE_MALE_EFFORT = register("voice.male.effort");
+	public static final SoundEvent VOICE_MALE_LAND = register("voice.male.land");
+	public static final SoundEvent VOICE_MALE_DEATH = register("voice.male.death");
+	public static final SoundEvent VOICE_MALE_BREATH = register("voice.male.breath");
+	public static final SoundEvent VOICE_MALE_PANT = register("voice.male.pant");
+	public static final SoundEvent VOICE_FEMALE_HURT = register("voice.female.hurt");
+	public static final SoundEvent VOICE_FEMALE_HURT_BAD = register("voice.female.hurt_bad");
+	public static final SoundEvent VOICE_FEMALE_EFFORT = register("voice.female.effort");
+	public static final SoundEvent VOICE_FEMALE_LAND = register("voice.female.land");
+	public static final SoundEvent VOICE_FEMALE_DEATH = register("voice.female.death");
+	public static final SoundEvent VOICE_FEMALE_BREATH = register("voice.female.breath");
+	public static final SoundEvent VOICE_FEMALE_PANT = register("voice.female.pant");
+
 	private static SoundEvent register(final String name) {
 		Identifier id = Mistinn.id(name);
 		return Registry.register(BuiltInRegistries.SOUND_EVENT, id, SoundEvent.createVariableRangeEvent(id));
