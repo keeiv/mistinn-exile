@@ -44,6 +44,7 @@ public final class ItemSizes {
 		put(2, 4, MistinnItems.SNUFFER_HOOK);
 		put(1, 5, MistinnItems.LANTERN_STAFF);
 		put(2, 4, MistinnItems.TIDE_MAUL);
+		put(1, 3, MistinnItems.BELL_CLAPPER);
 		// repair kits grow with their tier (III, IV, V, VI); the surgery roll is long, the injector
 		// and the bottle fit a cell
 		int[][] armorKits = {{1, 2}, {1, 3}, {2, 2}, {2, 2}};

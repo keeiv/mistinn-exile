@@ -67,10 +67,11 @@ public final class MistinnItems {
 	public static final Item SNUFFER_HOOK = special(SpecialWeapon.SNUFFER_HOOK, WeaponStyle.REAP, 7.0, 1.0, 900, MistinnSounds.SCYTHE_SWING, MistinnSounds.HIT_IRON);
 	public static final Item LANTERN_STAFF = special(SpecialWeapon.LANTERN_STAFF, WeaponStyle.THRUST, 5.0, 1.5, 700, MistinnSounds.MIST_SPEAR_SWING, MistinnSounds.MIST_SPEAR_HIT);
 	public static final Item TIDE_MAUL = special(SpecialWeapon.TIDE_MAUL, WeaponStyle.SMASH, 12.0, 0.3, 1400, MistinnSounds.HAMMER_SWING, MistinnSounds.BELL_GREATSWORD_HIT);
+	public static final Item BELL_CLAPPER = special(SpecialWeapon.BELL_CLAPPER, WeaponStyle.SMASH, 10.0, 0.5, 1200, MistinnSounds.HAMMER_SWING, MistinnSounds.BELL_GREATSWORD_HIT);
 
 	/** 追獵者手冊: the world's story and the rules of the hunt, given to every hunter on arrival. */
 	/** Pages of the guide's text (item.mistinn.hunter_guide.page.N), read as spreads in its screen. */
-	public static final int GUIDE_PAGES = 20;
+	public static final int GUIDE_PAGES = 21;
 	public static final Item HUNTER_GUIDE = register("hunter_guide", life.shizune.mistinn.story.HunterGuideItem::new, new Item.Properties().stacksTo(1));
 
 	public static final Item GOLDEN_BELL = block("golden_bell", MistinnBlocks.GOLDEN_BELL, new Item.Properties().rarity(Rarity.RARE));

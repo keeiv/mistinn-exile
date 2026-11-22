@@ -27,6 +27,7 @@ public final class Tiers {
 		FIXED.put(MistinnItems.LANTERN_STAFF, Tier.III);
 		FIXED.put(MistinnItems.TIDE_MAUL, Tier.IV);
 		FIXED.put(MistinnItems.SNUFFER_HOOK, Tier.V);
+		FIXED.put(MistinnItems.BELL_CLAPPER, Tier.V);
 		FIXED.put(MistinnItems.SPLINT, Tier.N);
 		FIXED.put(MistinnItems.TOURNIQUET, Tier.I);
 		FIXED.put(MistinnItems.PAINKILLERS, Tier.III);
