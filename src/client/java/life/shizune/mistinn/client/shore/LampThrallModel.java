@@ -30,6 +30,9 @@ public class LampThrallModel extends ZombieModel<ZombieRenderState> {
 	/** How far the held lantern sits below where a man's hand would be: these arms are longer. */
 	private static final float HAND_DROP = 2.5F / 16.0F;
 
+	/** How the lantern hand is held while the lantern flares: up over the head, where the warning shows from afar. */
+	private static final float RAISED = -2.8F;
+
 	/** How far, in radians, the hem of the cloak swings out behind at a full walk, and the tatters with each step. */
 	private static final float CLOAK_SWING = 0.22F;
 	private static final float TATTER_SWING = 0.35F;
@@ -51,10 +54,19 @@ public class LampThrallModel extends ZombieModel<ZombieRenderState> {
 		}
 	}
 
-	/** Walking, the hem of the cloak swings out behind and the tatters swing with each step; standing, it barely stirs. */
+	/**
+	 * While the lantern flares it is held up over the head, the warning before the rush. Walking, the hem of the
+	 * cloak swings out behind and the tatters swing with each step; standing, it barely stirs.
+	 */
 	@Override
 	public void setupAnim(final ZombieRenderState state) {
 		super.setupAnim(state);
+		if (state instanceof LampThrallRenderer.State thrall && thrall.flaring) {
+			ModelPart hand = state.mainArm == HumanoidArm.LEFT ? this.leftArm : this.rightArm;
+			hand.xRot = RAISED;
+			hand.yRot = 0.0F;
+			hand.zRot = 0.0F;
+		}
 		if (this.cloak == null) {
 			return;
 		}
