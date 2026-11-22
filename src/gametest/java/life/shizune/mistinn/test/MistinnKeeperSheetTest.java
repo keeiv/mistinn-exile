@@ -14,9 +14,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
 
 /**
- * 熄燈人的姿勢表: every keeper clip (each move and each idle) frozen at five beats and screenshotted from the side
- * and from the front, so the body and its moves can be judged frame by frame. Runs only with
- * -Dmistinn.keepersheet=true (build.gradle: -PkeeperSheet); writes to keepersheet/.
+ * 燈守的姿勢表: every keeper clip (each move and each idle) frozen at five beats and screenshotted from the side
+ * and from the front, so the body and its moves can be judged frame by frame: 熄燈人's, then 沉鐘's (named bell-...).
+ * Runs only with -Dmistinn.keepersheet=true (build.gradle: -PkeeperSheet, or -PkeeperSheet=snuffer / =bell for one of
+ * them); writes to keepersheet/.
  */
 @SuppressWarnings("UnstableApiUsage")
 public class MistinnKeeperSheetTest implements FabricClientGameTest {
@@ -28,6 +29,9 @@ public class MistinnKeeperSheetTest implements FabricClientGameTest {
 		if (TestFilter.skip(getClass()) || !Boolean.getBoolean("mistinn.keepersheet")) {
 			return;
 		}
+		String only = System.getProperty("mistinn.keepersheet.keeper", "");
+		boolean snuffer = only.isEmpty() || only.equals("true") || only.equals("snuffer");
+		boolean bell = only.isEmpty() || only.equals("true") || only.equals("bell");
 		List<String> clips = new ArrayList<>();
 		for (BossMove move : SnufferMoves.SET.moves()) {
 			clips.add(move.id());
@@ -53,12 +57,19 @@ public class MistinnKeeperSheetTest implements FabricClientGameTest {
 			double x = stage.getX() + 0.5;
 			double y = stage.getY();
 			double z = stage.getZ() + 0.5;
-			world.getServer().runCommand("summon mistinn:snuffer " + x + " " + y + " " + z + " {NoAI:1b,Rotation:[0.0f,0.0f],Tags:[\"sheet\"]}");
 			context.runOnClient(mc -> mc.gui.hud.toggle());
 			String[][] views = {
 				{"side", String.valueOf(x - 4.2), String.valueOf(y - 0.1), String.valueOf(z), "-90", "6"},
 				{"front", String.valueOf(x), String.valueOf(y - 0.1), String.valueOf(z + 4.5), "180", "6"},
 			};
+			if (bell) {
+				bellSheet(context, world, x, y, z, views);
+			}
+			if (!snuffer) {
+				context.runOnClient(mc -> mc.gui.hud.toggle());
+				return;
+			}
+			world.getServer().runCommand("summon mistinn:snuffer " + x + " " + y + " " + z + " {NoAI:1b,Rotation:[0.0f,0.0f],Tags:[\"sheet\"]}");
 			for (String[] view : views) {
 				world.getServer().runCommand("tp @a " + view[1] + " " + view[2] + " " + view[3] + " " + view[4] + " " + view[5]);
 				context.waitTicks(10);
@@ -84,5 +95,34 @@ public class MistinnKeeperSheetTest implements FabricClientGameTest {
 			context.takeScreenshot(TestScreenshotOptions.of("rest-front-dark").disableCounterPrefix().withDestinationDir(OUT));
 			context.runOnClient(mc -> mc.gui.hud.toggle());
 		}
+	}
+
+	/** 沉鐘's sheet: every move and idle of the bell keeper, at the same beats, from the same two sides. */
+	private static void bellSheet(final ClientGameTestContext context, final TestSingleplayerContext world, final double x, final double y, final double z,
+		final String[][] views) {
+		List<String> clips = new ArrayList<>();
+		for (BossMove move : life.shizune.mistinn.keeper.BellMoves.SET.moves()) {
+			clips.add(move.id());
+		}
+		clips.addAll(List.of(life.shizune.mistinn.client.keeper.SunkenBellModel.IDLES));
+		world.getServer().runCommand("summon mistinn:sunken_bell " + x + " " + y + " " + z + " {NoAI:1b,Rotation:[0.0f,0.0f],Tags:[\"bellsheet\"]}");
+		for (String[] view : views) {
+			world.getServer().runCommand("tp @a " + view[1] + " " + view[2] + " " + view[3] + " " + view[4] + " " + view[5]);
+			context.waitTicks(10);
+			context.takeScreenshot(TestScreenshotOptions.of("bell-rest-" + view[0]).disableCounterPrefix().withDestinationDir(OUT));
+			for (String clip : clips) {
+				for (int i = 0; i < BEATS.length; i++) {
+					float at = BEATS[i];
+					context.runOnClient(mc -> {
+						life.shizune.mistinn.client.keeper.SunkenBellModel.previewClip = clip;
+						life.shizune.mistinn.client.keeper.SunkenBellModel.previewProgress = at;
+					});
+					context.waitTicks(2);
+					context.takeScreenshot(TestScreenshotOptions.of("bell-" + clip + "-" + view[0] + "-" + i).disableCounterPrefix().withDestinationDir(OUT));
+				}
+			}
+			context.runOnClient(mc -> life.shizune.mistinn.client.keeper.SunkenBellModel.previewClip = null);
+		}
+		world.getServer().runCommand("kill @e[tag=bellsheet]");
 	}
 }

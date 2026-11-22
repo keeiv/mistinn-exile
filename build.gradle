@@ -101,11 +101,13 @@ if (project.hasProperty("bossReel")) {
 	}
 }
 
-// Keeper sheet (-PkeeperSheet): every keeper clip frozen at its beats, side and front, to judge its body and moves.
+// Keeper sheet (-PkeeperSheet, or -PkeeperSheet=snuffer / =bell for one keeper): every keeper clip frozen at its beats,
+// side and front, to judge its body and moves.
 if (project.hasProperty("keeperSheet")) {
 	loom.runs.configureEach {
 		if (name == "clientGameTest") {
 			vmArg "-Dmistinn.keepersheet=true"
+			vmArg "-Dmistinn.keepersheet.keeper=${project.keeperSheet}"
 		}
 	}
 }
@@ -200,5 +202,14 @@ publishing {
 		// Notice: This block does NOT have the same function as the block in the top level.
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
+	}
+}
+
+// Reef probe (-PreefProbe): how often world generation finds a place for a fog-bell station, against a lighthouse; numbers in the log.
+if (project.hasProperty("reefProbe")) {
+	loom.runs.configureEach {
+		if (name == "clientGameTest") {
+			vmArg "-Dmistinn.reefprobe=true"
+		}
 	}
 }
