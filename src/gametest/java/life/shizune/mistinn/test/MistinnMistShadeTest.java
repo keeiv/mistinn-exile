@@ -173,25 +173,12 @@ public final class MistinnMistShadeTest implements FabricClientGameTest {
 					EnemyMotion.Sample sample = state.getData(EnemyMotion.KEY);
 					state.setData(EnemyMotion.KEY, sample.rocked(1.0F, side));
 				}, true, null, null);
-				return new float[] {reach(rest, -1.0F), reach(rocked, -1.0F), reach(rest, 1.0F)};
+				return new float[] {ClipProbe.reach(rest, -1.0F), ClipProbe.reach(rocked, -1.0F), ClipProbe.reach(rest, 1.0F)};
 			});
 			check(shape[0] > 0.03F, "it has no feet: its tails hang clear of the ground: lowest " + shape[0]);
 			check(shape[1] > -0.06F, "rocked back (side " + side + "), nothing of it sinks into the ground: lowest " + shape[1]);
 			check(shape[2] < 1.95F, "no taller than the space it takes: top " + shape[2]);
 		}
-	}
-
-	/** The lowest (-1) or highest (1) any of the boxes reaches. */
-	private static float reach(final List<ClipProbe.Box> boxes, final float up) {
-		float most = -Float.MAX_VALUE;
-		for (ClipProbe.Box box : boxes) {
-			float half = 0.0F;
-			for (int i = 0; i < 3; i++) {
-				half += box.half()[i] * Math.abs(box.axes()[i].y);
-			}
-			most = Math.max(most, up * box.center().y + half);
-		}
-		return up * most;
 	}
 
 	private static ServerPlayer player(final MinecraftServer server) {

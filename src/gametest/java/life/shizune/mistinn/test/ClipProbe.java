@@ -103,6 +103,19 @@ final class ClipProbe {
 			|| name.equals("cloak") || name.equals("ear");
 	}
 
+	/** The lowest (up -1) or highest (up 1) any of the boxes reaches, in world space. */
+	static float reach(final List<Box> boxes, final float up) {
+		float most = -Float.MAX_VALUE;
+		for (Box box : boxes) {
+			float half = 0.0F;
+			for (int i = 0; i < 3; i++) {
+				half += box.half()[i] * Math.abs(box.axes()[i].y);
+			}
+			most = Math.max(most, up * box.center().y + half);
+		}
+		return up * most;
+	}
+
 	/**
 	 * The entity's model as the game would draw it at {@code pos}, facing {@code yaw}: every cube as a world box.
 	 * {@code prepare} edits the extracted render state before posing; {@code base}, when given, receives the
