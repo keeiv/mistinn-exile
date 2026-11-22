@@ -37,6 +37,9 @@ public abstract class ThirdPersonTreatmentItemMixin {
 		TreatmentClient.Pose pose = state.getData(TreatmentClient.KEY);
 		if (pose != null) {
 			TreatmentClient.thirdPersonItem(pose, poseStack);
+			if (Boolean.TRUE.equals(state.getData(life.shizune.mistinn.client.view.OwnBody.KEY))) {
+				TreatmentClient.ownItem(pose, poseStack);
+			}
 		}
 	}
 }

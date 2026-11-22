@@ -130,6 +130,14 @@ public final class CameraSwing {
 			pitch += sway[1];
 			roll += sway[2];
 		}
+		// a hunter at work on themself looks down at their hands (or throws their head back to swallow)
+		life.shizune.mistinn.client.medical.TreatmentClient.Pose work = life.shizune.mistinn.client.medical.TreatmentClient.sample(player.getId());
+		if (work != null && life.shizune.mistinn.client.view.OwnBody.active()) {
+			float[] look = life.shizune.mistinn.client.medical.TreatmentClient.camera(work, player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1);
+			// never past straight down or straight up, wherever they were looking
+			pitch += Mth.clamp(look[0], -80.0F - player.getXRot(), 80.0F - player.getXRot());
+			yaw += look[1];
+		}
 		float since = (System.nanoTime() - hitAt) / 1.0E9F;
 		if (enabled() && since >= 0.0F && since < 0.25F) {
 			// the blade bites: the view is knocked down once and settles, without ringing

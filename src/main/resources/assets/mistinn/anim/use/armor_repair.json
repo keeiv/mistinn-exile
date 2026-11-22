@@ -4,6 +4,12 @@
 	"first_person_loop": 0.6,
 	"keys": [0.0, 0.35, 0.5, 0.75, 1.0],
 	"eases": ["in_out_sine", "in_cubic", "out_quad", "linear"],
+	"own_scale": 0.8,
+	"own_lift": 8,
+	"camera": {
+		"pitch": [56, 56, 58, 56, 56],
+		"yaw": [0, 0, 0, 0, 0]
+	},
 	"limbs": {
 		"head_x": [20, 20, 22, 20, 20],
 		"body_x": [3, 3, 4, 3, 3],

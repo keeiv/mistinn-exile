@@ -2,6 +2,11 @@
 	"_comment": "服藥 PILLS: the bottle is brought up to the mouth, tipped with the head thrown back, and lowered. Stretched over the whole use (PainkillerItem.USE_TICKS, 2 s).",
 	"keys": [0.0, 0.25, 0.45, 0.62, 0.8, 1.0],
 	"eases": ["out_cubic", "in_out_sine", "in_out_sine", "in_out_sine", "in_out_quad"],
+	"own_lift": -40,
+	"camera": {
+		"pitch": [0, 22, 8, -22, -4, 0],
+		"yaw": [0, 0, 0, 0, 0, 0]
+	},
 	"limbs": {
 		"head_x": [0, 0, -20, -30, -5, 0],
 		"body_x": [0, 0, -4, -6, 0, 0],

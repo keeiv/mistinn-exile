@@ -87,6 +87,8 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 
 			runsLikeARunner(context, world, stage);
 
+			treatsWithOwnHands(context, world, stage);
+
 			// seen from outside nothing is left out
 			context.runOnClient(mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
 			context.waitTicks(3);
@@ -174,6 +176,53 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 			context.takeScreenshot("ownbody-run-eyes-" + i);
 		}
 		context.runOnClient(mc -> life.shizune.mistinn.client.view.RunPose.preview = null);
+	}
+
+	/**
+	 * A wound is treated and a plate mended with the body's own hands: the view tips down to the work, the hands stay
+	 * the body's (nothing is raised in front of the eye) and the view comes back level when it is over. Stills of every
+	 * use at three points.
+	 */
+	private static void treatsWithOwnHands(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		String[][] uses = {
+			{"inject", "potent_injector", "60"}, {"pills", "painkillers", "40"}, {"tourniquet", "tourniquet", "80"}, {"splint", "splint", "120"},
+			{"surgery", "surgery_kit", "160"}, {"armor_repair", "armor_repair_kit_4", "100"}, {"helmet_repair", "helmet_repair_kit_6", "100"},
+		};
+		context.runOnClient(mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
+		look(context, world, stage, 5.0F);
+		for (String[] use : uses) {
+			life.shizune.mistinn.medical.Treatment treatment = java.util.Arrays.stream(life.shizune.mistinn.medical.Treatment.values())
+				.filter(t -> t.id.equals(use[0])).findFirst().orElseThrow();
+			net.minecraft.world.item.Item item = net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(life.shizune.mistinn.Mistinn.id(use[1]));
+			int ticks = Integer.parseInt(use[2]);
+			world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst().setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(item)));
+			context.waitTicks(8);
+			context.runOnClient(mc -> life.shizune.mistinn.client.medical.TreatmentClient.received(new life.shizune.mistinn.medical.TreatmentService.TreatmentPayload(
+				mc.player.getId(), treatment.ordinal(), ticks, net.minecraft.world.item.Item.getId(item), life.shizune.mistinn.medical.TreatmentService.RESULT_RUNNING)));
+			float most = 0.0F;
+			for (int i = 0; i < 3; i++) {
+				float p = 0.25F + 0.25F * i;
+				context.runOnClient(mc -> life.shizune.mistinn.client.medical.TreatmentClient.preview = p);
+				context.waitTicks(3);
+				most = Math.max(most, context.computeOnClient(mc -> {
+					check(OwnBody.active(), use[0] + ": the body is there while it is treated");
+					check(OwnBody.raised(1.0F) == 0.0F, use[0] + ": nothing is raised in front of the eye: " + OwnBody.raised(1.0F));
+					return Math.abs(life.shizune.mistinn.client.medical.TreatmentClient.camera(
+						life.shizune.mistinn.client.medical.TreatmentClient.sample(mc.player.getId()), 1)[0]);
+				}));
+				context.takeScreenshot("ownbody-treat-" + use[0] + "-" + i);
+			}
+			check(most > 15.0F, use[0] + ": the view turns to the work: " + most);
+			context.runOnClient(mc -> {
+				life.shizune.mistinn.client.medical.TreatmentClient.preview = -1.0F;
+				life.shizune.mistinn.client.medical.TreatmentClient.received(new life.shizune.mistinn.medical.TreatmentService.TreatmentPayload(
+					mc.player.getId(), -1, 0, 0, life.shizune.mistinn.medical.TreatmentService.RESULT_DONE));
+			});
+			context.waitTicks(20);
+			context.runOnClient(mc -> check(life.shizune.mistinn.client.medical.TreatmentClient.sample(mc.player.getId()) == null,
+				use[0] + ": and the view is the hunter's own again afterwards"));
+		}
+		world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY));
 	}
 
 	private static void look(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage, final float pitch) {
