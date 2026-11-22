@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN" "https://checkstyle.org/dtds/configuration_1_3.dtd">
+<!--
+	Mistinn: Exile code and comment style. Every rule is an error: the build fails on the first one.
+	Layout: tabs, braces on every block, one statement a line. Names: Java's usual ones. Parameters are final.
+	Comments: every type says what it is in a Javadoc that opens with a sentence; a line comment has a space after its
+	slashes; nothing is left to do "later" in a comment.
+-->
+<module name="Checker">
+	<property name="severity" value="error"/>
+	<property name="charset" value="UTF-8"/>
+	<property name="tabWidth" value="4"/>
+	<property name="fileExtensions" value="java"/>
+
+	<!-- ── Files ── -->
+	<module name="NewlineAtEndOfFile"/>
+	<module name="LineLength">
+		<property name="max" value="200"/>
+		<property name="ignorePattern" value="^(package|import) .*|^\t*(//|\*) .*https?://.*"/>
+	</module>
+	<module name="RegexpSingleline">
+		<property name="format" value="\s+$"/>
+		<property name="message" value="Trailing whitespace."/>
+	</module>
+	<module name="RegexpSingleline">
+		<property name="format" value="^\t* (?!\*( |/|$))"/>
+		<property name="message" value="Indent with tabs, not spaces."/>
+	</module>
+	<module name="RegexpMultiline">
+		<property name="format" value="\n\n\n"/>
+		<property name="message" value="No more than one blank line in a row."/>
+	</module>
+	<module name="RegexpMultiline">
+		<property name="format" value="\{\n\n"/>
+		<property name="message" value="No blank line after an opening brace."/>
+	</module>
+	<module name="RegexpMultiline">
+		<property name="format" value="\n\n\t*\}"/>
+		<property name="message" value="No blank line before a closing brace."/>
+	</module>
+
+	<!-- ── Comments ── -->
+	<module name="RegexpSingleline">
+		<property name="format" value="(^|[^:/&quot;])//[^ /\n]"/>
+		<property name="message" value="A line comment has a space after its slashes."/>
+	</module>
+	<module name="RegexpSingleline">
+		<property name="format" value="//\s*(TODO|FIXME|XXX|HACK)\b"/>
+		<property name="ignoreCase" value="true"/>
+		<property name="message" value="Do the work or open an issue: no to-do left in a comment."/>
+	</module>
+	<module name="RegexpSingleline">
+		<property name="format" value="^\t*/\*[^*]"/>
+		<property name="message" value="A block comment is a Javadoc (/**) or a run of line comments."/>
+	</module>
+
+	<module name="TreeWalker">
+		<!-- ── Comments ── -->
+		<module name="MissingJavadocType">
+			<property name="scope" value="package"/>
+			<property name="skipAnnotations" value=""/>
+		</module>
+		<module name="JavadocStyle">
+			<property name="checkFirstSentence" value="true"/>
+			<property name="checkEmptyJavadoc" value="true"/>
+			<property name="checkHtml" value="false"/>
+			<property name="endOfSentenceFormat" value="([.?!:。][ \t\n\r\f&lt;])|([.?!:。]$)"/>
+		</module>
+		<module name="InvalidJavadocPosition"/>
+		<module name="JavadocMissingLeadingAsterisk"/>
+		<module name="JavadocMissingWhitespaceAfterAsterisk"/>
+		<module name="NonEmptyAtclauseDescription"/>
+		<module name="AtclauseOrder"/>
+		<module name="CommentsIndentation"/>
+
+		<!-- ── Imports ── -->
+		<module name="AvoidStarImport"/>
+		<module name="UnusedImports"/>
+		<module name="RedundantImport"/>
+		<module name="IllegalImport"/>
+
+		<!-- ── Names ── -->
+		<module name="PackageName">
+			<property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+		</module>
+		<module name="TypeName"/>
+		<module name="MethodName">
+			<!-- a mixin's injected method carries the mod's name: mistinn$swing -->
+			<property name="format" value="^(mistinn\$)?[a-z][a-zA-Z0-9]*$"/>
+		</module>
+		<module name="ConstantName"/>
+		<module name="MemberName">
+			<!-- this$0: a mixin shadowing an inner class's link to its outer one has no choice of name -->
+			<property name="format" value="^(mistinn\$)?[a-z][a-zA-Z0-9]*$|^this\$0$"/>
+		</module>
+		<module name="StaticVariableName">
+			<property name="format" value="^(mistinn\$)?[a-z][a-zA-Z0-9]*$"/>
+		</module>
+		<module name="ParameterName"/>
+		<module name="LambdaParameterName"/>
+		<module name="LocalVariableName"/>
+		<module name="LocalFinalVariableName"/>
+		<module name="PatternVariableName"/>
+		<module name="RecordComponentName"/>
+		<module name="ClassTypeParameterName">
+			<property name="format" value="^[A-Z][A-Za-z0-9]*$"/>
+		</module>
+		<module name="MethodTypeParameterName">
+			<property name="format" value="^[A-Z][A-Za-z0-9]*$"/>
+		</module>
+
+		<!-- ── Layout ── -->
+		<module name="NeedBraces"/>
+		<module name="LeftCurly"/>
+		<module name="RightCurly"/>
+		<module name="EmptyStatement"/>
+		<module name="OneStatementPerLine"/>
+		<module name="MultipleVariableDeclarations"/>
+		<module name="ArrayTypeStyle"/>
+		<module name="UpperEll"/>
+		<module name="ModifierOrder"/>
+		<module name="RedundantModifier"/>
+		<module name="WhitespaceAround">
+			<property name="allowEmptyConstructors" value="true"/>
+			<property name="allowEmptyMethods" value="true"/>
+			<property name="allowEmptyTypes" value="true"/>
+			<property name="allowEmptyLambdas" value="true"/>
+			<property name="allowEmptyLoops" value="true"/>
+			<property name="allowEmptyCatches" value="true"/>
+		</module>
+		<module name="WhitespaceAfter"/>
+		<module name="NoWhitespaceBefore"/>
+		<module name="NoWhitespaceAfter">
+			<property name="tokens" value="AT, INC, DEC, UNARY_MINUS, UNARY_PLUS, BNOT, LNOT, DOT, ARRAY_DECLARATOR, INDEX_OP"/>
+		</module>
+		<module name="GenericWhitespace"/>
+		<module name="MethodParamPad"/>
+		<module name="ParenPad"/>
+		<module name="TypecastParenPad"/>
+		<module name="OperatorWrap">
+			<property name="option" value="nl"/>
+		</module>
+		<module name="SeparatorWrap">
+			<property name="tokens" value="DOT"/>
+			<property name="option" value="nl"/>
+		</module>
+		<module name="SeparatorWrap">
+			<property name="tokens" value="COMMA"/>
+			<property name="option" value="eol"/>
+		</module>
+		<module name="EmptyLineSeparator">
+			<property name="allowNoEmptyLineBetweenFields" value="true"/>
+			<property name="allowMultipleEmptyLines" value="false"/>
+			<property name="tokens" value="IMPORT, STATIC_IMPORT, CLASS_DEF, INTERFACE_DEF, ENUM_DEF, STATIC_INIT, INSTANCE_INIT, METHOD_DEF, CTOR_DEF, RECORD_DEF, COMPACT_CTOR_DEF"/>
+		</module>
+		<module name="AnnotationLocation"/>
+
+		<!-- ── Code ── -->
+		<module name="FinalParameters">
+			<property name="tokens" value="METHOD_DEF, CTOR_DEF"/>
+		</module>
+		<module name="FinalClass"/>
+		<module name="HideUtilityClassConstructor"/>
+		<module name="EqualsHashCode"/>
+		<module name="SimplifyBooleanExpression"/>
+		<module name="SimplifyBooleanReturn"/>
+		<module name="StringLiteralEquality"/>
+		<module name="DefaultComesLast"/>
+		<module name="FallThrough"/>
+		<module name="ModifiedControlVariable"/>
+		<module name="NoFinalizer"/>
+		<module name="OneTopLevelClass"/>
+		<module name="OuterTypeFilename"/>
+		<module name="UnnecessarySemicolonAfterTypeMemberDeclaration"/>
+		<module name="UnnecessarySemicolonInEnumeration"/>
+		<module name="UnnecessarySemicolonInTryWithResources"/>
+		<module name="UnusedLocalVariable"/>
+	</module>
+</module>

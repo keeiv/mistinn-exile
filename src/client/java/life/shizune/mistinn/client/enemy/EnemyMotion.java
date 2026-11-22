@@ -194,7 +194,8 @@ public final class EnemyMotion {
 		return new Twitch(1 + Math.floorMod(h, 3), envelope * magnitude, ((h >>> 4) & 1) == 0 ? 1.0F : -1.0F, n);
 	}
 
-	private static int mix(int h) {
+	private static int mix(final int seed) {
+		int h = seed;
 		h ^= h >>> 16;
 		h *= 0x7FEB352D;
 		h ^= h >>> 15;

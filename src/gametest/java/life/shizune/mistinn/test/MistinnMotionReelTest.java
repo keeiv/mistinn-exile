@@ -51,7 +51,8 @@ public class MistinnMotionReelTest implements FabricClientGameTest {
 			world.getServer().runCommand("fill " + (x - 8) + " " + (y - 1) + " " + (z - 8) + " " + (x + 8) + " " + (y - 1) + " " + (z + 8) + " smooth_stone");
 			world.getServer().runCommand("summon minecraft:mannequin " + (x + 0.5) + " " + y + " " + (z + 0.5) + " {Rotation:[0.0f,0.0f],Tags:[\"reel\"]}");
 			context.waitTicks(10);
-			int mannequin = world.getServer().computeOnServer(server -> server.overworld().getEntities(net.minecraft.world.entity.EntityTypes.MANNEQUIN, e -> e.entityTags().contains("reel")).getFirst().getId());
+			int mannequin = world.getServer().computeOnServer(server -> server.overworld().getEntities(net.minecraft.world.entity.EntityTypes.MANNEQUIN,
+				e -> e.entityTags().contains("reel")).getFirst().getId());
 			context.runOnClient(mc -> {
 				mc.player.getAbilities().flying = true;
 				mc.options.setCameraType(CameraType.FIRST_PERSON);

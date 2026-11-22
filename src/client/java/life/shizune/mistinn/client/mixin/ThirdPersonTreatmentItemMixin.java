@@ -19,7 +19,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ThirdPersonTreatmentItemMixin {
 	@Inject(
 		method = "submitArmWithItem",
-		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;III)V")
+		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;submit(Lcom/mojang/blaze3d/vertex/PoseStack;"
+			+ "Lnet/minecraft/client/renderer/SubmitNodeCollector;III)V")
 	)
 	private void mistinn$tiltTreatment(
 		final ArmedEntityRenderState state,

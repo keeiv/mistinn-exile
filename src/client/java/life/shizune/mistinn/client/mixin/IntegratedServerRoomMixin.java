@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/** Opens a single-player world to friends as a room, and closes it again ({@link RoomHosting}). */
 @Mixin(IntegratedServer.class)
 public abstract class IntegratedServerRoomMixin implements RoomHosting {
 	@Unique

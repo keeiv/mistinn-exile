@@ -20,6 +20,8 @@ jobs:
           distribution: temurin
           java-version: "25"
       - uses: gradle/actions/setup-gradle@v5
+      - name: Style
+        run: ./gradlew checkstyleMain checkstyleClient checkstyleGametest --no-daemon
       - name: Build
         run: ./gradlew build --no-daemon
       - uses: actions/upload-artifact@v5

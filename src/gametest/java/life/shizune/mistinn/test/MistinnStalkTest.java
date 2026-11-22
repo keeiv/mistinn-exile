@@ -73,7 +73,8 @@ public final class MistinnStalkTest implements FabricClientGameTest {
 	}
 
 	/** Clears the strip and sets creatures hunting the hunter at these (dx, dz) offsets. */
-	private static List<Integer> creatures(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena, final EntityType<? extends Mob> type, final double[][] offsets) {
+	private static List<Integer> creatures(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena, final EntityType<? extends Mob> type,
+		final double[][] offsets) {
 		List<Integer> ids = world.getServer().computeOnServer(server -> {
 			for (var entity : server.overworld().getEntities((net.minecraft.world.entity.Entity) null, new AABB(arena).inflate(50.0), e -> !(e instanceof ServerPlayer))) {
 				entity.discard();

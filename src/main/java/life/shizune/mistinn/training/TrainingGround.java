@@ -74,6 +74,7 @@ public final class TrainingGround {
 		new BlockPos(42, 77, -57), new BlockPos(12, 77, -84), new BlockPos(-6, 77, -82), new BlockPos(-31, 77, -82),
 		new BlockPos(-46, 77, -95), new BlockPos(-31, 91, -112));
 
+	/** Where one of the station's staff stands, and which way they face. */
 	public record Post(StaffRole role, BlockPos pos, float yaw) {
 	}
 

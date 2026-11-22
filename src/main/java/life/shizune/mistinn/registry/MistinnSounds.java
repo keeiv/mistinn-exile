@@ -21,7 +21,7 @@ public final class MistinnSounds {
 	public static final SoundEvent SCYTHE_SWING = register("weapon.scythe.swing");
 	/** 蓄滿: a heavy blow is fully charged. */
 	public static final SoundEvent CHARGE_FULL = register("player.charge_full");
-	/** 成就達成 */
+	/** 成就達成: an achievement is earned. */
 	public static final SoundEvent ACHIEVEMENT = register("ui.achievement");
 	/** 熄燈鉤鐮: the hook bites and drags. */
 	public static final SoundEvent HOOK_PULL = register("weapon.snuffer_hook.pull");

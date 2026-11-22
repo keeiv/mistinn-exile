@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 
+/** The mod's blocks. */
 public final class MistinnBlocks {
 	/** 金鐘: the save point. Made of a matter the border world does not have; it cannot be crafted. */
 	public static final Block GOLDEN_BELL = register(

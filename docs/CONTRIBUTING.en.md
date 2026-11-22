@@ -76,6 +76,8 @@ Photo mode adds Sodium and Iris and shoots each scene at 1920×1080 on the highe
 
 Run `.\build.ps1 build` before committing. CI runs `./gradlew build` on Linux with JDK 25; the client game test needs a display and runs locally for now.
 
+`build` also runs the code and comment style check (Checkstyle; the rules are in `config/checkstyle/checkstyle.xml`), and any one broken rule fails it: tabs for indentation, braces on every block, one statement a line, at most 200 columns; `final` parameters, no unused imports or locals; a Javadoc on every type whose first sentence ends in a full stop or a colon, a space after `//`, and no TODO left in a comment. To run only the style check: `.\build.ps1 checkstyleMain checkstyleClient checkstyleGametest`.
+
 ## Commits and pull requests
 
 Commit messages and PR titles use Conventional Commits prefixes with a short Traditional Chinese summary: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:`. A PR describes the problem, the new behaviour and how it was verified (tests run, screenshots checked). Save-format changes explain compatibility and migration.

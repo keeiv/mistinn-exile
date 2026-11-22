@@ -15,7 +15,6 @@ import life.shizune.mistinn.skill.Skills;
 import life.shizune.mistinn.skill.Stat;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -26,7 +25,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
 import life.shizune.mistinn.achievement.Achievement;
 import life.shizune.mistinn.achievement.AchievementService;
@@ -38,6 +36,7 @@ import life.shizune.mistinn.achievement.AchievementService;
  * lists what the hunter has done, and what is still to do.
  */
 public class HunterGuideScreen extends Screen {
+	/** The guide's four pages, by the tab that opens each. */
 	public enum Tab {
 		PAGES("gui.mistinn.guide.tab.pages"),
 		STATS("gui.mistinn.guide.tab.stats"),
@@ -458,7 +457,6 @@ public class HunterGuideScreen extends Screen {
 		long now = System.currentTimeMillis();
 		// the lines first, under the nodes: root to each row, along each row, on to the locked major
 		int[] root = nodeAt(SkillTree.node(SkillTree.ROOT));
-		int rootCx = x + root[0] + MAJOR / 2;
 		int rootCy = y + root[1] + MAJOR / 2;
 		for (Stat stat : Stat.values()) {
 			int rowCy = y + 22 + stat.ordinal() * 42 + MAJOR / 2;
@@ -504,7 +502,8 @@ public class HunterGuideScreen extends Screen {
 			g.blit(RenderPipelines.GUI_TEXTURED, NODE_MAJOR, x + at[0], y + at[1], 0.0F, 0.0F, MAJOR, MAJOR, MAJOR * 3, MAJOR);
 			icon(g, 7, x + at[0] + 8, y + at[1] + 8, 0xFF909090);
 			if (inside(mouseX, mouseY, x + at[0], y + at[1], MAJOR, MAJOR)) {
-				g.setTooltipForNextFrame(this.font, List.of(Component.translatable("gui.mistinn.guide.reserved"), Component.translatable("gui.mistinn.guide.reserved.hint").withColor(0xFFA0A0A0)), java.util.Optional.empty(), mouseX, mouseY);
+				g.setTooltipForNextFrame(this.font, List.of(Component.translatable("gui.mistinn.guide.reserved"),
+					Component.translatable("gui.mistinn.guide.reserved.hint").withColor(0xFFA0A0A0)), java.util.Optional.empty(), mouseX, mouseY);
 			}
 		}
 		if (notice != null && now - noticeAt < 4000) {

@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 
+/** Giants have a voice and a step of their own. */
 @Mixin(Giant.class)
 public abstract class GiantSoundMixin extends Monster {
 	protected GiantSoundMixin(final EntityType<? extends Monster> type, final Level level) {

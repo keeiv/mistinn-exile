@@ -51,7 +51,8 @@ public class StoryHud implements HudElement {
 		var hintRows = font.split(hint, 220);
 		int height = 30 + hintRows.size() * 10 + (fresh ? 11 : 0);
 		// a new objective slides in from the edge and settles; the panel otherwise stays put
-		float arrive = fresh ? life.shizune.mistinn.client.anim.Motion.outBack(Mth.clamp((StoryClient.FLASH_TICKS - flash + deltaTracker.getGameTimeDeltaPartialTick(false)) / 10.0F, 0.0F, 1.0F)) : 1.0F;
+		float arrive = fresh ? life.shizune.mistinn.client.anim.Motion.outBack(Mth.clamp((StoryClient.FLASH_TICKS - flash + deltaTracker.getGameTimeDeltaPartialTick(false)) / 10.0F, 0.0F,
+			1.0F)) : 1.0F;
 		int x = MARGIN - Math.round((width + MARGIN) * (1.0F - arrive));
 		int y = MARGIN;
 		float glow = fresh ? Mth.clamp(flash / 20.0F, 0.0F, 1.0F) : 0.0F;

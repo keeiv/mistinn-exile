@@ -26,6 +26,7 @@ import org.jspecify.annotations.Nullable;
 public final class HeavyClient {
 	public static final RenderStateDataKey<Pose> KEY = RenderStateDataKey.create(() -> "Mistinn heavy blow");
 
+	/** Drawing the blow back, or bringing it down. */
 	public enum Phase {
 		CHARGE, STRIKE
 	}

@@ -62,7 +62,8 @@ public final class MistinnHuntTest implements FabricClientGameTest {
 	/** Hostile creatures do; the provoked neutrals (endermen, zombified piglins, wolves, polar bears), brain-driven ones and keepers do not. */
 	private static void whoListens(final MinecraftServer server) {
 		ServerLevel level = server.overworld();
-		for (EntityType<?> type : new EntityType<?>[] {EntityTypes.HUSK, EntityTypes.ZOMBIE, EntityTypes.SKELETON, EntityTypes.CREEPER, EntityTypes.SPIDER, EntityTypes.WITCH, EntityTypes.VINDICATOR}) {
+		for (EntityType<?> type : new EntityType<?>[] {EntityTypes.HUSK, EntityTypes.ZOMBIE, EntityTypes.SKELETON, EntityTypes.CREEPER, EntityTypes.SPIDER, EntityTypes.WITCH,
+			EntityTypes.VINDICATOR}) {
 			check(NoiseService.listens((Mob) type.create(level, EntitySpawnReason.COMMAND)), type + " hunts by ear");
 		}
 		for (EntityType<?> type : new EntityType<?>[] {EntityTypes.ENDERMAN, EntityTypes.ZOMBIFIED_PIGLIN, EntityTypes.WOLF, EntityTypes.POLAR_BEAR, EntityTypes.PIGLIN, EntityTypes.HOGLIN}) {

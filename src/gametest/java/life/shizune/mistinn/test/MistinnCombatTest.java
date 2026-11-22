@@ -18,7 +18,6 @@ import life.shizune.mistinn.registry.MistinnEntities;
 import life.shizune.mistinn.registry.MistinnItems;
 import life.shizune.mistinn.skill.SkillService;
 import life.shizune.mistinn.skill.Skills;
-import life.shizune.mistinn.skill.Stat;
 import life.shizune.mistinn.stamina.StaminaService;
 import life.shizune.mistinn.weapon.HeavyService;
 import life.shizune.mistinn.weapon.SpecialWeapon;

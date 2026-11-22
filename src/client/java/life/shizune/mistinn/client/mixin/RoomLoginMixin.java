@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+/** A room's guest must prove their account: only the host keeps the integrated server's shortcut past the login. */
 @Mixin(ServerLoginPacketListenerImpl.class)
 public abstract class RoomLoginMixin implements RoomHosting.Login {
 	@Shadow

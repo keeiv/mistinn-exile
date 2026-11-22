@@ -14,7 +14,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * 使用進度: a translucent black box above the hotbar while a treatment runs, "正在使用 <item>"
+ * 使用進度: a translucent black box above the hotbar while a treatment runs, "正在使用" and the item's name
  * over a progress bar and the seconds left. It rises in as the use starts; when the use ends
  * the bar fills (done) or turns red (broken off) and the box fades away. Under painkillers a
  * small tag in the same place counts their time down.

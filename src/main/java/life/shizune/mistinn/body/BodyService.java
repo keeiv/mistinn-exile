@@ -228,11 +228,11 @@ public final class BodyService {
 	// ── Taking damage ─────────────────────────────────────────────
 
 	/** Replaces vanilla's {@code actuallyHurt} for hunters: armour by part, then parts. */
-	public static void hurt(final ServerPlayer player, final ServerLevel level, final DamageSource source, float damage) {
+	public static void hurt(final ServerPlayer player, final ServerLevel level, final DamageSource source, final float incoming) {
 		if (player.isInvulnerableTo(level, source) || ExecutionService.holdsBlow(player, source) || ExecutionService.headshotLands(player, source)) {
 			return;
 		}
-		damage = Math.min(damage, 1.0E6F);
+		float damage = Math.min(incoming, 1.0E6F);
 		boolean execution = ExecutionService.finalBlow(player, source);
 		Hit hit = execution ? Hit.on(BodyPart.TORSO, false) : locate(player, source);
 		if (!source.is(DamageTypeTags.BYPASSES_ARMOR)) {
@@ -314,7 +314,8 @@ public final class BodyService {
 	}
 
 	/** Spreads part damage according to the hit. */
-	public static Body apply(Body body, final Hit hit, final float amount) {
+	public static Body apply(final Body before, final Hit hit, final float amount) {
+		Body body = before;
 		if (hit.whole()) {
 			float each = amount / BodyPart.values().length;
 			for (BodyPart part : BodyPart.values()) {
@@ -330,7 +331,8 @@ public final class BodyService {
 	}
 
 	/** Damages one part; what a destroyed part cannot take spreads over the living ones, weakened. */
-	public static Body damage(Body body, final BodyPart part, final float amount) {
+	public static Body damage(final Body before, final BodyPart part, final float amount) {
+		Body body = before;
 		float left = body.get(part);
 		float spill;
 		if (left <= 0.0F) {
@@ -413,7 +415,9 @@ public final class BodyService {
 	}
 
 	/** Mends living parts up to {@code ceiling}, most hurt first, at most 4 at a time per part. */
-	public static Body mend(Body body, float amount, final float ceiling) {
+	public static Body mend(final Body before, final float total, final float ceiling) {
+		Body body = before;
+		float amount = total;
 		while (amount > 0.01F) {
 			BodyPart lowest = null;
 			for (BodyPart part : BodyPart.values()) {

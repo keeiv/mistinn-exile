@@ -90,7 +90,8 @@ public class SurgeryKitItem extends TreatmentItem {
 			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.REVIVE_LIMB);
 		}
 		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.SURGERY_FINISH, SoundSource.PLAYERS, 0.8F, 1.0F);
-		player.sendSystemMessage(Component.translatable(body.destroyed(part) ? "message.mistinn.surgery.done" : "message.mistinn.surgery.treated", Component.translatable("gui.mistinn.part." + part.id)), true);
+		player.sendSystemMessage(Component.translatable(body.destroyed(part) ? "message.mistinn.surgery.done" : "message.mistinn.surgery.treated", Component.translatable("gui.mistinn.part."
+			+ part.id)), true);
 		stack.hurtAndBreak(1, player, hand);
 	}
 }

@@ -84,6 +84,18 @@ README 與官網的照片用拍攝模式在遊戲裡擺好再拍：
 
 CI 在 Linux 上以 JDK 25 執行 `./gradlew build`。客戶端遊戲測試需要顯示裝置，目前在本機執行。
 
+`build` 會一併執行程式碼與註釋風格檢查（Checkstyle，規則在 `config/checkstyle/checkstyle.xml`），任何一條不符就失敗：
+
+- 以 Tab 縮排，每個區塊都有大括號，一行一個敘述，一行不超過 200 欄。
+- 方法與建構子的參數一律 `final`；不留未使用的 import 與區域變數。
+- 每個型別都有 Javadoc，第一句以句號或冒號結尾；行註解的 `//` 後面空一格；註解裡不留 TODO。
+
+只跑風格檢查：
+
+```powershell
+.\build.ps1 checkstyleMain checkstyleClient checkstyleGametest
+```
+
 ## 提交與 Pull Request
 
 提交訊息與 PR 標題使用 Conventional Commits 前綴，搭配簡潔的繁體中文描述：

@@ -72,7 +72,6 @@ public final class MistinnWorld {
 		}
 	}
 
-
 	/**
 	 * A world-generation feature for what stands in the sea: on a reef in shallow water off the shore, or at the water's
 	 * very edge. Its origin is the height of the sea's surface, whatever the sea floor does beneath it.
@@ -104,6 +103,7 @@ public final class MistinnWorld {
 			return true;
 		}
 	}
+
 	private static final java.util.Map<String, MapCodec<? extends Feature>> CODECS = new java.util.HashMap<>();
 
 	private static void feature(final String name, final int maxSlope, final int reach, final boolean allowSand, final Consumer<Builder> build) {
@@ -113,13 +113,13 @@ public final class MistinnWorld {
 		Registry.register(BuiltInRegistries.FEATURE_TYPE, Mistinn.id(name), codec);
 	}
 
-
 	private static void reef(final String name, final int shallowest, final int deepest, final Consumer<Builder> build) {
 		ReefFeature feature = new ReefFeature(name, shallowest, deepest, build);
 		MapCodec<ReefFeature> codec = MapCodec.unit(feature);
 		CODECS.put(name, codec);
 		Registry.register(BuiltInRegistries.FEATURE_TYPE, Mistinn.id(name), codec);
 	}
+
 	private static ResourceKey<PlacedFeature> placed(final String name) {
 		return ResourceKey.create(Registries.PLACED_FEATURE, Mistinn.id(name));
 	}

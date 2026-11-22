@@ -1,6 +1,7 @@
 plugins {
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
+	id 'checkstyle'
 }
 
 // Photo mode (-PphotoMode): the client game test shoots the screenshots for the website and
@@ -211,5 +212,18 @@ if (project.hasProperty("reefProbe")) {
 		if (name == "clientGameTest") {
 			vmArg "-Dmistinn.reefprobe=true"
 		}
+	}
+}
+
+// Code and comment style (config/checkstyle/checkstyle.xml): every rule is an error, and `build` runs it.
+checkstyle {
+	toolVersion = "10.26.1"
+	configFile = file("config/checkstyle/checkstyle.xml")
+	maxWarnings = 0
+}
+tasks.withType(Checkstyle).configureEach {
+	reports {
+		xml.required = true
+		html.required = false
 	}
 }

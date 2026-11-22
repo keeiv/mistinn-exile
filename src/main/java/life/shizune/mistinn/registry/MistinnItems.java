@@ -8,7 +8,6 @@ import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.gear.Gear;
 import life.shizune.mistinn.salt.SaltItem;
 import life.shizune.mistinn.tier.Tier;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.equipment.EquipmentAsset;
@@ -22,7 +21,6 @@ import life.shizune.mistinn.weapon.WeaponItem;
 import net.minecraft.world.item.component.UseEffects;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.SwingAnimationType;
-import net.minecraft.network.chat.Component;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -41,6 +39,7 @@ import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.item.component.Weapon;
 import net.minecraft.world.level.block.Block;
 
+/** The mod's items: salt, weapons, armour and packs by tier, medicine and repair kits, and the hunter's guide. */
 public final class MistinnItems {
 	private static final Identifier REACH_ID = Mistinn.id("weapon_reach");
 	private static final Identifier KNOCKBACK_ID = Mistinn.id("weapon_knockback");
@@ -49,7 +48,6 @@ public final class MistinnItems {
 
 	/** 鹽: the currency is a number on the player; a salt pouch found in the world adds to it when used. */
 	public static final Item SALT = register("salt", SaltItem::new, new Item.Properties());
-	/** 鏽神的鹽塊: what the Lighthouse Keepers guard. */
 	/** 燈油: lighthouse lamp oil. Lamp thralls carry it; it lights the golden bell halfway up a lighthouse. */
 	public static final Item LAMP_OIL = register("lamp_oil", Item::new, new Item.Properties().stacksTo(16));
 	public static final Item RUST_GOD_SALT = register("rust_god_salt", Item::new, new Item.Properties().stacksTo(16).rarity(Rarity.EPIC).fireResistant());
@@ -69,7 +67,6 @@ public final class MistinnItems {
 	public static final Item TIDE_MAUL = special(SpecialWeapon.TIDE_MAUL, WeaponStyle.SMASH, 12.0, 0.3, 1400, MistinnSounds.HAMMER_SWING, MistinnSounds.BELL_GREATSWORD_HIT);
 	public static final Item BELL_CLAPPER = special(SpecialWeapon.BELL_CLAPPER, WeaponStyle.SMASH, 10.0, 0.5, 1200, MistinnSounds.HAMMER_SWING, MistinnSounds.BELL_GREATSWORD_HIT);
 
-	/** 追獵者手冊: the world's story and the rules of the hunt, given to every hunter on arrival. */
 	/** Pages of the guide's text (item.mistinn.hunter_guide.page.N), read as spreads in its screen. */
 	public static final int GUIDE_PAGES = 21;
 	public static final Item HUNTER_GUIDE = register("hunter_guide", life.shizune.mistinn.story.HunterGuideItem::new, new Item.Properties().stacksTo(1));
@@ -113,7 +110,6 @@ public final class MistinnItems {
 
 	private MistinnItems() {
 	}
-
 
 	private static ResourceKey<EquipmentAsset> asset(final Tier tier) {
 		return ResourceKey.create(EquipmentAssets.ROOT_ID, Mistinn.id("hunter_" + tier.id()));

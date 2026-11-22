@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 
+/** Cave spiders have their own voice and step, not the common spider's. */
 @Mixin(CaveSpider.class)
 public abstract class CaveSpiderSoundMixin extends Spider {
 	protected CaveSpiderSoundMixin(final EntityType<? extends Spider> type, final Level level) {

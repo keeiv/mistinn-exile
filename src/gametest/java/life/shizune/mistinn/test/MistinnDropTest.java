@@ -199,7 +199,7 @@ public final class MistinnDropTest implements FabricClientGameTest {
 			check(player.distanceToSqr(Vec3.atBottomCenterOf(stand)) < 1.0, "the hunter comes down on the pad");
 			check(player.getHealth() >= player.getMaxHealth(), "unhurt by the fall");
 			check(player.level().getEntitiesOfClass(ArmorStand.class, new AABB(stand).inflate(256.0, 400.0, 256.0),
-				stand_ -> stand_.entityTags().contains(StationArrival.SEAT_TAG)).isEmpty(), "the fall's seat is gone");
+				seat -> seat.entityTags().contains(StationArrival.SEAT_TAG)).isEmpty(), "the fall's seat is gone");
 			SignText plate = sign(player.level(), MistinnWorld.plate(stand));
 			check(plate != null && "3412".equals(number(plate)), "the pod beside the pad carries the hunter's number");
 			check(StoryService.get(player) == null, "the story waits until the hunter has come to");

@@ -5,10 +5,11 @@ import java.util.List;
 
 /** A storage made of one or more rectangular compartments (sections), each {@code w x h} cells. */
 public record GridShape(List<Section> sections) {
+	/** One compartment, in cells. */
 	public record Section(int width, int height) {
 	}
 
-	/** {@code of(w0, h0, w1, h1, ...)} */
+	/** A shape from pairs of sizes: {@code of(w0, h0, w1, h1, ...)}. */
 	public static GridShape of(final int... sizes) {
 		List<Section> sections = new ArrayList<>();
 		for (int i = 0; i + 1 < sizes.length; i += 2) {

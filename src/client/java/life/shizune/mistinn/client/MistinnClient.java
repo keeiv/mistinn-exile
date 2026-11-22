@@ -22,6 +22,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 
+/** The client's entry point: keys, HUD layers, renderers, payload receivers and the hooks that run every tick. */
 public class MistinnClient implements ClientModInitializer {
 	/** Blocks per minimap pixel, cycled with the zoom key. */
 	private static final int[] SCALES = {1, 2, 4};
@@ -103,21 +104,31 @@ public class MistinnClient implements ClientModInitializer {
 		net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
 			if (renderer instanceof net.minecraft.client.renderer.entity.player.AvatarRenderer<?> avatar) {
 				@SuppressWarnings("unchecked")
-				var parent = (net.minecraft.client.renderer.entity.RenderLayerParent<net.minecraft.client.renderer.entity.state.AvatarRenderState, net.minecraft.client.model.player.PlayerModel>) avatar;
+				var parent = (net.minecraft.client.renderer.entity.RenderLayerParent<net.minecraft.client.renderer.entity.state.AvatarRenderState,
+					net.minecraft.client.model.player.PlayerModel>) avatar;
 				helper.register(new life.shizune.mistinn.client.gear.MaskLayer(parent, context));
 				helper.register(new life.shizune.mistinn.client.gear.GearLayer(parent, context));
 			}
 		});
-		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.keeper.SnufferModel.LAYER, life.shizune.mistinn.client.keeper.SnufferModel::definition);
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.keeper.SnufferModel.LAYER,
+			life.shizune.mistinn.client.keeper.SnufferModel::definition);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SNUFFER, life.shizune.mistinn.client.keeper.SnufferRenderer::new);
-		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.keeper.SunkenBellModel.LAYER, life.shizune.mistinn.client.keeper.SunkenBellModel::definition);
-		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SUNKEN_BELL, life.shizune.mistinn.client.keeper.SunkenBellRenderer::new);
-		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.STATION_HAND, life.shizune.mistinn.client.station.StationHandRenderer::new);
-		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.shore.SaltCorpseModel.LAYER, life.shizune.mistinn.client.shore.SaltCorpseModel::definition);
-		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SALT_CORPSE, life.shizune.mistinn.client.shore.SaltCorpseRenderer::new);
-		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.shore.LampThrallModel.LAYER, life.shizune.mistinn.client.shore.LampThrallModel::definition);
-		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.LAMP_THRALL, life.shizune.mistinn.client.shore.LampThrallRenderer::new);
-		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.shore.MistShadeModel.LAYER, life.shizune.mistinn.client.shore.MistShadeModel::definition);
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.keeper.SunkenBellModel.LAYER,
+			life.shizune.mistinn.client.keeper.SunkenBellModel::definition);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SUNKEN_BELL,
+			life.shizune.mistinn.client.keeper.SunkenBellRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.STATION_HAND,
+			life.shizune.mistinn.client.station.StationHandRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.shore.SaltCorpseModel.LAYER,
+			life.shizune.mistinn.client.shore.SaltCorpseModel::definition);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SALT_CORPSE,
+			life.shizune.mistinn.client.shore.SaltCorpseRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.shore.LampThrallModel.LAYER,
+			life.shizune.mistinn.client.shore.LampThrallModel::definition);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.LAMP_THRALL,
+			life.shizune.mistinn.client.shore.LampThrallRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.shore.MistShadeModel.LAYER,
+			life.shizune.mistinn.client.shore.MistShadeModel::definition);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.MIST_SHADE, life.shizune.mistinn.client.shore.MistShadeRenderer::new);
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.training.StationCeremony.DropPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.training.TrainingClient.drop(payload.ticks()));
@@ -155,7 +166,8 @@ public class MistinnClient implements ClientModInitializer {
 			while (swingCamera.consumeClick()) {
 				life.shizune.mistinn.client.anim.CameraSwing.toggle();
 				if (minecraft.player != null) {
-					minecraft.player.sendOverlayMessage(Component.translatable(life.shizune.mistinn.client.anim.CameraSwing.enabled() ? "message.mistinn.swing_camera.on" : "message.mistinn.swing_camera.off"));
+					minecraft.player.sendOverlayMessage(Component.translatable(life.shizune.mistinn.client.anim.CameraSwing.enabled() ? "message.mistinn.swing_camera.on"
+						: "message.mistinn.swing_camera.off"));
 				}
 			}
 			while (zoom.consumeClick()) {

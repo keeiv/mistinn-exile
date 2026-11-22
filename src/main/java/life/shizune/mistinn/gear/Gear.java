@@ -13,9 +13,11 @@ public final class Gear {
 	private Gear() {
 	}
 
+	/** A helmet's numbers, by tier. */
 	public record Helmet(Tier tier, int durability, int armor, float toughness) {
 	}
 
+	/** Body armour's numbers, by tier; {@code speedPenalty} is a fraction: 0.02 is 2% slower. */
 	public record BodyArmor(Tier tier, int durability, int armor, float toughness, float knockbackResistance, double speedPenalty) {
 	}
 

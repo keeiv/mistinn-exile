@@ -755,7 +755,8 @@ public final class Structures {
 	}
 
 	/** Marks every block within {@code radius} of a point on the anchor as part of it. */
-	private static void mark(final Map<BlockPos, Integer> parts, final double[] o, final double[] up, final double[] across, final double[] side, final double u, final double v, final double w, final double radius, final int part) {
+	private static void mark(final Map<BlockPos, Integer> parts, final double[] o, final double[] up, final double[] across, final double[] side, final double u, final double v,
+		final double w, final double radius, final int part) {
 		double[] p = place(o, up, across, side, u, v, w);
 		int r = (int) Math.ceil(radius);
 		for (int x = -r; x <= r; x++) {

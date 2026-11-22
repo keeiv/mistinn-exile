@@ -55,6 +55,7 @@ public final class Planner {
 	/** Plain walking toward the hunter: not a move in any set, so it has no tell; the brain walks instead. */
 	public static final BossMove WALK = BossMove.builder("walk", BossMove.Kind.IDLE).unannounced(0).timing(0, WALK_TICKS).build();
 
+	/** How much each thing a plan gains or risks counts when plans are compared. */
 	public record Weights(double hit, double head, double legs, double risk, double range, double corner, double pressure, double bait, double variety) {
 		public static final Weights DEFAULT = new Weights(1.0, 0.35, 0.3, 0.5, 0.25, 0.15, 0.6, 1.0, 0.3);
 	}
@@ -252,7 +253,6 @@ public final class Planner {
 		return true;
 	}
 
-
 	/** The families that are phases of a fight: a move in one of them belongs to that phase only. */
 	private static final java.util.List<String> PHASES = java.util.List.of("dark", "whole", "cracked");
 
@@ -265,6 +265,7 @@ public final class Planner {
 		}
 		return true;
 	}
+
 	/** One step of the simulation: where it leaves everything, and what it was worth. */
 	private @Nullable Node step(final Situation now, final Node node, final BossMove move, final int delay) {
 		if (!move.plannable()) {

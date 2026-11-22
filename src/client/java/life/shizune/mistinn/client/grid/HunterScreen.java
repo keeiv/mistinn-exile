@@ -264,7 +264,8 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 		ItemStack rig = inv.rig();
 		g.text(this.font, rig.isEmpty() ? Component.translatable("gui.mistinn.no_rig") : TierText.name(rig), cx, this.rigTitleY, rig.isEmpty() ? GridPanel.LABEL_DIM : Tiers.of(rig).color, false);
 		ItemStack pack = inv.backpack();
-		g.text(this.font, pack.isEmpty() ? Component.translatable("gui.mistinn.no_backpack") : TierText.name(pack), cx, this.packTitleY, pack.isEmpty() ? GridPanel.LABEL_DIM : Tiers.of(pack).color, false);
+		g.text(this.font, pack.isEmpty() ? Component.translatable("gui.mistinn.no_backpack") : TierText.name(pack), cx, this.packTitleY, pack.isEmpty() ? GridPanel.LABEL_DIM
+			: Tiers.of(pack).color, false);
 	}
 
 	/** The right column: a large figure and each part's health. */

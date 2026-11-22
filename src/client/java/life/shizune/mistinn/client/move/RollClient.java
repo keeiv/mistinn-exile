@@ -142,7 +142,8 @@ public final class RollClient {
 		player.setSprinting(false);
 		lastRoll = System.nanoTime();
 		life.shizune.mistinn.weapon.HeavyService.breakCharge(player);
-		ANIMS.put(player.getId(), new Anim(kind, System.nanoTime(), yaw, Math.min(1.0F, body.get(BodyPart.LEFT_ARM) / BodyService.max(player)), Math.min(1.0F, body.get(BodyPart.RIGHT_ARM) / BodyService.max(player))));
+		ANIMS.put(player.getId(), new Anim(kind, System.nanoTime(), yaw, Math.min(1.0F, body.get(BodyPart.LEFT_ARM) / BodyService.max(player)), Math.min(1.0F,
+			body.get(BodyPart.RIGHT_ARM) / BodyService.max(player))));
 		ClientPlayNetworking.send(new RollService.RollPayload(yaw));
 	}
 
@@ -170,7 +171,8 @@ public final class RollClient {
 		player.setSprinting(false);
 		lastSlide = System.nanoTime();
 		life.shizune.mistinn.weapon.HeavyService.breakCharge(player);
-		ANIMS.put(player.getId(), new Anim(RollService.Kind.SLIDE, System.nanoTime(), yaw, Math.min(1.0F, body.get(BodyPart.LEFT_ARM) / BodyService.max(player)), Math.min(1.0F, body.get(BodyPart.RIGHT_ARM) / BodyService.max(player))));
+		ANIMS.put(player.getId(), new Anim(RollService.Kind.SLIDE, System.nanoTime(), yaw, Math.min(1.0F, body.get(BodyPart.LEFT_ARM) / BodyService.max(player)), Math.min(1.0F,
+			body.get(BodyPart.RIGHT_ARM) / BodyService.max(player))));
 		ClientPlayNetworking.send(new SlideService.SlidePayload(yaw));
 	}
 

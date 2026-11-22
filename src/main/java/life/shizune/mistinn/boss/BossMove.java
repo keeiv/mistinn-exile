@@ -31,7 +31,7 @@ import org.jspecify.annotations.Nullable;
 public record BossMove(String id, Kind kind, Weight weight, @Nullable SoundEvent tell, int windup, int active, int recovery,
 	List<Strike> strikes, Motion motion, Range range, int cooldown, Set<String> families,
 	@Nullable String imitates, @Nullable String signals, @Nullable TellEffect tellEffect, @Nullable Script script) {
-
+	/** What a move is for; the planner weighs each kind in its own way. */
 	public enum Kind {
 		ATTACK, MOVEMENT, FEINT, SIGNAL, IDLE,
 		/** Not chosen, only suffered: the stagger. */
@@ -66,6 +66,7 @@ public record BossMove(String id, Kind kind, Weight weight, @Nullable SoundEvent
 	public record Motion(List<Key> keys) {
 		public static final Motion NONE = new Motion(List.of());
 
+		/** One key of a move's motion: the offset reached at a tick. */
 		public record Key(int tick, double forward, double side, double up) {
 		}
 
@@ -126,6 +127,7 @@ public record BossMove(String id, Kind kind, Weight weight, @Nullable SoundEvent
 		return new Builder(id, kind);
 	}
 
+	/** Puts a move together step by step; begun with {@link #builder}. */
 	public static final class Builder {
 		private final String id;
 		private final Kind kind;
