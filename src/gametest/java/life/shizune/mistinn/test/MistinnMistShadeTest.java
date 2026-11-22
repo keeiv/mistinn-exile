@@ -36,7 +36,6 @@ import net.minecraft.world.phys.Vec3;
  */
 @SuppressWarnings("UnstableApiUsage")
 public final class MistinnMistShadeTest implements FabricClientGameTest {
-
 	@Override
 	public void runTest(final ClientGameTestContext context) {
 		if (TestFilter.skip(getClass())) {
