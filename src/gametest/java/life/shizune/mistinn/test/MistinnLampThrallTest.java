@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import life.shizune.mistinn.client.enemy.EnemyMotion;
 import life.shizune.mistinn.client.shore.LampThrallModel;
+import life.shizune.mistinn.client.shore.LampThrallRenderer;
 import life.shizune.mistinn.body.BodyService;
 import life.shizune.mistinn.enemy.EnemyRig;
 import life.shizune.mistinn.registry.MistinnAttachments;
@@ -59,6 +60,7 @@ public final class MistinnLampThrallTest implements FabricClientGameTest {
 			world.getServer().runOnServer(server -> check(EnemyRig.of(MistinnEntities.LAMP_THRALL) == EnemyRig.UNDEAD, "it fights as the undead do"));
 			drawnOnItsOwnFrame(context, world, arena);
 			cloakSwingsAsItWalks(context);
+			raisesItsLampToFlare(context);
 			flaresThenRushes(context, world, arena);
 			heavyBlowBreaksTheFlare(context, world, arena);
 		}
@@ -108,6 +110,39 @@ public final class MistinnLampThrallTest implements FabricClientGameTest {
 			server.overworld().getEntity(id).discard();
 			player(server).setGameMode(GameType.SURVIVAL);
 		});
+	}
+
+	/** While its lantern flares, it holds the lantern up over its head, where a hunter sees the warning from afar. */
+	private static void raisesItsLampToFlare(final ClientGameTestContext context) {
+		float[] got = context.computeOnClient(mc -> {
+			LampThrall entity = MistinnEntities.LAMP_THRALL.create(mc.level, EntitySpawnReason.COMMAND);
+			// a model only, never added to the world: it still needs an id to be drawn
+			entity.setId(-4242);
+			List<ClipProbe.Box> prowling = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> { }, true, null, null);
+			List<ClipProbe.Box> flaring = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> {
+				if (state instanceof LampThrallRenderer.State thrall) {
+					thrall.flaring = true;
+				}
+			}, true, null, null);
+			return new float[] {top(prowling, "/right_arm"), top(prowling, "/head"), top(flaring, "/right_arm"), top(flaring, "/head")};
+		});
+		check(got[0] < got[1], "prowling, its lantern hangs below its head");
+		check(got[2] > got[3], "flaring, it holds the lantern up over its head: hand " + got[2] + ", head " + got[3]);
+	}
+
+	/** The highest any box under this part reaches. */
+	private static float top(final List<ClipProbe.Box> boxes, final String part) {
+		float most = -Float.MAX_VALUE;
+		for (ClipProbe.Box box : boxes) {
+			if (box.path().startsWith(part)) {
+				float half = 0.0F;
+				for (int i = 0; i < 3; i++) {
+					half += box.half()[i] * Math.abs(box.axes()[i].y);
+				}
+				most = Math.max(most, box.center().y + half);
+			}
+		}
+		return most;
 	}
 
 	/** Walking, the hem of its cloak swings out behind it, and the tatters at the hem swing with its steps. */
@@ -186,6 +221,8 @@ public final class MistinnLampThrallTest implements FabricClientGameTest {
 			at[0] = thrall.position();
 			flared[0] = server.overworld().getGameTime();
 		});
+		// a moment for the flare to reach the screen: the lantern held up, burning orange
+		context.waitTicks(3);
 		context.takeScreenshot("thrall-01-flare");
 		until(context, world, server -> thrall(server, id).state() != LampThrall.FLARE, LampThrall.FLARE_TICKS + 10, "the flare ends");
 		world.getServer().runOnServer(server -> {
