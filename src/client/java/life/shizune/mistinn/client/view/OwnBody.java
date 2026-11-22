@@ -60,6 +60,10 @@ public final class OwnBody {
 
 	/** Whether the hands have work in front of the eye now. */
 	private static boolean working(final Minecraft mc, final LocalPlayer player) {
+		if (life.shizune.mistinn.client.medical.TreatmentClient.sample(player.getId()) != null) {
+			// treating a wound or mending a plate is done with the body's own hands, in sight below the eye
+			return false;
+		}
 		return player.isSwinging() || player.isUsingItem() || HeavyClient.sample(player, 1.0F) != null
 			|| (mc.gameMode != null && mc.gameMode.isDestroying());
 	}

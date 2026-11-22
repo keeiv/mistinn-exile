@@ -155,11 +155,44 @@ public final class TreatmentClient {
 		Poser.limbs(clip(pose.treatment()), pose.p(), model, mirror, pose.weight());
 	}
 
+	/**
+	 * In the hunter's own view the arms come further forward than they look from outside ({@code own_lift}, degrees), so
+	 * the hands and what they work on are in sight below the eye.
+	 */
+	public static void ownLift(final Pose pose, final HumanoidModel<?> model) {
+		float lift = clip(pose.treatment()).number("own_lift", 0.0F) * pose.weight() * Mth.DEG_TO_RAD;
+		model.rightArm.xRot -= lift;
+		model.leftArm.xRot -= lift;
+	}
+
+	/**
+	 * Where the hunter looks while they work, added to their own view only: {pitch, yaw} in degrees (down, and toward the
+	 * hand that holds the item), from the clip's {@code camera} tracks.
+	 */
+	public static float[] camera(final Pose pose, final int side) {
+		Clip clip = clip(pose.treatment());
+		if (!clip.has("camera.pitch")) {
+			return new float[] {0.0F, 0.0F};
+		}
+		return new float[] {clip.at("camera.pitch", pose.p()) * pose.weight(), side * clip.at("camera.yaw", pose.p()) * pose.weight()};
+	}
+
 	/** Tilts the held item about the grip (degrees about the hand's x axis). */
 	public static void thirdPersonItem(final Pose pose, final PoseStack stack) {
 		float tilt = clip(pose.treatment()).at("item.x", pose.p()) * pose.weight();
 		if (tilt != 0.0F) {
 			stack.rotateDegrees(Axis.XP, tilt);
+		}
+	}
+
+	/**
+	 * In the hunter's own view an item worked close under the eye is drawn smaller ({@code own_scale}), as if held a
+	 * little further off, so it does not fill the view.
+	 */
+	public static void ownItem(final Pose pose, final PoseStack stack) {
+		float scale = Mth.lerp(pose.weight(), 1.0F, clip(pose.treatment()).number("own_scale", 1.0F));
+		if (scale != 1.0F) {
+			stack.scale(scale, scale, scale);
 		}
 	}
 

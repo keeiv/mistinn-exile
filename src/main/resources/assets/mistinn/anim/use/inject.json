@@ -2,6 +2,12 @@
 	"_comment": "注射 INJECT: the injector is brought up to the chest and driven down into the outer thigh (the leg brought forward to meet it, the torso dipping ~10° only at the stab), held while the dose goes in, and pulled out. Stretched over the whole use (InjectorItem.USE_TICKS, 3 s).",
 	"keys": [0.0, 0.15, 0.32, 0.4, 0.8, 0.9, 1.0],
 	"eases": ["out_cubic", "in_out_sine", "in_quart", "linear", "out_cubic", "in_out_sine"],
+	"own_scale": 0.75,
+	"own_lift": 30,
+	"camera": {
+		"pitch": [0, 30, 45, 62, 60, 30, 0],
+		"yaw": [0, 6, 12, 20, 20, 8, 0]
+	},
 	"limbs": {
 		"head_x": [0, 12, 15, 25, 22, 12, 0],
 		"body_x": [0, 2, 2, 10, 7, 3, 0],

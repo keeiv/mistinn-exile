@@ -2,6 +2,11 @@
 	"_comment": "止血帶 TOURNIQUET: head down, both hands bring the strap to the limb and wind it round (two passes, the right hand circling), then the right hand wrenches the windlass up hard and holds it while the left pins the end. Stretched over the whole use (TourniquetItem.USE_TICKS, 2 s).",
 	"keys": [0.0, 0.15, 0.32, 0.5, 0.68, 0.8, 0.92, 1.0],
 	"eases": ["out_cubic", "in_out_sine", "in_out_sine", "in_out_sine", "in_quart", "out_quad", "in_out_sine"],
+	"own_lift": 34,
+	"camera": {
+		"pitch": [0, 30, 44, 44, 44, 48, 42, 0],
+		"yaw": [0, 0, 0, 0, 0, 0, 0, 0]
+	},
 	"limbs": {
 		"head_x": [0, 20, 28, 28, 28, 32, 26, 0],
 		"body_x": [0, 6, 10, 10, 10, 14, 10, 0],
