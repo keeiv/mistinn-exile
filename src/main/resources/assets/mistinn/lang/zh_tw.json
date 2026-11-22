@@ -272,6 +272,7 @@
   "gui.mistinn.part.right_leg": "右腿",
   "entity.mistinn.snuffer": "熄燈人",
   "block.mistinn.lamp_stand": "燈台",
+  "message.mistinn.snuffer.sealed": "霧封住了來路。",
   "message.mistinn.snuffer.dark": "燈全熄了。點亮燈台。",
   "message.mistinn.snuffer.stagger": "四座燈台都亮了，熄燈人站不穩！",
   "key.mistinn.swing_camera": "揮擊時視角跟著動",

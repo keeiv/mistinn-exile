@@ -169,6 +169,7 @@ public class Snuffer extends Monster {
 		super.customServerAiStep(level);
 		this.bar.setProgress(this.getHealth() / this.getMaxHealth());
 		this.updateBarViewers(level);
+		MistWall.tick(this, level);
 		if (!this.dark && this.getHealth() <= this.getMaxHealth() / 2.0F) {
 			this.goDark(level);
 		}
@@ -277,6 +278,10 @@ public class Snuffer extends Monster {
 	/** A dead keeper finishes nothing it began. */
 	@Override
 	public void die(final DamageSource source) {
+		if (this.level() instanceof ServerLevel level) {
+			// the mist lets the way down go
+			MistWall.fallen(this, level);
+		}
 		this.runner.stop();
 		this.setNoGravity(false);
 		this.setInvisible(false);
