@@ -79,6 +79,7 @@ public final class MistinnSunkenBellTest implements FabricClientGameTest {
 			dropShutsAHunterIn(context, world, stage);
 			leavesItsClapper(context, world, stage);
 			tollsAloneAtNight(context, world, stage);
+			fightsAStandingHunter(context, world, stage);
 		}
 	}
 
@@ -403,6 +404,50 @@ public final class MistinnSunkenBellTest implements FabricClientGameTest {
 			player(server).setGameMode(GameType.SURVIVAL);
 			clear(server, stage);
 		});
+	}
+
+	/**
+	 * Its own mind, left to fight: against a hunter who stands six blocks off and never moves, over twenty seconds it
+	 * picks several different moves, tolls (the mist rises), and lands blows. The hunter is mended now and then so the
+	 * fight goes on.
+	 */
+	private static void fightsAStandingHunter(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		world.getServer().runOnServer(server -> {
+			clear(server, stage);
+			ServerPlayer player = player(server);
+			player.setGameMode(GameType.SURVIVAL);
+			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 6.5, Set.of(), 180.0F, 0.0F, true);
+			bell(server, stage).getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(40.0);
+		});
+		java.util.Set<String> moves = new java.util.LinkedHashSet<>();
+		int[] hits = {0};
+		int[] mist = {0};
+		for (int i = 0; i < 400; i++) {
+			context.waitTicks(1);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				SunkenBell bell = bell(server, stage);
+				BossMove move = bell.currentMove();
+				if (move != null) {
+					moves.add(move.id());
+				}
+				mist[0] = Math.max(mist[0], bell.layers());
+				if (BodyService.get(player).total() < life.shizune.mistinn.body.Body.FULL.total()) {
+					hits[0]++;
+					BodyService.restoreAll(player);
+					life.shizune.mistinn.body.WoundService.clearAll(player);
+				}
+				// the hunter stands where they are, whatever pulls or throws them (put back only once they have been moved)
+				if (player.distanceToSqr(stage.getX() + 0.5, stage.getY(), stage.getZ() + 6.5) > 1.0 && player.onGround()) {
+					player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 6.5, Set.of(), player.getYRot(), player.getXRot(), true);
+				}
+			});
+		}
+		System.out.println("[bellfight] moves " + moves + ", blows landed " + hits[0] + ", deepest mist " + mist[0]);
+		check(moves.size() >= 4, "it fights with more than one or two moves: " + moves);
+		check(moves.stream().anyMatch(id -> BellMoves.SET.get(id).in("toll")) && mist[0] >= 1, "it tolls, and the mist rises: " + moves + ", " + mist[0] + " layers");
+		check(hits[0] >= 2, "and its blows land: " + hits[0] + " times, with " + moves);
+		world.getServer().runOnServer(server -> clear(server, stage));
 	}
 
 	// ── Helpers ───────────────────────────────────────────────────
