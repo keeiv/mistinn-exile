@@ -144,6 +144,9 @@ public final class MistinnSounds {
 	public static final Holder<SoundEvent> EQUIP_PLATE = registerHolder("gear.equip.plate");
 	public static final SoundEvent EQUIP_BACKPACK = register("gear.equip.backpack");
 	public static final SoundEvent EQUIP_RIG = register("gear.equip.rig");
+	/** A mask strapped on, a breath through its filter; a hard helmet knocked on and buckled. */
+	public static final SoundEvent EQUIP_MASK = register("gear.equip.mask");
+	public static final Holder<SoundEvent> EQUIP_HELMET = registerHolder("gear.equip.helmet");
 	// rolls and dives
 	public static final SoundEvent ROLL = register("player.roll");
 	public static final SoundEvent DIVE = register("player.dive");

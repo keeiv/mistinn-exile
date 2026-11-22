@@ -1156,5 +1156,7 @@
   "subtitles.mistinn.entity.lamp_thrall.step": "Cloak drags",
   "subtitles.mistinn.entity.mist_shade.ambient": "Whispers in the mist",
   "subtitles.mistinn.entity.mist_shade.hurt": "Mist shade frays",
-  "subtitles.mistinn.entity.mist_shade.death": "Mist shade disperses"
+  "subtitles.mistinn.entity.mist_shade.death": "Mist shade disperses",
+  "subtitles.mistinn.gear.equip.mask": "Mask strapped on",
+  "subtitles.mistinn.gear.equip.helmet": "Helmet buckled on"
 }

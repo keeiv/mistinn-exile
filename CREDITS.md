@@ -92,6 +92,60 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `entity/sunken_bell/step_2.ogg` | `synth:low thud and water slosh` | project synthesis |
 | `entity/sunken_bell/bell_drop_1.ogg` | `synth:rushing water with bubbles, a sour rising bell hum, a groan through a bell` | project synthesis |
 | `entity/sunken_bell/bell_drop_2.ogg` | `synth:rushing water with bubbles, a sour rising bell hum, a groan through a bell` | project synthesis |
+| `gear/equip/backpack_1.ogg` | `kenney_rpg:beltHandle1`; `kenney_rpg:clothBelt`; `kenney_rpg:dropLeather`; `kenney_rpg:handleCoins`; `kenney_rpg:metalClick` | CC0 1.0 sources |
+| `gear/equip/backpack_2.ogg` | `kenney_rpg:beltHandle2`; `kenney_rpg:clothBelt2`; `kenney_rpg:dropLeather`; `kenney_rpg:handleCoins2`; `kenney_rpg:metalClick` | CC0 1.0 sources |
+| `gear/equip/cloth_1.ogg` | `kenney_rpg:cloth1`; `kenney_rpg:clothBelt`; `synth:soft thump` | CC0 1.0 sources + project synthesis |
+| `gear/equip/cloth_2.ogg` | `kenney_rpg:cloth2`; `kenney_rpg:clothBelt2`; `synth:soft thump` | CC0 1.0 sources + project synthesis |
+| `gear/equip/cloth_3.ogg` | `kenney_rpg:cloth3`; `kenney_rpg:clothBelt`; `synth:soft thump` | CC0 1.0 sources + project synthesis |
+| `gear/equip/helmet_1.ogg` | `kenney_impact:impactPlate_heavy_003`; `kenney_rpg:cloth3`; `kenney_rpg:metalClick` | CC0 1.0 sources |
+| `gear/equip/helmet_2.ogg` | `kenney_impact:impactPlate_heavy_004`; `kenney_rpg:cloth4`; `kenney_rpg:metalClick` | CC0 1.0 sources |
+| `gear/equip/mask_1.ogg` | `kenney_rpg:beltHandle2`; `kenney_rpg:handleSmallLeather`; `synth:breath through a filter` | CC0 1.0 sources + project synthesis |
+| `gear/equip/mask_2.ogg` | `kenney_rpg:beltHandle1`; `kenney_rpg:handleSmallLeather2`; `synth:breath through a filter` | CC0 1.0 sources + project synthesis |
+| `gear/equip/plate_1.ogg` | `kenney_impact:impactMetal_light_001`; `kenney_impact:impactPlate_heavy_000`; `kenney_rpg:beltHandle1`; `kenney_rpg:metalLatch` | CC0 1.0 sources |
+| `gear/equip/plate_2.ogg` | `kenney_impact:impactMetal_light_002`; `kenney_impact:impactPlate_heavy_001`; `kenney_rpg:beltHandle2`; `kenney_rpg:metalLatch` | CC0 1.0 sources |
+| `gear/equip/plate_3.ogg` | `kenney_impact:impactMetal_light_003`; `kenney_impact:impactPlate_heavy_002`; `kenney_rpg:beltHandle1`; `kenney_rpg:metalLatch` | CC0 1.0 sources |
+| `gear/equip/rig_1.ogg` | `kenney_impact:impactMetal_light_003`; `kenney_rpg:clothBelt`; `kenney_rpg:metalLatch`; `synth:hook-and-loop tearing` | CC0 1.0 sources + project synthesis |
+| `gear/equip/rig_2.ogg` | `kenney_impact:impactMetal_light_004`; `kenney_rpg:clothBelt`; `kenney_rpg:metalLatch`; `synth:hook-and-loop tearing` | CC0 1.0 sources + project synthesis |
+| `step/grass_1.ogg` | `kenney_impact:footstep_grass_000`; `synth:soft heel thump` | CC0 1.0 sources + project synthesis |
+| `step/grass_2.ogg` | `kenney_impact:footstep_grass_001`; `synth:soft heel thump` | CC0 1.0 sources + project synthesis |
+| `step/grass_3.ogg` | `kenney_impact:footstep_grass_002`; `synth:soft heel thump` | CC0 1.0 sources + project synthesis |
+| `step/grass_4.ogg` | `kenney_impact:footstep_grass_003`; `synth:soft heel thump` | CC0 1.0 sources + project synthesis |
+| `step/grass_5.ogg` | `kenney_impact:footstep_grass_004`; `synth:soft heel thump` | CC0 1.0 sources + project synthesis |
+| `step/gravel_1.ogg` | `kenney_rpg:footstep00`; `synth:stone crunch grains` | CC0 1.0 sources + project synthesis |
+| `step/gravel_2.ogg` | `kenney_rpg:footstep01`; `synth:stone crunch grains` | CC0 1.0 sources + project synthesis |
+| `step/gravel_3.ogg` | `kenney_rpg:footstep02`; `synth:stone crunch grains` | CC0 1.0 sources + project synthesis |
+| `step/gravel_4.ogg` | `kenney_rpg:footstep03`; `synth:stone crunch grains` | CC0 1.0 sources + project synthesis |
+| `step/gravel_5.ogg` | `kenney_rpg:footstep04`; `synth:stone crunch grains` | CC0 1.0 sources + project synthesis |
+| `step/metal_1.ogg` | `kenney_impact:footstep_concrete_000`; `kenney_impact:impactMetal_light_000` | CC0 1.0 sources |
+| `step/metal_2.ogg` | `kenney_impact:footstep_concrete_001`; `kenney_impact:impactMetal_light_001` | CC0 1.0 sources |
+| `step/metal_3.ogg` | `kenney_impact:footstep_concrete_002`; `kenney_impact:impactMetal_light_002` | CC0 1.0 sources |
+| `step/metal_4.ogg` | `kenney_impact:footstep_concrete_003`; `kenney_impact:impactMetal_light_003` | CC0 1.0 sources |
+| `step/metal_5.ogg` | `kenney_impact:footstep_concrete_004`; `kenney_impact:impactMetal_light_004` | CC0 1.0 sources |
+| `step/sand_1.ogg` | `kenney_rpg:footstep05`; `synth:slipping sand grains` | CC0 1.0 sources + project synthesis |
+| `step/sand_2.ogg` | `kenney_rpg:footstep06`; `synth:slipping sand grains` | CC0 1.0 sources + project synthesis |
+| `step/sand_3.ogg` | `kenney_rpg:footstep07`; `synth:slipping sand grains` | CC0 1.0 sources + project synthesis |
+| `step/sand_4.ogg` | `kenney_rpg:footstep08`; `synth:slipping sand grains` | CC0 1.0 sources + project synthesis |
+| `step/sand_5.ogg` | `kenney_rpg:footstep09`; `synth:slipping sand grains` | CC0 1.0 sources + project synthesis |
+| `step/snow_1.ogg` | `kenney_impact:footstep_snow_000` | CC0 1.0 sources |
+| `step/snow_2.ogg` | `kenney_impact:footstep_snow_001` | CC0 1.0 sources |
+| `step/snow_3.ogg` | `kenney_impact:footstep_snow_002` | CC0 1.0 sources |
+| `step/snow_4.ogg` | `kenney_impact:footstep_snow_003` | CC0 1.0 sources |
+| `step/snow_5.ogg` | `kenney_impact:footstep_snow_004` | CC0 1.0 sources |
+| `step/stone_1.ogg` | `kenney_impact:footstep_concrete_000`; `synth:grit scuff, heel thump` | CC0 1.0 sources + project synthesis |
+| `step/stone_2.ogg` | `kenney_impact:footstep_concrete_001`; `synth:grit scuff, heel thump` | CC0 1.0 sources + project synthesis |
+| `step/stone_3.ogg` | `kenney_impact:footstep_concrete_002`; `synth:grit scuff, heel thump` | CC0 1.0 sources + project synthesis |
+| `step/stone_4.ogg` | `kenney_impact:footstep_concrete_003`; `synth:grit scuff, heel thump` | CC0 1.0 sources + project synthesis |
+| `step/stone_5.ogg` | `kenney_impact:footstep_concrete_004`; `synth:grit scuff, heel thump` | CC0 1.0 sources + project synthesis |
+| `step/wood_1.ogg` | `kenney_impact:footstep_wood_000`; `synth:hollow board resonance` | CC0 1.0 sources + project synthesis |
+| `step/wood_2.ogg` | `kenney_impact:footstep_wood_001`; `synth:hollow board resonance` | CC0 1.0 sources + project synthesis |
+| `step/wood_3.ogg` | `kenney_impact:footstep_wood_002`; `synth:hollow board resonance` | CC0 1.0 sources + project synthesis |
+| `step/wood_4.ogg` | `kenney_impact:footstep_wood_003`; `synth:hollow board resonance` | CC0 1.0 sources + project synthesis |
+| `step/wood_5.ogg` | `kenney_impact:footstep_wood_004`; `synth:hollow board resonance` | CC0 1.0 sources + project synthesis |
+| `step/wool_1.ogg` | `kenney_impact:footstep_carpet_000` | CC0 1.0 sources |
+| `step/wool_2.ogg` | `kenney_impact:footstep_carpet_001` | CC0 1.0 sources |
+| `step/wool_3.ogg` | `kenney_impact:footstep_carpet_002` | CC0 1.0 sources |
+| `step/wool_4.ogg` | `kenney_impact:footstep_carpet_003` | CC0 1.0 sources |
+| `step/wool_5.ogg` | `kenney_impact:footstep_carpet_004` | CC0 1.0 sources |
 | `entity/salt_corpse/ambient_1.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
 | `entity/salt_corpse/ambient_2.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
 | `entity/salt_corpse/hurt_1.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
@@ -195,16 +249,6 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `execution/tear_1.ogg` | `oga_creature_2:slime_01`; `oga_creature_1:eat_03`; `synth:ripping fibres` | CC0 1.0 sources + project synthesis |
 | `execution/tear_2.ogg` | `oga_creature_2:slime_01`; `oga_creature_1:eat_03`; `synth:ripping fibres` | CC0 1.0 sources + project synthesis |
 | `execution/tear_3.ogg` | `oga_creature_2:slime_05`; `oga_creature_1:eat_02`; `synth:ripping fibres` | CC0 1.0 sources + project synthesis |
-| `gear/equip/backpack_1.ogg` | `kenney_rpg:dropLeather`; `kenney_rpg:cloth`; `kenney_rpg:handleSmallLeather`; `kenney_rpg:metalClick` | CC0 1.0 sources + project synthesis |
-| `gear/equip/backpack_2.ogg` | `kenney_rpg:dropLeather`; `kenney_rpg:cloth`; `kenney_rpg:handleSmallLeather`; `kenney_rpg:metalClick` | CC0 1.0 sources + project synthesis |
-| `gear/equip/cloth_1.ogg` | `kenney_rpg:cloth`; `kenney_rpg:clothBelt` | CC0 1.0 sources + project synthesis |
-| `gear/equip/cloth_2.ogg` | `kenney_rpg:cloth`; `kenney_rpg:clothBelt` | CC0 1.0 sources + project synthesis |
-| `gear/equip/cloth_3.ogg` | `kenney_rpg:cloth`; `kenney_rpg:clothBelt` | CC0 1.0 sources + project synthesis |
-| `gear/equip/plate_1.ogg` | `kenney_impact:impactPlate_light_002`; `kenney_impact:impactPlate_light_004`; `kenney_rpg:beltHandle`; `kenney_rpg:metalLatch`; `synth:noise` | CC0 1.0 sources + project synthesis |
-| `gear/equip/plate_2.ogg` | `kenney_impact:impactPlate_light_003`; `kenney_impact:impactPlate_light_000`; `kenney_rpg:beltHandle`; `kenney_rpg:metalLatch`; `synth:noise` | CC0 1.0 sources + project synthesis |
-| `gear/equip/plate_3.ogg` | `kenney_impact:impactPlate_light_004`; `kenney_impact:impactPlate_light_001`; `kenney_rpg:beltHandle`; `kenney_rpg:metalLatch`; `synth:noise` | CC0 1.0 sources + project synthesis |
-| `gear/equip/rig_1.ogg` | `kenney_rpg:clothBelt`; `kenney_rpg:metalLatch`; `synth:velcro tearing model` | CC0 1.0 sources + project synthesis |
-| `gear/equip/rig_2.ogg` | `kenney_rpg:clothBelt`; `kenney_rpg:metalLatch`; `synth:velcro tearing model` | CC0 1.0 sources + project synthesis |
 | `item/guide/open_1.ogg` | `kenney_rpg:bookOpen`; `kenney_rpg:bookFlip` | CC0 1.0 sources + project synthesis |
 | `item/guide/open_2.ogg` | `kenney_rpg:bookFlip` | CC0 1.0 sources + project synthesis |
 | `music/keeper.ogg` | `vsco_ce:cello section (susvib, spic)`; `vsco_ce:timpani`; `kenney_impact:impactBell_heavy_002` | CC0 1.0 sources |

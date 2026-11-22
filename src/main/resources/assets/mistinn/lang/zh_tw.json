@@ -1156,5 +1156,7 @@
   "subtitles.mistinn.entity.lamp_thrall.step": "斗篷拖地",
   "subtitles.mistinn.entity.mist_shade.ambient": "霧裡有人低語",
   "subtitles.mistinn.entity.mist_shade.hurt": "霧影散開",
-  "subtitles.mistinn.entity.mist_shade.death": "霧影消散"
+  "subtitles.mistinn.entity.mist_shade.death": "霧影消散",
+  "subtitles.mistinn.gear.equip.mask": "戴上面罩",
+  "subtitles.mistinn.gear.equip.helmet": "戴上頭盔"
 }
