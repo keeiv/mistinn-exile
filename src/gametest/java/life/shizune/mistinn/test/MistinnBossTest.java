@@ -806,7 +806,13 @@ public final class MistinnBossTest implements FabricClientGameTest {
 			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 7.5, Set.of(), 180.0F, 0.0F, true);
 			keeper(server, stage).perform("slam_wave");
 		});
-		context.waitTicks(70);
+		// look as soon as the wave is spent: the keeper is free to start another move after it, and that one may land too
+		for (int i = 0; i < 70; i++) {
+			context.waitTicks(1);
+			if (world.getServer().computeOnServer(server -> keeper(server, stage).currentMove() != life.shizune.mistinn.keeper.SnufferMoves.SLAM_WAVE)) {
+				break;
+			}
+		}
 		world.getServer().runOnServer(server -> {
 			life.shizune.mistinn.body.Body body = BodyService.get(player(server));
 			check(body.get(BodyPart.LEFT_LEG) < BodyPart.MAX && body.get(BodyPart.TORSO) == BodyPart.MAX, "seven blocks out, the wave takes the legs: " + body);
