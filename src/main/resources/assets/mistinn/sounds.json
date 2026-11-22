@@ -1067,5 +1067,19 @@
       "mistinn:entity/mist_shade/death_2"
     ],
     "subtitle": "subtitles.mistinn.entity.mist_shade.death"
+  },
+  "gear.equip.mask": {
+    "sounds": [
+      "mistinn:gear/equip/mask_1",
+      "mistinn:gear/equip/mask_2"
+    ],
+    "subtitle": "subtitles.mistinn.gear.equip.mask"
+  },
+  "gear.equip.helmet": {
+    "sounds": [
+      "mistinn:gear/equip/helmet_1",
+      "mistinn:gear/equip/helmet_2"
+    ],
+    "subtitle": "subtitles.mistinn.gear.equip.helmet"
   }
 }

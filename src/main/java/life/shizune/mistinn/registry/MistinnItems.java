@@ -138,7 +138,7 @@ public final class MistinnItems {
 		return register("helmet_" + gear.tier().id(), Item::new, new Item.Properties()
 			.durability(gear.durability())
 			.attributes(attributes)
-			.component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.HEAD).setEquipSound(equipSound(gear.tier())).setAsset(asset(gear.tier())).build())
+			.component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.HEAD).setEquipSound(helmetSound(gear.tier())).setAsset(asset(gear.tier())).build())
 			.repairable(REPAIRS_GEAR)
 			.enchantable(10));
 	}
@@ -160,6 +160,11 @@ public final class MistinnItems {
 			.component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.CHEST).setEquipSound(equipSound(gear.tier())).setAsset(asset(gear.tier())).build())
 			.repairable(REPAIRS_GEAR)
 			.enchantable(10));
+	}
+
+	/** A cloth cap for the lowest tiers, a hard shell knocked on and buckled from II up. */
+	private static Holder<SoundEvent> helmetSound(final Tier tier) {
+		return tier.ordinal() <= Tier.I.ordinal() ? MistinnSounds.EQUIP_CLOTH : MistinnSounds.EQUIP_HELMET;
 	}
 
 	/** Padded cloth for the lowest tiers, plates from II up. */

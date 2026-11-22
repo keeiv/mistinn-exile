@@ -202,7 +202,7 @@ public final class GridService {
 		set(player, inv.withMask(carried.copy()));
 		menu.setCarried(worn.copy());
 		menu.broadcastChanges();
-		gear(player, MistinnSounds.EQUIP_CLOTH.value());
+		gear(player, MistinnSounds.EQUIP_MASK);
 	}
 
 	/** An inventory sound for the owner alone: rummaging in one's own pack is not heard across the room. */
