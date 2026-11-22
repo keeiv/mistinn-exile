@@ -48,6 +48,9 @@ public class SunkenBell extends Keeper {
 	/** How long a layer lasts without a toll: whole, and cracked. */
 	public static final int FADE_WHOLE = 300;
 	public static final int FADE_CRACKED = 400;
+	/** Left alone at night, the bell tolls by itself every so often (ticks, the least and the most), heard far off. */
+	public static final int IDLE_TOLL_MIN = 600;
+	public static final int IDLE_TOLL_MAX = 1400;
 	/** How near a hunter must be to its room to stand in its mist. */
 	public static final double MIST_REACH = ROOM_RADIUS + 6.0;
 
@@ -56,6 +59,9 @@ public class SunkenBell extends Keeper {
 
 	private boolean cracked;
 	private int fade;
+	/** Ticks until, left alone at night, it tolls by itself again; and how many times it has. */
+	private int idleToll = IDLE_TOLL_MIN;
+	private int idleTolls;
 
 	public SunkenBell(final EntityType<? extends SunkenBell> type, final Level level) {
 		super(type, level, BellMoves.SET, BossEvent.BossBarColor.GREEN);
@@ -165,10 +171,38 @@ public class SunkenBell extends Keeper {
 		if (this.layers() > 0 && --this.fade <= 0) {
 			this.setLayers(this.layers() - 1);
 		}
+		this.tollAlone(level);
 		// at the fourth layer, as soon as it is free and on its feet, the deep toll
 		if (this.layers() >= MAX_LAYERS && this.staggered <= 0 && !this.busy() && !this.isDeadOrDying()) {
 			this.perform("deep_toll");
 		}
+	}
+
+	/**
+	 * 起霧的夜裡，那口鐘還是會響: with no hunter to fight and nothing in hand, at night, now and then it tolls its bell by
+	 * itself, softly and far: no ring rolls out and no mist comes of it, but it is heard a long way off in the dark.
+	 */
+	private void tollAlone(final ServerLevel level) {
+		if (this.getTarget() != null || this.busy() || this.staggered > 0 || !level.isDarkOutside()) {
+			return;
+		}
+		if (--this.idleToll > 0) {
+			return;
+		}
+		this.idleToll = IDLE_TOLL_MIN + this.random.nextInt(IDLE_TOLL_MAX - IDLE_TOLL_MIN);
+		this.idleTolls++;
+		level.playSound(null, this.blockPosition(), this.cracked ? MistinnSounds.SUNKEN_BELL_RING_CRACKED : MistinnSounds.SUNKEN_BELL_RING,
+			SoundSource.HOSTILE, 2.5F, 0.85F + this.random.nextFloat() * 0.1F);
+	}
+
+	/** How many times it has tolled by itself (a test hook). */
+	public int idleTolls() {
+		return this.idleTolls;
+	}
+
+	/** Sets how long until it tolls by itself again (a test hook). */
+	public void nextIdleToll(final int ticks) {
+		this.idleToll = ticks;
 	}
 
 	private void crack(final ServerLevel level) {

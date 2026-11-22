@@ -78,6 +78,7 @@ public final class MistinnSunkenBellTest implements FabricClientGameTest {
 			cracksAtHalf(context, world, stage);
 			dropShutsAHunterIn(context, world, stage);
 			leavesItsClapper(context, world, stage);
+			tollsAloneAtNight(context, world, stage);
 		}
 	}
 
@@ -374,6 +375,33 @@ public final class MistinnSunkenBellTest implements FabricClientGameTest {
 			check(items.stream().anyMatch(item -> item.getItem().is(life.shizune.mistinn.registry.MistinnItems.BELL_CLAPPER)), "it leaves its clapper");
 			check(items.stream().anyMatch(item -> item.getItem().is(life.shizune.mistinn.registry.MistinnItems.RUST_GOD_SALT)), "and the Rust God's salt");
 			items.forEach(net.minecraft.world.entity.Entity::discard);
+		});
+	}
+
+	/** Left alone at night, now and then it tolls its bell by itself: far off, harmless, and no mist comes of it. By day it is still. */
+	private static void tollsAloneAtNight(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		world.getServer().runCommand("time set midnight");
+		world.getServer().runOnServer(server -> {
+			clear(server, stage);
+			player(server).setGameMode(GameType.CREATIVE);
+			SunkenBell bell = bell(server, stage);
+			check(bell.idleTolls() == 0, "it has not tolled yet");
+			bell.nextIdleToll(5);
+		});
+		context.waitTicks(15);
+		world.getServer().runOnServer(server -> {
+			SunkenBell bell = bell(server, stage);
+			check(bell.idleTolls() == 1, "alone at night, it tolls by itself: " + bell.idleTolls());
+			check(bell.layers() == 0, "and no mist comes of it: " + bell.layers());
+			check(BodyService.get(player(server)).total() == life.shizune.mistinn.body.Body.FULL.total(), "nor any harm");
+		});
+		world.getServer().runCommand("time set noon");
+		world.getServer().runOnServer(server -> bell(server, stage).nextIdleToll(5));
+		context.waitTicks(15);
+		world.getServer().runOnServer(server -> {
+			check(bell(server, stage).idleTolls() == 1, "by day it is still: " + bell(server, stage).idleTolls());
+			player(server).setGameMode(GameType.SURVIVAL);
+			clear(server, stage);
 		});
 	}
 
