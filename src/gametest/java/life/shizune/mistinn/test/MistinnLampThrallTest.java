@@ -58,6 +58,7 @@ public final class MistinnLampThrallTest implements FabricClientGameTest {
 			context.waitTicks(10);
 			world.getServer().runOnServer(server -> check(EnemyRig.of(MistinnEntities.LAMP_THRALL) == EnemyRig.UNDEAD, "it fights as the undead do"));
 			drawnOnItsOwnFrame(context, world, arena);
+			cloakSwingsAsItWalks(context);
 			flaresThenRushes(context, world, arena);
 			heavyBlowBreaksTheFlare(context, world, arena);
 		}
@@ -107,6 +108,56 @@ public final class MistinnLampThrallTest implements FabricClientGameTest {
 			server.overworld().getEntity(id).discard();
 			player(server).setGameMode(GameType.SURVIVAL);
 		});
+	}
+
+	/** Walking, the hem of its cloak swings out behind it, and the tatters at the hem swing with its steps. */
+	private static void cloakSwingsAsItWalks(final ClientGameTestContext context) {
+		float[] got = context.computeOnClient(mc -> {
+			LampThrall entity = MistinnEntities.LAMP_THRALL.create(mc.level, EntitySpawnReason.COMMAND);
+			// a model only, never added to the world: it still needs an id to be drawn
+			entity.setId(-4242);
+			List<ClipProbe.Box> still = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> { }, true, null, null);
+			List<ClipProbe.Box> step = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> {
+				state.walkAnimationSpeed = 1.0F;
+				state.walkAnimationPos = 0.0F;
+			}, true, null, null);
+			List<ClipProbe.Box> stride = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> {
+				state.walkAnimationSpeed = 1.0F;
+				state.walkAnimationPos = 2.4F;
+			}, true, null, null);
+			return new float[] {cloakZ(still, HEM), cloakZ(step, HEM), moved(step, stride, TATTER)};
+		});
+		// facing south: behind it is -z
+		check(got[1] < got[0] - 0.02F, "walking, the hem of its cloak swings out behind it: " + got[1] + " against " + got[0]);
+		check(got[2] > 0.05F, "and its tatters swing with its steps: they moved " + got[2] + " between two steps");
+	}
+
+	/** The bottom band of the cloak's panels, and the tatters at its hem. */
+	private static final java.util.regex.Pattern HEM = java.util.regex.Pattern.compile("/body/spine/cloak/cloak_\\d+_3");
+	private static final java.util.regex.Pattern TATTER = java.util.regex.Pattern.compile("/body/spine/cloak/cloak_tatter_\\d+");
+
+	/** Where along z, on average, the cloak's boxes this matches lie. */
+	private static float cloakZ(final List<ClipProbe.Box> boxes, final java.util.regex.Pattern parts) {
+		float sum = 0.0F;
+		int count = 0;
+		for (ClipProbe.Box box : boxes) {
+			if (parts.matcher(box.path()).matches()) {
+				sum += box.center().z;
+				count++;
+			}
+		}
+		return sum / count;
+	}
+
+	/** How far, all told, the boxes this matches moved from one pose to the other. */
+	private static float moved(final List<ClipProbe.Box> from, final List<ClipProbe.Box> to, final java.util.regex.Pattern parts) {
+		float total = 0.0F;
+		for (int i = 0; i < from.size(); i++) {
+			if (parts.matcher(from.get(i).path()).matches()) {
+				total += from.get(i).center().distance(to.get(i).center());
+			}
+		}
+		return total;
 	}
 
 	/** Where along z, on average, the boxes under these parts sit. */

@@ -11,6 +11,8 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.model.monster.zombie.ZombieModel;
 import net.minecraft.client.renderer.entity.state.ZombieRenderState;
+import net.minecraft.util.Mth;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 霧影的模型: what is left of a lost hunter in the mist. A hood with a stiff brim over a face that is only a
@@ -25,8 +27,54 @@ import net.minecraft.client.renderer.entity.state.ZombieRenderState;
 public class MistShadeModel extends ZombieModel<ZombieRenderState> {
 	public static final ModelLayerLocation LAYER = new ModelLayerLocation(Mistinn.id("mist_shade"), "main");
 
+	/** How far, in radians, the tails of mist trail out behind standing and at a full walk, and how far they drift. */
+	private static final float TRAIL_STILL = 0.12F;
+	private static final float TRAIL_MOVING = 0.45F;
+	private static final float DRIFT = 0.08F;
+	private static final int HEM_WISPS = 7;
+
+	/** The skirt, the wisps at its hem and the sleeves; null and empty on the armour layers, which have none. */
+	private final @Nullable ModelPart skirt;
+	private final ModelPart[] wisps;
+
 	public MistShadeModel(final ModelPart root) {
 		super(root);
+		this.skirt = this.body.hasChild("skirt") ? this.body.getChild("skirt") : null;
+		if (this.skirt == null) {
+			this.wisps = new ModelPart[0];
+			return;
+		}
+		this.wisps = new ModelPart[HEM_WISPS + 2];
+		for (int i = 0; i < HEM_WISPS; i++) {
+			this.wisps[i] = this.body.getChild("hem_wisp_" + (i + 1));
+		}
+		this.wisps[HEM_WISPS] = this.rightArm.getChild("sleeve_wisp_right");
+		this.wisps[HEM_WISPS + 1] = this.leftArm.getChild("sleeve_wisp_left");
+	}
+
+	/**
+	 * Its tails of mist do not stride as legs do: they trail out behind it, further the faster it goes, and drift
+	 * on their own; the skirt flares back as it moves, and the loose wisps at the hem and the sleeves stir.
+	 */
+	@Override
+	public void setupAnim(final ZombieRenderState state) {
+		super.setupAnim(state);
+		if (this.skirt == null) {
+			return;
+		}
+		float walk = Math.min(state.walkAnimationSpeed, 1.0F);
+		float time = state.ageInTicks;
+		float trail = TRAIL_STILL + TRAIL_MOVING * walk;
+		this.rightLeg.xRot = trail + DRIFT * Mth.sin(time * 0.11F);
+		this.leftLeg.xRot = trail + DRIFT * Mth.sin(time * 0.11F + 1.9F);
+		this.rightLeg.yRot = 0.0F;
+		this.leftLeg.yRot = 0.0F;
+		this.rightLeg.zRot = 0.04F * Mth.sin(time * 0.07F);
+		this.leftLeg.zRot = -0.04F * Mth.sin(time * 0.07F + 0.8F);
+		this.skirt.xRot += 0.12F * walk;
+		for (int i = 0; i < this.wisps.length; i++) {
+			this.wisps[i].xRot += 0.10F * Mth.sin(time * 0.15F + i * 1.3F) + 0.15F * walk;
+		}
 	}
 
 	public static LayerDefinition definition() {
