@@ -1047,6 +1047,8 @@ public final class Structures {
 		keeperCottage(b);
 		b.settle();
 		b.spawn(MistinnEntities.SNUFFER, 0, LAMP_ROOM + 1, 3, 180.0F);
+		// the mist gathers round every lighthouse, wherever it was built
+		ShoreMist.remember(b.level(), b.at(0, LAMP_ROOM + 1, 0));
 		return b.at(0, LAMP_ROOM + 1, 0);
 	}
 

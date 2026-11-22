@@ -110,6 +110,7 @@ public final class MistinnWorld {
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_BEACH), step, placed("lighthouse"));
 
 		ServerLifecycleEvents.SERVER_STARTED.register(MistinnWorld::ensureSpawnStation);
+		ShoreMist.init();
 	}
 
 	/**

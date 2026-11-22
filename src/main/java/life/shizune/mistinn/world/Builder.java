@@ -99,6 +99,11 @@ public final class Builder {
 		this.level.addFreshEntityWithPassengers(entity);
 	}
 
+	/** The level being built in. */
+	public WorldGenLevel level() {
+		return this.level;
+	}
+
 	public BlockPos at(final int x, final int y, final int z) {
 		return switch (this.rotation) {
 			case NONE -> this.origin.offset(x, y, z);
