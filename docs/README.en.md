@@ -329,7 +329,8 @@ The Sunken Bell is a drowned bell-ringer, his head and shoulders sealed in a cra
 - **Toll**: he strikes his own bell with the clapper and a ring rolls out along the floor. Standing on the floor where it passes takes a blow to the head; jump it or roll through it. The bell hums before a toll.
 - **Mist layers**: each toll thickens the mist of his room by a layer, and how far you see shrinks from 16 blocks down to 4.5, the map with it; a layer thins after fifteen quiet seconds. At the fourth layer he gives the **deep toll**: three tolls, each ring further than the last.
 - **Ringing it back**: a fully charged heavy blow rings his own bell at him and thins the mist a layer; three in a row throw him off balance for five seconds, taking half again as much damage, and thin the mist by two more.
-- Below half health the bell cracks: his tolls come double and the mist is slower to thin.
+- Below half health the bell cracks: his tolls come double and the mist is slower to thin, and he leaps to bring the bell down over you: shut in under it you can neither see nor move, and he tolls with you inside. Roll out before he lands.
+- Once you are up in the belfry, the mist closes the stair behind you until he falls.
 - He drops the **Rust God's salt block**, 3500 salt, and a 30% chance of a piece of tier III–IV gear.
 
 ## Stats and skills
@@ -455,7 +456,7 @@ Textures and models are original work by MoriTeahouse. Sound effects combine edi
 ## What comes next
 
 1. **The rest of the story**: chapter 2, *The Salt Road*, then the keepers of the Sunken Bell and the Rust Wheel, and the Mist Inn with the endings.
-2. **More of the Sunken Bell**: the mist wall of the belfry, its cracked-bell grab and its own spoils ([design, in Chinese](phase3-design.md)).
+2. **More of the Sunken Bell**: its own spoils and its chapter of the story ([design, in Chinese](phase3-design.md)).
 3. **The Rust Wheel**: a rolling, ramming machine with its weak point on the axle at its back, built on the same keeper moves and brain.
 4. **Later**: co-op.
 

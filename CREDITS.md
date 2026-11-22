@@ -90,6 +90,8 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `entity/sunken_bell/death_1.ogg` | `synth:groan, a sour cracked bell, a thud and chain clinks` | project synthesis |
 | `entity/sunken_bell/step_1.ogg` | `synth:low thud and water slosh` | project synthesis |
 | `entity/sunken_bell/step_2.ogg` | `synth:low thud and water slosh` | project synthesis |
+| `entity/sunken_bell/bell_drop_1.ogg` | `synth:rushing water with bubbles, a sour rising bell hum, a groan through a bell` | project synthesis |
+| `entity/sunken_bell/bell_drop_2.ogg` | `synth:rushing water with bubbles, a sour rising bell hum, a groan through a bell` | project synthesis |
 | `entity/snuffer/slide_1.ogg` | `oga_creature_2:breath_02`; `oga_snarls:monsters-snarls-3#2`; `synth:salt grinding under a crouch` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/slide_2.ogg` | `oga_creature_1:breath`; `oga_monster_vol1:monster-12`; `synth:salt grinding under a crouch` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/rush_1.ogg` | `oga_monster_sfx:monster-5`; `synth:chain links drawn taut, a rush of air` | CC0 1.0 sources + project synthesis |

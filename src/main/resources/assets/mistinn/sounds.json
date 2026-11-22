@@ -948,5 +948,12 @@
       "mistinn:entity/sunken_bell/step_2"
     ],
     "subtitle": "subtitles.mistinn.entity.sunken_bell.step"
+  },
+  "entity.sunken_bell.bell_drop": {
+    "sounds": [
+      "mistinn:entity/sunken_bell/bell_drop_1",
+      "mistinn:entity/sunken_bell/bell_drop_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.bell_drop"
   }
 }
