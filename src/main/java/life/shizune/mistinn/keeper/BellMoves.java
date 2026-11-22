@@ -78,7 +78,8 @@ public final class BellMoves {
 			context.note(key, struck);
 		}
 		Mob boss = context.boss;
-		int points = (int) (radius * 7);
+		// enough points to read as a ring, and not a packet storm at fourteen blocks
+		int points = Math.min(36, (int) (radius * 3.0) + 6);
 		for (int i = 0; i < points; i++) {
 			double angle = i * Math.PI * 2.0 / points;
 			context.level.sendParticles(ParticleTypes.CLOUD, boss.getX() + Math.cos(angle) * radius, boss.getY() + 0.15, boss.getZ() + Math.sin(angle) * radius,
@@ -349,8 +350,8 @@ public final class BellMoves {
 			}
 			if (Math.hypot(hunter.getX() - boss.getX(), hunter.getZ() - boss.getZ()) <= DROP_CATCH && Math.abs(hunter.getY() - boss.getY()) <= 1.5) {
 				context.note("held", hunter);
-				hunter.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, DROP_HOLD + 30, 0, false, false));
-				hunter.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, DROP_HOLD + 10, 4, false, false));
+				hunter.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, DROP_HOLD + 4, 0, false, false));
+				hunter.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, DROP_HOLD, 4, false, false));
 				context.level.playSound(null, hunter.blockPosition(), MistinnSounds.SUNKEN_BELL_HUM, SoundSource.HOSTILE, 2.0F, 0.6F);
 				return;
 			}
