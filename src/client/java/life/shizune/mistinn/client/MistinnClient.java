@@ -111,6 +111,7 @@ public class MistinnClient implements ClientModInitializer {
 		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.keeper.SnufferModel.LAYER, life.shizune.mistinn.client.keeper.SnufferModel::definition);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SNUFFER, life.shizune.mistinn.client.keeper.SnufferRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.STATION_HAND, life.shizune.mistinn.client.station.StationHandRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.shore.SaltCorpseModel.LAYER, life.shizune.mistinn.client.shore.SaltCorpseModel::definition);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SALT_CORPSE, life.shizune.mistinn.client.shore.SaltCorpseRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.shore.LampThrallModel.LAYER, life.shizune.mistinn.client.shore.LampThrallModel::definition);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.LAMP_THRALL, life.shizune.mistinn.client.shore.LampThrallRenderer::new);

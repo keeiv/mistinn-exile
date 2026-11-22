@@ -81,7 +81,7 @@ public final class MistinnLampThrallTest implements FabricClientGameTest {
 					state.setData(EnemyMotion.KEY, sample.rocked(1.0F, side));
 				}, true, null, null);
 				// facing south: ahead is +z
-				return new float[] {reach(rest, -1.0F), reach(rocked, -1.0F), reach(rest, 1.0F), meanZ(rest, "/head"), meanZ(rest, "/right_leg", "/left_leg")};
+				return new float[] {ClipProbe.reach(rest, -1.0F), ClipProbe.reach(rocked, -1.0F), ClipProbe.reach(rest, 1.0F), meanZ(rest, "/head"), meanZ(rest, "/right_leg", "/left_leg")};
 			});
 			check(shape[0] > -0.06F, "standing, nothing of it sinks into the ground: lowest " + shape[0]);
 			check(shape[1] > -0.06F && shape[1] > shape[0] - 0.05F, "rocked back (side " + side + "), nothing sinks into the ground: lowest " + shape[1]);
@@ -107,19 +107,6 @@ public final class MistinnLampThrallTest implements FabricClientGameTest {
 			server.overworld().getEntity(id).discard();
 			player(server).setGameMode(GameType.SURVIVAL);
 		});
-	}
-
-	/** The lowest (-1) or highest (1) any of the boxes reaches. */
-	private static float reach(final List<ClipProbe.Box> boxes, final float up) {
-		float most = -Float.MAX_VALUE;
-		for (ClipProbe.Box box : boxes) {
-			float half = 0.0F;
-			for (int i = 0; i < 3; i++) {
-				half += box.half()[i] * Math.abs(box.axes()[i].y);
-			}
-			most = Math.max(most, up * box.center().y + half);
-		}
-		return up * most;
 	}
 
 	/** Where along z, on average, the boxes under these parts sit. */

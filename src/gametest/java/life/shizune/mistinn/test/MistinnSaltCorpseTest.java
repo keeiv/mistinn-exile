@@ -2,6 +2,8 @@ package life.shizune.mistinn.test;
 
 import java.util.List;
 import java.util.Set;
+import life.shizune.mistinn.client.enemy.EnemyMotion;
+import life.shizune.mistinn.client.shore.SaltCorpseModel;
 import life.shizune.mistinn.enemy.EnemyRig;
 import life.shizune.mistinn.enemy.ExecutionMove;
 import life.shizune.mistinn.keeper.Snuffer;
@@ -14,6 +16,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.minecraft.client.CameraType;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -24,6 +27,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * 鹽屍: the first killing blow drops it like a corpse, and a few breaths later it is on its feet
@@ -55,11 +59,38 @@ public final class MistinnSaltCorpseTest implements FabricClientGameTest {
 				check(EnemyRig.of(MistinnEntities.SALT_CORPSE) == EnemyRig.HUSK, "it fights as a husk does");
 				check(ExecutionMove.of(corpse) == ExecutionMove.GRAPPLE_BITE, "and finishes a hunter as one");
 			});
+			drawnOnItsOwnFrame(context);
 			getsUpOnce(context, world, arena);
 			struckWhileDown(context, world, arena);
 			killedOutright(context, world, arena);
 			dormantRises(context, world, arena);
 			theMistBringsThemUp(context, world);
+		}
+	}
+
+	/**
+	 * It is drawn on its own dried frame, not the husk's: standing or rocked back, nothing of it, salt or bone,
+	 * sinks into the ground, and it is no taller than the space it takes.
+	 */
+	private static void drawnOnItsOwnFrame(final ClientGameTestContext context) {
+		for (float side : new float[] {-1.0F, 0.0F, 1.0F}) {
+			float[] shape = context.computeOnClient(mc -> {
+				SaltCorpse entity = MistinnEntities.SALT_CORPSE.create(mc.level, EntitySpawnReason.COMMAND);
+				// a model only, never added to the world: it still needs an id to be drawn
+				entity.setId(-4242);
+				check(((LivingEntityRenderer<?, ?, ?>) mc.getEntityRenderDispatcher().getRenderer(entity)).getModel() instanceof SaltCorpseModel,
+					"it is drawn on its own frame");
+				List<ClipProbe.Box> rest = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> { }, true, null, null);
+				List<ClipProbe.Box> rocked = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> {
+					EnemyMotion.Sample sample = state.getData(EnemyMotion.KEY);
+					state.setData(EnemyMotion.KEY, sample.rocked(1.0F, side));
+				}, true, null, null);
+				return new float[] {ClipProbe.reach(rest, -1.0F), ClipProbe.reach(rocked, -1.0F), ClipProbe.reach(rest, 1.0F)};
+			});
+			check(shape[0] > -0.06F, "standing, nothing of it sinks into the ground: lowest " + shape[0]);
+			check(shape[1] > -0.06F && shape[1] > shape[0] - 0.05F, "rocked back (side " + side + "), nothing sinks into the ground: lowest " + shape[1]);
+			// a husk's head already stands a little above the space it takes; the salt on its crown may not add to that
+			check(shape[2] < 2.02F, "no taller than the husk it was, salt and all: top " + shape[2]);
 		}
 	}
 
