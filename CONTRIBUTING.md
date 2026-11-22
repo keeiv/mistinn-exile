@@ -112,6 +112,22 @@ PR 說明應包含問題、變更後的行為與驗證結果（跑過哪些測�
 
 只提交與變更相關的檔案。`build/`、`run/`、`.gradle/`、測試世界與任何金鑰都不得提交。
 
+## 發布
+
+推送 `vX.Y.Z` 的 tag 會自動建置該提交，並把模組 JAR 發布成 GitHub Release，附上自上一版以來的變更清單。
+
+1. 把 `gradle.properties` 的 `version` 改成要發布的版本，經 PR 合併進 `main`。
+2. 在本機跑完整的客戶端遊戲測試（CI 沒有顯示裝置，發布流程不會跑它）。
+3. 在 `main` 上打 tag 並推送，tag 必須與 `version` 相符，否則發布會失敗：
+
+```powershell
+git tag v0.1.1
+```
+
+```powershell
+git push origin v0.1.1
+```
+
 ## 回報問題
 
 請到[森之宿茶室官網](https://moriteahouse.shizune.life/account)回報（作品選「霧宿：追放」），附上 Minecraft 與模組版本、重現步驟，以及 `logs/latest.log`。

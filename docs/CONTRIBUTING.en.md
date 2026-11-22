@@ -84,6 +84,10 @@ Commit messages and PR titles use Conventional Commits prefixes with a short Tra
 
 Commit only files related to the change. Never commit `build/`, `run/`, `.gradle/`, test worlds or any keys.
 
+## Releases
+
+Pushing a tag `vX.Y.Z` builds that commit and publishes the mod's JAR as a GitHub Release, with the changes since the last one. Set `version` in `gradle.properties` to the version being released and merge that to `main` through a PR; run the full client game test locally (CI has no display, and the release does not run it); then tag `main` and push the tag. The tag must match `version`, or the release fails.
+
 ## Reporting problems
 
 Report on the [MoriTeahouse site](https://moriteahouse.shizune.life/account) with the Minecraft and mod versions, steps to reproduce and `logs/latest.log`.
