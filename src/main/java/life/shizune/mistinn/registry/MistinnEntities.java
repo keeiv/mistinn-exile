@@ -23,6 +23,14 @@ public final class MistinnEntities {
 		.clientTrackingRange(10)
 		.fireImmune());
 
+	/** 沉鐘: a drowned bell-ringer, his head and shoulders sealed in a cracked bronze bell. */
+	public static final EntityType<life.shizune.mistinn.keeper.SunkenBell> SUNKEN_BELL = register("sunken_bell",
+		EntityType.Builder.<life.shizune.mistinn.keeper.SunkenBell>of(life.shizune.mistinn.keeper.SunkenBell::new, MobCategory.MONSTER)
+		.sized(1.3F, 2.9F)
+		.eyeHeight(2.3F)
+		.clientTrackingRange(10)
+		.fireImmune());
+
 	/** 鹽屍: a hunter dried in the brine, the salt crusted over them; it gets back up once. */
 	public static final EntityType<SaltCorpse> SALT_CORPSE = register("salt_corpse", EntityType.Builder.<SaltCorpse>of(SaltCorpse::new, MobCategory.MONSTER)
 		.sized(0.6F, 1.95F)
@@ -57,6 +65,7 @@ public final class MistinnEntities {
 
 	public static void init() {
 		FabricDefaultAttributeRegistry.register(SNUFFER, Snuffer.createAttributes());
+		FabricDefaultAttributeRegistry.register(SUNKEN_BELL, life.shizune.mistinn.keeper.SunkenBell.createAttributes());
 		FabricDefaultAttributeRegistry.register(STATION_HAND, StationHand.createAttributes());
 		FabricDefaultAttributeRegistry.register(SALT_CORPSE, SaltCorpse.createAttributes());
 		FabricDefaultAttributeRegistry.register(LAMP_THRALL, LampThrall.createAttributes());

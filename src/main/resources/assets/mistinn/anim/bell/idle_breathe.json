@@ -1,0 +1,1 @@
+{"_comment":"idle: a long heaving breath inside the bell, the shoulders rising and sinking.","keys":[0.0,0.416667,0.666667,1.0],"eases":["in_out_sine","in_out_sine","in_out_sine"],"length":60,"pivot":0.0,"limbs":{"body_x":[0,-6,-6,0],"head_x":[0,-5,-5,0],"right_arm_z":[0,8,8,0],"left_arm_z":[0,-8,-8,0]},"root":{"y":[0,0.04,0.04,0]}}

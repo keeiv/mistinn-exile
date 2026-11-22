@@ -816,5 +816,137 @@
   "execution.snap": {"subtitle": "subtitles.mistinn.execution.snap", "sounds": ["mistinn:execution/snap_1", "mistinn:execution/snap_2", "mistinn:execution/snap_3"]},
   "execution.stab": {"subtitle": "subtitles.mistinn.execution.stab", "sounds": ["mistinn:execution/stab_1", "mistinn:execution/stab_2", "mistinn:execution/stab_3"]},
   "execution.slam": {"subtitle": "subtitles.mistinn.execution.slam", "sounds": ["mistinn:execution/slam_1", "mistinn:execution/slam_2", "mistinn:execution/slam_3"]},
-  "execution.tear": {"subtitle": "subtitles.mistinn.execution.tear", "sounds": ["mistinn:execution/tear_1", "mistinn:execution/tear_2", "mistinn:execution/tear_3"]}
+  "execution.tear": {"subtitle": "subtitles.mistinn.execution.tear", "sounds": ["mistinn:execution/tear_1", "mistinn:execution/tear_2", "mistinn:execution/tear_3"]},
+  "entity.sunken_bell.ring": {
+    "sounds": [
+      {
+        "name": "mistinn:entity/sunken_bell/ring_1",
+        "attenuation_distance": 48
+      },
+      {
+        "name": "mistinn:entity/sunken_bell/ring_2",
+        "attenuation_distance": 48
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.ring"
+  },
+  "entity.sunken_bell.ring_cracked": {
+    "sounds": [
+      {
+        "name": "mistinn:entity/sunken_bell/ring_cracked_1",
+        "attenuation_distance": 48
+      },
+      {
+        "name": "mistinn:entity/sunken_bell/ring_cracked_2",
+        "attenuation_distance": 48
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.ring_cracked"
+  },
+  "entity.sunken_bell.toll": {
+    "sounds": [
+      "mistinn:entity/sunken_bell/toll_1",
+      "mistinn:entity/sunken_bell/toll_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.toll"
+  },
+  "entity.sunken_bell.double_toll": {
+    "sounds": [
+      "mistinn:entity/sunken_bell/double_toll_1",
+      "mistinn:entity/sunken_bell/double_toll_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.double_toll"
+  },
+  "entity.sunken_bell.deep_toll": {
+    "sounds": [
+      {
+        "name": "mistinn:entity/sunken_bell/deep_toll_1",
+        "attenuation_distance": 32
+      },
+      {
+        "name": "mistinn:entity/sunken_bell/deep_toll_2",
+        "attenuation_distance": 32
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.deep_toll"
+  },
+  "entity.sunken_bell.hum": {
+    "sounds": [
+      "mistinn:entity/sunken_bell/hum_1",
+      "mistinn:entity/sunken_bell/hum_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.hum"
+  },
+  "entity.sunken_bell.clapper_sweep": {
+    "sounds": [
+      "mistinn:entity/sunken_bell/clapper_sweep_1",
+      "mistinn:entity/sunken_bell/clapper_sweep_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.clapper_sweep"
+  },
+  "entity.sunken_bell.clapper_smash": {
+    "sounds": [
+      "mistinn:entity/sunken_bell/clapper_smash_1",
+      "mistinn:entity/sunken_bell/clapper_smash_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.clapper_smash"
+  },
+  "entity.sunken_bell.bell_ram": {
+    "sounds": [
+      "mistinn:entity/sunken_bell/bell_ram_1",
+      "mistinn:entity/sunken_bell/bell_ram_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.bell_ram"
+  },
+  "entity.sunken_bell.chain_lash": {
+    "sounds": [
+      "mistinn:entity/sunken_bell/chain_lash_1",
+      "mistinn:entity/sunken_bell/chain_lash_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.chain_lash"
+  },
+  "entity.sunken_bell.undertow": {
+    "sounds": [
+      "mistinn:entity/sunken_bell/undertow_1",
+      "mistinn:entity/sunken_bell/undertow_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.undertow"
+  },
+  "entity.sunken_bell.wade": {
+    "sounds": [
+      "mistinn:entity/sunken_bell/wade_1",
+      "mistinn:entity/sunken_bell/wade_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.wade"
+  },
+  "entity.sunken_bell.ambient": {
+    "sounds": [
+      "mistinn:entity/sunken_bell/ambient_1",
+      "mistinn:entity/sunken_bell/ambient_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.ambient"
+  },
+  "entity.sunken_bell.hurt": {
+    "sounds": [
+      "mistinn:entity/sunken_bell/hurt_1",
+      "mistinn:entity/sunken_bell/hurt_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.hurt"
+  },
+  "entity.sunken_bell.death": {
+    "sounds": [
+      {
+        "name": "mistinn:entity/sunken_bell/death_1",
+        "attenuation_distance": 32
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.death"
+  },
+  "entity.sunken_bell.step": {
+    "sounds": [
+      "mistinn:entity/sunken_bell/step_1",
+      "mistinn:entity/sunken_bell/step_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.sunken_bell.step"
+  }
 }
