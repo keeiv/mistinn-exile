@@ -57,7 +57,7 @@ public final class StaggerService {
 
 	/** Whether a heavy blow can rock this creature: one with a rig, that is no keeper or great boss. */
 	public static boolean staggers(final Mob mob) {
-		return EnemyRig.of(mob.getType()) != null && !(mob instanceof life.shizune.mistinn.keeper.Snuffer)
+		return EnemyRig.of(mob.getType()) != null && !(mob instanceof life.shizune.mistinn.keeper.Keeper)
 			&& !(mob instanceof EnderDragon) && !(mob instanceof WitherBoss);
 	}
 

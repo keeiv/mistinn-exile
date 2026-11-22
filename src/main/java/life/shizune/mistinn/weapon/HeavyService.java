@@ -386,7 +386,7 @@ public final class HeavyService {
 			target.igniteForSeconds(2.0F);
 		}
 		if (full && target instanceof Mob mob) {
-			if (mob instanceof life.shizune.mistinn.keeper.Snuffer keeper) {
+			if (mob instanceof life.shizune.mistinn.keeper.Keeper keeper) {
 				keeper.takeHeavyBlow(level);
 			}
 			if (WindupService.interrupt(mob)) {

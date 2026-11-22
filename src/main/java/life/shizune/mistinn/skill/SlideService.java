@@ -135,7 +135,7 @@ public final class SlideService {
 				life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.SLIDE_KICK);
 			}
 			// a lighthouse keeper is too heavy to be lifted off its feet
-			if (!(target instanceof life.shizune.mistinn.keeper.Snuffer)) {
+			if (!(target instanceof life.shizune.mistinn.keeper.Keeper)) {
 				target.push(0.0, LIFT, 0.0);
 				target.syncVelocity = true;
 			}
