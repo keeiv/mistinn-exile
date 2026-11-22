@@ -190,10 +190,47 @@ public final class TreatmentClient {
 	 * little further off, so it does not fill the view.
 	 */
 	public static void ownItem(final Pose pose, final PoseStack stack) {
+		Clip work = work(pose);
+		if (work != null) {
+			stack.rotateDegrees(Axis.XP, work.at("own.item_x", beat(pose)) * pose.weight());
+		}
 		float scale = Mth.lerp(pose.weight(), 1.0F, clip(pose.treatment()).number("own_scale", 1.0F));
 		if (scale != 1.0F) {
 			stack.scale(scale, scale, scale);
 		}
+	}
+
+	/**
+	 * The work itself, seen close: over the body's slower cycle the hands make the short beat of the job (a stitch drawn,
+	 * a binding pulled tight, a patch pressed down), from the {@code own} tracks of the use's {@code _1p} clip, in
+	 * degrees added to each arm; {@code mirror} -1 when the left hand holds the item.
+	 */
+	public static void ownBeat(final Pose pose, final HumanoidModel<?> model, final int mirror) {
+		Clip work = work(pose);
+		if (work == null) {
+			return;
+		}
+		float p = beat(pose);
+		float w = pose.weight();
+		var right = mirror < 0 ? model.leftArm : model.rightArm;
+		var left = mirror < 0 ? model.rightArm : model.leftArm;
+		right.xRot += work.rad("own.right_arm_x", p) * w;
+		right.yRot += mirror * work.rad("own.right_arm_y", p) * w;
+		right.zRot += mirror * work.rad("own.right_arm_z", p) * w;
+		left.xRot += work.rad("own.left_arm_x", p) * w;
+		left.yRot += mirror * work.rad("own.left_arm_y", p) * w;
+		left.zRot += mirror * work.rad("own.left_arm_z", p) * w;
+	}
+
+	/** The clip of a use's work beat; null for a use that has none. */
+	public static @Nullable Clip work(final Pose pose) {
+		return clip(pose.treatment()).number("first_person_loop", 0.0F) > 0.0F ? Clip.find("use/" + pose.treatment().id + "_1p") : null;
+	}
+
+	/** Where in its work beat a use is, 0 to 1. */
+	public static float beat(final Pose pose) {
+		float beat = clip(pose.treatment()).number("first_person_loop", 0.0F);
+		return beat <= 0.0F ? 0.0F : (pose.seconds() % beat) / beat;
 	}
 
 	// ── 第一人稱 First person ─────────────────────────────────────

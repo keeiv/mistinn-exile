@@ -23,6 +23,7 @@ public abstract class HumanoidTreatmentMixin {
 		TreatmentClient.thirdPerson(pose, (HumanoidModel<?>) (Object) this, state.mainArm == HumanoidArm.RIGHT ? 1 : -1);
 		if (Boolean.TRUE.equals(state.getData(life.shizune.mistinn.client.view.OwnBody.KEY))) {
 			TreatmentClient.ownLift(pose, (HumanoidModel<?>) (Object) this);
+			TreatmentClient.ownBeat(pose, (HumanoidModel<?>) (Object) this, state.mainArm == HumanoidArm.RIGHT ? 1 : -1);
 		}
 	}
 }

@@ -201,7 +201,9 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 				mc.player.getId(), treatment.ordinal(), ticks, net.minecraft.world.item.Item.getId(item), life.shizune.mistinn.medical.TreatmentService.RESULT_RUNNING)));
 			float most = 0.0F;
 			for (int i = 0; i < 3; i++) {
-				float p = 0.25F + 0.25F * i;
+				// a use that loops is filmed across one turn of its cycle a second in, the others across their whole length
+				float loop = life.shizune.mistinn.client.medical.TreatmentClient.clip(treatment).number("loop", 0.0F);
+				float p = loop > 0.0F ? (1.0F + loop * i / 3.0F) / (ticks / 20.0F) : 0.25F + 0.25F * i;
 				context.runOnClient(mc -> life.shizune.mistinn.client.medical.TreatmentClient.preview = p);
 				context.waitTicks(3);
 				most = Math.max(most, context.computeOnClient(mc -> {
@@ -213,6 +215,19 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 				context.takeScreenshot("ownbody-treat-" + use[0] + "-" + i);
 			}
 			check(most > 15.0F, use[0] + ": the view turns to the work: " + most);
+			if (life.shizune.mistinn.client.medical.TreatmentClient.clip(treatment).number("first_person_loop", 0.0F) > 0.0F) {
+				life.shizune.mistinn.client.anim.Clip work = life.shizune.mistinn.client.anim.Clip.find("use/" + use[0] + "_1p");
+				check(work != null && work.has("own.right_arm_x") && work.has("own.item_x"), use[0] + ": the hands make the work's own short beat");
+				if (use[0].equals("surgery")) {
+					// crouched, the body is still there and the work still in the hands
+					context.runOnClient(mc -> mc.options.keyShift.setDown(true));
+					context.waitTicks(8);
+					context.runOnClient(mc -> check(OwnBody.active() && mc.player.isCrouching(), "crouched, the body is still the hunter's own"));
+					context.takeScreenshot("ownbody-treat-surgery-crouched");
+					context.runOnClient(mc -> mc.options.keyShift.setDown(false));
+					context.waitTicks(8);
+				}
+			}
 			context.runOnClient(mc -> {
 				life.shizune.mistinn.client.medical.TreatmentClient.preview = -1.0F;
 				life.shizune.mistinn.client.medical.TreatmentClient.received(new life.shizune.mistinn.medical.TreatmentService.TreatmentPayload(
