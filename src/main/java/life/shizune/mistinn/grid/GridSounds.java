@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * 放進背包的聲音: what a thing is made of is heard as it is set down in the pack. Blades and tools knock as metal, armour
+ * 放進背包的聲音: what a thing is made of is heard as it is set down in the pack, and as it is lifted out. Blades and tools knock as metal, armour
  * plates clank, cloth gear and leather rustle, salt and sand settle in grains, bottles clink, books and papers lie flat,
  * wood taps; anything else is the plain sound of something set down.
  */
@@ -22,6 +22,18 @@ public final class GridSounds {
 	/** What a thing sounds like set down, by what it is made of. */
 	public enum Material {
 		METAL, PLATE, CLOTH, GRAIN, GLASS, PAPER, WOOD, PLAIN;
+
+		public SoundEvent pickup() {
+			return switch (this) {
+				case METAL -> MistinnSounds.GRID_PICKUP_METAL;
+				case PLATE -> MistinnSounds.GRID_PICKUP_PLATE;
+				case GRAIN -> MistinnSounds.GRID_PICKUP_GRAIN;
+				case GLASS -> MistinnSounds.GRID_PICKUP_GLASS;
+				case PAPER -> MistinnSounds.GRID_PICKUP_PAPER;
+				case WOOD -> MistinnSounds.GRID_PICKUP_WOOD;
+				case CLOTH, PLAIN -> MistinnSounds.GRID_PICKUP;
+			};
+		}
 
 		public SoundEvent place() {
 			return switch (this) {
@@ -35,6 +47,11 @@ public final class GridSounds {
 				case PLAIN -> MistinnSounds.GRID_PLACE;
 			};
 		}
+	}
+
+	/** The sound of lifting this stack out of the pack. */
+	public static SoundEvent pickup(final ItemStack stack) {
+		return material(stack).pickup();
 	}
 
 	/** The sound of setting this stack down in the pack. */

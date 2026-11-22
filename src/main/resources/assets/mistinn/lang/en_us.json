@@ -1165,5 +1165,11 @@
   "subtitles.mistinn.ui.grid.place.grain": "Grains settle",
   "subtitles.mistinn.ui.grid.place.glass": "Bottle clinks",
   "subtitles.mistinn.ui.grid.place.paper": "Paper set down",
-  "subtitles.mistinn.ui.grid.place.wood": "Wood set down"
+  "subtitles.mistinn.ui.grid.place.wood": "Wood set down",
+  "subtitles.mistinn.ui.grid.pickup.metal": "Metal lifted",
+  "subtitles.mistinn.ui.grid.pickup.plate": "Armour lifted",
+  "subtitles.mistinn.ui.grid.pickup.grain": "Grains shift",
+  "subtitles.mistinn.ui.grid.pickup.glass": "Bottle clinks",
+  "subtitles.mistinn.ui.grid.pickup.paper": "Pages turn",
+  "subtitles.mistinn.ui.grid.pickup.wood": "Wood lifted"
 }

@@ -329,6 +329,24 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `ui/grid/pickup_1.ogg` | `kenney_rpg:cloth2`; `synth:cloth grains` | CC0 1.0 sources + project synthesis |
 | `ui/grid/pickup_2.ogg` | `kenney_rpg:cloth3`; `synth:cloth grains` | CC0 1.0 sources + project synthesis |
 | `ui/grid/pickup_3.ogg` | `kenney_rpg:cloth4`; `synth:cloth grains` | CC0 1.0 sources + project synthesis |
+| `ui/grid/pickup_glass_1.ogg` | `kenney_impact:impactGlass_light_003`; `kenney_rpg:cloth2` | CC0 1.0 sources |
+| `ui/grid/pickup_glass_2.ogg` | `kenney_impact:impactGlass_light_004`; `kenney_rpg:cloth3` | CC0 1.0 sources |
+| `ui/grid/pickup_glass_3.ogg` | `kenney_impact:impactGlass_light_000`; `kenney_rpg:cloth4` | CC0 1.0 sources |
+| `ui/grid/pickup_grain_1.ogg` | `kenney_rpg:cloth2`; `synth:salt grains shifting` | CC0 1.0 sources + project synthesis |
+| `ui/grid/pickup_grain_2.ogg` | `kenney_rpg:cloth3`; `synth:salt grains shifting` | CC0 1.0 sources + project synthesis |
+| `ui/grid/pickup_grain_3.ogg` | `kenney_rpg:cloth4`; `synth:salt grains shifting` | CC0 1.0 sources + project synthesis |
+| `ui/grid/pickup_metal_1.ogg` | `kenney_impact:impactMetal_light_003`; `kenney_rpg:cloth2` | CC0 1.0 sources |
+| `ui/grid/pickup_metal_2.ogg` | `kenney_impact:impactMetal_light_004`; `kenney_rpg:cloth3` | CC0 1.0 sources |
+| `ui/grid/pickup_metal_3.ogg` | `kenney_impact:impactMetal_light_000`; `kenney_rpg:cloth4` | CC0 1.0 sources |
+| `ui/grid/pickup_paper_1.ogg` | `kenney_rpg:bookFlip1` | CC0 1.0 sources |
+| `ui/grid/pickup_paper_2.ogg` | `kenney_rpg:bookFlip2` | CC0 1.0 sources |
+| `ui/grid/pickup_paper_3.ogg` | `kenney_rpg:bookFlip3` | CC0 1.0 sources |
+| `ui/grid/pickup_plate_1.ogg` | `kenney_impact:impactPlate_light_002`; `kenney_rpg:cloth2` | CC0 1.0 sources |
+| `ui/grid/pickup_plate_2.ogg` | `kenney_impact:impactPlate_light_003`; `kenney_rpg:cloth3` | CC0 1.0 sources |
+| `ui/grid/pickup_plate_3.ogg` | `kenney_impact:impactPlate_light_004`; `kenney_rpg:cloth4` | CC0 1.0 sources |
+| `ui/grid/pickup_wood_1.ogg` | `kenney_impact:impactWood_light_003`; `kenney_rpg:cloth2` | CC0 1.0 sources |
+| `ui/grid/pickup_wood_2.ogg` | `kenney_impact:impactWood_light_004`; `kenney_rpg:cloth3` | CC0 1.0 sources |
+| `ui/grid/pickup_wood_3.ogg` | `kenney_impact:impactWood_light_000`; `kenney_rpg:cloth4` | CC0 1.0 sources |
 | `ui/grid/place_1.ogg` | `kenney_impact:impactSoft_medium_001`; `kenney_rpg:cloth`; `synth:noise tap` | CC0 1.0 sources + project synthesis |
 | `ui/grid/place_2.ogg` | `kenney_impact:impactSoft_medium_003`; `kenney_rpg:cloth`; `synth:noise tap` | CC0 1.0 sources + project synthesis |
 | `ui/grid/place_3.ogg` | `kenney_impact:impactSoft_medium_004`; `kenney_rpg:cloth`; `synth:noise tap` | CC0 1.0 sources + project synthesis |
