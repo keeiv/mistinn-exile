@@ -130,6 +130,8 @@ public final class HeavyService {
 		return landing;
 	}
 
+	/** 鐘舌: how far the ring of its full heavy blow carries, breaking off every windup it reaches. */
+	public static final double CLAPPER_RING = 6.0;
 	private static final List<Strike> PENDING = new ArrayList<>();
 
 	/** The client's word on whether the hunter is mid-roll or mid-slide, for its own prediction. */
@@ -353,9 +355,33 @@ public final class HeavyService {
 			level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, at.x, at.y, at.z, 40, 1.2, 0.6, 1.2, 0.05);
 			level.playSound(null, at.x, at.y, at.z, SoundEvents.FIRECHARGE_USE, SoundSource.PLAYERS, 1.0F, 0.7F);
 		}
+		if (full && strike.special() == SpecialWeapon.BELL_CLAPPER) {
+			ringBack(player, level);
+		}
 		if (strike.special() == SpecialWeapon.TIDE_MAUL) {
 			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BELL_BLOCK, SoundSource.PLAYERS, 2.0F, 0.5F);
 			level.sendParticles(ParticleTypes.SONIC_BOOM, player.getX(), player.getY() + 0.2, player.getZ(), 1, 0.0, 0.0, 0.0, 0.0);
+		}
+	}
+
+	/** 鐘舌: the clapper rings out all round the hunter, and every creature it reaches breaks off the blow it was winding up. */
+	private static void ringBack(final ServerPlayer player, final ServerLevel level) {
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.SUNKEN_BELL_RING, SoundSource.PLAYERS, 1.6F, 1.3F);
+		for (int i = 0; i < 48; i++) {
+			double angle = i * Math.PI * 2.0 / 48.0;
+			for (double r = 2.0; r <= CLAPPER_RING; r += 2.0) {
+				level.sendParticles(ParticleTypes.CLOUD, player.getX() + Math.cos(angle) * r, player.getY() + 0.15, player.getZ() + Math.sin(angle) * r, 1, 0.05, 0.02, 0.05, 0.0);
+			}
+		}
+		int broken = 0;
+		for (Mob mob : level.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(CLAPPER_RING, 2.0, CLAPPER_RING),
+			m -> m.isAlive() && flat(m.position().subtract(player.position())).length() <= CLAPPER_RING)) {
+			if (WindupService.interrupt(mob)) {
+				broken++;
+			}
+		}
+		if (broken > 0) {
+			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.BREAK_WINDUP);
 		}
 	}
 

@@ -77,6 +77,7 @@ public final class MistinnSunkenBellTest implements FabricClientGameTest {
 			deepTollAtTheFourthLayer(context, world, stage);
 			cracksAtHalf(context, world, stage);
 			dropShutsAHunterIn(context, world, stage);
+			leavesItsClapper(context, world, stage);
 		}
 	}
 
@@ -358,6 +359,21 @@ public final class MistinnSunkenBellTest implements FabricClientGameTest {
 			check(BodyService.get(player(server)).get(BodyPart.HEAD) < BodyPart.MAX, "it tolls with them inside: " + BodyService.get(player(server)));
 			player(server).removeAllEffects();
 			clear(server, stage);
+		});
+	}
+
+	/** Brought down, it leaves its salt block and its clapper, for a hunter strong enough to swing it. */
+	private static void leavesItsClapper(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		world.getServer().runOnServer(server -> {
+			clear(server, stage);
+			bell(server, stage).kill(server.overworld());
+		});
+		context.waitTicks(5);
+		world.getServer().runOnServer(server -> {
+			var items = server.overworld().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new AABB(stage).inflate(8.0));
+			check(items.stream().anyMatch(item -> item.getItem().is(life.shizune.mistinn.registry.MistinnItems.BELL_CLAPPER)), "it leaves its clapper");
+			check(items.stream().anyMatch(item -> item.getItem().is(life.shizune.mistinn.registry.MistinnItems.RUST_GOD_SALT)), "and the Rust God's salt");
+			items.forEach(net.minecraft.world.entity.Entity::discard);
 		});
 	}
 

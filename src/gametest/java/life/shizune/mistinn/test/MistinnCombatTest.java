@@ -87,6 +87,7 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 			hookDragsTheFarthest(context, world, arena);
 			lanternBursts(context, world, arena);
 			maulTollsAllAround(context, world, arena);
+			clapperBreaksEveryWindup(context, world, arena);
 			refusedChargeLeavesTheOtherHand(context, world, arena);
 			killGoesToTheBlowsWeapon(context, world, arena);
 			slideMissPaysNothing(context, world, arena);
@@ -115,6 +116,7 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 		check(HeavyService.shape(WeaponStyle.THRUST, SpecialWeapon.LANTERN_STAFF).kind() == HeavyService.Kind.BURST, "the lantern staff bursts");
 		check(SpecialWeapon.TIDE_MAUL.requirements.size() == 2 && SpecialWeapon.SNUFFER_HOOK.requirements.getFirst().achievement() != null,
 			"the maul asks for two stats, the hook for the Snuffer first");
+		check(AchievementService.SUNKEN_BELL.equals(SpecialWeapon.BELL_CLAPPER.requirements.getFirst().achievement()), "the clapper asks for the Sunken Bell first");
 	}
 
 	// ── The animation sandbox ─────────────────────────────────────
@@ -613,6 +615,39 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 		}
 		check(lifted[0], "and throws them up");
 		check(lost(world, far) == 0.0F, "but not past its reach");
+	}
+
+	/** 鐘舌: a full heavy blow rings out all round and breaks off every windup within six blocks, struck or not; a partial one does not. */
+	private static void clapperBreaksEveryWindup(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		stand(context, world, arena, MistinnItems.BELL_CLAPPER, skills(4, 0, 0));
+		world.getServer().runOnServer(server -> AchievementService.grant(player(server), AchievementService.SUNKEN_BELL));
+		int ahead = husk(world, arena, 0.0, 2.0);
+		int behind = husk(world, arena, 0.0, -4.0);
+		int aside = husk(world, arena, 4.5, 0.0);
+		int far = husk(world, arena, 0.0, 9.0);
+		int[] all = {ahead, behind, aside, far};
+		java.util.function.Consumer<MinecraftServer> windUp = server -> {
+			for (int id : all) {
+				mob(server, id).setAttached(WindupService.WINDUP, new WindupService.Windup(server.overworld().getGameTime(), 400, player(server).getId(), false));
+			}
+		};
+		world.getServer().runOnServer(server -> {
+			check(SpecialWeapon.BELL_CLAPPER.fits(player(server)), "the Sunken Bell down and strength 4: the clapper answers");
+			windUp.accept(server);
+		});
+		heavy(context, world, 0.6F);
+		check(world.getServer().computeOnServer(server -> WindupService.winding((net.minecraft.world.entity.Mob) mob(server, behind))),
+			"a partial charge rings nothing out");
+		world.getServer().runOnServer(server -> {
+			player(server).setAttached(MistinnAttachments.STAMINA, StaminaService.max(player(server)));
+			windUp.accept(server);
+		});
+		heavy(context, world, 1.0F);
+		world.getServer().runOnServer(server -> {
+			check(!WindupService.winding((net.minecraft.world.entity.Mob) mob(server, behind)), "a full one breaks off the windup of one behind, never struck");
+			check(!WindupService.winding((net.minecraft.world.entity.Mob) mob(server, aside)), "and of one off to the side");
+			check(WindupService.winding((net.minecraft.world.entity.Mob) mob(server, far)), "but not past six blocks");
+		});
 	}
 
 	// ── Found in review ───────────────────────────────────────────
