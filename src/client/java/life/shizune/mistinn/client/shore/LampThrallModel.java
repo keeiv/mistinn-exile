@@ -12,7 +12,9 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.model.monster.zombie.ZombieModel;
 import net.minecraft.client.renderer.entity.state.ZombieRenderState;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 燈奴的模型: a lamplighter bent nearly double. The spine leans forward from the hips, so the hooded head
@@ -28,12 +30,40 @@ public class LampThrallModel extends ZombieModel<ZombieRenderState> {
 	/** How far the held lantern sits below where a man's hand would be: these arms are longer. */
 	private static final float HAND_DROP = 2.5F / 16.0F;
 
+	/** How far, in radians, the hem of the cloak swings out behind at a full walk, and the tatters with each step. */
+	private static final float CLOAK_SWING = 0.22F;
+	private static final float TATTER_SWING = 0.35F;
+	private static final int TATTERS = 14;
+
 	/** How far forward of the hips the shoulders sit; the attack swing would put them back over the hips. */
 	private final float shoulderZ;
+	/** The cloak and the tatters at its hem; null on the armour layers, which have no cloak. */
+	private final @Nullable ModelPart cloak;
+	private final ModelPart[] tatters;
 
 	public LampThrallModel(final ModelPart root) {
 		super(root);
 		this.shoulderZ = this.rightArm.z;
+		this.cloak = this.body.hasChild("spine") ? this.body.getChild("spine").getChild("cloak") : null;
+		this.tatters = new ModelPart[this.cloak == null ? 0 : TATTERS];
+		for (int i = 0; i < this.tatters.length; i++) {
+			this.tatters[i] = this.cloak.getChild("cloak_tatter_" + (i + 1));
+		}
+	}
+
+	/** Walking, the hem of the cloak swings out behind and the tatters swing with each step; standing, it barely stirs. */
+	@Override
+	public void setupAnim(final ZombieRenderState state) {
+		super.setupAnim(state);
+		if (this.cloak == null) {
+			return;
+		}
+		float walk = Math.min(state.walkAnimationSpeed, 1.0F);
+		float step = state.walkAnimationPos * 0.6662F;
+		this.cloak.xRot += CLOAK_SWING * walk + 0.025F * Mth.sin(state.ageInTicks * 0.09F);
+		for (int i = 0; i < this.tatters.length; i++) {
+			this.tatters[i].xRot += TATTER_SWING * walk * Mth.sin(step + i * 0.7F) + 0.05F * Mth.sin(state.ageInTicks * 0.13F + i);
+		}
 	}
 
 	@Override

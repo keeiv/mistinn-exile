@@ -54,6 +54,7 @@ public final class MistinnMistShadeTest implements FabricClientGameTest {
 			context.runOnClient(mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
 			world.getServer().runOnServer(server -> check(EnemyRig.of(MistinnEntities.MIST_SHADE) == EnemyRig.UNDEAD, "it moves as the undead do"));
 			drawnWithoutLegs(context);
+			tailsDriftNotStride(context);
 
 			// out of any mist: it thins away
 			int lost = world.getServer().computeOnServer(server -> {
@@ -179,6 +180,62 @@ public final class MistinnMistShadeTest implements FabricClientGameTest {
 			check(shape[1] > -0.06F, "rocked back (side " + side + "), nothing of it sinks into the ground: lowest " + shape[1]);
 			check(shape[2] < 1.95F, "no taller than the space it takes: top " + shape[2]);
 		}
+	}
+
+	/**
+	 * Its tails of mist do not stride like legs. Moving, they trail out behind it, further the faster it goes,
+	 * and never swing out in front or down to the ground; standing still, they drift.
+	 */
+	private static void tailsDriftNotStride(final ClientGameTestContext context) {
+		float[] got = context.computeOnClient(mc -> {
+			MistShade entity = MistinnEntities.MIST_SHADE.create(mc.level, EntitySpawnReason.COMMAND);
+			// a model only, never added to the world: it still needs an id to be drawn
+			entity.setId(-4242);
+			List<ClipProbe.Box> now = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> state.ageInTicks = 0.0F, true, null, null);
+			List<ClipProbe.Box> later = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> state.ageInTicks = 12.0F, true, null, null);
+			float still = tails(now);
+			// each tail on its own: the two drift out of step, so their average may stand still
+			float drift = Math.abs(tail(now, "/right_leg") - tail(later, "/right_leg")) + Math.abs(tail(now, "/left_leg") - tail(later, "/left_leg"));
+			float ahead = -Float.MAX_VALUE;
+			float lowest = Float.MAX_VALUE;
+			float moving = 0.0F;
+			for (int i = 0; i < 8; i++) {
+				float step = i * 1.2F;
+				List<ClipProbe.Box> boxes = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> {
+					state.walkAnimationSpeed = 1.0F;
+					state.walkAnimationPos = step;
+				}, true, null, null);
+				for (String tail : new String[] {"/right_leg", "/left_leg"}) {
+					ahead = Math.max(ahead, tail(boxes, tail));
+				}
+				lowest = Math.min(lowest, ClipProbe.reach(boxes, -1.0F));
+				moving += tails(boxes) / 8.0F;
+			}
+			return new float[] {still, drift, ahead, lowest, moving};
+		});
+		check(got[1] > 0.005F, "standing still, its tails drift: they moved " + got[1]);
+		// facing south: behind it is -z, its hips at z = 0
+		check(got[2] < 0.0F, "moving, neither tail ever swings out in front of it: " + got[2]);
+		check(got[4] < got[0] - 0.02F, "moving, its tails trail out further behind than standing: " + got[4] + " against " + got[0]);
+		check(got[3] > 0.0F, "and they never reach the ground: lowest " + got[3]);
+	}
+
+	/** Where along z, on average, both tails of mist lie. */
+	private static float tails(final List<ClipProbe.Box> boxes) {
+		return (tail(boxes, "/right_leg") + tail(boxes, "/left_leg")) / 2.0F;
+	}
+
+	/** Where along z, on average, the boxes of one tail of mist lie. */
+	private static float tail(final List<ClipProbe.Box> boxes, final String part) {
+		float sum = 0.0F;
+		int count = 0;
+		for (ClipProbe.Box box : boxes) {
+			if (box.path().startsWith(part)) {
+				sum += box.center().z;
+				count++;
+			}
+		}
+		return sum / count;
 	}
 
 	private static ServerPlayer player(final MinecraftServer server) {
