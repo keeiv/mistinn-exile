@@ -1,5 +1,7 @@
 package life.shizune.mistinn.shore;
 
+import net.minecraft.sounds.SoundEvent;
+import life.shizune.mistinn.registry.MistinnSounds;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -185,7 +187,7 @@ public class SaltCorpse extends Husk {
 					&& !player.isSpectator() ? player : null;
 				if (near != null) {
 					this.setState(RISING);
-					level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.HUSK_AMBIENT, SoundSource.HOSTILE, 1.2F, 0.6F);
+					level.playSound(null, this.getX(), this.getY(), this.getZ(), MistinnSounds.SALT_CORPSE_RISE, SoundSource.HOSTILE, 1.2F, 0.9F);
 					this.salt(level, 14);
 				}
 			}
@@ -195,8 +197,7 @@ public class SaltCorpse extends Husk {
 					// it climbs back up with half of what it had, and it will not do so again
 					this.risen = true;
 					this.setHealth(this.getMaxHealth() * 0.5F);
-					level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.HUSK_AMBIENT, SoundSource.HOSTILE, 1.4F, 0.5F);
-					level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.SKELETON_STEP, SoundSource.HOSTILE, 1.0F, 0.6F);
+					level.playSound(null, this.getX(), this.getY(), this.getZ(), MistinnSounds.SALT_CORPSE_RISE, SoundSource.HOSTILE, 1.4F, 0.8F);
 					this.salt(level, 18);
 				}
 			}
@@ -214,8 +215,7 @@ public class SaltCorpse extends Husk {
 		this.setState(FALLEN);
 		this.getNavigation().stop();
 		this.setTarget(null);
-		level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.HUSK_DEATH, SoundSource.HOSTILE, 1.0F, 0.85F);
-		level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.BONE_BLOCK_BREAK, SoundSource.HOSTILE, 0.8F, 0.7F);
+		level.playSound(null, this.getX(), this.getY(), this.getZ(), MistinnSounds.SALT_CORPSE_FALL, SoundSource.HOSTILE, 1.0F, 1.0F);
 		this.salt(level, 24);
 	}
 
@@ -260,5 +260,27 @@ public class SaltCorpse extends Husk {
 		this.entityData.set(DATA_STATE, (byte) input.getIntOr("SaltState", STANDING));
 		this.stateTicks = input.getIntOr("SaltStateTicks", 0);
 		this.hold(this.down());
+	}
+
+	// ── Voice ────────────────────────────────────────────────────
+
+	@Override
+	protected SoundEvent getAmbientSound() {
+		return MistinnSounds.SALT_CORPSE_AMBIENT;
+	}
+
+	@Override
+	protected SoundEvent getHurtSound(final DamageSource source) {
+		return MistinnSounds.SALT_CORPSE_HURT;
+	}
+
+	@Override
+	protected SoundEvent getDeathSound() {
+		return MistinnSounds.SALT_CORPSE_DEATH;
+	}
+
+	@Override
+	protected SoundEvent getStepSound() {
+		return MistinnSounds.SALT_CORPSE_STEP;
 	}
 }

@@ -1,5 +1,8 @@
 package life.shizune.mistinn.shore;
 
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundEvent;
+import life.shizune.mistinn.registry.MistinnSounds;
 import life.shizune.mistinn.enemy.StaggerService;
 import life.shizune.mistinn.enemy.WindupService;
 import net.minecraft.core.particles.ParticleTypes;
@@ -171,8 +174,7 @@ public class LampThrall extends Zombie {
 	private void flare(final ServerLevel level) {
 		this.setState(FLARE);
 		this.getNavigation().stop();
-		level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.FIRECHARGE_USE, SoundSource.HOSTILE, 0.9F, 0.6F);
-		level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.FLINTANDSTEEL_USE, SoundSource.HOSTILE, 1.0F, 0.7F);
+		level.playSound(null, this.getX(), this.getY(), this.getZ(), MistinnSounds.LAMP_THRALL_FLARE, SoundSource.HOSTILE, 1.1F, 1.0F);
 	}
 
 	private void startRush(final ServerLevel level, final @Nullable LivingEntity target) {
@@ -185,14 +187,14 @@ public class LampThrall extends Zombie {
 		this.setState(RUSHING);
 		this.setDeltaMovement(this.rush.x, 0.12, this.rush.z);
 		this.needsSync = true;
-		level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PHANTOM_SWOOP, SoundSource.HOSTILE, 1.0F, 1.3F);
+		level.playSound(null, this.getX(), this.getY(), this.getZ(), MistinnSounds.LAMP_THRALL_RUSH, SoundSource.HOSTILE, 1.0F, 1.0F);
 	}
 
 	private void spend(final ServerLevel level) {
 		this.setState(SPENT);
 		this.cooldown = COOLDOWN;
 		this.rush = Vec3.ZERO;
-		level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.CANDLE_EXTINGUISH, SoundSource.HOSTILE, 1.0F, 0.8F);
+		level.playSound(null, this.getX(), this.getY(), this.getZ(), MistinnSounds.LAMP_THRALL_SPEND, SoundSource.HOSTILE, 1.0F, 1.0F);
 	}
 
 	/** Where the lantern hangs, in front of it at hand height. */
@@ -241,5 +243,27 @@ public class LampThrall extends Zombie {
 	protected void readAdditionalSaveData(final ValueInput input) {
 		super.readAdditionalSaveData(input);
 		this.cooldown = input.getIntOr("ThrallCooldown", 0);
+	}
+
+	// ── Voice ────────────────────────────────────────────────────
+
+	@Override
+	protected SoundEvent getAmbientSound() {
+		return MistinnSounds.LAMP_THRALL_AMBIENT;
+	}
+
+	@Override
+	protected SoundEvent getHurtSound(final DamageSource source) {
+		return MistinnSounds.LAMP_THRALL_HURT;
+	}
+
+	@Override
+	protected SoundEvent getDeathSound() {
+		return MistinnSounds.LAMP_THRALL_DEATH;
+	}
+
+	@Override
+	protected SoundEvent getStepSound() {
+		return MistinnSounds.LAMP_THRALL_STEP;
 	}
 }

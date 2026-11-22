@@ -92,6 +92,38 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `entity/sunken_bell/step_2.ogg` | `synth:low thud and water slosh` | project synthesis |
 | `entity/sunken_bell/bell_drop_1.ogg` | `synth:rushing water with bubbles, a sour rising bell hum, a groan through a bell` | project synthesis |
 | `entity/sunken_bell/bell_drop_2.ogg` | `synth:rushing water with bubbles, a sour rising bell hum, a groan through a bell` | project synthesis |
+| `entity/salt_corpse/ambient_1.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
+| `entity/salt_corpse/ambient_2.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
+| `entity/salt_corpse/hurt_1.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
+| `entity/salt_corpse/hurt_2.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
+| `entity/salt_corpse/fall_1.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
+| `entity/salt_corpse/fall_2.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
+| `entity/salt_corpse/rise_1.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
+| `entity/salt_corpse/rise_2.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
+| `entity/salt_corpse/death_1.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
+| `entity/salt_corpse/death_2.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
+| `entity/salt_corpse/step_1.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
+| `entity/salt_corpse/step_2.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
+| `entity/lamp_thrall/ambient_1.ogg` | `synth:whispered breath, lantern glass clinks, a flame's rumble and hiss, air rush` | project synthesis |
+| `entity/lamp_thrall/ambient_2.ogg` | `synth:whispered breath, lantern glass clinks, a flame's rumble and hiss, air rush` | project synthesis |
+| `entity/lamp_thrall/hurt_1.ogg` | `synth:whispered breath, lantern glass clinks, a flame's rumble and hiss, air rush` | project synthesis |
+| `entity/lamp_thrall/hurt_2.ogg` | `synth:whispered breath, lantern glass clinks, a flame's rumble and hiss, air rush` | project synthesis |
+| `entity/lamp_thrall/death_1.ogg` | `synth:whispered breath, lantern glass clinks, a flame's rumble and hiss, air rush` | project synthesis |
+| `entity/lamp_thrall/death_2.ogg` | `synth:whispered breath, lantern glass clinks, a flame's rumble and hiss, air rush` | project synthesis |
+| `entity/lamp_thrall/flare_1.ogg` | `synth:whispered breath, lantern glass clinks, a flame's rumble and hiss, air rush` | project synthesis |
+| `entity/lamp_thrall/flare_2.ogg` | `synth:whispered breath, lantern glass clinks, a flame's rumble and hiss, air rush` | project synthesis |
+| `entity/lamp_thrall/rush_1.ogg` | `synth:whispered breath, lantern glass clinks, a flame's rumble and hiss, air rush` | project synthesis |
+| `entity/lamp_thrall/rush_2.ogg` | `synth:whispered breath, lantern glass clinks, a flame's rumble and hiss, air rush` | project synthesis |
+| `entity/lamp_thrall/spend_1.ogg` | `synth:whispered breath, lantern glass clinks, a flame's rumble and hiss, air rush` | project synthesis |
+| `entity/lamp_thrall/spend_2.ogg` | `synth:whispered breath, lantern glass clinks, a flame's rumble and hiss, air rush` | project synthesis |
+| `entity/lamp_thrall/step_1.ogg` | `synth:whispered breath, lantern glass clinks, a flame's rumble and hiss, air rush` | project synthesis |
+| `entity/lamp_thrall/step_2.ogg` | `synth:whispered breath, lantern glass clinks, a flame's rumble and hiss, air rush` | project synthesis |
+| `entity/mist_shade/ambient_1.ogg` | `synth:noise shaped through moving formants, an airy hiss` | project synthesis |
+| `entity/mist_shade/ambient_2.ogg` | `synth:noise shaped through moving formants, an airy hiss` | project synthesis |
+| `entity/mist_shade/hurt_1.ogg` | `synth:noise shaped through moving formants, an airy hiss` | project synthesis |
+| `entity/mist_shade/hurt_2.ogg` | `synth:noise shaped through moving formants, an airy hiss` | project synthesis |
+| `entity/mist_shade/death_1.ogg` | `synth:noise shaped through moving formants, an airy hiss` | project synthesis |
+| `entity/mist_shade/death_2.ogg` | `synth:noise shaped through moving formants, an airy hiss` | project synthesis |
 | `entity/snuffer/slide_1.ogg` | `oga_creature_2:breath_02`; `oga_snarls:monsters-snarls-3#2`; `synth:salt grinding under a crouch` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/slide_2.ogg` | `oga_creature_1:breath`; `oga_monster_vol1:monster-12`; `synth:salt grinding under a crouch` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/rush_1.ogg` | `oga_monster_sfx:monster-5`; `synth:chain links drawn taut, a rush of air` | CC0 1.0 sources + project synthesis |

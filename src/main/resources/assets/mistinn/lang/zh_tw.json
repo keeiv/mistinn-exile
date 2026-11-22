@@ -1140,5 +1140,21 @@
   "item.mistinn.hunter_guide.page.21": "【鐘舌】\n\n打倒沉鐘、力量 4。\n\n蓄滿的重擊敲出一圈聲波，打斷身邊六格內所有正在預備出手的敵人，打不打得到都算。\n\n沉鐘倒下時掉落。",
   "staff.mistinn.bell_keeper.ask.fogbell": "霧裡的鐘聲",
   "staff.mistinn.bell_keeper.fogbell.0": "海上有座霧鐘台。從前起霧時，有人在那裡敲鐘，替船指回家的路。",
-  "staff.mistinn.bell_keeper.fogbell.1": "後來他也沒回來。起霧的夜裡，那口鐘還是會響。……一聲，又一聲。"
+  "staff.mistinn.bell_keeper.fogbell.1": "後來他也沒回來。起霧的夜裡，那口鐘還是會響。……一聲，又一聲。",
+  "subtitles.mistinn.entity.salt_corpse.ambient": "鹽屍乾啞地喘",
+  "subtitles.mistinn.entity.salt_corpse.hurt": "鹽殼碎裂",
+  "subtitles.mistinn.entity.salt_corpse.fall": "鹽屍垮倒",
+  "subtitles.mistinn.entity.salt_corpse.rise": "鹽屍爬起來",
+  "subtitles.mistinn.entity.salt_corpse.death": "鹽屍碎成鹽",
+  "subtitles.mistinn.entity.salt_corpse.step": "鹽粒碎響",
+  "subtitles.mistinn.entity.lamp_thrall.ambient": "燈奴低聲喘息",
+  "subtitles.mistinn.entity.lamp_thrall.hurt": "提燈玻璃作響",
+  "subtitles.mistinn.entity.lamp_thrall.death": "提燈碎裂",
+  "subtitles.mistinn.entity.lamp_thrall.flare": "燈火竄起",
+  "subtitles.mistinn.entity.lamp_thrall.rush": "燈奴撲來",
+  "subtitles.mistinn.entity.lamp_thrall.spend": "燈奴喘著氣",
+  "subtitles.mistinn.entity.lamp_thrall.step": "斗篷拖地",
+  "subtitles.mistinn.entity.mist_shade.ambient": "霧裡有人低語",
+  "subtitles.mistinn.entity.mist_shade.hurt": "霧影散開",
+  "subtitles.mistinn.entity.mist_shade.death": "霧影消散"
 }

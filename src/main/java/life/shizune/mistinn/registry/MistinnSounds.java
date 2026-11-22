@@ -117,6 +117,23 @@ public final class MistinnSounds {
 	public static final SoundEvent SUNKEN_BELL_DEATH = register("entity.sunken_bell.death");
 	public static final SoundEvent SUNKEN_BELL_STEP = register("entity.sunken_bell.step");
 	public static final SoundEvent SUNKEN_BELL_DROP = register("entity.sunken_bell.bell_drop");
+	// the creatures of the mist
+	public static final SoundEvent SALT_CORPSE_AMBIENT = register("entity.salt_corpse.ambient");
+	public static final SoundEvent SALT_CORPSE_HURT = register("entity.salt_corpse.hurt");
+	public static final SoundEvent SALT_CORPSE_FALL = register("entity.salt_corpse.fall");
+	public static final SoundEvent SALT_CORPSE_RISE = register("entity.salt_corpse.rise");
+	public static final SoundEvent SALT_CORPSE_DEATH = register("entity.salt_corpse.death");
+	public static final SoundEvent SALT_CORPSE_STEP = register("entity.salt_corpse.step");
+	public static final SoundEvent LAMP_THRALL_AMBIENT = register("entity.lamp_thrall.ambient");
+	public static final SoundEvent LAMP_THRALL_HURT = register("entity.lamp_thrall.hurt");
+	public static final SoundEvent LAMP_THRALL_DEATH = register("entity.lamp_thrall.death");
+	public static final SoundEvent LAMP_THRALL_FLARE = register("entity.lamp_thrall.flare");
+	public static final SoundEvent LAMP_THRALL_RUSH = register("entity.lamp_thrall.rush");
+	public static final SoundEvent LAMP_THRALL_SPEND = register("entity.lamp_thrall.spend");
+	public static final SoundEvent LAMP_THRALL_STEP = register("entity.lamp_thrall.step");
+	public static final SoundEvent MIST_SHADE_AMBIENT = register("entity.mist_shade.ambient");
+	public static final SoundEvent MIST_SHADE_HURT = register("entity.mist_shade.hurt");
+	public static final SoundEvent MIST_SHADE_DEATH = register("entity.mist_shade.death");
 	// the grid inventory, heard only by its owner
 	public static final SoundEvent GRID_PICKUP = register("ui.grid.pickup");
 	public static final SoundEvent GRID_PLACE = register("ui.grid.place");

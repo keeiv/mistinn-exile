@@ -955,5 +955,117 @@
       "mistinn:entity/sunken_bell/bell_drop_2"
     ],
     "subtitle": "subtitles.mistinn.entity.sunken_bell.bell_drop"
+  },
+  "entity.salt_corpse.ambient": {
+    "sounds": [
+      "mistinn:entity/salt_corpse/ambient_1",
+      "mistinn:entity/salt_corpse/ambient_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.salt_corpse.ambient"
+  },
+  "entity.salt_corpse.hurt": {
+    "sounds": [
+      "mistinn:entity/salt_corpse/hurt_1",
+      "mistinn:entity/salt_corpse/hurt_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.salt_corpse.hurt"
+  },
+  "entity.salt_corpse.fall": {
+    "sounds": [
+      "mistinn:entity/salt_corpse/fall_1",
+      "mistinn:entity/salt_corpse/fall_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.salt_corpse.fall"
+  },
+  "entity.salt_corpse.rise": {
+    "sounds": [
+      "mistinn:entity/salt_corpse/rise_1",
+      "mistinn:entity/salt_corpse/rise_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.salt_corpse.rise"
+  },
+  "entity.salt_corpse.death": {
+    "sounds": [
+      "mistinn:entity/salt_corpse/death_1",
+      "mistinn:entity/salt_corpse/death_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.salt_corpse.death"
+  },
+  "entity.salt_corpse.step": {
+    "sounds": [
+      "mistinn:entity/salt_corpse/step_1",
+      "mistinn:entity/salt_corpse/step_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.salt_corpse.step"
+  },
+  "entity.lamp_thrall.ambient": {
+    "sounds": [
+      "mistinn:entity/lamp_thrall/ambient_1",
+      "mistinn:entity/lamp_thrall/ambient_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.lamp_thrall.ambient"
+  },
+  "entity.lamp_thrall.hurt": {
+    "sounds": [
+      "mistinn:entity/lamp_thrall/hurt_1",
+      "mistinn:entity/lamp_thrall/hurt_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.lamp_thrall.hurt"
+  },
+  "entity.lamp_thrall.death": {
+    "sounds": [
+      "mistinn:entity/lamp_thrall/death_1",
+      "mistinn:entity/lamp_thrall/death_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.lamp_thrall.death"
+  },
+  "entity.lamp_thrall.flare": {
+    "sounds": [
+      "mistinn:entity/lamp_thrall/flare_1",
+      "mistinn:entity/lamp_thrall/flare_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.lamp_thrall.flare"
+  },
+  "entity.lamp_thrall.rush": {
+    "sounds": [
+      "mistinn:entity/lamp_thrall/rush_1",
+      "mistinn:entity/lamp_thrall/rush_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.lamp_thrall.rush"
+  },
+  "entity.lamp_thrall.spend": {
+    "sounds": [
+      "mistinn:entity/lamp_thrall/spend_1",
+      "mistinn:entity/lamp_thrall/spend_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.lamp_thrall.spend"
+  },
+  "entity.lamp_thrall.step": {
+    "sounds": [
+      "mistinn:entity/lamp_thrall/step_1",
+      "mistinn:entity/lamp_thrall/step_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.lamp_thrall.step"
+  },
+  "entity.mist_shade.ambient": {
+    "sounds": [
+      "mistinn:entity/mist_shade/ambient_1",
+      "mistinn:entity/mist_shade/ambient_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.mist_shade.ambient"
+  },
+  "entity.mist_shade.hurt": {
+    "sounds": [
+      "mistinn:entity/mist_shade/hurt_1",
+      "mistinn:entity/mist_shade/hurt_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.mist_shade.hurt"
+  },
+  "entity.mist_shade.death": {
+    "sounds": [
+      "mistinn:entity/mist_shade/death_1",
+      "mistinn:entity/mist_shade/death_2"
+    ],
+    "subtitle": "subtitles.mistinn.entity.mist_shade.death"
   }
 }

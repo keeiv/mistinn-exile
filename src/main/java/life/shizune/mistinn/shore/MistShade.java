@@ -1,5 +1,6 @@
 package life.shizune.mistinn.shore;
 
+import life.shizune.mistinn.registry.MistinnSounds;
 import life.shizune.mistinn.registry.MistinnEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -129,17 +130,17 @@ public class MistShade extends Zombie {
 
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.SOUL_ESCAPE.value();
+		return MistinnSounds.MIST_SHADE_AMBIENT;
 	}
 
 	@Override
 	protected SoundEvent getHurtSound(final DamageSource source) {
-		return SoundEvents.SOUL_SAND_BREAK;
+		return MistinnSounds.MIST_SHADE_HURT;
 	}
 
 	@Override
 	protected SoundEvent getDeathSound() {
-		return SoundEvents.SOUL_ESCAPE.value();
+		return MistinnSounds.MIST_SHADE_DEATH;
 	}
 
 	/** It makes no sound walking. */
