@@ -113,6 +113,8 @@ public class MistinnClient implements ClientModInitializer {
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.STATION_HAND, life.shizune.mistinn.client.station.StationHandRenderer::new);
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.training.StationCeremony.DropPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.training.TrainingClient.drop(payload.ticks()));
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.world.ShoreMist.MistPayload.TYPE,
+			(payload, context) -> life.shizune.mistinn.client.mist.ShoreMistClient.receive(payload.lighthouses()));
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.training.StationArrival.ArrivalPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.training.DropCinematic.arrive(payload.stand(), payload.top()));
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.station.StationBroadcast.Payload.TYPE,
@@ -130,6 +132,7 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.music.KeeperMusic.tick(minecraft);
 			ExecutionView.tick(minecraft);
 			life.shizune.mistinn.client.death.DeathScene.tick(minecraft);
+			life.shizune.mistinn.client.mist.ShoreMistClient.tick(minecraft);
 			life.shizune.mistinn.client.story.StoryClient.tick(minecraft);
 			TrainingClient.tick(minecraft);
 			while (journal.consumeClick()) {

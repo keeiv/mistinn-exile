@@ -62,6 +62,7 @@ public final class MinimapHud implements HudElement {
 		// the texture was drawn around a whole block; keep markers aligned with it
 		double originX = MinimapTexture.centreX() + 0.5;
 		double originZ = MinimapTexture.centreZ() + 0.5;
+		mist(g, x, y, size, cx + (px - originX) / scale, cy + (pz - originZ) / scale, scale);
 
 		GlobalPos bell = player.getAttached(MistinnAttachments.BELL);
 		if (bell != null && bell.dimension() == player.level().dimension()) {
@@ -101,6 +102,30 @@ public final class MinimapHud implements HudElement {
 		}
 		g.item(this.saltIcon, x + size - font.width(amount) - 18, textY - 5);
 		g.text(font, amount, x + size - font.width(amount), textY, SALT_TEXT, true);
+	}
+
+	/**
+	 * The shore mist over the map: near a lighthouse the map is greyed out beyond a little way round
+	 * the hunter, as far as they could see in the mist and no further.
+	 */
+	private static void mist(final GuiGraphicsExtractor g, final int x, final int y, final int size, final double hx, final double hy, final int scale) {
+		float mist = life.shizune.mistinn.client.mist.ShoreMistClient.density();
+		if (mist <= 0.01F) {
+			return;
+		}
+		float sight = life.shizune.mistinn.client.mist.ShoreMistClient.MAP_SIGHT / scale;
+		// the clear ring opens out as the mist thins
+		float clear = sight + (1.0F - mist) * size;
+		int cell = 2;
+		for (int my = 0; my < size; my += cell) {
+			for (int mx = 0; mx < size; mx += cell) {
+				double d = Math.hypot(x + mx + cell / 2.0 - hx, y + my + cell / 2.0 - hy);
+				float a = mist * Mth.clamp((float) (d - clear) / (sight * 0.75F), 0.0F, 1.0F) * 0.94F;
+				if (a > 0.02F) {
+					g.fill(x + mx, y + my, x + mx + cell, y + my + cell, (int) (a * 255.0F) << 24 | 0x9EA4A8);
+				}
+			}
+		}
 	}
 
 	/** Map position of an offset in blocks; clamped onto the edge when it is off the map. [x, y, inside] */
