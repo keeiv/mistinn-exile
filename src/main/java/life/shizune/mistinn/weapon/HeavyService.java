@@ -265,6 +265,7 @@ public final class HeavyService {
 		life.shizune.mistinn.enemy.NoiseService.emit(player, life.shizune.mistinn.enemy.NoiseService.Noise.HEAVY);
 		ServerLevel level = player.level();
 		PENDING.add(new Strike(player.getUUID(), level.dimension(), style, special, shape, charge, damage, level.getGameTime() + shape.landTicks(), shape.hits()));
+		life.shizune.mistinn.voice.Voice.effort(player);
 		Weapons.Profile profile = Weapons.profile(stack);
 		if (profile != null) {
 			level.playSound(null, player.getX(), player.getEyeY() - 0.3, player.getZ(), profile.swing(), SoundSource.PLAYERS,

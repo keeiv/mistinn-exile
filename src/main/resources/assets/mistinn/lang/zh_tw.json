@@ -1172,5 +1172,18 @@
   "subtitles.mistinn.ui.grid.pickup.glass": "瓶子輕響",
   "subtitles.mistinn.ui.grid.pickup.paper": "書頁翻動",
   "subtitles.mistinn.ui.grid.pickup.wood": "拿起木頭",
-  "subtitles.mistinn.ambient.shore_mist": "霧裡的浪聲與風"
+  "subtitles.mistinn.ambient.shore_mist": "霧裡的浪聲與風",
+  "voice.mistinn.title": "你的聲音",
+  "voice.mistinn.question": "要用哪一種聲音進行遊戲？受傷、用力、喘不過氣的時候，都會聽見它。",
+  "voice.mistinn.male": "男聲",
+  "voice.mistinn.female": "女聲",
+  "voice.mistinn.listen": "試聽",
+  "voice.mistinn.note": "會跟著這位獵人保存。",
+  "subtitles.mistinn.voice.hurt": "獵人痛呼",
+  "subtitles.mistinn.voice.hurt_bad": "獵人慘叫",
+  "subtitles.mistinn.voice.effort": "獵人使勁",
+  "subtitles.mistinn.voice.land": "獵人重重落地",
+  "subtitles.mistinn.voice.death": "獵人倒下",
+  "subtitles.mistinn.voice.breath": "獵人喘息",
+  "subtitles.mistinn.voice.pant": "獵人喘不過氣"
 }
