@@ -146,6 +146,30 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `step/wool_3.ogg` | `kenney_impact:footstep_carpet_002` | CC0 1.0 sources |
 | `step/wool_4.ogg` | `kenney_impact:footstep_carpet_003` | CC0 1.0 sources |
 | `step/wool_5.ogg` | `kenney_impact:footstep_carpet_004` | CC0 1.0 sources |
+| `step/grass_fall_1.ogg` | `kenney_impact:footstep_grass_001`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
+| `step/grass_fall_2.ogg` | `kenney_impact:footstep_grass_002`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
+| `step/grass_fall_3.ogg` | `kenney_impact:footstep_grass_003`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
+| `step/gravel_fall_1.ogg` | `kenney_rpg:footstep00`; `synth:stone crunch grains, landing thump` | CC0 1.0 sources + project synthesis |
+| `step/gravel_fall_2.ogg` | `kenney_rpg:footstep01`; `synth:stone crunch grains, landing thump` | CC0 1.0 sources + project synthesis |
+| `step/gravel_fall_3.ogg` | `kenney_rpg:footstep02`; `synth:stone crunch grains, landing thump` | CC0 1.0 sources + project synthesis |
+| `step/metal_fall_1.ogg` | `kenney_impact:footstep_concrete_001`; `kenney_impact:impactMetal_heavy_000`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
+| `step/metal_fall_2.ogg` | `kenney_impact:footstep_concrete_002`; `kenney_impact:impactMetal_heavy_001`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
+| `step/metal_fall_3.ogg` | `kenney_impact:footstep_concrete_003`; `kenney_impact:impactMetal_heavy_002`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
+| `step/sand_fall_1.ogg` | `kenney_rpg:footstep05`; `synth:slipping sand grains, landing thump` | CC0 1.0 sources + project synthesis |
+| `step/sand_fall_2.ogg` | `kenney_rpg:footstep06`; `synth:slipping sand grains, landing thump` | CC0 1.0 sources + project synthesis |
+| `step/sand_fall_3.ogg` | `kenney_rpg:footstep07`; `synth:slipping sand grains, landing thump` | CC0 1.0 sources + project synthesis |
+| `step/snow_fall_1.ogg` | `kenney_impact:footstep_snow_001`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
+| `step/snow_fall_2.ogg` | `kenney_impact:footstep_snow_002`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
+| `step/snow_fall_3.ogg` | `kenney_impact:footstep_snow_003`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
+| `step/stone_fall_1.ogg` | `kenney_impact:footstep_concrete_001`; `synth:landing thump, grit` | CC0 1.0 sources + project synthesis |
+| `step/stone_fall_2.ogg` | `kenney_impact:footstep_concrete_002`; `synth:landing thump, grit` | CC0 1.0 sources + project synthesis |
+| `step/stone_fall_3.ogg` | `kenney_impact:footstep_concrete_003`; `synth:landing thump, grit` | CC0 1.0 sources + project synthesis |
+| `step/wood_fall_1.ogg` | `kenney_impact:footstep_wood_001`; `kenney_impact:impactWood_medium_000`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
+| `step/wood_fall_2.ogg` | `kenney_impact:footstep_wood_002`; `kenney_impact:impactWood_medium_001`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
+| `step/wood_fall_3.ogg` | `kenney_impact:footstep_wood_003`; `kenney_impact:impactWood_medium_002`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
+| `step/wool_fall_1.ogg` | `kenney_impact:footstep_carpet_001`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
+| `step/wool_fall_2.ogg` | `kenney_impact:footstep_carpet_002`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
+| `step/wool_fall_3.ogg` | `kenney_impact:footstep_carpet_003`; `synth:landing thump` | CC0 1.0 sources + project synthesis |
 | `entity/salt_corpse/ambient_1.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
 | `entity/salt_corpse/ambient_2.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |
 | `entity/salt_corpse/hurt_1.ogg` | `synth:dry rasp through narrow resonances, salt-crust crackle, low thuds` | project synthesis |

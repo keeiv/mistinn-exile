@@ -14,7 +14,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * 腳步與裝備: walking on stone, wood, grass, gravel, sand, snow, wool or metal sounds like the ground it is, from the mod's
+ * 腳步與裝備: walking on (and landing on) stone, wood, grass, gravel, sand, snow, wool or metal sounds like the ground it is, from the mod's
  * own recordings in place of the game's; a helmet is knocked on as a hard shell, a mask strapped on with a breath
  * through its filter.
  */
@@ -22,7 +22,9 @@ import net.minecraft.world.item.ItemStack;
 public final class MistinnRealSoundsTest implements FabricClientGameTest {
 	/** One step event of each ground the mod records anew. */
 	private static final List<String> STEPS = List.of("block.stone.step", "block.deepslate.step", "block.wood.step", "block.grass.step",
-		"block.gravel.step", "block.sand.step", "block.snow.step", "block.wool.step", "block.metal.step", "block.copper.step");
+		"block.gravel.step", "block.sand.step", "block.snow.step", "block.wool.step", "block.metal.step", "block.copper.step",
+		// and landing on it from a height
+		"block.stone.fall", "block.wood.fall", "block.grass.fall", "block.gravel.fall", "block.sand.fall", "block.metal.fall");
 
 	@Override
 	public void runTest(final ClientGameTestContext context) {
