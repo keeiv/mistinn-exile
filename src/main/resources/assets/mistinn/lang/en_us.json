@@ -275,6 +275,7 @@
   "message.mistinn.snuffer.sealed": "The mist closes the way you came.",
   "message.mistinn.snuffer.dark": "Every lamp is out. Light the lamp stands.",
   "message.mistinn.snuffer.stagger": "All four lamps burn: the Snuffer staggers!",
+  "message.mistinn.snuffer.stagger_blows": "Blow on heavy blow: the Snuffer staggers!",
   "key.mistinn.swing_camera": "View follows the swing",
   "message.mistinn.swing_camera.on": "Swing view: on",
   "message.mistinn.swing_camera.off": "Swing view: off",

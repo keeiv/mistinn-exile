@@ -61,6 +61,9 @@ public class Snuffer extends Monster {
 	private static final int ROOM_RADIUS = 12;
 	public static final int STAGGER_TICKS = 100;
 	public static final float STAGGER_DAMAGE = 1.5F;
+	/** Full heavy blows that throw it off balance, each landing within {@link #POISE_WINDOW} ticks of the last. */
+	public static final int POISE_BREAK = 3;
+	public static final int POISE_WINDOW = 200;
 
 	/** The move being run, as its index in {@link SnufferMoves#SET} plus one (0: none), for the client. */
 	private static final EntityDataAccessor<Byte> DATA_MOVE = SynchedEntityData.defineId(Snuffer.class, EntityDataSerializers.BYTE);
@@ -81,6 +84,9 @@ public class Snuffer extends Monster {
 	private @Nullable LivingEntity aimedAt;
 	private boolean dark;
 	private int staggered;
+	/** Full heavy blows taken in a row, and how long until it has its feet under it again. */
+	private int poise;
+	private int poiseTimer;
 	private int snuffTimer;
 
 	public Snuffer(final EntityType<? extends Snuffer> type, final Level level) {
@@ -162,6 +168,30 @@ public class Snuffer extends Monster {
 		return this.staggered > 0;
 	}
 
+	/** How many full heavy blows it has taken in a row, toward {@link #POISE_BREAK}. */
+	public int poise() {
+		return this.poise;
+	}
+
+	/**
+	 * A full heavy blow lands: its frame groans, and the third in a row, each within ten seconds of the last,
+	 * throws it off balance as the four lit lamps do. A keeper already off balance takes no count.
+	 */
+	public void takeHeavyBlow(final ServerLevel level) {
+		if (this.staggered > 0 || this.isDeadOrDying()) {
+			return;
+		}
+		this.poise++;
+		this.poiseTimer = POISE_WINDOW;
+		if (this.poise >= POISE_BREAK) {
+			this.poise = 0;
+			this.poiseTimer = 0;
+			this.stagger(level, "message.mistinn.snuffer.stagger_blows");
+			return;
+		}
+		level.playSound(null, this.blockPosition(), SoundEvents.CHAIN_BREAK, SoundSource.HOSTILE, 1.2F, 0.5F + 0.15F * this.poise);
+	}
+
 	// ── Every tick ────────────────────────────────────────────────
 
 	@Override
@@ -186,6 +216,9 @@ public class Snuffer extends Monster {
 		Player hunter = chosen == null ? null : level.getPlayerByUUID(chosen);
 		this.setTarget(hunter);
 		LivingEntity target = hunter;
+		if (this.poiseTimer > 0 && --this.poiseTimer == 0) {
+			this.poise = 0;
+		}
 		if (this.staggered > 0) {
 			this.staggered--;
 			this.getNavigation().stop();
@@ -320,7 +353,7 @@ public class Snuffer extends Monster {
 		List<BlockPos> lamps = this.lamps(level);
 		long lit = lamps.stream().filter(pos -> level.getBlockState(pos).getValue(LampStandBlock.LIT)).count();
 		if (this.staggered <= 0 && lamps.size() >= 4 && lit == lamps.size()) {
-			this.stagger(level);
+			this.stagger(level, "message.mistinn.snuffer.stagger");
 		}
 		// after a stagger it snuffs the lamps again, one at a time: as soon as it is free between moves, it turns to one
 		if (this.staggered <= 0 && lit > 0 && --this.snuffTimer <= 0 && !this.runner.running()) {
@@ -341,13 +374,13 @@ public class Snuffer extends Monster {
 		}
 	}
 
-	private void stagger(final ServerLevel level) {
+	private void stagger(final ServerLevel level, final String message) {
 		this.staggered = STAGGER_TICKS;
 		this.snuffTimer = STAGGER_TICKS + 40;
 		this.perform("stagger");
 		level.playSound(null, this.blockPosition(), SoundEvents.BELL_BLOCK, SoundSource.HOSTILE, 2.0F, 0.6F);
 		for (ServerPlayer player : this.bar.getPlayers()) {
-			player.sendSystemMessage(Component.translatable("message.mistinn.snuffer.stagger"), true);
+			player.sendSystemMessage(Component.translatable(message), true);
 		}
 	}
 

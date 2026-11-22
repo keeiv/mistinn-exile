@@ -386,6 +386,9 @@ public final class HeavyService {
 			target.igniteForSeconds(2.0F);
 		}
 		if (full && target instanceof Mob mob) {
+			if (mob instanceof life.shizune.mistinn.keeper.Snuffer keeper) {
+				keeper.takeHeavyBlow(level);
+			}
 			if (WindupService.interrupt(mob)) {
 				life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.BREAK_WINDUP);
 			}
