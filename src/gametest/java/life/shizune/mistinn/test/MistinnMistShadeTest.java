@@ -2,6 +2,8 @@ package life.shizune.mistinn.test;
 
 import java.util.List;
 import java.util.Set;
+import life.shizune.mistinn.client.enemy.EnemyMotion;
+import life.shizune.mistinn.client.shore.MistShadeModel;
 import life.shizune.mistinn.enemy.EnemyRig;
 import life.shizune.mistinn.enemy.WindupService;
 import life.shizune.mistinn.keeper.Snuffer;
@@ -15,6 +17,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.minecraft.client.CameraType;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -25,6 +28,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * 霧影: only ever met in a lighthouse's mist, thinning away out of it; its touch blinds. As the
@@ -49,6 +53,7 @@ public final class MistinnMistShadeTest implements FabricClientGameTest {
 			world.getServer().runCommand("difficulty normal");
 			context.runOnClient(mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
 			world.getServer().runOnServer(server -> check(EnemyRig.of(MistinnEntities.MIST_SHADE) == EnemyRig.UNDEAD, "it moves as the undead do"));
+			drawnWithoutLegs(context);
 
 			// out of any mist: it thins away
 			int lost = world.getServer().computeOnServer(server -> {
@@ -149,6 +154,44 @@ public final class MistinnMistShadeTest implements FabricClientGameTest {
 				player.setGameMode(GameType.CREATIVE);
 			});
 		}
+	}
+
+	/**
+	 * It is drawn on its own frame, not the zombie's: no legs, only tails of mist that never reach the ground,
+	 * standing or rocked back, and no taller than the space it takes.
+	 */
+	private static void drawnWithoutLegs(final ClientGameTestContext context) {
+		for (float side : new float[] {-1.0F, 0.0F, 1.0F}) {
+			float[] shape = context.computeOnClient(mc -> {
+				MistShade entity = MistinnEntities.MIST_SHADE.create(mc.level, EntitySpawnReason.COMMAND);
+				// a model only, never added to the world: it still needs an id to be drawn
+				entity.setId(-4242);
+				check(((LivingEntityRenderer<?, ?, ?>) mc.getEntityRenderDispatcher().getRenderer(entity)).getModel() instanceof MistShadeModel,
+					"it is drawn on its own frame");
+				List<ClipProbe.Box> rest = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> { }, true, null, null);
+				List<ClipProbe.Box> rocked = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> {
+					EnemyMotion.Sample sample = state.getData(EnemyMotion.KEY);
+					state.setData(EnemyMotion.KEY, sample.rocked(1.0F, side));
+				}, true, null, null);
+				return new float[] {reach(rest, -1.0F), reach(rocked, -1.0F), reach(rest, 1.0F)};
+			});
+			check(shape[0] > 0.03F, "it has no feet: its tails hang clear of the ground: lowest " + shape[0]);
+			check(shape[1] > -0.06F, "rocked back (side " + side + "), nothing of it sinks into the ground: lowest " + shape[1]);
+			check(shape[2] < 1.95F, "no taller than the space it takes: top " + shape[2]);
+		}
+	}
+
+	/** The lowest (-1) or highest (1) any of the boxes reaches. */
+	private static float reach(final List<ClipProbe.Box> boxes, final float up) {
+		float most = -Float.MAX_VALUE;
+		for (ClipProbe.Box box : boxes) {
+			float half = 0.0F;
+			for (int i = 0; i < 3; i++) {
+				half += box.half()[i] * Math.abs(box.axes()[i].y);
+			}
+			most = Math.max(most, up * box.center().y + half);
+		}
+		return up * most;
 	}
 
 	private static ServerPlayer player(final MinecraftServer server) {
