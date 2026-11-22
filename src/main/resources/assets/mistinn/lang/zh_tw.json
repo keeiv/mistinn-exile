@@ -275,6 +275,7 @@
   "message.mistinn.snuffer.sealed": "霧封住了來路。",
   "message.mistinn.snuffer.dark": "燈全熄了。點亮燈台。",
   "message.mistinn.snuffer.stagger": "四座燈台都亮了，熄燈人站不穩！",
+  "message.mistinn.snuffer.stagger_blows": "一記接一記的重擊，熄燈人站不穩！",
   "key.mistinn.swing_camera": "揮擊時視角跟著動",
   "message.mistinn.swing_camera.on": "揮擊視角：開",
   "message.mistinn.swing_camera.off": "揮擊視角：關",
