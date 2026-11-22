@@ -33,7 +33,7 @@ public final class StationTalk {
 		Map.entry(StaffRole.SCOUT, List.of("hearing", "smell", "pack", "stare", "outside")),
 		Map.entry(StaffRole.DOCTOR, List.of("body", "bleed", "fracture", "meds", "patients")),
 		Map.entry(StaffRole.ARCHIVIST, List.of("guide", "stats", "skills", "achievements", "map", "records")),
-		Map.entry(StaffRole.BELL_KEEPER, List.of("bell", "death", "wall", "return", "light")),
+		Map.entry(StaffRole.BELL_KEEPER, List.of("bell", "death", "wall", "return", "light", "fogbell")),
 		Map.entry(StaffRole.RADIO_OPERATOR, List.of("radio", "helm", "static")),
 		Map.entry(StaffRole.CRANE_OPERATOR, List.of("pod", "count")));
 

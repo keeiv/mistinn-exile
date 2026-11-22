@@ -1137,5 +1137,8 @@
   "subtitles.mistinn.entity.sunken_bell.bell_drop": "沉鐘蹲低，鐘裡咕嚕作響",
   "item.mistinn.bell_clapper": "鐘舌",
   "item.mistinn.bell_clapper.lore.1": "沉鐘的鐘舌。敲一下，連自己的鐘都會回話。",
-  "item.mistinn.hunter_guide.page.21": "【鐘舌】\n\n打倒沉鐘、力量 4。\n\n蓄滿的重擊敲出一圈聲波，打斷身邊六格內所有正在預備出手的敵人，打不打得到都算。\n\n沉鐘倒下時掉落。"
+  "item.mistinn.hunter_guide.page.21": "【鐘舌】\n\n打倒沉鐘、力量 4。\n\n蓄滿的重擊敲出一圈聲波，打斷身邊六格內所有正在預備出手的敵人，打不打得到都算。\n\n沉鐘倒下時掉落。",
+  "staff.mistinn.bell_keeper.ask.fogbell": "霧裡的鐘聲",
+  "staff.mistinn.bell_keeper.fogbell.0": "海上有座霧鐘台。從前起霧時，有人在那裡敲鐘，替船指回家的路。",
+  "staff.mistinn.bell_keeper.fogbell.1": "後來他也沒回來。起霧的夜裡，那口鐘還是會響。……一聲，又一聲。"
 }
