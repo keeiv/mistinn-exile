@@ -160,7 +160,7 @@ public final class MistinnSaltCorpseTest implements FabricClientGameTest {
 			ServerPlayer player = player(server);
 			int brought = 0;
 			for (int i = 0; i < 40; i++) {
-				SaltCorpse corpse = ShoreSpawner.tryOnce(player);
+				net.minecraft.world.entity.Mob corpse = ShoreSpawner.tryOnce(player, i % 3 == 2);
 				if (corpse != null) {
 					brought++;
 					double distance = Math.hypot(corpse.getX() - player.getX(), corpse.getZ() - player.getZ());
@@ -168,8 +168,10 @@ public final class MistinnSaltCorpseTest implements FabricClientGameTest {
 				}
 			}
 			check(brought > 0, "in the mist, the dead come up");
-			int round = server.overworld().getEntitiesOfClass(SaltCorpse.class, player.getBoundingBox().inflate(ShoreSpawner.NEAR)).size();
+			int round = ShoreSpawner.round(server.overworld(), player);
 			check(round <= ShoreSpawner.CAP, "but never more than a few round one hunter: " + round);
+			check(!server.overworld().getEntitiesOfClass(life.shizune.mistinn.shore.LampThrall.class, player.getBoundingBox().inflate(ShoreSpawner.NEAR)).isEmpty(),
+				"lamp thralls among them");
 			player.setGameMode(GameType.CREATIVE);
 		});
 	}

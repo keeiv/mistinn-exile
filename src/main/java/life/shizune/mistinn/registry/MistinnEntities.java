@@ -2,6 +2,7 @@ package life.shizune.mistinn.registry;
 
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.keeper.Snuffer;
+import life.shizune.mistinn.shore.LampThrall;
 import life.shizune.mistinn.shore.SaltCorpse;
 import life.shizune.mistinn.station.StationHand;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -27,6 +28,12 @@ public final class MistinnEntities {
 		.eyeHeight(1.74F)
 		.clientTrackingRange(8));
 
+	/** 燈奴: a hooded lamplighter of the dead lighthouses; its lantern flares before it rushes. */
+	public static final EntityType<LampThrall> LAMP_THRALL = register("lamp_thrall", EntityType.Builder.<LampThrall>of(LampThrall::new, MobCategory.MONSTER)
+		.sized(0.6F, 1.95F)
+		.eyeHeight(1.74F)
+		.clientTrackingRange(8));
+
 	/** The people of Rust Anchor, in the player model. */
 	public static final EntityType<StationHand> STATION_HAND = register("station_hand", EntityType.Builder.<StationHand>of(StationHand::new, MobCategory.MISC)
 		.sized(0.6F, 1.8F)
@@ -45,5 +52,6 @@ public final class MistinnEntities {
 		FabricDefaultAttributeRegistry.register(SNUFFER, Snuffer.createAttributes());
 		FabricDefaultAttributeRegistry.register(STATION_HAND, StationHand.createAttributes());
 		FabricDefaultAttributeRegistry.register(SALT_CORPSE, SaltCorpse.createAttributes());
+		FabricDefaultAttributeRegistry.register(LAMP_THRALL, LampThrall.createAttributes());
 	}
 }

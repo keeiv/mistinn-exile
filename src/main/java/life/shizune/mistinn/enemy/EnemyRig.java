@@ -44,11 +44,14 @@ public enum EnemyRig {
 
 	/**
 	 * The vanilla creature a creature of the mod fights like (its rig, its finisher, its windup cry):
-	 * the salt corpse is a husk underneath. Any other creature is its own kin.
+	 * the salt corpse is a husk underneath, the lamp thrall a zombie. Any other creature is its own kin.
 	 */
 	public static Identifier kin(final EntityType<?> type) {
 		Identifier id = EntityType.getKey(type);
-		return id.equals(life.shizune.mistinn.Mistinn.id("salt_corpse")) ? Identifier.withDefaultNamespace("husk") : id;
+		if (id.equals(life.shizune.mistinn.Mistinn.id("salt_corpse"))) {
+			return Identifier.withDefaultNamespace("husk");
+		}
+		return id.equals(life.shizune.mistinn.Mistinn.id("lamp_thrall")) ? Identifier.withDefaultNamespace("zombie") : id;
 	}
 
 	public static @Nullable EnemyRig of(final EntityType<?> type) {
