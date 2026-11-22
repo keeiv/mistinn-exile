@@ -274,6 +274,18 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		check(has(world, Achievement.SNUFFER), "the Snuffer falling near is remembered");
 		int gained = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - before;
 		check(gained == Achievement.SNUFFER.reward, "and pays 1000 (it was not the hunter's own blow): " + gained);
+		int beforeBell = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
+		world.getServer().runOnServer(server -> {
+			life.shizune.mistinn.keeper.SunkenBell bell = MistinnEntities.SUNKEN_BELL.create(server.overworld(), EntitySpawnReason.COMMAND);
+			bell.setNoAi(true);
+			bell.snapTo(arena.getX() + 0.5, arena.getY(), arena.getZ() + 8.5, 180.0F, 0.0F);
+			server.overworld().addFreshEntity(bell);
+			bell.kill(server.overworld());
+		});
+		context.waitTicks(5);
+		check(has(world, Achievement.SUNKEN_BELL), "so is the Sunken Bell falling near");
+		int gainedBell = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeBell;
+		check(gainedBell == Achievement.SUNKEN_BELL.reward, "and pays 1200: " + gainedBell);
 		world.getServer().runOnServer(server -> {
 			ServerPlayer player = player(server);
 			player.removeAttached(MistinnAttachments.WOUNDS);
@@ -320,7 +332,7 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		int server = world.getServer().computeOnServer(s -> AchievementService.earned(player(s)));
 		context.waitTicks(5);
 		int client = context.computeOnClient(mc -> AchievementService.earned(mc.player));
-		check(client == server && client == Achievement.values().length, "the client knows all fifteen: " + client + " / " + server);
+		check(client == server && client == Achievement.values().length, "the client knows every one: " + client + " / " + server);
 		// a fresh record, half earned, for the picture of the page
 		world.getServer().runOnServer(s -> {
 			ServerPlayer player = player(s);
