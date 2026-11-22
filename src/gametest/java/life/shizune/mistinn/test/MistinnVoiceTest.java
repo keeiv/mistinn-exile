@@ -78,13 +78,17 @@ public final class MistinnVoiceTest implements FabricClientGameTest {
 				});
 				context.waitTicks(30);
 				check(heard.contains("voice.female.hurt"), "a blow is heard in the hunter's own voice: " + heard);
-				heard.clear();
+				// every part worn down to a quarter: health follows the body, and each client judges the wound by the health it last heard of
 				world.getServer().runOnServer(server -> {
 					ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
-					player.setHealth(player.getMaxHealth() * 0.3F);
+					life.shizune.mistinn.body.Body body = life.shizune.mistinn.body.BodyService.get(player);
+					for (life.shizune.mistinn.body.BodyPart part : life.shizune.mistinn.body.BodyPart.values()) {
+						body = body.with(part, life.shizune.mistinn.body.BodyService.max(player) * 0.25F);
+					}
+					life.shizune.mistinn.body.BodyService.set(player, body);
 				});
-				// each client judges the wound by the health it last heard of
-				context.waitTicks(10);
+				context.waitFor(mc -> mc.player.getHealth() < mc.player.getMaxHealth() * Voice.BAD, 100);
+				heard.clear();
 				world.getServer().runOnServer(server -> {
 					ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
 					player.hurtServer(server.overworld(), player.damageSources().generic(), 1.0F);
