@@ -67,6 +67,7 @@ public final class MistinnSunkenBellTest implements FabricClientGameTest {
 			});
 			context.waitTicks(10);
 			drawnOnItsOwnFrame(context);
+			clapperStrikesTheCrown(context);
 			photographed(context, world, stage);
 			tollTakesTheHead(context, world, stage);
 			tollThickensTheMist(context, world, stage);
@@ -177,6 +178,45 @@ public final class MistinnSunkenBellTest implements FabricClientGameTest {
 			player(server).setGameMode(GameType.SURVIVAL);
 		});
 		context.waitFor(mc -> ShoreMistClient.lastEnd() < 0.0F, 300);
+	}
+
+	/** At the stroke of a toll the clapper's bulb comes down on the crown of the bell; standing, it is nowhere near it. */
+	private static void clapperStrikesTheCrown(final ClientGameTestContext context) {
+		float[] got = context.computeOnClient(mc -> {
+			SunkenBell entity = MistinnEntities.SUNKEN_BELL.create(mc.level, EntitySpawnReason.COMMAND);
+			entity.setId(-4244);
+			List<ClipProbe.Box> stroke = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> {
+				if (state instanceof life.shizune.mistinn.client.keeper.SunkenBellRenderState bell) {
+					bell.move = "toll";
+					bell.moveTicks = 20.0F;
+					bell.moveLength = BellMoves.TOLL.length();
+				}
+			}, true, null, null);
+			List<ClipProbe.Box> rest = ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> { }, true, null, null);
+			return new float[] {gap(stroke), gap(rest)};
+		});
+		check(got[0] < 0.3F, "at the stroke the clapper's bulb comes down on the crown of the bell: " + got[0] + " blocks off");
+		check(got[1] > 1.0F, "standing, it is nowhere near: " + got[1]);
+	}
+
+	/** How far the clapper's bulb (the biggest box of the clapper) is from the crown (the highest box of the bell), in blocks. */
+	private static float gap(final List<ClipProbe.Box> boxes) {
+		ClipProbe.Box bulb = null;
+		ClipProbe.Box crown = null;
+		for (ClipProbe.Box box : boxes) {
+			if (box.path().endsWith("/clapper") && (bulb == null || volume(box) > volume(bulb))) {
+				bulb = box;
+			}
+			if (box.path().startsWith("/head") && (crown == null || box.center().y > crown.center().y)) {
+				crown = box;
+			}
+		}
+		check(bulb != null && crown != null, "the clapper and the bell are both there");
+		return bulb.center().distance(crown.center());
+	}
+
+	private static float volume(final ClipProbe.Box box) {
+		return box.half()[0] * box.half()[1] * box.half()[2];
 	}
 
 	// ── The toll ──────────────────────────────────────────────────

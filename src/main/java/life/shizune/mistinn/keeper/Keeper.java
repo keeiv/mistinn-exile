@@ -91,6 +91,11 @@ public abstract class Keeper extends Monster {
 	protected void roomRules(final ServerLevel level) {
 	}
 
+	/** The room whose way out the mist shuts while a hunter is in it with the keeper, or null when it stands in no such room. */
+	protected MistWall.@Nullable Room sealedRoom(final ServerLevel level) {
+		return null;
+	}
+
 	/** Thrown off balance, by whatever did it: what else its room does about that. */
 	protected void staggeredBy(final ServerLevel level) {
 	}
@@ -185,6 +190,7 @@ public abstract class Keeper extends Monster {
 		super.customServerAiStep(level);
 		this.bar.setProgress(this.getHealth() / this.getMaxHealth());
 		this.updateBarViewers(level);
+		MistWall.tick(this, level);
 		this.roomRules(level);
 		if (this.home == null) {
 			this.home = this.position();
@@ -283,9 +289,13 @@ public abstract class Keeper extends Monster {
 		this.runner.leash(centre, radius);
 	}
 
-	/** A dead keeper finishes nothing it began. */
+	/** A dead keeper finishes nothing it began, and the mist lets the way down go. */
 	@Override
 	public void die(final DamageSource source) {
+		if (this.level() instanceof ServerLevel level) {
+			// the mist lets the way down go
+			MistWall.fallen(this, level);
+		}
 		this.runner.stop();
 		this.setNoGravity(false);
 		this.setInvisible(false);

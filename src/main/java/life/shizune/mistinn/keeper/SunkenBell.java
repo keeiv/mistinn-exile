@@ -128,6 +128,20 @@ public class SunkenBell extends Keeper {
 		return distance <= MIST_REACH ? SIGHT[this.layers()] : Float.POSITIVE_INFINITY;
 	}
 
+	/** The belfry: the deck it first stood on, when the great bell hangs over it; none elsewhere. */
+	@Override
+	protected MistWall.@org.jspecify.annotations.Nullable Room sealedRoom(final ServerLevel level) {
+		if (this.home == null) {
+			return null;
+		}
+		BlockPos centre = BlockPos.containing(this.home);
+		int lip = life.shizune.mistinn.world.BellTower.BELL_LIP - life.shizune.mistinn.world.BellTower.DECK - 1;
+		if (!level.getBlockState(centre.offset(2, lip, 0)).is(net.minecraft.world.level.block.Blocks.CUT_COPPER.waxed().exposed())) {
+			return null;
+		}
+		return new MistWall.Room(centre, centre.getY() - 1, life.shizune.mistinn.world.BellTower.DECK_RADIUS, life.shizune.mistinn.world.BellTower.DECK_RADIUS - 0.8);
+	}
+
 	@Override
 	protected void roomRules(final ServerLevel level) {
 		if (!this.cracked && this.getHealth() <= this.getMaxHealth() / 2.0F) {

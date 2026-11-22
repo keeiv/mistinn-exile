@@ -92,8 +92,41 @@ public final class MistinnBellTowerTest implements FabricClientGameTest {
 					check(ShoreMist.lighthouses(level).contains(deck), "the mist is remembered round it: " + ShoreMist.lighthouses(level));
 				}
 			});
+			sealsTheHatch(context, world);
 			photographed(context, world);
 		}
+	}
+
+	/** Up in the belfry with its keeper, the mist shuts the hatch; when the keeper falls it opens again. */
+	private static void sealsTheHatch(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		BlockPos origin = world.getServer().computeOnServer(server -> {
+			ServerLevel level = server.overworld();
+			var player = server.getPlayerList().getPlayers().getFirst();
+			int x = (int) player.getX() + 20;
+			int z = (int) player.getZ() + 120;
+			level.getChunk(x >> 4, z >> 4);
+			BlockPos at = new BlockPos(x, level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z), z);
+			BellTower.build(new Builder(level, at, RandomSource.create(13L)));
+			level.getEntitiesOfClass(SaltCorpse.class, new AABB(at).inflate(16.0)).forEach(SaltCorpse::discard);
+			player.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+			player.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.RESISTANCE, 400, 4, false, false));
+			player.teleportTo(level, at.getX() - 4.5, at.getY() + BellTower.DECK + 1.0, at.getZ() + 0.5, java.util.Set.of(), 270.0F, 0.0F, true);
+			return at;
+		});
+		BlockPos hatch = origin.offset(3, BellTower.DECK, 0);
+		context.waitTicks(20);
+		world.getServer().runOnServer(server -> {
+			ServerLevel level = server.overworld();
+			check(level.getBlockState(hatch).is(net.minecraft.world.level.block.Blocks.BARRIER), "up in the belfry, the mist shuts the hatch: " + level.getBlockState(hatch));
+			SunkenBell bell = level.getEntitiesOfClass(SunkenBell.class, new AABB(origin).inflate(20.0)).getFirst();
+			check(life.shizune.mistinn.keeper.MistWall.shut(bell, level), "its room says it is shut");
+			bell.kill(level);
+		});
+		context.waitTicks(5);
+		world.getServer().runOnServer(server -> {
+			check(server.overworld().getBlockState(hatch).isAir(), "the keeper fallen, the way down opens: " + server.overworld().getBlockState(hatch));
+			server.getPlayerList().getPlayers().getFirst().removeAllEffects();
+		});
 	}
 
 	/** Stills for the eye: the station from the shore, and the belfry from the top of the stair. */
