@@ -25,7 +25,9 @@ import net.minecraft.world.phys.Vec3;
 public final class MistinnLootTablesTest implements FabricClientGameTest {
 	/** Each chest table, and how much salt one stack of it holds, least to most. */
 	private static final Map<String, int[]> SALT = Map.of(
+		"chests/lighthouse_base", new int[] {2, 5},
 		"chests/lighthouse", new int[] {2, 8},
+		"chests/lighthouse_lamp", new int[] {6, 16},
 		"chests/salt_cairn", new int[] {4, 12},
 		"chests/anchor_wreck", new int[] {3, 8},
 		"chests/watchpost", new int[] {4, 10},

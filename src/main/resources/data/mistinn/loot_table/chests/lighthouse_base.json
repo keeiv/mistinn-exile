@@ -1,0 +1,134 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 2,
+        "max": 4
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:salt",
+          "weight": 20,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 2,
+              "max": 5
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bread",
+          "weight": 12,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 3
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:torch",
+          "weight": 8,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 2,
+              "max": 6
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:tourniquet",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:splint",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:stone_blade",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:stone_spear",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:stone_hammer",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:stone_dagger",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_1",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_1",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:mask_1",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:rig_1",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:leggings_1",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:boots_1",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_1",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_2",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_2",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:mask_2",
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "random_sequence": "mistinn:chests/lighthouse_base"
+}

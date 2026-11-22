@@ -1044,6 +1044,7 @@ public final class Structures {
 		lighthouseShaft(b);
 		lighthouseBell(b);
 		lighthouseGallery(b);
+		lighthouseStores(b);
 		keeperCottage(b);
 		b.settle();
 		b.spawn(MistinnEntities.SNUFFER, 0, LAMP_ROOM + 1, 3, 180.0F);
@@ -1187,6 +1188,24 @@ public final class Structures {
 				}
 			}
 		}
+	}
+
+	/** Where, under the high end of the first turn of the stair, the barrel at its foot may stand, first choice first. */
+	private static final int[][] FOOT_BARREL = {{2, 0}, {2, 1}, {2, -1}, {3, 0}, {1, -2}, {0, -2}};
+
+	/**
+	 * The stores the higher a hunter climbs, the better (the landing's are set with the landing): a barrel of
+	 * odds and ends at the foot of the stair, where the stair has climbed high enough to stand under, and in
+	 * the lamp room, against the rail behind the keeper, a chest of the best of it.
+	 */
+	private static void lighthouseStores(final Builder b) {
+		for (int[] at : FOOT_BARREL) {
+			if (stairHeight(at[0], at[1], 1) >= 5 && b.get(at[0], 1, at[1]).isAir() && b.get(at[0], 2, at[1]).isAir()) {
+				b.container(at[0], 1, at[1], Blocks.BARREL, Direction.UP, "chests/lighthouse_base");
+				break;
+			}
+		}
+		b.container(0, LAMP_ROOM + 1, -6, Blocks.CHEST, Direction.SOUTH, "chests/lighthouse_lamp");
 	}
 
 	/** The keeper's landing halfway up, where the supplies were kept. */
