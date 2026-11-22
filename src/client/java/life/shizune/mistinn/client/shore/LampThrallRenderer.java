@@ -1,17 +1,28 @@
 package life.shizune.mistinn.client.shore;
 
 import life.shizune.mistinn.Mistinn;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.entity.AbstractZombieRenderer;
+import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.ZombieRenderer;
 import net.minecraft.client.renderer.entity.state.ZombieRenderState;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 
-/** 燈奴 drawn in the zombie's frame, hooded, its lantern in its hand. */
-public class LampThrallRenderer extends ZombieRenderer {
+/** 燈奴 drawn on its own bent, hooded frame ({@link LampThrallModel}), its lantern in its long hand. */
+public class LampThrallRenderer extends AbstractZombieRenderer<Zombie, ZombieRenderState, LampThrallModel> {
 	private static final Identifier TEXTURE = Mistinn.id("textures/entity/lamp_thrall.png");
 
 	public LampThrallRenderer(final EntityRendererProvider.Context context) {
-		super(context);
+		// a lamp thrall is never a child: the baby model is the grown one
+		super(context, new LampThrallModel(context.bakeLayer(LampThrallModel.LAYER)), new LampThrallModel(context.bakeLayer(LampThrallModel.LAYER)),
+			ArmorModelSet.bake(ModelLayers.ZOMBIE_ARMOR, context.getModelSet(), LampThrallModel::new),
+			ArmorModelSet.bake(ModelLayers.ZOMBIE_BABY_ARMOR, context.getModelSet(), LampThrallModel::new));
+	}
+
+	@Override
+	public ZombieRenderState createRenderState() {
+		return new ZombieRenderState();
 	}
 
 	@Override
