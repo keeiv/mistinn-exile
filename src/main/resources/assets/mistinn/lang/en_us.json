@@ -1140,5 +1140,21 @@
   "item.mistinn.hunter_guide.page.21": "[Bell Clapper]\n\nThe Sunken Bell slain; strength 4.\n\nA full heavy blow rings out all round and breaks off every windup within six blocks, struck or not.\n\nDropped by the Sunken Bell.",
   "staff.mistinn.bell_keeper.ask.fogbell": "The bell in the mist",
   "staff.mistinn.bell_keeper.fogbell.0": "There is a fog-bell station out on the reef. When the mist came in, someone rang the bell there to guide the boats home.",
-  "staff.mistinn.bell_keeper.fogbell.1": "He never came back either. On misty nights that bell still rings. ...Once, and again."
+  "staff.mistinn.bell_keeper.fogbell.1": "He never came back either. On misty nights that bell still rings. ...Once, and again.",
+  "subtitles.mistinn.entity.salt_corpse.ambient": "Salt corpse rasps",
+  "subtitles.mistinn.entity.salt_corpse.hurt": "Salt crust cracks",
+  "subtitles.mistinn.entity.salt_corpse.fall": "Salt corpse collapses",
+  "subtitles.mistinn.entity.salt_corpse.rise": "Salt corpse gets up",
+  "subtitles.mistinn.entity.salt_corpse.death": "Salt corpse crumbles",
+  "subtitles.mistinn.entity.salt_corpse.step": "Salt crunches",
+  "subtitles.mistinn.entity.lamp_thrall.ambient": "Lamp thrall breathes",
+  "subtitles.mistinn.entity.lamp_thrall.hurt": "Lantern glass rattles",
+  "subtitles.mistinn.entity.lamp_thrall.death": "Lantern shatters",
+  "subtitles.mistinn.entity.lamp_thrall.flare": "Lamp flares",
+  "subtitles.mistinn.entity.lamp_thrall.rush": "Lamp thrall lunges",
+  "subtitles.mistinn.entity.lamp_thrall.spend": "Lamp thrall pants",
+  "subtitles.mistinn.entity.lamp_thrall.step": "Cloak drags",
+  "subtitles.mistinn.entity.mist_shade.ambient": "Whispers in the mist",
+  "subtitles.mistinn.entity.mist_shade.hurt": "Mist shade frays",
+  "subtitles.mistinn.entity.mist_shade.death": "Mist shade disperses"
 }
