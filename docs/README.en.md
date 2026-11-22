@@ -332,6 +332,7 @@ The Sunken Bell is a drowned bell-ringer, his head and shoulders sealed in a cra
 - **Ringing it back**: a fully charged heavy blow rings his own bell at him and thins the mist a layer; three in a row throw him off balance for five seconds, taking half again as much damage, and thin the mist by two more.
 - Below half health the bell cracks: his tolls come double and the mist is slower to thin, and he leaps to bring the bell down over you: shut in under it you can neither see nor move, and he tolls with you inside. Roll out before he lands.
 - Once you are up in the belfry, the mist closes the stair behind you until he falls.
+- Left alone at night, he now and then tolls his bell by himself: it carries a long way, but no ring rolls out and no mist comes of it. Lost in the mist, you can follow the sound.
 - He drops the **Rust God's salt block**, 3500 salt, and a 30% chance of a piece of tier III–IV gear.
 
 ## Stats and skills
