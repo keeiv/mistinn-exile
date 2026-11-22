@@ -62,6 +62,7 @@ public final class MistinnMistTest implements FabricClientGameTest {
 			context.runOnClient(mc -> {
 				check(ShoreMistClient.density() == 0.0F, "two hundred blocks out there is no mist: " + ShoreMistClient.density());
 				check(ShoreMistClient.lastEnd() < 0.0F, "and the world is drawn as ever");
+				check(!life.shizune.mistinn.client.mist.ShoreAmbience.playing(), "and the shore is quiet");
 			});
 			context.takeScreenshot("mist-01-far");
 
@@ -80,11 +81,14 @@ public final class MistinnMistTest implements FabricClientGameTest {
 			float foot = context.computeOnClient(mc -> ShoreMistClient.lastEnd());
 			check(foot > 0.0F && foot <= 24.5F, "at the tower's foot the world is gone some 24 blocks away: " + foot);
 			check(halfway > foot, "halfway in, the mist is thinner than at the foot: " + halfway + " against " + foot);
+			check(context.computeOnClient(mc -> life.shizune.mistinn.client.mist.ShoreAmbience.playing()), "in the mist, the surf and the wind are heard");
 			context.takeScreenshot("mist-03-foot");
 
 			// and back out: it lifts
 			stand(context, world, lighthouse, 200);
 			context.waitFor(mc -> ShoreMistClient.density() == 0.0F && ShoreMistClient.lastEnd() < 0.0F, 300);
+			context.waitTicks(3);
+			check(!context.computeOnClient(mc -> life.shizune.mistinn.client.mist.ShoreAmbience.playing()), "out of it again, they fade away");
 		}
 	}
 

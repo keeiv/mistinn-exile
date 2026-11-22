@@ -1171,5 +1171,6 @@
   "subtitles.mistinn.ui.grid.pickup.grain": "鹽粒滑動",
   "subtitles.mistinn.ui.grid.pickup.glass": "瓶子輕響",
   "subtitles.mistinn.ui.grid.pickup.paper": "書頁翻動",
-  "subtitles.mistinn.ui.grid.pickup.wood": "拿起木頭"
+  "subtitles.mistinn.ui.grid.pickup.wood": "拿起木頭",
+  "subtitles.mistinn.ambient.shore_mist": "霧裡的浪聲與風"
 }
