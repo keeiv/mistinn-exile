@@ -33,7 +33,6 @@ public enum EnemyRig {
 		return this.lunge;
 	}
 
-
 	/**
 	 * Whether the creature can tell where its target is. Wardens are blind in vanilla (no line of sight at all)
 	 * and track by vibration, so they always know; everyone else needs to see the target.

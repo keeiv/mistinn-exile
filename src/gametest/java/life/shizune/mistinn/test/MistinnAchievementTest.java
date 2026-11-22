@@ -214,7 +214,8 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 
 	private static void heavyBlows(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
 		stand(context, world, arena, iron(WeaponStyle.SLASH));
-		int[] two = {husk(world, arena, -1.0, 2.0, 200.0F), husk(world, arena, 1.0, 2.0, 200.0F)};
+		husk(world, arena, -1.0, 2.0, 200.0F);
+		husk(world, arena, 1.0, 2.0, 200.0F);
 		context.waitTicks(2);
 		world.getServer().runOnServer(server -> HeavyService.release(player(server), player(server).getMainHandItem(), 40));
 		context.waitTicks(10);

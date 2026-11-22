@@ -236,7 +236,6 @@ public final class MistinnLampThrallTest implements FabricClientGameTest {
 		until(context, world, server -> thrall(server, id).state() == LampThrall.SPENT, LampThrall.RUSH_TICKS + 10, "the rush ends");
 		world.getServer().runOnServer(server -> {
 			LampThrall thrall = thrall(server, id);
-			ServerPlayer player = player(server);
 			check(thrall.position().distanceTo(at[0]) > 1.5, "the rush carried it forward");
 			check(thrall.struckLastRush(), "the hunter who stood in the way is struck");
 			check(thrall.getItemBySlot(EquipmentSlot.MAINHAND).is(Items.SOUL_LANTERN), "spent, its lantern gutters back to blue");

@@ -73,9 +73,12 @@ public class MistinnAnimSheetTest implements FabricClientGameTest {
 					player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new net.minecraft.world.item.ItemStack(life.shizune.mistinn.registry.MistinnItems.HELMETS.get(t)));
 					player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, new net.minecraft.world.item.ItemStack(life.shizune.mistinn.registry.MistinnItems.ARMORS.get(t)));
 					boolean legs = t < life.shizune.mistinn.registry.MistinnItems.LEGGINGS.size();
-					player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.LEGS, legs ? new net.minecraft.world.item.ItemStack(life.shizune.mistinn.registry.MistinnItems.LEGGINGS.get(t)) : net.minecraft.world.item.ItemStack.EMPTY);
-					player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET, legs ? new net.minecraft.world.item.ItemStack(life.shizune.mistinn.registry.MistinnItems.BOOTS.get(t)) : net.minecraft.world.item.ItemStack.EMPTY);
-					life.shizune.mistinn.grid.GridService.set(player, life.shizune.mistinn.grid.GridService.get(player).withMask(new net.minecraft.world.item.ItemStack(life.shizune.mistinn.registry.MistinnItems.MASKS.get(t))));
+					player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.LEGS, legs
+						? new net.minecraft.world.item.ItemStack(life.shizune.mistinn.registry.MistinnItems.LEGGINGS.get(t)) : net.minecraft.world.item.ItemStack.EMPTY);
+					player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET, legs ? new net.minecraft.world.item.ItemStack(life.shizune.mistinn.registry.MistinnItems.BOOTS.get(t))
+						: net.minecraft.world.item.ItemStack.EMPTY);
+					life.shizune.mistinn.grid.GridService.set(player,
+						life.shizune.mistinn.grid.GridService.get(player).withMask(new net.minecraft.world.item.ItemStack(life.shizune.mistinn.registry.MistinnItems.MASKS.get(t))));
 				});
 				for (CameraType camera : new CameraType[] {CameraType.THIRD_PERSON_FRONT, CameraType.THIRD_PERSON_BACK}) {
 					context.runOnClient(mc -> mc.options.setCameraType(camera));

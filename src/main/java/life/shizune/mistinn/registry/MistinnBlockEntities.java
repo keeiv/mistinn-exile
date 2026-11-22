@@ -8,6 +8,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
+/** The mod's block entity types. */
 public final class MistinnBlockEntities {
 	public static final BlockEntityType<BellBlockEntity> BELL = Registry.register(
 		BuiltInRegistries.BLOCK_ENTITY_TYPE,

@@ -64,28 +64,28 @@ public class SnufferModel extends HumanoidModel<SnufferRenderState> {
 			.texOffs(0, 31).addBox(-3.0F, -11.0F, -3.0F, 6, 1, 6)
 			.texOffs(112, 31).addBox(-2.0F, -12.0F, -2.0F, 4, 1, 4)
 			.texOffs(44, 38).addBox(-2.0F, -15.0F, -0.5F, 4, 3, 1), PartPose.offset(0.0F, 1.0F, -3.0F));
-		PartDefinition hat = head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
-		PartDefinition hornLeft = head.addOrReplaceChild("horn_left", CubeListBuilder.create()
+		head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
+		head.addOrReplaceChild("horn_left", CubeListBuilder.create()
 			.texOffs(92, 31).addBox(-0.5F, -5.0F, -0.5F, 1, 5, 1), PartPose.offsetAndRotation(2.5F, -11.0F, 0.0F, 0.0F, 0.0F, -0.6F));
-		PartDefinition hornRight = head.addOrReplaceChild("horn_right", CubeListBuilder.create()
+		head.addOrReplaceChild("horn_right", CubeListBuilder.create()
 			.texOffs(20, 38).addBox(-0.5F, -4.0F, -0.5F, 1, 4, 1), PartPose.offsetAndRotation(-2.5F, -11.0F, 0.0F, 0.0F, 0.0F, 0.6F));
 		PartDefinition body = root.addOrReplaceChild("body", CubeListBuilder.create()
 			.texOffs(0, 0).addBox(-4.0F, 0.0F, -2.5F, 8, 13, 5)
 			.texOffs(84, 0).addBox(-7.0F, -1.0F, -3.5F, 14, 6, 7)
 			.texOffs(84, 18).addBox(-4.5F, 9.0F, -3.0F, 9, 2, 6)
 			.texOffs(86, 38).addBox(1.5F, 9.5F, -3.5F, 2, 1, 1), PartPose.ZERO);
-		PartDefinition spikeLeft = body.addOrReplaceChild("spike_left", CubeListBuilder.create()
+		body.addOrReplaceChild("spike_left", CubeListBuilder.create()
 			.texOffs(96, 31).addBox(-0.5F, -5.0F, -0.5F, 1, 5, 1), PartPose.offsetAndRotation(5.0F, -1.0F, 0.0F, 0.0F, 0.0F, -0.45F));
-		PartDefinition spikeMid = body.addOrReplaceChild("spike_mid", CubeListBuilder.create()
+		body.addOrReplaceChild("spike_mid", CubeListBuilder.create()
 			.texOffs(24, 38).addBox(-0.5F, -4.0F, -0.5F, 1, 4, 1), PartPose.offsetAndRotation(3.0F, -1.0F, 1.5F, 0.35F, 0.0F, -0.2F));
-		PartDefinition spikeRight = body.addOrReplaceChild("spike_right", CubeListBuilder.create()
+		body.addOrReplaceChild("spike_right", CubeListBuilder.create()
 			.texOffs(100, 31).addBox(-0.5F, -5.0F, -0.5F, 1, 5, 1), PartPose.offsetAndRotation(-5.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.45F));
 		PartDefinition chain = body.addOrReplaceChild("chain", CubeListBuilder.create()
 			.texOffs(56, 0).addBox(-0.5F, 0.0F, -0.5F, 1, 15, 1), PartPose.offsetAndRotation(4.5F, 0.0F, -3.0F, 0.0F, 0.0F, 0.62F));
-		PartDefinition chainHook = chain.addOrReplaceChild("chain_hook", CubeListBuilder.create()
+		chain.addOrReplaceChild("chain_hook", CubeListBuilder.create()
 			.texOffs(60, 38).addBox(-0.5F, 0.0F, -0.5F, 1, 3, 1)
 			.texOffs(80, 38).addBox(-0.5F, 2.0F, -1.5F, 1, 1, 2), PartPose.offsetAndRotation(0.0F, 15.0F, 0.0F, 0.0F, 0.0F, -0.62F));
-		PartDefinition skirt = body.addOrReplaceChild("skirt", CubeListBuilder.create()
+		body.addOrReplaceChild("skirt", CubeListBuilder.create()
 			.texOffs(26, 0).addBox(-4.5F, 0.0F, -3.0F, 9, 10, 6)
 			.texOffs(54, 38).addBox(-4.5F, 10.0F, -3.0F, 3, 4, 0)
 			.texOffs(92, 38).addBox(-1.0F, 10.0F, -3.0F, 2, 2, 0)
@@ -95,7 +95,7 @@ public class SnufferModel extends HumanoidModel<SnufferRenderState> {
 		PartDefinition rightArm = root.addOrReplaceChild("right_arm", CubeListBuilder.create()
 			.texOffs(60, 0).addBox(-2.5F, -2.0F, -1.5F, 3, 11, 3)
 			.texOffs(24, 31).addBox(-2.0F, 9.0F, -1.0F, 2, 5, 2), PartPose.offset(-5.5F, 2.5F, -1.0F));
-		PartDefinition rightClaw = rightArm.addOrReplaceChild("right_claw", CubeListBuilder.create()
+		rightArm.addOrReplaceChild("right_claw", CubeListBuilder.create()
 			.texOffs(28, 38).addBox(-1.5F, 0.0F, -1.5F, 1, 4, 1)
 			.texOffs(104, 31).addBox(-0.5F, 0.0F, -1.5F, 1, 5, 1)
 			.texOffs(32, 38).addBox(0.5F, 0.0F, -1.5F, 1, 4, 1)
@@ -103,15 +103,15 @@ public class SnufferModel extends HumanoidModel<SnufferRenderState> {
 		PartDefinition leftArm = root.addOrReplaceChild("left_arm", CubeListBuilder.create().mirror()
 			.texOffs(72, 0).addBox(-0.5F, -2.0F, -1.5F, 3, 11, 3)
 			.texOffs(32, 31).addBox(0.0F, 9.0F, -1.0F, 2, 5, 2), PartPose.offset(5.5F, 2.5F, -1.0F));
-		PartDefinition leftClaw = leftArm.addOrReplaceChild("left_claw", CubeListBuilder.create().mirror()
+		leftArm.addOrReplaceChild("left_claw", CubeListBuilder.create().mirror()
 			.texOffs(36, 38).addBox(-1.5F, 0.0F, -1.5F, 1, 4, 1)
 			.texOffs(108, 31).addBox(-0.5F, 0.0F, -1.5F, 1, 5, 1)
 			.texOffs(40, 38).addBox(0.5F, 0.0F, -1.5F, 1, 4, 1)
 			.texOffs(68, 38).addBox(-0.5F, 0.0F, 0.5F, 1, 3, 1), PartPose.offsetAndRotation(1.0F, 14.0F, 0.0F, -0.35F, 0.0F, 0.0F));
-		PartDefinition rightLeg = root.addOrReplaceChild("right_leg", CubeListBuilder.create()
+		root.addOrReplaceChild("right_leg", CubeListBuilder.create()
 			.texOffs(28, 18).addBox(-1.5F, 0.0F, -1.5F, 3, 10, 3)
 			.texOffs(40, 31).addBox(-1.5F, 10.0F, -3.0F, 3, 2, 4), PartPose.offset(-2.0F, 12.0F, 0.0F));
-		PartDefinition leftLeg = root.addOrReplaceChild("left_leg", CubeListBuilder.create().mirror()
+		root.addOrReplaceChild("left_leg", CubeListBuilder.create().mirror()
 			.texOffs(40, 18).addBox(-1.5F, 0.0F, -1.5F, 3, 10, 3)
 			.texOffs(54, 31).addBox(-1.5F, 10.0F, -3.0F, 3, 2, 4), PartPose.offset(2.0F, 12.0F, 0.0F));
 		return LayerDefinition.create(mesh, 128, 128);

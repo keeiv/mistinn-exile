@@ -1,6 +1,5 @@
 package life.shizune.mistinn.test;
 
-import java.util.List;
 import java.util.Set;
 import life.shizune.mistinn.achievement.Achievement;
 import life.shizune.mistinn.achievement.AchievementService;

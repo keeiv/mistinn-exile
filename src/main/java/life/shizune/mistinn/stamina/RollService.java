@@ -43,6 +43,7 @@ public final class RollService {
 	/** Ticks from the roll to the moment its weight comes down on the body. */
 	public static final int ROLL_LANDING = 6;
 
+	/** The ways a hunter throws themself aside. */
 	public enum Kind {
 		ROLL,
 		DIVE,

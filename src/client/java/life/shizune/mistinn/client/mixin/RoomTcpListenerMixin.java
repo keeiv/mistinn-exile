@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+/** Marks every connection taken while a room is open, so its login knows it is a guest's. */
 @Mixin(ServerConnectionListener.class)
 public abstract class RoomTcpListenerMixin {
 	@Shadow

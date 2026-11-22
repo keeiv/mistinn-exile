@@ -9,6 +9,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
 
+/** The mod's data components: what its items carry with them. */
 public final class MistinnComponents {
 	/** What a backpack holds, laid out in its grid. Travels with the backpack item. */
 	public static final DataComponentType<List<Placed>> BACKPACK_CONTENTS = Registry.register(

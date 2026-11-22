@@ -10,6 +10,7 @@ import life.shizune.mistinn.weapon.WeaponMaterial;
 import life.shizune.mistinn.weapon.WeaponStyle;
 import net.minecraft.world.item.ItemStack;
 
+/** The creative tab that lists the mod's items. */
 public final class MistinnTab {
 	public static final CreativeModeTab TAB = Registry.register(
 		BuiltInRegistries.CREATIVE_MODE_TAB,

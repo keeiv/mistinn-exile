@@ -92,7 +92,8 @@ public final class MistinnSkillTest implements FabricClientGameTest {
 	/** Each stat's effect per point, up to the cap of 20, as the design gives it. */
 	private static void statsScaleAsWritten() {
 		check(near(SkillService.damageScale(5), 1.15), "five strength hit 15% harder");
-		check(near(SkillService.moveScale(10), 1.10) && near(SkillService.swingScale(10), 1.15) && near(SkillService.rollScale(10), 1.15), "ten speed: 10% faster on foot, 15% faster swings and rolls");
+		check(near(SkillService.moveScale(10), 1.10) && near(SkillService.swingScale(10), 1.15) && near(SkillService.rollScale(10), 1.15),
+			"ten speed: 10% faster on foot, 15% faster swings and rolls");
 		check(SkillService.dodgeBonus(4) == 0 && SkillService.dodgeBonus(5) == 1 && SkillService.dodgeBonus(20) == 4, "a tick more dodge for every five speed");
 		check(near(SkillService.partCeiling(10), 100.0) && near(SkillService.partCeiling(20), 120.0) && BodyPart.CEILING == 120.0F, "constitution raises each part by 2, to 120 at most");
 		check(near(SkillService.staminaCeiling(10), 130.0) && near(SkillService.staminaCeiling(20), 160.0), "and stamina by 3, to 160");
@@ -469,7 +470,6 @@ public final class MistinnSkillTest implements FabricClientGameTest {
 		});
 		world.getServer().runOnServer(server -> SkillService.set(player(server), Skills.EMPTY));
 	}
-
 
 	// ── The guide ─────────────────────────────────────────────────
 

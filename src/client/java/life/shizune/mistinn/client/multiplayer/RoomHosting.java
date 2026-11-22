@@ -10,6 +10,7 @@ public interface RoomHosting {
 
 	boolean mistinn$isPublishingRoom();
 
+	/** A login that knows whether it came in through a room. */
 	interface Login {
 		boolean mistinn$requiresVerifiedGuest();
 	}

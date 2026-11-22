@@ -3,7 +3,6 @@ package life.shizune.mistinn.enemy;
 import java.util.List;
 import life.shizune.mistinn.body.BodyPart;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;

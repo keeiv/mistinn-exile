@@ -181,13 +181,15 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			// walk away so the bell is off the map's centre, then die
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
-				player.teleportTo(bellPos.getX() + 20.5, player.level().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, bellPos.getX() + 20, bellPos.getZ() + 12), bellPos.getZ() + 12.5);
+				player.teleportTo(bellPos.getX() + 20.5, player.level().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, bellPos.getX() + 20, bellPos.getZ()
+					+ 12), bellPos.getZ() + 12.5);
 			});
 			context.waitTicks(20);
 			// killed by a creature: an iron golem beside the hunter, which the scene hides
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
-				net.minecraft.world.entity.animal.golem.IronGolem golem = net.minecraft.world.entity.EntityTypes.IRON_GOLEM.create(server.overworld(), net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+				net.minecraft.world.entity.animal.golem.IronGolem golem = net.minecraft.world.entity.EntityTypes.IRON_GOLEM.create(server.overworld(),
+					net.minecraft.world.entity.EntitySpawnReason.COMMAND);
 				golem.snapTo(player.getX() + 2.5, player.getY(), player.getZ() + 1.0, 0.0F, 0.0F);
 				server.overworld().addFreshEntity(golem);
 			});
@@ -201,7 +203,8 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				}
 			});
 			context.waitForScreen(DeathScreen.class);
-			check(context.computeOnClient(mc -> life.shizune.mistinn.client.death.DeathScene.cause() == life.shizune.mistinn.client.death.DeathScene.Cause.CREATURE), "the scene knows a creature did it");
+			check(context.computeOnClient(mc -> life.shizune.mistinn.client.death.DeathScene.cause() == life.shizune.mistinn.client.death.DeathScene.Cause.CREATURE),
+				"the scene knows a creature did it");
 			check(context.computeOnClient(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.death.MissionEndScreen), "death opens the mission-end screen");
 			context.waitTicks(20);
 			context.takeScreenshot("death-scene-kneel");
@@ -221,7 +224,8 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				GravestoneBlockEntity stone = (GravestoneBlockEntity) server.overworld().getBlockEntity(at.pos());
 				check(SaltService.get(player) == 0, "the salt left the hunter");
 				// nothing fell to the ground: it is all in the stone
-				check(server.overworld().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new net.minecraft.world.phys.AABB(at.pos()).inflate(8.0)).isEmpty(), "nothing the hunter carried lies on the ground");
+				check(server.overworld().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new net.minecraft.world.phys.AABB(at.pos()).inflate(8.0)).isEmpty(),
+					"nothing the hunter carried lies on the ground");
 				java.util.List<life.shizune.mistinn.residue.Kept> kept = stone.items();
 				check(kept.stream().anyMatch(k -> k.stack().is(MistinnItems.HELMETS.get(2))), "the stone keeps the worn helmet: " + kept);
 				check(kept.stream().anyMatch(k -> k.where().equals(life.shizune.mistinn.residue.Kept.SLOT) && k.index() == 2 && k.stack().is(Items.IRON_SWORD)), "and the sword from hotbar slot 3");
@@ -667,7 +671,8 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				int lapis = 0;
 				for (Area area : Area.values()) {
 					for (Placed placed : inv.items(area)) {
-						check(GridLogic.fits(inv.shape(area), java.util.List.of(), placed.section(), placed.x(), placed.y(), placed.width(), placed.height(), -1), "every item lies inside its compartment: " + placed);
+						check(GridLogic.fits(inv.shape(area), java.util.List.of(), placed.section(), placed.x(), placed.y(), placed.width(), placed.height(), -1),
+							"every item lies inside its compartment: " + placed);
 						if (placed.stack().is(Items.LAPIS_LAZULI)) {
 							lapis += placed.stack().getCount();
 						}
@@ -717,7 +722,8 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			context.waitTicks(74);
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
-				check(server.overworld().getBlockEntity(taken) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chest && chest.getItem(0).is(Items.DIAMOND), "the chest on the stone's spot was left alone");
+				check(server.overworld().getBlockEntity(taken) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chest && chest.getItem(0).is(Items.DIAMOND),
+					"the chest on the stone's spot was left alone");
 				BlockPos moved = player.getAttached(MistinnAttachments.DEATH_MARK).pos().pos();
 				check(!moved.equals(taken) && server.overworld().getBlockState(moved).is(MistinnBlocks.GRAVESTONE), "the stone rose beside it and the mark followed: " + moved);
 				server.overworld().setBlockAndUpdate(taken, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
@@ -872,7 +878,8 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			context.waitTicks(2);
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
-				check(life.shizune.mistinn.stamina.StaminaService.get(player) < life.shizune.mistinn.stamina.StaminaService.MAX - 1.0F, "a roll after respawning costs stamina, left " + life.shizune.mistinn.stamina.StaminaService.get(player));
+				check(life.shizune.mistinn.stamina.StaminaService.get(player) < life.shizune.mistinn.stamina.StaminaService.MAX - 1.0F, "a roll after respawning costs stamina, left "
+					+ life.shizune.mistinn.stamina.StaminaService.get(player));
 				check(life.shizune.mistinn.stamina.RollService.dodging(player), "and still dodges");
 			});
 			context.waitTicks(20);
@@ -1017,7 +1024,6 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 		});
 	}
 
-	/** Moves the real cursor over a socket. */
 	/**
 	 * Repair kits mend by the rules (matched, above the kit's tier, tier VI), the injector mends
 	 * over time, surgery brings back the head first, painkillers numb and make a roll cost the
@@ -1082,12 +1088,14 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 		context.waitTicks(5);
 		context.getInput().pressKey(options -> options.keyUse);
 		context.waitTicks(110);
-		check(world.getServer().computeOnServer(server -> life.shizune.mistinn.medical.TreatmentService.active(server.getPlayerList().getPlayers().getFirst())), "a repair above the kit's tier takes longer than 5 s");
+		check(world.getServer().computeOnServer(server -> life.shizune.mistinn.medical.TreatmentService.active(server.getPlayerList().getPlayers().getFirst())),
+			"a repair above the kit's tier takes longer than 5 s");
 		context.waitTicks(40);
 		world.getServer().runOnServer(server -> {
 			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
 			ItemStack armor = player.getItemBySlot(EquipmentSlot.CHEST);
-			check(armor.getMaxDamage() == 846 && armor.getDamageValue() == 288, "a V kit on VI armour wears 10% off the maximum and restores a quarter: " + armor.getDamageValue() + "/" + armor.getMaxDamage());
+			check(armor.getMaxDamage() == 846 && armor.getDamageValue() == 288, "a V kit on VI armour wears 10% off the maximum and restores a quarter: " + armor.getDamageValue() + "/"
+				+ armor.getMaxDamage());
 			check(armor.getOrDefault(life.shizune.mistinn.registry.MistinnComponents.REPAIR_WEAR, 0) == 94, "and the wear is kept on the item");
 			// the red kit on a helmet: whole again, a little worn
 			ItemStack helmet = new ItemStack(MistinnItems.HELMETS.get(6));
@@ -1157,7 +1165,8 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
 			check(life.shizune.mistinn.medical.TreatmentService.numb(player), "the painkillers numb");
 			check(life.shizune.mistinn.stamina.RollService.kind(player) == life.shizune.mistinn.stamina.RollService.Kind.ROLL, "a numb hunter rolls on dead legs");
-			check(player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).getModifier(life.shizune.mistinn.Mistinn.id("body_legs")) == null, "and is not slowed by them");
+			check(player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).getModifier(life.shizune.mistinn.Mistinn.id("body_legs")) == null,
+				"and is not slowed by them");
 			life.shizune.mistinn.stamina.RollService.request(player, 0.0F);
 		});
 		context.waitTicks(life.shizune.mistinn.stamina.RollService.ROLL_LANDING + 3);
@@ -1260,7 +1269,8 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			float torso = BodyService.get(player).get(BodyPart.TORSO);
 			check(torso <= BodyPart.MAX - 0.9F && torso >= BodyPart.MAX - 1.6F, "a bleeding torso loses half a point a second: " + torso);
 			check(life.shizune.mistinn.stamina.RollService.kind(player) == life.shizune.mistinn.stamina.RollService.Kind.DIVE, "a broken leg can only dive");
-			check(player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).getModifier(life.shizune.mistinn.Mistinn.id("body_legs")) != null, "and it slows like a dead leg");
+			check(player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).getModifier(life.shizune.mistinn.Mistinn.id("body_legs")) != null,
+				"and it slows like a dead leg");
 		});
 		context.runOnClient(mc -> mc.player.snapTo(mc.player.getX(), mc.player.getY(), mc.player.getZ(), mc.player.getYRot(), 30.0F));
 		context.setScreen(() -> new net.minecraft.client.gui.screens.inventory.InventoryScreen(context.computeOnClient(mc -> mc.player)));
@@ -1355,15 +1365,19 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 			server.overworld().addFreshEntity(keeper);
 		});
 		context.waitTicks(10);
-		check(context.computeOnClient(mc -> life.shizune.mistinn.client.music.KeeperMusic.current() == life.shizune.mistinn.client.music.KeeperMusic.FIGHT), "near the keeper, the fight's music plays");
+		check(context.computeOnClient(mc -> life.shizune.mistinn.client.music.KeeperMusic.current() == life.shizune.mistinn.client.music.KeeperMusic.FIGHT),
+			"near the keeper, the fight's music plays");
 		check(context.computeOnClient(mc -> mc.getSituationalMusic() == life.shizune.mistinn.client.music.KeeperMusic.FIGHT), "and it is what the game wants to play");
-		world.getServer().runOnServer(server -> server.overworld().getEntitiesOfClass(life.shizune.mistinn.keeper.Snuffer.class, server.getPlayerList().getPlayers().getFirst().getBoundingBox().inflate(10.0))
+		world.getServer().runOnServer(server -> server.overworld().getEntitiesOfClass(life.shizune.mistinn.keeper.Snuffer.class,
+			server.getPlayerList().getPlayers().getFirst().getBoundingBox().inflate(10.0))
 			.forEach(keeper -> keeper.setHealth(keeper.getMaxHealth() / 2.0F - 1.0F)));
 		context.waitTicks(5);
-		check(context.computeOnClient(mc -> life.shizune.mistinn.client.music.KeeperMusic.current() == life.shizune.mistinn.client.music.KeeperMusic.TURN), "the lights go out with the bell cue first");
+		check(context.computeOnClient(mc -> life.shizune.mistinn.client.music.KeeperMusic.current() == life.shizune.mistinn.client.music.KeeperMusic.TURN),
+			"the lights go out with the bell cue first");
 		context.waitTicks(25);
 		check(context.computeOnClient(mc -> life.shizune.mistinn.client.music.KeeperMusic.current() == life.shizune.mistinn.client.music.KeeperMusic.DARK), "below half, the dark half's music");
-		world.getServer().runOnServer(server -> server.overworld().getEntitiesOfClass(life.shizune.mistinn.keeper.Snuffer.class, server.getPlayerList().getPlayers().getFirst().getBoundingBox().inflate(10.0))
+		world.getServer().runOnServer(server -> server.overworld().getEntitiesOfClass(life.shizune.mistinn.keeper.Snuffer.class,
+			server.getPlayerList().getPlayers().getFirst().getBoundingBox().inflate(10.0))
 			.forEach(net.minecraft.world.entity.Entity::discard));
 		context.waitTicks(5);
 		check(context.computeOnClient(mc -> life.shizune.mistinn.client.music.KeeperMusic.current() == null), "no keeper, no fight music");
@@ -1415,6 +1429,7 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 		context.waitTicks(2);
 		context.getInput().pressMouse(LEFT);
 	}
+
 	private static void mouse(final ClientGameTestContext context, final Area area, final int section, final int cx, final int cy) {
 		double[] at = context.computeOnClient(mc -> {
 			double[] gui = GridPanel.cellCentre(area, section, cx, cy);

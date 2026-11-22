@@ -36,7 +36,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
@@ -303,7 +302,8 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 				// (the scene hides it); the keeper's room is far off and unloaded by now
 				world.getServer().runOnServer(server -> {
 					ServerPlayer player = player(server);
-					net.minecraft.world.entity.monster.zombie.Zombie zombie = net.minecraft.world.entity.EntityTypes.ZOMBIE.create(server.overworld(), net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+					net.minecraft.world.entity.monster.zombie.Zombie zombie = net.minecraft.world.entity.EntityTypes.ZOMBIE.create(server.overworld(),
+						net.minecraft.world.entity.EntitySpawnReason.COMMAND);
 					// beyond the pad's north edge, so the blows push the hunter onto the pad, not off it
 					zombie.snapTo(player.getX(), player.getY(), player.getZ() - 1.5, 0.0F, 0.0F);
 					zombie.setNoAi(true);
@@ -375,7 +375,8 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 					GridService.insert(player, new ItemStack(MistinnItems.SALT, 12));
 					GridService.insert(player, new ItemStack(MistinnItems.HELMETS.get(4)));
 					GridService.insert(player, new ItemStack(MistinnItems.SALT_FANG));
-					GridService.set(player, GridService.get(player).with(Area.SAFE, java.util.List.of(new life.shizune.mistinn.grid.Placed(0, 0, 0, false, new ItemStack(MistinnItems.RUST_GOD_SALT)))));
+					GridService.set(player, GridService.get(player).with(Area.SAFE, java.util.List.of(new life.shizune.mistinn.grid.Placed(0, 0, 0, false,
+						new ItemStack(MistinnItems.RUST_GOD_SALT)))));
 				});
 				context.setScreen(() -> new InventoryScreen(context.computeOnClient(mc -> mc.player)));
 				// keep the mouse in a corner, clear of every slot, so no tooltip covers the screen

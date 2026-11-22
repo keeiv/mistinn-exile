@@ -1,6 +1,6 @@
 package life.shizune.mistinn.test;
 
-/** Lets a run pick one test class with -Dmistinn.only=<simple class name> (build.gradle: -PonlyTest). */
+/** Lets a run pick one test class with {@code -Dmistinn.only=SimpleClassName} (build.gradle: -PonlyTest). */
 final class TestFilter {
 	private TestFilter() {
 	}

@@ -9,6 +9,7 @@ import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
+/** Bogged, parched and strays loose their arrows with their own sound. */
 @Mixin(AbstractSkeleton.class)
 public abstract class SkeletonShotSoundMixin {
 	@ModifyExpressionValue(

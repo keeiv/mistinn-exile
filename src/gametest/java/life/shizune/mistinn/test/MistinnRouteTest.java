@@ -155,8 +155,8 @@ public final class MistinnRouteTest implements FabricClientGameTest {
 			Node end = path.getEndNode();
 			if (!path.canReach() || end == null) {
 				String reached = end == null ? "nowhere" : end.asBlockPos().toShortString();
-				double short_ = end == null ? from.distManhattan(to) : end.asBlockPos().distManhattan(to);
-				return "no way through: the nearest a hunter gets is " + reached + ", " + (int) short_ + " blocks short";
+				double shortBy = end == null ? from.distManhattan(to) : end.asBlockPos().distManhattan(to);
+				return "no way through: the nearest a hunter gets is " + reached + ", " + (int) shortBy + " blocks short";
 			}
 			// a hunter walks the station; only stairs (and slabs) take them up, never a jump over a rail or a post
 			List<String> jumps = new ArrayList<>();

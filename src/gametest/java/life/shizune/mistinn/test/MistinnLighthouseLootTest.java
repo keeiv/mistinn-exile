@@ -71,7 +71,8 @@ public final class MistinnLighthouseLootTest implements FabricClientGameTest {
 						}
 					}
 					check(found.containsKey(BASE) && found.get(BASE) <= 3, "at the foot of the stair, a barrel of odds and ends (seed " + seed + "): " + found);
-					check(found.containsKey(LANDING) && found.get(LANDING) > 3 && found.get(LANDING) < Structures.LAMP_ROOM, "on the landing halfway up, the keeper's supplies (seed " + seed + "): " + found);
+					check(found.containsKey(LANDING) && found.get(LANDING) > 3 && found.get(LANDING) < Structures.LAMP_ROOM, "on the landing halfway up, the keeper's supplies (seed " + seed
+						+ "): " + found);
 					check(found.containsKey(LAMP) && found.get(LAMP) > Structures.LAMP_ROOM, "in the lamp room, past the keeper, a chest (seed " + seed + "): " + found);
 				}
 				// the higher, the better

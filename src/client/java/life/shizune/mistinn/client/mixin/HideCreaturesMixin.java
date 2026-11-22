@@ -13,7 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(EntityRenderDispatcher.class)
 public abstract class HideCreaturesMixin {
 	@Inject(method = "shouldRender", at = @At("HEAD"), cancellable = true)
-	private <E extends Entity> void mistinn$alone(final E entity, final Frustum frustum, final double x, final double y, final double z, final float partial, final CallbackInfoReturnable<Boolean> cir) {
+	private <E extends Entity> void mistinn$alone(final E entity, final Frustum frustum, final double x, final double y, final double z, final float partial,
+		final CallbackInfoReturnable<Boolean> cir) {
 		if (DeathScene.hides(entity)) {
 			cir.setReturnValue(false);
 		}

@@ -43,6 +43,7 @@ public final class WindupService {
 	/** Converts a lunge distance to a starting speed, given vanilla ground friction. */
 	private static final double LUNGE_SPEED = 0.45;
 
+	/** An attack being wound up: when it began, how long it takes, who it is aimed at, and whether it has been let go. */
 	public record Windup(long start, int length, int target, boolean released) {
 		public static final StreamCodec<ByteBuf, Windup> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_LONG, Windup::start,

@@ -1,7 +1,6 @@
 package life.shizune.mistinn.client.enemy;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import life.shizune.mistinn.client.anim.Clip;
 import life.shizune.mistinn.client.anim.Poser;
 import life.shizune.mistinn.client.death.DeathScene;
@@ -23,9 +22,11 @@ import org.jspecify.annotations.Nullable;
 
 /** The victim's staged pose, shared by all viewers, and the local hunter's view of it. */
 public final class ExecutionView {
+	/** A victim's staged pose: how far into the finisher, which way they face, who strikes, with what move, and whether it is over. */
 	public record Pose(float time, float yaw, int striker, ExecutionMove move, boolean done, Clip clip) {
 	}
 
+	/** Where the local hunter's eye is put to watch it, and what it looks at. */
 	public record Shot(Vec3 eye, Vec3 lookAt) {
 	}
 

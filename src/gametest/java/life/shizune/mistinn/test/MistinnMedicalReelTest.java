@@ -62,7 +62,8 @@ public class MistinnMedicalReelTest implements FabricClientGameTest {
 			world.getServer().runCommand("item replace entity @e[tag=reel] armor.chest with mistinn:armor_4");
 			world.getServer().runCommand("item replace entity @e[tag=reel] armor.head with mistinn:helmet_3");
 			context.waitTicks(10);
-			int mannequin = world.getServer().computeOnServer(server -> server.overworld().getEntities(net.minecraft.world.entity.EntityTypes.MANNEQUIN, e -> e.entityTags().contains("reel")).getFirst().getId());
+			int mannequin = world.getServer().computeOnServer(server -> server.overworld().getEntities(net.minecraft.world.entity.EntityTypes.MANNEQUIN,
+				e -> e.entityTags().contains("reel")).getFirst().getId());
 			context.runOnClient(mc -> {
 				mc.player.getAbilities().flying = true;
 				mc.options.setCameraType(CameraType.FIRST_PERSON);
@@ -88,7 +89,8 @@ public class MistinnMedicalReelTest implements FabricClientGameTest {
 	}
 
 	private void frames(final ClientGameTestContext context, final int entity, final Treatment treatment, final Item item, final int ticks, final String name, final boolean hideGui) {
-		context.runOnClient(mc -> TreatmentClient.received(new TreatmentService.TreatmentPayload(entity < 0 ? mc.player.getId() : entity, treatment.ordinal(), ticks, Item.getId(item), TreatmentService.RESULT_RUNNING)));
+		context.runOnClient(mc -> TreatmentClient.received(new TreatmentService.TreatmentPayload(entity < 0 ? mc.player.getId() : entity, treatment.ordinal(), ticks, Item.getId(item),
+			TreatmentService.RESULT_RUNNING)));
 		for (int i = 0; i < FRAMES; i++) {
 			float p = (i + 0.5F) / FRAMES;
 			context.runOnClient(mc -> TreatmentClient.preview = p);

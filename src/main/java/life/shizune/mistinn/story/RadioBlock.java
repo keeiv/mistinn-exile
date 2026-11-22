@@ -48,7 +48,8 @@ public class RadioBlock extends Block {
 	}
 
 	@Override
-	protected InteractionResult useItemOn(final ItemStack stack, final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hitResult) {
+	protected InteractionResult useItemOn(final ItemStack stack, final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand,
+		final BlockHitResult hitResult) {
 		if (!(player instanceof ServerPlayer hunter)) {
 			return InteractionResult.SUCCESS;
 		}
