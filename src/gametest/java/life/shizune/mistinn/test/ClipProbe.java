@@ -182,7 +182,7 @@ final class ClipProbe {
 		return boxes(mc, striker, new Vec3(0.0, 0.0, spacing), 180.0F, state -> {
 			EnemyMotion.Sample sample = state.getData(EnemyMotion.KEY);
 			state.setData(EnemyMotion.KEY, new EnemyMotion.Sample(sample.rig(), sample.seed(), 0.0F, 0.0F, 0.0F, true, true, false,
-				tick, sample.id(), 1.0F, -1.0F, sample.twitchy(), move, sample.size(), EnemyMotion.finisherClip(move, striker.getType())));
+				tick, sample.id(), 1.0F, -1.0F, sample.twitchy(), move, sample.size(), EnemyMotion.finisherClip(move, striker.getType()), 0.0F, 0.0F));
 		}, true, null, null);
 	}
 

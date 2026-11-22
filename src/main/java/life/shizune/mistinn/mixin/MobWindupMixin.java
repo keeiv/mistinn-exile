@@ -18,6 +18,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MobWindupMixin {
 	@Inject(method = "doHurtTarget", at = @At("HEAD"), cancellable = true)
 	private void mistinn$windup(final ServerLevel level, final Entity target, final CallbackInfoReturnable<Boolean> cir) {
+		if (life.shizune.mistinn.enemy.StaggerService.staggered((Mob) (Object) this) && !WindupService.releasing()) {
+			// rocked back on its heels: no blow, and none wound up either
+			cir.setReturnValue(false);
+			return;
+		}
 		if (WindupService.intercept((Mob) (Object) this, level, target)) {
 			cir.setReturnValue(false);
 		}
@@ -26,5 +31,6 @@ public abstract class MobWindupMixin {
 	@Inject(method = "serverAiStep", at = @At("TAIL"))
 	private void mistinn$holdStance(final CallbackInfo ci) {
 		WindupService.holdStance((Mob) (Object) this);
+		life.shizune.mistinn.enemy.StaggerService.holdStance((Mob) (Object) this);
 	}
 }

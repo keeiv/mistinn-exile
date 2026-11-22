@@ -385,8 +385,14 @@ public final class HeavyService {
 		if (special == SpecialWeapon.LANTERN_STAFF) {
 			target.igniteForSeconds(2.0F);
 		}
-		if (full && target instanceof Mob mob && WindupService.interrupt(mob)) {
-			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.BREAK_WINDUP);
+		if (full && target instanceof Mob mob) {
+			if (WindupService.interrupt(mob)) {
+				life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.BREAK_WINDUP);
+			}
+			// a full charge rocks it back on its heels, away from the blow
+			Vec3 from = shape.kind() == Kind.RING ? flat(target.position().subtract(player.position())) : flatLook(player);
+			life.shizune.mistinn.enemy.StaggerService.stagger(mob, life.shizune.mistinn.enemy.StaggerService.TICKS,
+				from.lengthSqr() < 1.0E-4 ? flatLook(player) : from.normalize());
 		}
 		Weapons.Profile profile = Weapons.profile(player.getMainHandItem());
 		if (profile != null) {
