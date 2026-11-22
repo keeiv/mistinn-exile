@@ -72,7 +72,39 @@ public final class MistinnWorld {
 		}
 	}
 
-	private static final java.util.Map<String, MapCodec<StructureFeature>> CODECS = new java.util.HashMap<>();
+
+	/**
+	 * A world-generation feature for what stands in the sea: on a reef in shallow water off the shore, or at the water's
+	 * very edge. Its origin is the height of the sea's surface, whatever the sea floor does beneath it.
+	 */
+	private record ReefFeature(String name, int shallowest, int deepest, Consumer<Builder> build) implements Feature {
+		@Override
+		public MapCodec<? extends Feature> codec() {
+			return CODECS.get(this.name);
+		}
+
+		@Override
+		public boolean place(final WorldGenLevel level, final ChunkGenerator generator, final RandomSource random, final BlockPos origin) {
+			int sea = level.getSeaLevel();
+			int floor = level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, origin.getX(), origin.getZ()) - 1;
+			if (floor > sea - this.shallowest || floor < sea - this.deepest) {
+				return false;
+			}
+			// the sea must be there round it: water at the surface on most sides
+			int wet = 0;
+			for (int[] c : new int[][] {{-9, 0}, {9, 0}, {0, -9}, {0, 9}, {-7, -7}, {7, 7}, {-7, 7}, {7, -7}}) {
+				if (!level.getBlockState(new BlockPos(origin.getX() + c[0], sea - 1, origin.getZ() + c[1])).getFluidState().isEmpty()) {
+					wet++;
+				}
+			}
+			if (wet < 4) {
+				return false;
+			}
+			this.build.accept(new Builder(level, new BlockPos(origin.getX(), sea, origin.getZ()), random));
+			return true;
+		}
+	}
+	private static final java.util.Map<String, MapCodec<? extends Feature>> CODECS = new java.util.HashMap<>();
 
 	private static void feature(final String name, final int maxSlope, final int reach, final boolean allowSand, final Consumer<Builder> build) {
 		StructureFeature feature = new StructureFeature(name, maxSlope, reach, allowSand, build);
@@ -81,6 +113,13 @@ public final class MistinnWorld {
 		Registry.register(BuiltInRegistries.FEATURE_TYPE, Mistinn.id(name), codec);
 	}
 
+
+	private static void reef(final String name, final int shallowest, final int deepest, final Consumer<Builder> build) {
+		ReefFeature feature = new ReefFeature(name, shallowest, deepest, build);
+		MapCodec<ReefFeature> codec = MapCodec.unit(feature);
+		CODECS.put(name, codec);
+		Registry.register(BuiltInRegistries.FEATURE_TYPE, Mistinn.id(name), codec);
+	}
 	private static ResourceKey<PlacedFeature> placed(final String name) {
 		return ResourceKey.create(Registries.PLACED_FEATURE, Mistinn.id(name));
 	}
@@ -91,6 +130,7 @@ public final class MistinnWorld {
 		feature("anchor_wreck", 3, 6, true, Structures::anchorWreck);
 		feature("watchpost", 2, 4, false, Structures::watchpost);
 		feature("lighthouse", 3, 6, true, Structures::lighthouse);
+		reef("bell_tower", 1, 7, BellTower::build);
 
 		GenerationStep.Decoration step = GenerationStep.Decoration.SURFACE_STRUCTURES;
 		BiomeModifications.addFeature(
@@ -108,6 +148,10 @@ public final class MistinnWorld {
 
 		// the forbidden zone's lighthouses stand on the coast
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_BEACH), step, placed("lighthouse"));
+		// and out on the reefs in the shallows off the shore, rarer still, the fog-bell stations
+		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_BEACH)
+			.or(BiomeSelectors.includeByKey(net.minecraft.world.level.biome.Biomes.OCEAN, net.minecraft.world.level.biome.Biomes.LUKEWARM_OCEAN,
+				net.minecraft.world.level.biome.Biomes.WARM_OCEAN, net.minecraft.world.level.biome.Biomes.COLD_OCEAN)), step, placed("bell_tower"));
 
 		ServerLifecycleEvents.SERVER_STARTED.register(MistinnWorld::ensureSpawnStation);
 		ShoreMist.init();

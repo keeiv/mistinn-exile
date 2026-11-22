@@ -70,7 +70,7 @@ public final class MistinnItems {
 
 	/** 追獵者手冊: the world's story and the rules of the hunt, given to every hunter on arrival. */
 	/** Pages of the guide's text (item.mistinn.hunter_guide.page.N), read as spreads in its screen. */
-	public static final int GUIDE_PAGES = 18;
+	public static final int GUIDE_PAGES = 20;
 	public static final Item HUNTER_GUIDE = register("hunter_guide", life.shizune.mistinn.story.HunterGuideItem::new, new Item.Properties().stacksTo(1));
 
 	public static final Item GOLDEN_BELL = block("golden_bell", MistinnBlocks.GOLDEN_BELL, new Item.Properties().rarity(Rarity.RARE));

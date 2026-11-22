@@ -199,6 +199,10 @@ public class SunkenBell extends Keeper {
 	protected void dropCustomDeathLoot(final ServerLevel level, final DamageSource source, final boolean killedByPlayer) {
 		super.dropCustomDeathLoot(level, source, killedByPlayer);
 		this.spawnAtLocation(level, new ItemStack(MistinnItems.RUST_GOD_SALT));
+		// every hunter near enough to see it fall remembers it
+		for (ServerPlayer near : level.getPlayers(p -> p.isAlive() && p.distanceTo(this) <= BAR_RANGE)) {
+			life.shizune.mistinn.achievement.AchievementService.grant(near, life.shizune.mistinn.achievement.AchievementService.SUNKEN_BELL);
+		}
 		if (this.random.nextFloat() < 0.3F) {
 			int tier = 3 + this.random.nextInt(2);
 			List<net.minecraft.world.item.Item> pool = List.of(
