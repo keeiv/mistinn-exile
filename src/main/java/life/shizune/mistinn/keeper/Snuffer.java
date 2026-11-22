@@ -80,10 +80,26 @@ public class Snuffer extends Keeper {
 
 	// ── Every tick ────────────────────────────────────────────────
 
-	/** The mist wall, and below half health the dark. */
+	/** The lamp room: the middle of its four lamp stands, the floor under them; none without the four. */
+	@Override
+	protected MistWall.@org.jspecify.annotations.Nullable Room sealedRoom(final ServerLevel level) {
+		List<BlockPos> lamps = this.lamps(level);
+		if (lamps.size() < 4) {
+			return null;
+		}
+		double x = 0.0;
+		double z = 0.0;
+		for (BlockPos lamp : lamps) {
+			x += lamp.getX();
+			z += lamp.getZ();
+		}
+		BlockPos centre = BlockPos.containing(x / lamps.size(), lamps.getFirst().getY(), z / lamps.size());
+		return new MistWall.Room(centre, centre.getY() - 1, 7.4, 6.6);
+	}
+
+	/** Below half health, the dark. */
 	@Override
 	protected void roomRules(final ServerLevel level) {
-		MistWall.tick(this, level);
 		if (!this.dark && this.getHealth() <= this.getMaxHealth() / 2.0F) {
 			this.goDark(level);
 		}
@@ -96,15 +112,6 @@ public class Snuffer extends Keeper {
 	@Override
 	protected String phase() {
 		return this.dark ? "dark" : "light";
-	}
-
-	/** The mist lets the way down go when it falls. */
-	@Override
-	public void die(final DamageSource source) {
-		if (this.level() instanceof ServerLevel level) {
-			MistWall.fallen(this, level);
-		}
-		super.die(source);
 	}
 
 	// ── The dark half ─────────────────────────────────────────────
