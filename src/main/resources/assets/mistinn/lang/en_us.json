@@ -824,6 +824,8 @@
   "item.mistinn.hunter_guide.page.14": "[Lamp Thrall]\n\nA shadow with a little blue lamp. When the flame turns orange, it is about to rush you.\n\nRoll aside, or break it off with a full heavy strike the moment it stops.",
   "item.mistinn.hunter_guide.page.15": "[Mist Shade]\n\nA shape only seen in the mist. One blow undoes it; its touch takes your sight for a moment.\n\nOut of the mist it comes apart. When a keeper's lamps go out, they come too.",
   "item.mistinn.hunter_guide.page.16": "[Lamp Oil]\n\nLamp thralls often carry a small flask of oil.\n\nHalfway up the lighthouse a golden bell has gone dark. It takes no one until oil lights it.\n\nWhoever lights it rests there.",
+  "item.mistinn.hunter_guide.page.17": "[Named Weapons]\n\nA weapon with a name answers only a hunter who has earned it.\n\nShort of that, it hits at half strength, swings slowly and gives no heavy blow.\n\nIts tooltip says what it asks: a stat, or a keeper slain.",
+  "item.mistinn.hunter_guide.page.18": "Snuffer Hook: slay the Snuffer; Strength 3. Hooks the farthest foe to your feet.\n\nLantern Staff: Intellect 4. Sets all ahead alight. Soul lantern and sticks.\n\nTide Maul: Strength 5, Constitution 3. Throws back all around you. Bell, iron blocks, sticks.",
   "gui.mistinn.guide.tab.achievements": "Deeds",
   "gui.mistinn.guide.achievements": "Deeds %s / %s",
   "gui.mistinn.guide.achievement_salt": "Salt earned: %s",
