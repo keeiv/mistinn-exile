@@ -119,5 +119,4 @@ public final class ShoreBackdrop {
 			g.fill(ox + Math.round(x * scale), oy + Math.round(y * scale), ox + Math.round(x * scale) + size, oy + Math.round(y * scale) + size, alpha << 24 | 0xE6E2D6);
 		}
 	}
-
 }

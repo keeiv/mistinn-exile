@@ -27,15 +27,15 @@
 		<property name="message" value="Indent with tabs, not spaces."/>
 	</module>
 	<module name="RegexpMultiline">
-		<property name="format" value="\n\n\n"/>
+		<property name="format" value="(\r?\n)(\r?\n)(\r?\n)"/>
 		<property name="message" value="No more than one blank line in a row."/>
 	</module>
 	<module name="RegexpMultiline">
-		<property name="format" value="\{\n\n"/>
+		<property name="format" value="\{(\r?\n)(\r?\n)"/>
 		<property name="message" value="No blank line after an opening brace."/>
 	</module>
 	<module name="RegexpMultiline">
-		<property name="format" value="\n\n\t*\}"/>
+		<property name="format" value="(\r?\n)(\r?\n)\t*\}"/>
 		<property name="message" value="No blank line before a closing brace."/>
 	</module>
 
