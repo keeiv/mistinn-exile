@@ -731,5 +731,320 @@
       "mistinn:step/metal_5"
     ],
     "subtitle": "subtitles.block.generic.footsteps"
+  },
+  "block.stone.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/stone_fall_1",
+      "mistinn:step/stone_fall_2",
+      "mistinn:step/stone_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.deepslate.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/stone_fall_1",
+      "mistinn:step/stone_fall_2",
+      "mistinn:step/stone_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.deepslate_bricks.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/stone_fall_1",
+      "mistinn:step/stone_fall_2",
+      "mistinn:step/stone_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.deepslate_tiles.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/stone_fall_1",
+      "mistinn:step/stone_fall_2",
+      "mistinn:step/stone_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.polished_deepslate.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/stone_fall_1",
+      "mistinn:step/stone_fall_2",
+      "mistinn:step/stone_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.tuff.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/stone_fall_1",
+      "mistinn:step/stone_fall_2",
+      "mistinn:step/stone_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.tuff_bricks.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/stone_fall_1",
+      "mistinn:step/stone_fall_2",
+      "mistinn:step/stone_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.polished_tuff.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/stone_fall_1",
+      "mistinn:step/stone_fall_2",
+      "mistinn:step/stone_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.calcite.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/stone_fall_1",
+      "mistinn:step/stone_fall_2",
+      "mistinn:step/stone_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.basalt.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/stone_fall_1",
+      "mistinn:step/stone_fall_2",
+      "mistinn:step/stone_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.dripstone_block.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/stone_fall_1",
+      "mistinn:step/stone_fall_2",
+      "mistinn:step/stone_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.nether_bricks.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/stone_fall_1",
+      "mistinn:step/stone_fall_2",
+      "mistinn:step/stone_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.mud_bricks.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/stone_fall_1",
+      "mistinn:step/stone_fall_2",
+      "mistinn:step/stone_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.packed_mud.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/stone_fall_1",
+      "mistinn:step/stone_fall_2",
+      "mistinn:step/stone_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.wood.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/wood_fall_1",
+      "mistinn:step/wood_fall_2",
+      "mistinn:step/wood_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.cherry_wood.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/wood_fall_1",
+      "mistinn:step/wood_fall_2",
+      "mistinn:step/wood_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.bamboo_wood.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/wood_fall_1",
+      "mistinn:step/wood_fall_2",
+      "mistinn:step/wood_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.nether_wood.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/wood_fall_1",
+      "mistinn:step/wood_fall_2",
+      "mistinn:step/wood_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.grass.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/grass_fall_1",
+      "mistinn:step/grass_fall_2",
+      "mistinn:step/grass_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.moss.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/grass_fall_1",
+      "mistinn:step/grass_fall_2",
+      "mistinn:step/grass_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.moss_carpet.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/grass_fall_1",
+      "mistinn:step/grass_fall_2",
+      "mistinn:step/grass_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.wet_grass.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/grass_fall_1",
+      "mistinn:step/grass_fall_2",
+      "mistinn:step/grass_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.gravel.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/gravel_fall_1",
+      "mistinn:step/gravel_fall_2",
+      "mistinn:step/gravel_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.rooted_dirt.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/gravel_fall_1",
+      "mistinn:step/gravel_fall_2",
+      "mistinn:step/gravel_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.suspicious_gravel.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/gravel_fall_1",
+      "mistinn:step/gravel_fall_2",
+      "mistinn:step/gravel_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.sand.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/sand_fall_1",
+      "mistinn:step/sand_fall_2",
+      "mistinn:step/sand_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.suspicious_sand.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/sand_fall_1",
+      "mistinn:step/sand_fall_2",
+      "mistinn:step/sand_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.snow.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/snow_fall_1",
+      "mistinn:step/snow_fall_2",
+      "mistinn:step/snow_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.powder_snow.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/snow_fall_1",
+      "mistinn:step/snow_fall_2",
+      "mistinn:step/snow_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.wool.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/wool_fall_1",
+      "mistinn:step/wool_fall_2",
+      "mistinn:step/wool_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.metal.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/metal_fall_1",
+      "mistinn:step/metal_fall_2",
+      "mistinn:step/metal_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.iron.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/metal_fall_1",
+      "mistinn:step/metal_fall_2",
+      "mistinn:step/metal_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.copper.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/metal_fall_1",
+      "mistinn:step/metal_fall_2",
+      "mistinn:step/metal_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.copper_grate.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/metal_fall_1",
+      "mistinn:step/metal_fall_2",
+      "mistinn:step/metal_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
+  },
+  "block.netherite_block.fall": {
+    "replace": true,
+    "sounds": [
+      "mistinn:step/metal_fall_1",
+      "mistinn:step/metal_fall_2",
+      "mistinn:step/metal_fall_3"
+    ],
+    "subtitle": "subtitles.block.generic.fall"
   }
 }
