@@ -52,6 +52,9 @@ public class HunterGuideScreen extends Screen {
 	}
 
 	public static final int W = 320;
+	/** How wide a page's text runs, and how many rows of it fit above the page number. */
+	public static final int PAGE_WIDTH = 128;
+	public static final int PAGE_ROWS = 16;
 	public static final int H = 200;
 	private static final int TAB_W = 64;
 	private static final int TAB_H = 20;
@@ -294,7 +297,7 @@ public class HunterGuideScreen extends Screen {
 			}
 			int px = x + (side == 0 ? 20 : 172);
 			int py = y + 18;
-			for (FormattedCharSequence row : this.font.split(Component.translatable("item.mistinn.hunter_guide.page." + page), 128)) {
+			for (FormattedCharSequence row : this.font.split(Component.translatable("item.mistinn.hunter_guide.page." + page), PAGE_WIDTH)) {
 				g.text(this.font, row, px, py, INK, false);
 				py += 10;
 			}

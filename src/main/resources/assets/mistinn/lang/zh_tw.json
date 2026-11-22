@@ -824,6 +824,8 @@
   "item.mistinn.hunter_guide.page.14": "【燈奴】\n\n提著藍色小燈的影子。燈火轉成橘色，就是它要撲過來的時候。\n\n翻滾躲開，或在它停下的那一刻，用蓄滿的重擊打斷它。",
   "item.mistinn.hunter_guide.page.15": "【霧影】\n\n只在霧裡出現的人形，一擊就散，碰到它會暫時看不見。\n\n離開霧，它就跟著散了。燈守的燈熄時，它們也會來。",
   "item.mistinn.hunter_guide.page.16": "【燈油】\n\n燈奴身上常帶著一小瓶燈油。\n\n燈塔半路的平台上，有一口熄了燈的金鐘，冒著一縷煙。它不收留人，要先用燈油點亮。\n\n點亮它的人，從此就在那裡歇息。",
+  "item.mistinn.hunter_guide.page.17": "【特殊武器】\n\n有名字的武器，只聽配得上它的獵人。\n\n條件不足時，攻擊力減半、揮得慢，也放不出重擊。\n\n條件寫在武器的說明裡：屬性要夠，有的還要先打倒某個燈守。",
+  "item.mistinn.hunter_guide.page.18": "【熄燈鉤鐮】打倒熄燈人、力量 3。迴鐮之後，把最遠的一個鉤到腳邊。\n\n【霧燈杖】智力 4。燈爆讓前方一圈著火，威力看智力。用魂燈和木棍做。\n\n【潮鐘巨鎚】力量 5、體質 3。鐘震震飛身邊一整圈。用鐘、鐵塊和木棍做。",
   "gui.mistinn.guide.tab.achievements": "成就",
   "gui.mistinn.guide.achievements": "成就 %s / %s",
   "gui.mistinn.guide.achievement_salt": "已經得到的鹽：%s",
