@@ -9,6 +9,7 @@ import life.shizune.mistinn.enemy.EnemyRig;
 import life.shizune.mistinn.client.anim.Clip;
 import life.shizune.mistinn.enemy.ExecutionMove;
 import life.shizune.mistinn.enemy.ExecutionService;
+import life.shizune.mistinn.enemy.StaggerService;
 import life.shizune.mistinn.enemy.WindupService;
 import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
 import net.minecraft.client.model.EntityModel;
@@ -36,10 +37,22 @@ public final class EnemyMotion {
 	private static final String[] WINGS_LEFT = {"left_wing", "left_wing_base", "left_wing_tip"};
 	private static final String[] WINGS_RIGHT = {"right_wing", "right_wing_base", "right_wing_tip"};
 
+	/**
+	 * What the pose is drawn from. {@code rocked} is how far back a heavy blow has rocked the
+	 * creature (0 none, 1 the furthest), and {@code rockedSide} toward which of its sides (-1 left, 1 right).
+	 */
 	public record Sample(EnemyRig rig, float seed, float swing, float hurt, float fall, boolean grounded,
 		boolean aggressive, boolean riding, float finishing, int id, float hunting, float windup, boolean twitchy,
-		@Nullable ExecutionMove move, float size, @Nullable Clip finisher) {
+		@Nullable ExecutionMove move, float size, @Nullable Clip finisher, float rocked, float rockedSide) {
+		/** The same pose, rocked this far toward this side (for tests and stills). */
+		public Sample rocked(final float amount, final float side) {
+			return new Sample(this.rig, this.seed, this.swing, this.hurt, this.fall, this.grounded, this.aggressive, this.riding,
+				this.finishing, this.id, this.hunting, this.windup, this.twitchy, this.move, this.size, this.finisher, amount, side);
+		}
 	}
+
+	/** Share of a stagger at which the creature is rocked back furthest; it comes back up over the rest. */
+	private static final float ROCK_PEAK = 0.2F;
 
 	/** A sudden jerk: which kind (0 none, 1 head snap, 2 shoulder jerk, 3 stumble), how far into it, and to which side. */
 	public record Twitch(int kind, float amount, float side, int window) {
@@ -236,7 +249,26 @@ public final class EnemyMotion {
 			entity.isPassenger(), finishing, entity.getId(), hunting, windup(entity, partialTicks), twitchy,
 			execution != null && execution.striker() ? execution.finisher() : null,
 			drawnSize(entity),
-			execution != null && execution.striker() ? finisherClip(execution.finisher(), entity.getType()) : null));
+			execution != null && execution.striker() ? finisherClip(execution.finisher(), entity.getType()) : null,
+			rocked(entity, partialTicks), side(entity)));
+	}
+
+	/** How far back the creature is rocked now: quickly to the furthest, then slowly back up. */
+	static float rocked(final LivingEntity entity, final float partialTicks) {
+		StaggerService.Stagger stagger = entity.getAttached(StaggerService.STAGGER);
+		if (stagger == null || stagger.length() <= 0) {
+			return 0.0F;
+		}
+		float t = (entity.level().getGameTime() - stagger.start() + partialTicks) / stagger.length();
+		if (t < 0.0F || t >= 1.0F) {
+			return 0.0F;
+		}
+		return t < ROCK_PEAK ? Mth.sin(t / ROCK_PEAK * Mth.HALF_PI) : 1.0F - Mth.smoothstep((t - ROCK_PEAK) / (1.0F - ROCK_PEAK));
+	}
+
+	private static float side(final LivingEntity entity) {
+		StaggerService.Stagger stagger = entity.getAttached(StaggerService.STAGGER);
+		return stagger == null ? 0.0F : stagger.side();
 	}
 
 	/** Used for both drawn meshes and the poses that hold equipment layers. */
@@ -300,9 +332,40 @@ public final class EnemyMotion {
 			bones.turn("left_arm", -strain, 0, 0);
 			bones.turn("head", strain * 0.5F, 0, 0);
 		}
+		if (motion.rocked > 0.0F) {
+			rock(bones, motion.rig, motion.rocked, motion.rockedSide);
+		}
 		// A hit travels through the supporting body before the head catches up.
 		bones.root.y += 0.5F * motion.hurt;
 		bones.turn("head", -0.16F * motion.hurt, 0.11F * motion.hurt, 0.0F);
+	}
+
+	/**
+	 * Rocked back by a heavy blow: the whole body leans back and toward the side it was pushed, the
+	 * head is thrown back and the arms fling out. Every rig shares it; four-legged ones lean less.
+	 */
+	private static void rock(final Bones b, final EnemyRig rig, final float amount, final float side) {
+		boolean upright = switch (rig) {
+			case UNDEAD, HUSK, DROWNED, SKELETON, ILLAGER, PIGLIN, ENDERMAN, CREAKING, WARDEN -> true;
+			default -> false;
+		};
+		// tilted, the heel and the outer edge of a sole dip: the body rides up on them instead. A long,
+		// wide body on many legs only rears up, front off the ground, and does not tip to a side.
+		if (upright) {
+			b.lean(-0.30F * amount, 0.10F * side * amount, -1.6F * amount, 0.0F);
+		} else {
+			b.lean(-0.12F * amount, 0.0F, -2.4F * amount, 0.0F);
+		}
+		b.turn("head", -0.50F * amount, 0.0F, 0.12F * side * amount);
+		b.turn("body", -0.10F * amount, 0.0F, 0.0F);
+		b.turn("right_arm", 0.35F * amount, 0.0F, 0.75F * amount);
+		b.turn("left_arm", 0.35F * amount, 0.0F, -0.75F * amount);
+		b.turn("arms", -0.30F * amount, 0.0F, 0.0F);
+		if (!upright) {
+			// the forelegs come off the ground a little as the weight goes back
+			b.turn("right_front_leg", -0.30F * amount, 0.0F, 0.0F);
+			b.turn("left_front_leg", -0.30F * amount, 0.0F, 0.0F);
+		}
 	}
 
 	private static void humanoid(final Bones b, final Sample m, final boolean swimming, final float time,
