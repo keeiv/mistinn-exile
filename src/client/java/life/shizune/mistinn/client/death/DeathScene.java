@@ -2,7 +2,6 @@ package life.shizune.mistinn.client.death;
 
 import life.shizune.mistinn.client.enemy.ExecutionView;
 import life.shizune.mistinn.enemy.ExecutionService;
-import life.shizune.mistinn.keeper.Snuffer;
 import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -119,7 +118,7 @@ public final class DeathScene {
 			return Cause.EXECUTION;
 		}
 		Entity attacker = source.getEntity();
-		if (attacker instanceof Snuffer) {
+		if (attacker instanceof life.shizune.mistinn.keeper.Keeper) {
 			return Cause.KEEPER;
 		}
 		if (attacker instanceof LivingEntity && attacker != Minecraft.getInstance().player) {
