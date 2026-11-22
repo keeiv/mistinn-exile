@@ -42,8 +42,17 @@ public enum EnemyRig {
 		return mob instanceof net.minecraft.world.entity.monster.warden.Warden || mob.hasLineOfSight(target);
 	}
 
-	public static @Nullable EnemyRig of(final EntityType<?> type) {
+	/**
+	 * The vanilla creature a creature of the mod fights like (its rig, its finisher, its windup cry):
+	 * the salt corpse is a husk underneath. Any other creature is its own kin.
+	 */
+	public static Identifier kin(final EntityType<?> type) {
 		Identifier id = EntityType.getKey(type);
+		return id.equals(life.shizune.mistinn.Mistinn.id("salt_corpse")) ? Identifier.withDefaultNamespace("husk") : id;
+	}
+
+	public static @Nullable EnemyRig of(final EntityType<?> type) {
+		Identifier id = kin(type);
 		if (!id.getNamespace().equals("minecraft")) {
 			return null;
 		}

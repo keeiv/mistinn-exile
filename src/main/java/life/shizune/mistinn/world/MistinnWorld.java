@@ -111,6 +111,7 @@ public final class MistinnWorld {
 
 		ServerLifecycleEvents.SERVER_STARTED.register(MistinnWorld::ensureSpawnStation);
 		ShoreMist.init();
+		life.shizune.mistinn.shore.ShoreSpawner.init();
 	}
 
 	/**

@@ -48,7 +48,7 @@ public final class VanillaCreatureSounds {
 
 	/** The windup cry for a vanilla creature, or null when it has none. */
 	public static @org.jspecify.annotations.Nullable SoundEvent windup(final net.minecraft.world.entity.EntityType<?> type) {
-		Identifier id = net.minecraft.world.entity.EntityType.getKey(type);
+		Identifier id = life.shizune.mistinn.enemy.EnemyRig.kin(type);
 		return id.getNamespace().equals("minecraft") ? WINDUPS.get(id.getPath()) : null;
 	}
 

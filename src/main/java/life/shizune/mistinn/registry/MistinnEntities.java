@@ -2,6 +2,7 @@ package life.shizune.mistinn.registry;
 
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.keeper.Snuffer;
+import life.shizune.mistinn.shore.SaltCorpse;
 import life.shizune.mistinn.station.StationHand;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
@@ -20,6 +21,12 @@ public final class MistinnEntities {
 		.clientTrackingRange(10)
 		.fireImmune());
 
+	/** 鹽屍: a hunter dried in the brine, the salt crusted over them; it gets back up once. */
+	public static final EntityType<SaltCorpse> SALT_CORPSE = register("salt_corpse", EntityType.Builder.<SaltCorpse>of(SaltCorpse::new, MobCategory.MONSTER)
+		.sized(0.6F, 1.95F)
+		.eyeHeight(1.74F)
+		.clientTrackingRange(8));
+
 	/** The people of Rust Anchor, in the player model. */
 	public static final EntityType<StationHand> STATION_HAND = register("station_hand", EntityType.Builder.<StationHand>of(StationHand::new, MobCategory.MISC)
 		.sized(0.6F, 1.8F)
@@ -37,5 +44,6 @@ public final class MistinnEntities {
 	public static void init() {
 		FabricDefaultAttributeRegistry.register(SNUFFER, Snuffer.createAttributes());
 		FabricDefaultAttributeRegistry.register(STATION_HAND, StationHand.createAttributes());
+		FabricDefaultAttributeRegistry.register(SALT_CORPSE, SaltCorpse.createAttributes());
 	}
 }
