@@ -60,6 +60,7 @@ public final class MistinnSaltCorpseTest implements FabricClientGameTest {
 				check(ExecutionMove.of(corpse) == ExecutionMove.GRAPPLE_BITE, "and finishes a hunter as one");
 			});
 			drawnOnItsOwnFrame(context);
+			jawHangsAndGapes(context);
 			getsUpOnce(context, world, arena);
 			struckWhileDown(context, world, arena);
 			killedOutright(context, world, arena);
@@ -92,6 +93,47 @@ public final class MistinnSaltCorpseTest implements FabricClientGameTest {
 			// a husk's head already stands a little above the space it takes; the salt on its crown may not add to that
 			check(shape[2] < 2.02F, "no taller than the husk it was, salt and all: top " + shape[2]);
 		}
+	}
+
+	/** Its slack jaw hangs and stirs on its own; when it turns on a hunter, it gapes. */
+	private static void jawHangsAndGapes(final ClientGameTestContext context) {
+		float[] got = context.computeOnClient(mc -> {
+			SaltCorpse entity = MistinnEntities.SALT_CORPSE.create(mc.level, EntitySpawnReason.COMMAND);
+			// a model only, never added to the world: it still needs an id to be drawn
+			entity.setId(-4242);
+			float now = jaw(ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> state.ageInTicks = 0.0F, true, null, null));
+			float later = jaw(ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> state.ageInTicks = 9.0F, true, null, null));
+			float gaping = jaw(ClipProbe.boxes(mc, entity, Vec3.ZERO, 0.0F, state -> {
+				state.ageInTicks = 0.0F;
+				if (state instanceof net.minecraft.client.renderer.entity.state.ZombieRenderState zombie) {
+					zombie.isAggressive = true;
+				}
+			}, true, null, null));
+			return new float[] {now, later, gaping};
+		});
+		check(Math.abs(got[0] - got[1]) > 0.003F, "its jaw stirs on its own: " + got[0] + " then " + got[1]);
+		check(got[2] < got[0] - 0.01F, "and gapes when it turns on a hunter: " + got[2] + " against " + got[0]);
+	}
+
+	/**
+	 * How high, on average, the jaw's boxes sit below the skull's: the lower, the wider it hangs open. Taken
+	 * against the skull, so the head's own sway and breath do not count as the jaw moving.
+	 */
+	private static float jaw(final List<ClipProbe.Box> boxes) {
+		float jaw = 0.0F;
+		int jaws = 0;
+		float skull = 0.0F;
+		int skulls = 0;
+		for (ClipProbe.Box box : boxes) {
+			if (box.path().startsWith("/head/jaw")) {
+				jaw += box.center().y;
+				jaws++;
+			} else if (box.path().equals("/head")) {
+				skull += box.center().y;
+				skulls++;
+			}
+		}
+		return jaw / jaws - skull / skulls;
 	}
 
 	private static void getsUpOnce(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
