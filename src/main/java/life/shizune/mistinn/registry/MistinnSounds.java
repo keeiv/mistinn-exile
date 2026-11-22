@@ -99,6 +99,23 @@ public final class MistinnSounds {
 	public static final SoundEvent SNUFFER_SNUFF = register("entity.snuffer.snuff");
 	public static final SoundEvent SNUFFER_MIST_AMBUSH = register("entity.snuffer.mist_ambush");
 	public static final SoundEvent SNUFFER_SOUL_SWEEP = register("entity.snuffer.soul_sweep");
+	// 沉鐘
+	public static final SoundEvent SUNKEN_BELL_RING = register("entity.sunken_bell.ring");
+	public static final SoundEvent SUNKEN_BELL_RING_CRACKED = register("entity.sunken_bell.ring_cracked");
+	public static final SoundEvent SUNKEN_BELL_TOLL = register("entity.sunken_bell.toll");
+	public static final SoundEvent SUNKEN_BELL_DOUBLE_TOLL = register("entity.sunken_bell.double_toll");
+	public static final SoundEvent SUNKEN_BELL_DEEP_TOLL = register("entity.sunken_bell.deep_toll");
+	public static final SoundEvent SUNKEN_BELL_HUM = register("entity.sunken_bell.hum");
+	public static final SoundEvent SUNKEN_BELL_CLAPPER_SWEEP = register("entity.sunken_bell.clapper_sweep");
+	public static final SoundEvent SUNKEN_BELL_CLAPPER_SMASH = register("entity.sunken_bell.clapper_smash");
+	public static final SoundEvent SUNKEN_BELL_RAM = register("entity.sunken_bell.bell_ram");
+	public static final SoundEvent SUNKEN_BELL_CHAIN_LASH = register("entity.sunken_bell.chain_lash");
+	public static final SoundEvent SUNKEN_BELL_UNDERTOW = register("entity.sunken_bell.undertow");
+	public static final SoundEvent SUNKEN_BELL_WADE = register("entity.sunken_bell.wade");
+	public static final SoundEvent SUNKEN_BELL_AMBIENT = register("entity.sunken_bell.ambient");
+	public static final SoundEvent SUNKEN_BELL_HURT = register("entity.sunken_bell.hurt");
+	public static final SoundEvent SUNKEN_BELL_DEATH = register("entity.sunken_bell.death");
+	public static final SoundEvent SUNKEN_BELL_STEP = register("entity.sunken_bell.step");
 	// the grid inventory, heard only by its owner
 	public static final SoundEvent GRID_PICKUP = register("ui.grid.pickup");
 	public static final SoundEvent GRID_PLACE = register("ui.grid.place");

@@ -1,6 +1,6 @@
 package life.shizune.mistinn.client.music;
 
-import life.shizune.mistinn.keeper.Snuffer;
+import life.shizune.mistinn.keeper.Keeper;
 import life.shizune.mistinn.registry.MistinnSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -36,7 +36,7 @@ public final class KeeperMusic {
 
 	/** The music for the fight in progress, or null when there is none. */
 	public static @Nullable Music current() {
-		Snuffer keeper = nearbyFight(Minecraft.getInstance());
+		Keeper keeper = nearbyFight(Minecraft.getInstance());
 		if (keeper == null) {
 			return null;
 		}
@@ -46,14 +46,14 @@ public final class KeeperMusic {
 		return keeper.getId() == keeperId && (!wasDark || turnTicks > 0) ? TURN : DARK;
 	}
 
-	private static @Nullable Snuffer nearbyFight(final Minecraft mc) {
+	private static @Nullable Keeper nearbyFight(final Minecraft mc) {
 		LocalPlayer player = mc.player;
 		if (player == null || mc.level == null || !player.isAlive()) {
 			return null;
 		}
-		Snuffer keeper = null;
+		Keeper keeper = null;
 		double best = Double.MAX_VALUE;
-		for (Snuffer candidate : mc.level.getEntitiesOfClass(Snuffer.class, player.getBoundingBox().inflate(FIGHT_RANGE))) {
+		for (Keeper candidate : mc.level.getEntitiesOfClass(Keeper.class, player.getBoundingBox().inflate(FIGHT_RANGE))) {
 			double distance = candidate.distanceToSqr(player);
 			if (candidate.isAlive() && distance < best) {
 				keeper = candidate;
@@ -73,13 +73,13 @@ public final class KeeperMusic {
 		return keeper;
 	}
 
-	private static boolean isDark(final Snuffer keeper) {
+	private static boolean isDark(final Keeper keeper) {
 		return keeper.getHealth() <= keeper.getMaxHealth() / 2.0F;
 	}
 
 	/** Track the change of phase only for the keeper the listener was already fighting. */
 	public static void tick(final Minecraft mc) {
-		Snuffer keeper = nearbyFight(mc);
+		Keeper keeper = nearbyFight(mc);
 		if (keeper == null) {
 			if (keeperId != -1) {
 				mc.getMusicManager().stopPlaying(FIGHT);

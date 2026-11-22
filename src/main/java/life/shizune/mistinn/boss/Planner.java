@@ -252,6 +252,19 @@ public final class Planner {
 		return true;
 	}
 
+
+	/** The families that are phases of a fight: a move in one of them belongs to that phase only. */
+	private static final java.util.List<String> PHASES = java.util.List.of("dark", "whole", "cracked");
+
+	/** Whether {@code move} may be chosen in {@code phase}: a move tied to a phase (the dark, the cracked bell) only in that phase. */
+	public static boolean allowedIn(final BossMove move, final String phase) {
+		for (String tied : PHASES) {
+			if (move.in(tied) && !tied.equals(phase)) {
+				return false;
+			}
+		}
+		return true;
+	}
 	/** One step of the simulation: where it leaves everything, and what it was worth. */
 	private @Nullable Node step(final Situation now, final Node node, final BossMove move, final int delay) {
 		if (!move.plannable()) {
@@ -273,7 +286,7 @@ public final class Planner {
 		if (index >= 0 && node.readyAt[index] > start) {
 			return null;
 		}
-		if (move.in("dark") && !"dark".equals(now.phase())) {
+		if (!allowedIn(move, now.phase())) {
 			return null;
 		}
 		boolean signalOwed = node.signal != null && start < node.signalUntil;

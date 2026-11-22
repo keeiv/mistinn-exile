@@ -59,6 +59,37 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `entity/snuffer/step_4.ogg` | `kenney_impact:footstep_concrete_002`; `kenney_rpg:handleCoins`; `synth:grit` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/sweep_1.ogg` | `vsco_ce:gongscrape_mf`; `kenney_impact:impactMetal_medium_001` | CC0 1.0 sources |
 | `entity/snuffer/sweep_2.ogg` | `vsco_ce:gongscrape_mf`; `kenney_impact:impactMetal_medium_002` | CC0 1.0 sources |
+| `entity/sunken_bell/ring_1.ogg` | `synth:struck bronze bell partials with a strike transient and a low thud` | project synthesis |
+| `entity/sunken_bell/ring_2.ogg` | `synth:struck bronze bell partials with a strike transient and a low thud` | project synthesis |
+| `entity/sunken_bell/ring_cracked_1.ogg` | `synth:struck bronze bell partials split by a crack, buzzing` | project synthesis |
+| `entity/sunken_bell/ring_cracked_2.ogg` | `synth:struck bronze bell partials split by a crack, buzzing` | project synthesis |
+| `entity/sunken_bell/toll_1.ogg` | `synth:swelling bell hum, chain clinks, a groan heard through a bell` | project synthesis |
+| `entity/sunken_bell/toll_2.ogg` | `synth:swelling bell hum, chain clinks, a groan heard through a bell` | project synthesis |
+| `entity/sunken_bell/double_toll_1.ogg` | `synth:sour cracked-bell hum, chain clinks` | project synthesis |
+| `entity/sunken_bell/double_toll_2.ogg` | `synth:sour cracked-bell hum, chain clinks` | project synthesis |
+| `entity/sunken_bell/deep_toll_1.ogg` | `synth:rising bell drone and a groan heard through a bell` | project synthesis |
+| `entity/sunken_bell/deep_toll_2.ogg` | `synth:rising bell drone and a groan heard through a bell` | project synthesis |
+| `entity/sunken_bell/hum_1.ogg` | `synth:low bell hum` | project synthesis |
+| `entity/sunken_bell/hum_2.ogg` | `synth:low bell hum` | project synthesis |
+| `entity/sunken_bell/clapper_sweep_1.ogg` | `synth:groan through a bell, band-passed air rush, chain clinks` | project synthesis |
+| `entity/sunken_bell/clapper_sweep_2.ogg` | `synth:groan through a bell, band-passed air rush, chain clinks` | project synthesis |
+| `entity/sunken_bell/clapper_smash_1.ogg` | `synth:groan through a bell, chain clinks, low air rush` | project synthesis |
+| `entity/sunken_bell/clapper_smash_2.ogg` | `synth:groan through a bell, chain clinks, low air rush` | project synthesis |
+| `entity/sunken_bell/bell_ram_1.ogg` | `synth:resonant stone scrapes and a fading bell hum` | project synthesis |
+| `entity/sunken_bell/bell_ram_2.ogg` | `synth:resonant stone scrapes and a fading bell hum` | project synthesis |
+| `entity/sunken_bell/chain_lash_1.ogg` | `synth:whirled chain clinks and a pulsing air rush` | project synthesis |
+| `entity/sunken_bell/chain_lash_2.ogg` | `synth:whirled chain clinks and a pulsing air rush` | project synthesis |
+| `entity/sunken_bell/undertow_1.ogg` | `synth:rushing water with bubbles, a groan through a bell` | project synthesis |
+| `entity/sunken_bell/undertow_2.ogg` | `synth:rushing water with bubbles, a groan through a bell` | project synthesis |
+| `entity/sunken_bell/wade_1.ogg` | `synth:water slosh with bubbles and a low thud` | project synthesis |
+| `entity/sunken_bell/wade_2.ogg` | `synth:water slosh with bubbles and a low thud` | project synthesis |
+| `entity/sunken_bell/ambient_1.ogg` | `synth:breath in a hollow bell with gurgles, faint hum` | project synthesis |
+| `entity/sunken_bell/ambient_2.ogg` | `synth:breath in a hollow bell with gurgles, faint hum` | project synthesis |
+| `entity/sunken_bell/hurt_1.ogg` | `synth:short bright bell strike with a groan` | project synthesis |
+| `entity/sunken_bell/hurt_2.ogg` | `synth:short bright bell strike with a groan` | project synthesis |
+| `entity/sunken_bell/death_1.ogg` | `synth:groan, a sour cracked bell, a thud and chain clinks` | project synthesis |
+| `entity/sunken_bell/step_1.ogg` | `synth:low thud and water slosh` | project synthesis |
+| `entity/sunken_bell/step_2.ogg` | `synth:low thud and water slosh` | project synthesis |
 | `entity/snuffer/slide_1.ogg` | `oga_creature_2:breath_02`; `oga_snarls:monsters-snarls-3#2`; `synth:salt grinding under a crouch` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/slide_2.ogg` | `oga_creature_1:breath`; `oga_monster_vol1:monster-12`; `synth:salt grinding under a crouch` | CC0 1.0 sources + project synthesis |
 | `entity/snuffer/rush_1.ogg` | `oga_monster_sfx:monster-5`; `synth:chain links drawn taut, a rush of air` | CC0 1.0 sources + project synthesis |

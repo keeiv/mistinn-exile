@@ -1,6 +1,7 @@
 package life.shizune.mistinn.client.mist;
 
 import java.util.List;
+import life.shizune.mistinn.keeper.SunkenBell;
 import life.shizune.mistinn.world.ShoreMist;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -14,7 +15,7 @@ import net.minecraft.world.level.material.FogType;
  * The shore mist on screen. Near a dead lighthouse the world fades into a grey mist sooner and
  * sooner, until at the tower's foot it is gone a stone's throw away, the sky with it; the map
  * shows little more than where the hunter stands. The mist comes and goes over a few seconds
- * rather than at a line.
+ * rather than at a line. In the room of 沉鐘 the mist is thicker still, a layer for every toll of its bell.
  */
 public final class ShoreMistClient {
 	/** How far the world shows at the mist's thickest, and where it starts to fade. */
@@ -27,9 +28,16 @@ public final class ShoreMistClient {
 	/** How fast the mist thickens or thins, a share of its full depth a tick. */
 	private static final float EASE = 0.02F;
 
+	/** How far off the bell's mist is reckoned to end when there is none: past it, it no longer counts. */
+	private static final float BELL_CLEAR = 64.0F;
+	/** How fast the bell's mist closes in or opens out, blocks a tick. */
+	private static final float BELL_EASE = 1.0F;
+
 	private static List<BlockPos> lighthouses = List.of();
 	private static float density;
 	private static float lastEnd = -1.0F;
+	/** Where the world ends in the bell's mist around the hunter now ({@link #BELL_CLEAR}: none). */
+	private static float bellEnd = BELL_CLEAR;
 
 	private ShoreMistClient() {
 	}
@@ -43,10 +51,23 @@ public final class ShoreMistClient {
 		if (mc.level == null || mc.player == null) {
 			lighthouses = List.of();
 			density = 0.0F;
+			bellEnd = BELL_CLEAR;
 			return;
 		}
 		float target = mc.level.dimension().equals(Level.OVERWORLD) ? thickness(mc.player.getX(), mc.player.getZ()) : 0.0F;
 		density += Mth.clamp(target - density, -EASE, EASE);
+		float sight = BELL_CLEAR;
+		for (SunkenBell bell : mc.level.getEntitiesOfClass(SunkenBell.class, mc.player.getBoundingBox().inflate(SunkenBell.MIST_REACH))) {
+			if (bell.isAlive()) {
+				sight = Math.min(sight, Math.min(BELL_CLEAR, bell.sight(bell.position().subtract(mc.player.position()).horizontalDistance())));
+			}
+		}
+		bellEnd += Mth.clamp(sight - bellEnd, -BELL_EASE, BELL_EASE);
+	}
+
+	/** How thick the bell's mist is around the hunter, 0 (none) to 1 (its deepest layer), for the map. */
+	private static float bellDensity() {
+		return Mth.clamp((BELL_CLEAR - bellEnd) / (BELL_CLEAR - SunkenBell.SIGHT[SunkenBell.MAX_LAYERS]), 0.0F, 1.0F);
 	}
 
 	/** How thick the mist stands at a place: 0 out past its reach, 1 near a lighthouse. */
@@ -59,9 +80,9 @@ public final class ShoreMistClient {
 		return Mth.smoothstep(Mth.clamp(t, 0.0F, 1.0F));
 	}
 
-	/** How thick the mist is around the hunter now, 0 to 1. */
+	/** How thick the mist is around the hunter now, 0 to 1: the shore's or the bell's, whichever is thicker. */
 	public static float density() {
-		return density;
+		return Math.max(density, bellDensity());
 	}
 
 	/** How far the world showed in the last frame the mist touched, or -1. */
@@ -84,17 +105,31 @@ public final class ShoreMistClient {
 
 	/** Thickens the fog the world is about to be drawn with; never thins it. */
 	public static void apply(final FogData fog, final Camera camera) {
-		if (density <= 0.001F) {
+		boolean bell = bellEnd < BELL_CLEAR - 0.01F;
+		if (density <= 0.001F && !bell) {
 			lastEnd = -1.0F;
 			return;
 		}
 		float d = density;
-		fog.environmentalStart = thicken(fog.environmentalStart, NEAR_START, d);
-		fog.environmentalEnd = thicken(fog.environmentalEnd, NEAR_END, d);
-		fog.renderDistanceStart = thicken(fog.renderDistanceStart, NEAR_START, d);
-		fog.renderDistanceEnd = thicken(fog.renderDistanceEnd, NEAR_END, d);
-		fog.skyEnd = thicken(fog.skyEnd, NEAR_END, d);
-		fog.cloudEnd = thicken(fog.cloudEnd, NEAR_END, d);
+		if (d > 0.001F) {
+			fog.environmentalStart = thicken(fog.environmentalStart, NEAR_START, d);
+			fog.environmentalEnd = thicken(fog.environmentalEnd, NEAR_END, d);
+			fog.renderDistanceStart = thicken(fog.renderDistanceStart, NEAR_START, d);
+			fog.renderDistanceEnd = thicken(fog.renderDistanceEnd, NEAR_END, d);
+			fog.skyEnd = thicken(fog.skyEnd, NEAR_END, d);
+			fog.cloudEnd = thicken(fog.cloudEnd, NEAR_END, d);
+		}
+		if (bell) {
+			// the bell's mist: nothing past the end of its layer, and the grey closing in from close by
+			float start = Math.min(NEAR_START, bellEnd * 0.1F);
+			fog.environmentalStart = Math.min(fog.environmentalStart, start);
+			fog.renderDistanceStart = Math.min(fog.renderDistanceStart, start);
+			fog.environmentalEnd = Math.min(fog.environmentalEnd, bellEnd);
+			fog.renderDistanceEnd = Math.min(fog.renderDistanceEnd, bellEnd);
+			fog.skyEnd = Math.min(fog.skyEnd, bellEnd);
+			fog.cloudEnd = Math.min(fog.cloudEnd, bellEnd);
+			d = Math.max(d, bellDensity());
+		}
 		if (camera.getFluidInCamera() == FogType.NONE) {
 			// grey by day, and dark as the sky is at night
 			float light = Mth.clamp((0.299F * fog.color.x + 0.587F * fog.color.y + 0.114F * fog.color.z) / 0.6F, 0.15F, 1.0F);

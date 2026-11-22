@@ -1,0 +1,1 @@
+{"_comment":"idle: the clapper dragged forward across the floor and back.","keys":[0.0,0.333333,0.666667,1.0],"eases":["in_out_sine","in_out_sine","in_out_sine"],"length":60,"pivot":0.0,"limbs":{"right_arm_x":[0,-18,-5,0],"body_x":[0,6,2,0],"right_arm_z":[0,4,2,0]}}
