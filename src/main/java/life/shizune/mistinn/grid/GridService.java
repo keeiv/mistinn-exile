@@ -127,7 +127,7 @@ public final class GridService {
 				set(player, inv.with(area, items));
 				menu.setCarried(carried);
 				menu.broadcastChanges();
-				cue(player, MistinnSounds.GRID_PLACE);
+				cue(player, GridSounds.place(there));
 			} else {
 				cue(player, MistinnSounds.GRID_REJECT);
 			}
@@ -144,7 +144,7 @@ public final class GridService {
 		set(player, inv.with(area, items));
 		menu.setCarried(ItemStack.EMPTY);
 		menu.broadcastChanges();
-		cue(player, MistinnSounds.GRID_PLACE);
+		cue(player, GridSounds.place(carried));
 	}
 
 	/** Clicking the backpack slot: equip the backpack on the cursor, or take the worn one off. */
@@ -288,12 +288,14 @@ public final class GridService {
 			return;
 		}
 		ItemStack moving = slot.getItem().copy();
+		// what it is, kept before the move takes the stack down to nothing
+		ItemStack kind = moving.copyWithCount(1);
 		int before = moving.getCount();
 		if (insert(player, moving)) {
 			int moved = before - moving.getCount();
 			slot.safeTake(moved, moved, player);
 			menu.broadcastChanges();
-			cue(player, MistinnSounds.GRID_PLACE);
+			cue(player, GridSounds.place(kind));
 		}
 	}
 

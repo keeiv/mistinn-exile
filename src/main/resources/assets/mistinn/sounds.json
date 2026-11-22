@@ -1081,5 +1081,61 @@
       "mistinn:gear/equip/helmet_2"
     ],
     "subtitle": "subtitles.mistinn.gear.equip.helmet"
+  },
+  "ui.grid.place.metal": {
+    "sounds": [
+      "mistinn:ui/grid/place_metal_1",
+      "mistinn:ui/grid/place_metal_2",
+      "mistinn:ui/grid/place_metal_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.place.metal"
+  },
+  "ui.grid.place.plate": {
+    "sounds": [
+      "mistinn:ui/grid/place_plate_1",
+      "mistinn:ui/grid/place_plate_2",
+      "mistinn:ui/grid/place_plate_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.place.plate"
+  },
+  "ui.grid.place.cloth": {
+    "sounds": [
+      "mistinn:ui/grid/place_cloth_1",
+      "mistinn:ui/grid/place_cloth_2",
+      "mistinn:ui/grid/place_cloth_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.place.cloth"
+  },
+  "ui.grid.place.grain": {
+    "sounds": [
+      "mistinn:ui/grid/place_grain_1",
+      "mistinn:ui/grid/place_grain_2",
+      "mistinn:ui/grid/place_grain_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.place.grain"
+  },
+  "ui.grid.place.glass": {
+    "sounds": [
+      "mistinn:ui/grid/place_glass_1",
+      "mistinn:ui/grid/place_glass_2",
+      "mistinn:ui/grid/place_glass_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.place.glass"
+  },
+  "ui.grid.place.paper": {
+    "sounds": [
+      "mistinn:ui/grid/place_paper_1",
+      "mistinn:ui/grid/place_paper_2",
+      "mistinn:ui/grid/place_paper_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.place.paper"
+  },
+  "ui.grid.place.wood": {
+    "sounds": [
+      "mistinn:ui/grid/place_wood_1",
+      "mistinn:ui/grid/place_wood_2",
+      "mistinn:ui/grid/place_wood_3"
+    ],
+    "subtitle": "subtitles.mistinn.ui.grid.place.wood"
   }
 }
