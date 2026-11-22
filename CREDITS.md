@@ -336,6 +336,27 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `ui/grid/reject_2.ogg` | `kenney_impact:impactSoft_heavy_003`; `synth:rattle` | CC0 1.0 sources + project synthesis |
 | `ui/grid/rotate_1.ogg` | `kenney_rpg:cloth`; `synth:moving-band noise flick` | CC0 1.0 sources + project synthesis |
 | `ui/grid/rotate_2.ogg` | `kenney_rpg:cloth`; `synth:moving-band noise flick` | CC0 1.0 sources + project synthesis |
+| `ui/grid/place_cloth_1.ogg` | `kenney_impact:impactSoft_medium_000`; `kenney_rpg:cloth2` | CC0 1.0 sources |
+| `ui/grid/place_cloth_2.ogg` | `kenney_impact:impactSoft_medium_001`; `kenney_rpg:cloth3` | CC0 1.0 sources |
+| `ui/grid/place_cloth_3.ogg` | `kenney_impact:impactSoft_medium_002`; `kenney_rpg:cloth4` | CC0 1.0 sources |
+| `ui/grid/place_glass_1.ogg` | `kenney_impact:impactGlass_light_000`; `kenney_impact:impactSoft_medium_000` | CC0 1.0 sources |
+| `ui/grid/place_glass_2.ogg` | `kenney_impact:impactGlass_light_001`; `kenney_impact:impactSoft_medium_001` | CC0 1.0 sources |
+| `ui/grid/place_glass_3.ogg` | `kenney_impact:impactGlass_light_002`; `kenney_impact:impactSoft_medium_002` | CC0 1.0 sources |
+| `ui/grid/place_grain_1.ogg` | `kenney_impact:impactSoft_medium_000`; `synth:salt grains settling` | CC0 1.0 sources + project synthesis |
+| `ui/grid/place_grain_2.ogg` | `kenney_impact:impactSoft_medium_001`; `synth:salt grains settling` | CC0 1.0 sources + project synthesis |
+| `ui/grid/place_grain_3.ogg` | `kenney_impact:impactSoft_medium_002`; `synth:salt grains settling` | CC0 1.0 sources + project synthesis |
+| `ui/grid/place_metal_1.ogg` | `kenney_impact:impactMetal_light_002`; `kenney_impact:impactSoft_medium_000` | CC0 1.0 sources |
+| `ui/grid/place_metal_2.ogg` | `kenney_impact:impactMetal_light_003`; `kenney_impact:impactSoft_medium_001` | CC0 1.0 sources |
+| `ui/grid/place_metal_3.ogg` | `kenney_impact:impactMetal_light_004`; `kenney_impact:impactSoft_medium_002` | CC0 1.0 sources |
+| `ui/grid/place_paper_1.ogg` | `kenney_rpg:bookPlace1` | CC0 1.0 sources |
+| `ui/grid/place_paper_2.ogg` | `kenney_rpg:bookPlace2` | CC0 1.0 sources |
+| `ui/grid/place_paper_3.ogg` | `kenney_rpg:bookPlace3` | CC0 1.0 sources |
+| `ui/grid/place_plate_1.ogg` | `kenney_impact:impactPlate_light_000`; `kenney_impact:impactSoft_medium_000` | CC0 1.0 sources |
+| `ui/grid/place_plate_2.ogg` | `kenney_impact:impactPlate_light_001`; `kenney_impact:impactSoft_medium_001` | CC0 1.0 sources |
+| `ui/grid/place_plate_3.ogg` | `kenney_impact:impactPlate_light_002`; `kenney_impact:impactSoft_medium_002` | CC0 1.0 sources |
+| `ui/grid/place_wood_1.ogg` | `kenney_impact:impactSoft_medium_000`; `kenney_impact:impactWood_light_000` | CC0 1.0 sources |
+| `ui/grid/place_wood_2.ogg` | `kenney_impact:impactSoft_medium_001`; `kenney_impact:impactWood_light_001` | CC0 1.0 sources |
+| `ui/grid/place_wood_3.ogg` | `kenney_impact:impactSoft_medium_002`; `kenney_impact:impactWood_light_002` | CC0 1.0 sources |
 | `weapon/anchor_blade/hit_1.ogg` | `kenney_impact:impactPunch_heavy_001`; `kenney_rpg:knifeSlice2`; `kenney_rpg:handleCoins2`; `synth:noise crunch and sub` | CC0 1.0 sources + project synthesis |
 | `weapon/anchor_blade/hit_2.ogg` | `kenney_impact:impactPunch_heavy_002`; `kenney_rpg:knifeSlice`; `kenney_rpg:handleCoins2`; `synth:noise crunch and sub` | CC0 1.0 sources + project synthesis |
 | `weapon/anchor_blade/hit_3.ogg` | `kenney_impact:impactPunch_heavy_003`; `kenney_rpg:knifeSlice2`; `kenney_rpg:handleCoins2`; `synth:noise crunch and sub` | CC0 1.0 sources + project synthesis |

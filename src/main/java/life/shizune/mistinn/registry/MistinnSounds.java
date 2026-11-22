@@ -137,6 +137,14 @@ public final class MistinnSounds {
 	// the grid inventory, heard only by its owner
 	public static final SoundEvent GRID_PICKUP = register("ui.grid.pickup");
 	public static final SoundEvent GRID_PLACE = register("ui.grid.place");
+	/** Set down in the pack, by what it is made of. */
+	public static final SoundEvent GRID_PLACE_METAL = register("ui.grid.place.metal");
+	public static final SoundEvent GRID_PLACE_PLATE = register("ui.grid.place.plate");
+	public static final SoundEvent GRID_PLACE_CLOTH = register("ui.grid.place.cloth");
+	public static final SoundEvent GRID_PLACE_GRAIN = register("ui.grid.place.grain");
+	public static final SoundEvent GRID_PLACE_GLASS = register("ui.grid.place.glass");
+	public static final SoundEvent GRID_PLACE_PAPER = register("ui.grid.place.paper");
+	public static final SoundEvent GRID_PLACE_WOOD = register("ui.grid.place.wood");
 	public static final SoundEvent GRID_ROTATE = register("ui.grid.rotate");
 	public static final SoundEvent GRID_REJECT = register("ui.grid.reject");
 	// putting gear on: padded cloth (N, I), plates (II and up), a backpack, a chest rig

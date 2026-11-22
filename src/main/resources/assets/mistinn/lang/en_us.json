@@ -1158,5 +1158,12 @@
   "subtitles.mistinn.entity.mist_shade.hurt": "Mist shade frays",
   "subtitles.mistinn.entity.mist_shade.death": "Mist shade disperses",
   "subtitles.mistinn.gear.equip.mask": "Mask strapped on",
-  "subtitles.mistinn.gear.equip.helmet": "Helmet buckled on"
+  "subtitles.mistinn.gear.equip.helmet": "Helmet buckled on",
+  "subtitles.mistinn.ui.grid.place.metal": "Metal set down",
+  "subtitles.mistinn.ui.grid.place.plate": "Armour set down",
+  "subtitles.mistinn.ui.grid.place.cloth": "Cloth set down",
+  "subtitles.mistinn.ui.grid.place.grain": "Grains settle",
+  "subtitles.mistinn.ui.grid.place.glass": "Bottle clinks",
+  "subtitles.mistinn.ui.grid.place.paper": "Paper set down",
+  "subtitles.mistinn.ui.grid.place.wood": "Wood set down"
 }
