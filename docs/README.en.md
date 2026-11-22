@@ -184,6 +184,8 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 | ![An intact drop station on the plains at dusk](images/drop-station.jpg) | ![A mist watchpost at the forest's edge](images/watchpost.jpg) |
 | ![An anchor wreck half sunk in a beach at dawn](images/anchor-wreck.jpg) | ![A salt cairn in the badlands](images/salt-cairn.jpg) |
 
+**Footsteps and landings**: on stone, wood, grass, gravel, sand, snow, wool and metal (35 kinds of block in all), steps and landings from a height are Kenney's CC0 recordings reworked, so you can hear what you walk on; hunters and monsters alike.
+
 ## Body parts
 
 ![The lamp room at night: the Snuffer's lantern burns cold blue, the lamp stands lit again](images/snuffer-dark.jpg)
@@ -442,6 +444,8 @@ Helmets last 70–640, masks 50–480, body armour 110–940, leggings 90–610,
 | VI | 2×3 ×2, 2×2 + 1×3 ×4 | 28 |
 
 Pockets are four 1×1 cells and the safe box is 2×2. Pickups fill the pockets, then the chest rig, then the backpack. On death the pockets, chest rig, backpack and mask go into the gravestone with everything else you carry; the safe box stays. Footprints: gems and ingots 1×1, sticks 1×2, tools and swords 1×3, ore and other blocks 2×2, armour 2×2 or 2×3; the injector, painkillers and tourniquet 1×1, the surgery kit and splint 1×2, and repair kits grow with their tier (armour: III 1×2, IV 1×3, V/VI 2×2; helmet: III/IV 1×2, V 1×3, VI 2×2). A backpack's contents live in the backpack item, so they travel with it. The backpack and chest rig you wear show on your body.
+
+**Sounds**: setting a thing down in the pack or lifting it out sounds like what it is made of: blades and tools knock as metal, armour from tier II clanks, cloth rustles, salt and sand settle in grains, bottles clink, books and papers turn, wood taps. Putting on a backpack, chest rig, mask, helmet or armour has a sound of its own as well: slung on, straps pulled, hook-and-loop torn, buckles shut, a breath through the filter.
 
 ## Building from source
 
