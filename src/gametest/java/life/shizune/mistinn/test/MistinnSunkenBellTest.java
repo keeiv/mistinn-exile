@@ -20,6 +20,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.GameType;
@@ -75,6 +76,7 @@ public final class MistinnSunkenBellTest implements FabricClientGameTest {
 			heavyBlowsRingItBack(context, world, stage);
 			deepTollAtTheFourthLayer(context, world, stage);
 			cracksAtHalf(context, world, stage);
+			dropShutsAHunterIn(context, world, stage);
 		}
 	}
 
@@ -322,6 +324,39 @@ public final class MistinnSunkenBellTest implements FabricClientGameTest {
 		context.waitTicks(3);
 		world.getServer().runOnServer(server -> {
 			check(bell(server, stage).cracked(), "below half the bell cracks");
+			clear(server, stage);
+		});
+	}
+
+	/** 罩鐘: it leaps and comes down over a hunter who stood still; they are shut in under it, in the dark, and it tolls. */
+	private static void dropShutsAHunterIn(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		check(!Planner.allowedIn(BellMoves.BELL_DROP, SunkenBell.WHOLE) && Planner.allowedIn(BellMoves.BELL_DROP, SunkenBell.CRACKED), "only the cracked bell drops");
+		world.getServer().runOnServer(server -> {
+			clear(server, stage);
+			ServerPlayer player = player(server);
+			player.teleportTo(server.overworld(), stage.getX() + 0.5, stage.getY(), stage.getZ() + 4.5, Set.of(), 180.0F, 0.0F, true);
+			SunkenBell bell = bell(server, stage);
+			bell.setTarget(player);
+			bell.perform("bell_drop");
+		});
+		boolean caught = false;
+		for (int i = 0; i < 50 && !caught; i++) {
+			context.waitTicks(1);
+			caught = world.getServer().computeOnServer(server -> player(server).hasEffect(MobEffects.BLINDNESS));
+		}
+		check(caught, "a hunter who stood still is caught under the bell, in the dark");
+		context.waitTicks(5);
+		world.getServer().runOnServer(server -> check(player(server).distanceTo(bell(server, stage)) < 1.0F,
+			"and held there under it: " + player(server).distanceTo(bell(server, stage))));
+		for (int i = 0; i < 40; i++) {
+			context.waitTicks(1);
+			if (world.getServer().computeOnServer(server -> BodyService.get(player(server)).get(BodyPart.HEAD) < BodyPart.MAX)) {
+				break;
+			}
+		}
+		world.getServer().runOnServer(server -> {
+			check(BodyService.get(player(server)).get(BodyPart.HEAD) < BodyPart.MAX, "it tolls with them inside: " + BodyService.get(player(server)));
+			player(server).removeAllEffects();
 			clear(server, stage);
 		});
 	}

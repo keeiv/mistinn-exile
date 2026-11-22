@@ -18,6 +18,8 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
@@ -260,6 +262,101 @@ public final class BellMoves {
 		})
 		.build();
 
+	// ── 罩鐘 ──────────────────────────────────────────────────────
+
+	/** Ticks of the drop: the leap; the last tick it is still in the air (held there until it lands); how long it holds a hunter under it. */
+	public static final int DROP_LEAP = 16;
+	public static final int DROP_AIR = 30;
+	public static final int DROP_HOLD = 20;
+	/** How near where it lands a hunter must stand to be shut in under the bell. */
+	public static final double DROP_CATCH = 1.8;
+
+	/**
+	 * 罩鐘: crouched low, it leaps at the hunter and comes down bell first over them. Whoever it lands on is shut in under
+	 * it, in the dark and unable to move, and it tolls with them inside. A roll out from under before it lands is the way
+	 * out. Only the cracked bell does it.
+	 */
+	public static final BossMove BELL_DROP = BossMove.builder("bell_drop", Kind.ATTACK).weight(Weight.GRAB)
+		.tell(MistinnSounds.SUNKEN_BELL_DROP, DROP_LEAP).timing(DROP_AIR - DROP_LEAP + 1 + DROP_HOLD + 2, 16)
+		.strike(BossMove.Strike.SCRIPTED, new HitShape.Circle(DROP_CATCH + 0.5, false), HEAD, 10.0F)
+		.range(2.0, 7.0).cooldown(160).families("drop", SunkenBell.CRACKED)
+		.seen((level, boss, target, tick) -> {
+			if (target != null) {
+				level.sendParticles(ParticleTypes.BUBBLE_POP, target.getX(), target.getY() + 0.1, target.getZ(), 6, 0.8, 0.05, 0.8, 0.0);
+			}
+		})
+		.script(BellMoves::drop)
+		.build();
+
+	/** The leap at {@link #DROP_LEAP}, in the air until it lands, whoever it lands on held under it, and the toll inside. */
+	private static void drop(final MoveRunner.Context context) {
+		int tick = context.tick();
+		Mob boss = context.boss;
+		if (tick == DROP_LEAP) {
+			Vec3 to = context.target == null ? Vec3.ZERO : context.target.position().subtract(boss.position());
+			Vec3 flat = new Vec3(to.x, 0.0, to.z);
+			double reach = Math.min(flat.length(), 7.0) / 7.0;
+			Vec3 push = flat.lengthSqr() < 1.0E-4 ? Vec3.ZERO : flat.normalize().scale(0.85 * reach);
+			boss.setDeltaMovement(push.x, 0.7, push.z);
+			boss.needsSync = true;
+			context.note("air", 0);
+			return;
+		}
+		Integer air = context.note("air");
+		if (air != null) {
+			context.note("air", air + 1);
+			if (air + 1 > 2 && boss.onGround() || air + 1 > 60) {
+				context.note("air", null);
+				land(context);
+				context.skipTo(DROP_AIR + 1);
+			} else if (tick == DROP_AIR) {
+				context.hold();
+			}
+			return;
+		}
+		ServerPlayer held = context.note("held");
+		if (held == null || tick <= DROP_AIR) {
+			return;
+		}
+		if (!held.isAlive() || held.level() != context.level || held.isSpectator() || held.isCreative()) {
+			context.note("held", null);
+			return;
+		}
+		if (tick < DROP_AIR + 1 + DROP_HOLD) {
+			// shut in under the bell: wherever it stands, there they are
+			held.teleportTo(context.level, boss.getX(), boss.getY(), boss.getZ(), Set.of(), held.getYRot(), held.getXRot(), false);
+			held.setDeltaMovement(Vec3.ZERO);
+			held.syncVelocity = true;
+			return;
+		}
+		// the toll, with them inside, and they are let out
+		context.level.playSound(null, boss.blockPosition(), MistinnSounds.SUNKEN_BELL_RING_CRACKED, SoundSource.HOSTILE, 3.0F, 0.7F);
+		MoveRunner.hit(context.level, boss, held, HEAD, context.move().strikes().getFirst().damage());
+		Vec3 out = HitShape.facing(boss);
+		held.setDeltaMovement(out.x * 0.7, 0.3, out.z * 0.7);
+		held.syncVelocity = true;
+		context.note("held", null);
+	}
+
+	/** It comes down: the first hunter close enough to where it lands is shut in under the bell, the dark over their eyes. */
+	private static void land(final MoveRunner.Context context) {
+		Mob boss = context.boss;
+		context.level.playSound(null, boss.blockPosition(), SoundEvents.ANVIL_LAND, SoundSource.HOSTILE, 1.2F, 0.5F);
+		context.level.sendParticles(ParticleTypes.CLOUD, boss.getX(), boss.getY() + 0.1, boss.getZ(), 40, 1.4, 0.05, 1.4, 0.04);
+		for (Player player : context.level.getEntitiesOfClass(Player.class, boss.getBoundingBox().inflate(DROP_CATCH + 1.0, 1.5, DROP_CATCH + 1.0))) {
+			if (!(player instanceof ServerPlayer hunter) || !hunter.isAlive() || hunter.isSpectator() || hunter.isCreative()) {
+				continue;
+			}
+			if (Math.hypot(hunter.getX() - boss.getX(), hunter.getZ() - boss.getZ()) <= DROP_CATCH && Math.abs(hunter.getY() - boss.getY()) <= 1.5) {
+				context.note("held", hunter);
+				hunter.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, DROP_HOLD + 30, 0, false, false));
+				hunter.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, DROP_HOLD + 10, 4, false, false));
+				context.level.playSound(null, hunter.blockPosition(), MistinnSounds.SUNKEN_BELL_HUM, SoundSource.HOSTILE, 2.0F, 0.6F);
+				return;
+			}
+		}
+	}
+
 	// ── Movement ──────────────────────────────────────────────────
 
 	private static BossMove.Motion keys(final BossMove.Motion.Key... keys) {
@@ -304,7 +401,7 @@ public final class BellMoves {
 
 	public static final MoveSet SET = new MoveSet(List.of(
 		TOLL, DOUBLE_TOLL, DEEP_TOLL,
-		CLAPPER_SWEEP, CLAPPER_SMASH, BELL_RAM, CHAIN_LASH, UNDERTOW,
+		CLAPPER_SWEEP, CLAPPER_SMASH, BELL_RAM, CHAIN_LASH, UNDERTOW, BELL_DROP,
 		WADE_LEFT, WADE_RIGHT, BACK_WADE,
 		FAKE_TOLL, BELL_HUM,
 		STAGGER), List.of(

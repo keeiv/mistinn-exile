@@ -116,6 +116,7 @@ public final class MistinnSounds {
 	public static final SoundEvent SUNKEN_BELL_HURT = register("entity.sunken_bell.hurt");
 	public static final SoundEvent SUNKEN_BELL_DEATH = register("entity.sunken_bell.death");
 	public static final SoundEvent SUNKEN_BELL_STEP = register("entity.sunken_bell.step");
+	public static final SoundEvent SUNKEN_BELL_DROP = register("entity.sunken_bell.bell_drop");
 	// the grid inventory, heard only by its owner
 	public static final SoundEvent GRID_PICKUP = register("ui.grid.pickup");
 	public static final SoundEvent GRID_PLACE = register("ui.grid.place");
