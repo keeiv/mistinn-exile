@@ -120,6 +120,8 @@ public final class MistinnBellTowerTest implements FabricClientGameTest {
 			check(level.getBlockState(hatch).is(net.minecraft.world.level.block.Blocks.BARRIER), "up in the belfry, the mist shuts the hatch: " + level.getBlockState(hatch));
 			SunkenBell bell = level.getEntitiesOfClass(SunkenBell.class, new AABB(origin).inflate(20.0)).getFirst();
 			check(life.shizune.mistinn.keeper.MistWall.shut(bell, level), "its room says it is shut");
+			// the bell's lip knocked away mid-fight: the room can no longer be told, and what was shut still opens when it falls
+			level.setBlockAndUpdate(origin.offset(2, BellTower.BELL_LIP, 0), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
 			bell.kill(level);
 		});
 		context.waitTicks(5);

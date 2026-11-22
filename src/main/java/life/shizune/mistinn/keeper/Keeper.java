@@ -27,6 +27,8 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -118,6 +120,26 @@ public abstract class Keeper extends Monster {
 		builder.define(DATA_MOVE, (byte) 0);
 		builder.define(DATA_MOVE_TICKS, 0);
 		builder.define(DATA_MOVE_HELD, false);
+	}
+
+	/** Its room is where it first stood, and stays there through a save: a keeper reloaded mid-fight is still in its own room. */
+	@Override
+	protected void addAdditionalSaveData(final ValueOutput output) {
+		super.addAdditionalSaveData(output);
+		if (this.home != null) {
+			output.putDouble("KeeperHomeX", this.home.x);
+			output.putDouble("KeeperHomeY", this.home.y);
+			output.putDouble("KeeperHomeZ", this.home.z);
+		}
+	}
+
+	@Override
+	protected void readAdditionalSaveData(final ValueInput input) {
+		super.readAdditionalSaveData(input);
+		double x = input.getDoubleOr("KeeperHomeX", Double.NaN);
+		if (!Double.isNaN(x)) {
+			this.leash(new Vec3(x, input.getDoubleOr("KeeperHomeY", 0.0), input.getDoubleOr("KeeperHomeZ", 0.0)), this.roomRadius() * Planner.ROOM_REACH);
+		}
 	}
 
 	// ── State, for tests and the client ───────────────────────────

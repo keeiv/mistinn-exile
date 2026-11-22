@@ -31,6 +31,8 @@ public final class MistWall {
 	private static final class State {
 		private boolean sealed;
 		private int empty;
+		/** The room as it was when the mist shut it: opened again from this, even if the room can no longer be told. */
+		private @org.jspecify.annotations.Nullable Room room;
 	}
 
 	private MistWall() {
@@ -42,11 +44,17 @@ public final class MistWall {
 			return;
 		}
 		Room room = keeper.sealedRoom(level);
+		State state = STATES.computeIfAbsent(keeper, k -> new State());
 		if (room == null) {
+			// the room can no longer be told (a lamp stand broken, the bell's lip knocked away): what was shut opens
+			if (state.room != null) {
+				open(level, state.room);
+				state.room = null;
+				state.sealed = false;
+			}
 			return;
 		}
 		BlockPos centre = room.centre();
-		State state = STATES.computeIfAbsent(keeper, k -> new State());
 		boolean hunterIn = false;
 		for (ServerPlayer player : level.players()) {
 			double dx = player.getX() - (centre.getX() + 0.5);
@@ -70,10 +78,12 @@ public final class MistWall {
 				}
 			}
 			shut(level, room);
+			state.room = room;
 			return;
 		}
 		if (++state.empty >= EMPTY / 5 || !keeper.isAlive()) {
 			state.sealed = false;
+			state.room = null;
 			open(level, room);
 		}
 	}
@@ -81,7 +91,10 @@ public final class MistWall {
 	/** The keeper has fallen: the way opens at once. */
 	static void fallen(final Keeper keeper, final ServerLevel level) {
 		Room room = keeper.sealedRoom(level);
-		STATES.remove(keeper);
+		State state = STATES.remove(keeper);
+		if (state != null && state.room != null) {
+			open(level, state.room);
+		}
 		if (room != null) {
 			open(level, room);
 		}

@@ -24,6 +24,8 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * 沉鐘, the second Lighthouse Keeper: a drowned bell-ringer whose head and shoulders are sealed in a cracked bronze
@@ -94,6 +96,19 @@ public class SunkenBell extends Keeper {
 
 	public boolean cracked() {
 		return this.cracked;
+	}
+
+	/** A cracked bell stays cracked through a save, and does not crack again (with its message) when it is loaded. */
+	@Override
+	protected void addAdditionalSaveData(final ValueOutput output) {
+		super.addAdditionalSaveData(output);
+		output.putBoolean("BellCracked", this.cracked);
+	}
+
+	@Override
+	protected void readAdditionalSaveData(final ValueInput input) {
+		super.readAdditionalSaveData(input);
+		this.cracked = input.getBooleanOr("BellCracked", false);
 	}
 
 	// ── The mist ──────────────────────────────────────────────────
