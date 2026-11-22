@@ -303,6 +303,15 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 - **Dive**: an unsplinted broken leg or two destroyed legs without painkillers force a dive. It costs 28 stamina and gives no protection from blows. The usual landing spreads 12 points of damage over the living parts of the upper body.
 - A destroyed torso slows stamina recovery; destroyed legs make sprinting cost more.
 
+### Through your own eyes
+
+In first person you have a body: look down and there is your chest, your legs walking, your hands hanging at your sides with whatever they hold. They come up in front of you only to swing, charge, draw a bow, eat or dig, and sink back afterwards.
+
+- **The view moves with the body**: it rocks from foot to foot at a walk and harder at a sprint; a landing dips it, harder from higher. Below 35% stamina it heaves with your breath.
+- **Running looks like running**: at a sprint the body leans in and the arms pump, in the same stride the view rocks to. A hand with a weapon in it pumps less.
+- **Treatment with your own hands**: injecting, pills, tourniquet, splint, surgery, armour and helmet repair are done by the body's own hands, and the view tips down to the work (back, to swallow pills); the small beats of the job (a stitch, a binding pulled tight, a patch pressed down) are there to see.
+- **Your own voice**: the first time you enter a world you are asked for a man's voice or a girl's (you can listen first), and it stays with that hunter. You hear yourself struck, badly wounded, straining behind a heavy blow or a roll, out of breath, landing hard and falling; others nearby hear your cries too.
+
 ## The fog-shore lighthouse and the Snuffer
 
 Rust Anchor says the coasts at the world's edge are lined with dead lighthouses, each held by a keeper. Now and then a beach has a **fog-shore lighthouse**. A golden bell waits in a stone shrine by the door. The spiral stair climbs past the supplies to the lamp room, where the Snuffer waits.

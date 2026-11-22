@@ -26,7 +26,7 @@ public final class RunPose {
 	/** A hand that holds something pumps this share. */
 	public static final float LADEN = 0.55F;
 	/** The legs stride this much further than vanilla's. */
-	public static final float LEG_DRIVE = 1.18F;
+	public static final float LEG_DRIVE = 1.08F;
 	/** The shoulders turn with the stride (radians), and the body dips at each footfall (blocks). */
 	public static final float TWIST = 0.12F;
 	public static final float DIP = 0.05F;
