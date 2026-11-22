@@ -50,6 +50,8 @@ public final class MistinnItems {
 	/** 鹽: the currency is a number on the player; a salt pouch found in the world adds to it when used. */
 	public static final Item SALT = register("salt", SaltItem::new, new Item.Properties());
 	/** 鏽神的鹽塊: what the Lighthouse Keepers guard. */
+	/** 燈油: lighthouse lamp oil. Lamp thralls carry it; it lights the golden bell halfway up a lighthouse. */
+	public static final Item LAMP_OIL = register("lamp_oil", Item::new, new Item.Properties().stacksTo(16));
 	public static final Item RUST_GOD_SALT = register("rust_god_salt", Item::new, new Item.Properties().stacksTo(16).rarity(Rarity.EPIC).fireResistant());
 
 	/** The named weapons: each a branch's own, with sounds made for it. */
@@ -68,7 +70,7 @@ public final class MistinnItems {
 
 	/** 追獵者手冊: the world's story and the rules of the hunt, given to every hunter on arrival. */
 	/** Pages of the guide's text (item.mistinn.hunter_guide.page.N), read as spreads in its screen. */
-	public static final int GUIDE_PAGES = 15;
+	public static final int GUIDE_PAGES = 16;
 	public static final Item HUNTER_GUIDE = register("hunter_guide", life.shizune.mistinn.story.HunterGuideItem::new, new Item.Properties().stacksTo(1));
 
 	public static final Item GOLDEN_BELL = block("golden_bell", MistinnBlocks.GOLDEN_BELL, new Item.Properties().rarity(Rarity.RARE));
