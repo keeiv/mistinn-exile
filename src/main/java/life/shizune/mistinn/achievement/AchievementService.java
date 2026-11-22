@@ -24,6 +24,8 @@ import net.minecraft.world.entity.player.Player;
 public final class AchievementService {
 	/** 打倒熄燈人: the first lighthouse keeper has fallen with this hunter near. */
 	public static final String SNUFFER = "snuffer";
+	/** 打倒沉鐘: the second keeper has fallen with this hunter near. */
+	public static final String SUNKEN_BELL = "sunken_bell";
 	/** 鹽商: salt carried at once. */
 	public static final int RICH = 5000;
 	/** 百兵: marks kept in the same record, one per weapon branch a creature was brought down with. */

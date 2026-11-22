@@ -1128,5 +1128,9 @@
   "subtitles.mistinn.entity.sunken_bell.ambient": "Breathing inside a bell",
   "subtitles.mistinn.entity.sunken_bell.hurt": "The Sunken Bell is struck",
   "subtitles.mistinn.entity.sunken_bell.death": "The Sunken Bell falls",
-  "subtitles.mistinn.entity.sunken_bell.step": "Heavy wet footsteps"
+  "subtitles.mistinn.entity.sunken_bell.step": "Heavy wet footsteps",
+  "achievement.mistinn.sunken_bell": "Sunken Bell Silenced",
+  "achievement.mistinn.sunken_bell.desc": "The Sunken Bell falls with you near",
+  "item.mistinn.hunter_guide.page.19": "[Fog-Bell Station]\n\nOn a reef in the shallows, rarer than a lighthouse.\n\nA golden bell where the boats tied up; the higher the floor, the better the stores. The Sunken Bell waits under the great bell on top.",
+  "item.mistinn.hunter_guide.page.20": "[The Sunken Bell]\n\nA toll rolls a ring along the floor: jump it or roll.\n\nEach toll thickens the mist; at four layers, three tolls. Its bell hums first.\n\nA full heavy blow rings its own bell and thins the mist."
 }

@@ -1,0 +1,19 @@
+{
+  "feature": "mistinn:bell_tower",
+  "placement": [
+    {
+      "type": "minecraft:rarity_filter",
+      "chance": 900
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:heightmap",
+      "heightmap": "OCEAN_FLOOR_WG"
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}
