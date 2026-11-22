@@ -106,6 +106,7 @@ public final class TrainingService {
 	public static void init() {
 		TrainingGround.init();
 		StationCeremony.init();
+		StationArrival.init();
 		PayloadTypeRegistry.serverboundPlay().register(DeployPayload.TYPE, DeployPayload.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(DeployPayload.TYPE, (payload, context) ->
 			finish(context.player(), payload.story() ? WorldMode.STORY : WorldMode.FREE));
@@ -295,6 +296,10 @@ public final class TrainingService {
 	}
 
 	private static void train(final ServerPlayer player, final ServerLevel range) {
+		if (StationCeremony.dropping(player)) {
+			// the drop has the hunter now: falling into the sea is not falling off a deck
+			return;
+		}
 		if (TrainingGround.upgraded(range)) {
 			startOver(player, range);
 		}
@@ -777,19 +782,27 @@ public final class TrainingService {
 		}
 	}
 
-	/** After the third bell: the hunter leaves the station for the world they chose. */
+	/**
+	 * Under the sea, the drop sends the hunter on to the world they chose: they come out of the dark
+	 * falling over it ({@link StationArrival}), or, with no room for a fall, are set down on its pad.
+	 */
 	static void complete(final ServerPlayer player, final WorldMode next) {
-		if (!at(player, TrainingLesson.DEPLOY) || !inSeat(player)) {
+		// by now the seat is down in the sea, far from the pod: only the lesson and the station are asked after
+		if (player.getAttached(LESSON) != TrainingLesson.DEPLOY || !player.level().dimension().equals(TrainingGround.KEY)) {
+			Mistinn.LOGGER.warn("The drop could not send {} on: not seated for it", player.getName().getString());
 			return;
 		}
 		MinecraftServer server = player.level().getServer();
 		ServerLevel overworld = server.overworld();
 		Entity seat = player.getVehicle();
 		player.stopRiding();
-		if (!move(player, overworld, overworld.getRespawnData().pos())) {
+		boolean falling = StationArrival.begin(player, overworld, next == WorldMode.STORY);
+		if (!falling && !move(player, overworld, overworld.getRespawnData().pos())) {
 			return;
 		}
-		seat.discard();
+		if (seat != null && seat.entityTags().contains(POD_SEAT)) {
+			seat.discard();
+		}
 		player.removeAttached(LESSON);
 		player.getInventory().clearContent();
 		player.containerMenu.setCarried(ItemStack.EMPTY);
@@ -812,7 +825,8 @@ public final class TrainingService {
 		player.getFoodData().setSaturation(5.0F);
 		player.setGameMode(server.getWorldData().getGameType());
 		overworld.setAttached(WorldMode.ATTACHMENT, next);
-		if (next == WorldMode.STORY) {
+		if (!falling && next == WorldMode.STORY) {
+			// the story waits for the landing when there is a fall
 			StoryService.beginAfterTraining(server);
 		}
 	}

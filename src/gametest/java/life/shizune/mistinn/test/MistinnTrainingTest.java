@@ -399,8 +399,12 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		server(context, player -> check(player.level().getEntitiesOfClass(StationHand.class, player.getBoundingBox().inflate(256.0),
 			h -> h.role() != StaffRole.CRANE_OPERATOR).isEmpty(), "by the third bell no one is left but the crane operator"));
 		context.waitFor(mc -> mc.player != null && mc.player.level().dimension().equals(Level.OVERWORLD), 1000);
+		// the hunter falls over the new world onto the pad, and comes to before anything else
+		context.waitFor(mc -> !mc.player.isPassenger() && !TrainingClient.dropping(), 900);
+		context.waitTicks(30);
 		server(context, player -> {
 			var world = player.level().getServer();
+			check(!life.shizune.mistinn.training.StationArrival.arriving(player), "the arrival is over");
 			check(WorldMode.of(world) == mode, "the chosen destination is now the world's mode");
 			check(!player.hasAttached(TrainingService.LESSON) && !player.isPassenger(), "the training progress and seat were cleared");
 			check(!player.hasAttached(MistinnAttachments.BELL) && SaltService.get(player) == 0, "course resources stay at the range");

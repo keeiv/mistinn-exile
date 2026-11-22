@@ -21,6 +21,24 @@ public abstract class SceneCameraMixin {
 	@Shadow
 	protected abstract void setRotation(float yaw, float pitch);
 
+	/**
+	 * The drop turns the hunter's own head where they are falling, before the view is set up from
+	 * it: the view and what the world draws for it (which turns on where the hunter looks) agree.
+	 */
+	@Inject(method = "update", at = @At("HEAD"))
+	private void mistinn$drop(final DeltaTracker deltaTracker, final CallbackInfo ci) {
+		Minecraft mc = Minecraft.getInstance();
+		float[] drop = life.shizune.mistinn.client.training.DropCinematic.view(mc, deltaTracker.getGameTimeDeltaPartialTick(false));
+		if (drop != null && mc.player != null) {
+			mc.player.setYRot(drop[0]);
+			mc.player.yRotO = drop[0];
+			mc.player.setYHeadRot(drop[0]);
+			mc.player.yHeadRotO = drop[0];
+			mc.player.setXRot(drop[1]);
+			mc.player.xRotO = drop[1];
+		}
+	}
+
 	@Inject(method = "update", at = @At("TAIL"))
 	private void mistinn$scene(final DeltaTracker deltaTracker, final CallbackInfo ci) {
 		SceneScreen scene = SceneScreen.current();

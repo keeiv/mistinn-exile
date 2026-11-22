@@ -19,6 +19,9 @@ import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignText;
+import net.minecraft.world.level.block.entity.SignTextSlot;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -170,6 +173,25 @@ public final class Builder {
 			state = state.setValue(BlockStateProperties.FACING, direction);
 		}
 		this.set(x, y, z, state);
+	}
+
+	/**
+	 * A wall sign facing {@code facing}, its front written and waxed so no one can change it. The
+	 * words go in only where the sign's block entity exists at once, in a loaded level; in world
+	 * generation the sign stays blank.
+	 */
+	public void sign(final int x, final int y, final int z, final Block wallSign, final Direction facing, final SignText text) {
+		this.facing(x, y, z, wallSign, facing);
+		BlockPos pos = this.at(x, y, z);
+		if (this.level.getBlockEntity(pos) instanceof SignBlockEntity sign) {
+			sign.setText(text, SignTextSlot.FRONT);
+			sign.setWaxed(true);
+			sign.setChanged();
+			if (this.level instanceof net.minecraft.server.level.ServerLevel server) {
+				BlockState state = server.getBlockState(pos);
+				server.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+			}
+		}
 	}
 
 	// ── Shaped blocks ─────────────────────────────────────────────

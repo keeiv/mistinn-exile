@@ -25,13 +25,24 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.WallSignBlock;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignText;
+import net.minecraft.world.level.block.entity.SignTextSlot;
+import life.shizune.mistinn.world.PodPlate;
+import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
 
 /**
  * The drop, the end of the course. First the station sees 3411 off: everyone gathers under the
  * crane, 3411 takes the pod, Helm calls the drop, the bell rings and the pod goes down. Then it is
  * the hunter's turn: once they have chosen where to go, the bell rings three times, and with every
- * ring there are fewer people on the deck, until the screen goes dark and the hunter is dropped.
+ * ring there are fewer people on the deck, until the screen goes dark. The clamps let go and the
+ * seat falls from the crane into the sea, and goes under; only then is the hunter sent on, to
+ * {@link StationArrival}.
  */
 public final class StationCeremony {
 	/** The tower bell, where the station's rings come from. */
@@ -61,8 +72,21 @@ public final class StationCeremony {
 		EnumSet.of(StaffRole.COOK, StaffRole.SMITH, StaffRole.SCOUT, StaffRole.QUARTERMASTER, StaffRole.RADIO_OPERATOR),
 		EnumSet.of(StaffRole.INSTRUCTOR, StaffRole.DOCTOR, StaffRole.ARCHIVIST, StaffRole.BELL_KEEPER));
 	public static final int FAREWELL_TICKS = 160;
-	public static final int DROP_TICKS = 140;
 	private static final int[] RINGS = {0, 50, 100};
+	/** When the clamps let go of the seat, after the third bell has died away. */
+	public static final int RELEASE = 112;
+	/** Half the fall's pull: the seat drops {@code FALL * t * t} blocks in t ticks, as anything falls. */
+	private static final double FALL = 0.04;
+	/** The top of the sea around the station, and the lowest the hunter's eyes go under it (the floor is at 52). */
+	private static final double SURFACE = 63.0;
+	private static final double LOWEST_EYE = 54.0;
+	/** How quickly the water slows the seat, and how long the hunter goes down before being sent on. */
+	private static final double DRAG = 0.08;
+	public static final int SINK_TICKS = 52;
+	/** Sent on regardless by now, should the sea never be reached. */
+	private static final int GIVE_UP = RELEASE + 160;
+	/** The number plate on the crane's pod, by its mouth, facing the deck. */
+	public static final BlockPos PLATE = new BlockPos(-29, 92, -125);
 
 	private static final Map<UUID, Integer> FAREWELL = new HashMap<>();
 	private static final Set<UUID> SEEN_OFF = new HashSet<>();
@@ -70,7 +94,14 @@ public final class StationCeremony {
 	/** Roles gone from the station for good this session: the staff spawner leaves their posts empty. */
 	private static final Set<StaffRole> DEPARTED = EnumSet.noneOf(StaffRole.class);
 
-	private record Drop(WorldMode next, int ticks) {
+	/**
+	 * A drop under way: where it goes, how long it has run, the seat, how far the hunter's eyes sit
+	 * above it, where it was let go from, and when and where it reached the sea (-1 before then).
+	 */
+	private record Drop(WorldMode next, int ticks, UUID seat, double eye, double top, int splash, double splashY) {
+		Drop next(final int ticks, final double top, final int splash, final double splashY) {
+			return new Drop(this.next, ticks, this.seat, this.eye, top, splash, splashY);
+		}
 	}
 
 	private StationCeremony() {
@@ -96,11 +127,13 @@ public final class StationCeremony {
 
 	/** The hunter chose where to go: the three rings begin. */
 	static void drop(final ServerPlayer hunter, final WorldMode next) {
-		if (DROPS.containsKey(hunter.getUUID())) {
+		Entity seat = hunter.getVehicle();
+		if (DROPS.containsKey(hunter.getUUID()) || seat == null) {
 			return;
 		}
-		DROPS.put(hunter.getUUID(), new Drop(next, 0));
-		ServerPlayNetworking.send(hunter, new DropPayload(DROP_TICKS));
+		DROPS.put(hunter.getUUID(), new Drop(next, 0, seat.getUUID(), hunter.getEyeY() - seat.getY(), seat.getY(), -1, 0.0));
+		plate(hunter.level(), PodPlate.HUNTER);
+		ServerPlayNetworking.send(hunter, new DropPayload(RELEASE));
 	}
 
 	static void tick(final ServerPlayer hunter, final ServerLevel range) {
@@ -110,13 +143,19 @@ public final class StationCeremony {
 			dropTick(hunter, range, drop);
 			return;
 		}
-		if (hunter.getAttached(TrainingService.LESSON) != TrainingLesson.BOARD || SEEN_OFF.contains(id)
-			|| hunter.getY() < TrainingLesson.BOARD.target.getY() - 2) {
+		TrainingLesson lesson = hunter.getAttached(TrainingService.LESSON);
+		boolean top = hunter.getY() >= TrainingLesson.BOARD.target.getY() - 2;
+		if (top && range.getGameTime() % 10 == 0 && (lesson == TrainingLesson.REPORT || lesson == TrainingLesson.BOARD || lesson == TrainingLesson.DEPLOY)) {
+			// the pod at the crane is 3411's until it has gone down, then the next one is the hunter's
+			plate(range, SEEN_OFF.contains(id) || FAREWELL.getOrDefault(id, 0) > 100 ? PodPlate.HUNTER : PodPlate.ROOMMATE);
+		}
+		if (lesson != TrainingLesson.BOARD || SEEN_OFF.contains(id) || !top) {
 			return;
 		}
 		int t = FAREWELL.merge(id, 1, Integer::sum) - 1;
 		if (t == 0) {
 			gather(range);
+			plate(range, PodPlate.ROOMMATE);
 		}
 		StationHand roommate = find(range, StaffRole.ROOMMATE);
 		if (t == 0) {
@@ -139,6 +178,8 @@ public final class StationCeremony {
 				roommate.discard();
 			}
 			DEPARTED.add(StaffRole.ROOMMATE);
+			// the crane brings the next pod up: the hunter's
+			plate(range, PodPlate.HUNTER);
 		} else if (t == FAREWELL_TICKS) {
 			StationBroadcast.say(hunter, StationBroadcast.YOUR_TURN);
 			SEEN_OFF.add(id);
@@ -160,12 +201,74 @@ public final class StationCeremony {
 				}
 			}
 		}
-		if (t >= DROP_TICKS) {
+		Entity seat = range.getEntity(drop.seat());
+		if (seat == null) {
+			// the seat is lost: the hunter is sent on as they are
 			DROPS.remove(hunter.getUUID());
 			TrainingService.complete(hunter, drop.next());
 			return;
 		}
-		DROPS.put(hunter.getUUID(), new Drop(drop.next(), t + 1));
+		if (hunter.getVehicle() != seat) {
+			// back into the seat: no one gets out of a falling pod
+			hunter.teleportTo(range, seat.getX(), seat.getY(), seat.getZ(), Set.of(), hunter.getYRot(), hunter.getXRot(), true);
+			hunter.startRiding(seat, true, true);
+		}
+		double top = drop.top();
+		int splash = drop.splash();
+		double splashY = drop.splashY();
+		if (t == RELEASE) {
+			top = seat.getY();
+			range.playSound(null, seat.blockPosition(), SoundEvents.CHAIN_BREAK, SoundSource.BLOCKS, 2.0F, 0.5F);
+			range.playSound(null, seat.blockPosition(), SoundEvents.IRON_DOOR_CLOSE, SoundSource.BLOCKS, 1.5F, 0.5F);
+			range.playSound(null, seat.blockPosition(), SoundEvents.PISTON_CONTRACT, SoundSource.BLOCKS, 1.5F, 0.5F);
+		} else if (t > RELEASE) {
+			double y;
+			if (splash < 0) {
+				int fallen = t - RELEASE;
+				y = top - FALL * fallen * fallen;
+				if (y + drop.eye() <= SURFACE) {
+					splash = t;
+					splashY = y;
+					double x = seat.getX();
+					double z = seat.getZ();
+					range.playSound(null, seat.blockPosition().atY((int) SURFACE), SoundEvents.PLAYER_SPLASH_HIGH_SPEED, SoundSource.PLAYERS, 2.0F, 0.7F);
+					range.playSound(null, seat.blockPosition().atY((int) SURFACE), SoundEvents.GENERIC_SPLASH, SoundSource.PLAYERS, 1.5F, 0.5F);
+					range.sendParticles(ParticleTypes.SPLASH, x, SURFACE, z, 160, 1.6, 0.2, 1.6, 0.4);
+					range.sendParticles(ParticleTypes.CLOUD, x, SURFACE + 0.5, z, 30, 1.2, 0.3, 1.2, 0.05);
+				}
+			} else {
+				// the water takes the fall and lets the seat sink, slower and slower, short of the floor
+				double depth = splashY + drop.eye() - LOWEST_EYE;
+				y = splashY - depth * (1.0 - Math.exp(-DRAG * (t - splash)));
+				if ((t - splash) % 2 == 0) {
+					range.sendParticles(ParticleTypes.BUBBLE, seat.getX(), y + drop.eye() - 0.6, seat.getZ(), 6, 0.5, 0.3, 0.5, 0.05);
+				}
+			}
+			seat.setPos(seat.getX(), y, seat.getZ());
+		}
+		if (splash >= 0 && t >= splash + SINK_TICKS || t >= GIVE_UP) {
+			DROPS.remove(hunter.getUUID());
+			TrainingService.complete(hunter, drop.next());
+			return;
+		}
+		DROPS.put(hunter.getUUID(), drop.next(t + 1, top, splash, splashY));
+	}
+
+	/**
+	 * Writes the number on the crane pod's plate, putting the plate up first if it is not there:
+	 * the station's own, in glowing gold on dark wood.
+	 */
+	private static void plate(final ServerLevel range, final String number) {
+		SignText text = PodPlate.text(PodPlate.STATION_KEY, number, DyeColor.YELLOW, true);
+		if (!range.getBlockState(PLATE).is(Blocks.DARK_OAK_WALL_SIGN)) {
+			range.setBlock(PLATE, Blocks.DARK_OAK_WALL_SIGN.defaultBlockState().setValue(WallSignBlock.FACING, Direction.SOUTH), 3);
+		}
+		if (range.getBlockEntity(PLATE) instanceof SignBlockEntity sign && !sign.getText(SignTextSlot.FRONT).equals(text)) {
+			sign.setText(text, SignTextSlot.FRONT);
+			sign.setWaxed(true);
+			sign.setChanged();
+			range.sendBlockUpdated(PLATE, range.getBlockState(PLATE), range.getBlockState(PLATE), 3);
+		}
 	}
 
 	/**
@@ -226,7 +329,7 @@ public final class StationCeremony {
 		DEPARTED.clear();
 	}
 
-	/** Server to client: the drop has begun; the screen goes dark over this many ticks. */
+	/** Server to client: the drop has begun; the seat is let go this many ticks from now. */
 	public record DropPayload(int ticks) implements CustomPacketPayload {
 		public static final Type<DropPayload> TYPE = new Type<>(Mistinn.id("training_drop"));
 		public static final StreamCodec<ByteBuf, DropPayload> CODEC = ByteBufCodecs.VAR_INT.map(DropPayload::new, DropPayload::ticks);

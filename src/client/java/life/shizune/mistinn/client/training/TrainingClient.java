@@ -35,10 +35,6 @@ public final class TrainingClient {
 	private static int broadcastLine;
 	private static int broadcastTicks;
 	private static int lastBroadcast = -1;
-	/** The drop: ticks since it began (-1 when there is none), and how long until the hunter is sent. */
-	private static int dropTicks = -1;
-	private static int dropLength = 140;
-	private static final int DROP_FADE_IN = 50;
 
 	private TrainingClient() {
 	}
@@ -75,15 +71,14 @@ public final class TrainingClient {
 	}
 
 	/** The drop has begun: the choice closes and the station goes dark over the three bells. */
-	public static void drop(final int ticks) {
-		dropTicks = 0;
-		dropLength = ticks;
+	public static void drop(final int release) {
 		Minecraft.getInstance().gui.setScreen(null);
+		DropCinematic.station(release);
 	}
 
-	/** Whether the drop's darkness is on screen. */
+	/** Whether the drop is on screen. */
 	public static boolean dropping() {
-		return dropTicks >= 0;
+		return DropCinematic.active();
 	}
 
 	/** The last announcement heard at this station, or -1. */
@@ -93,10 +88,8 @@ public final class TrainingClient {
 
 	public static void tick(final Minecraft mc) {
 		TrainingLesson current = current(mc);
-		if (dropTicks >= 0 && ++dropTicks > dropLength + DROP_FADE_IN + 40) {
-			dropTicks = -1;
-		}
-		StationAmbience.tick(mc, current, dropTicks >= 0);
+		DropCinematic.tick(mc);
+		StationAmbience.tick(mc, current, dropping());
 		if (current == null) {
 			lastBroadcast = -1;
 			broadcastTicks = 0;
@@ -112,7 +105,7 @@ public final class TrainingClient {
 		if (mc.gui.screen() instanceof TrainingCompleteScreen && current != TrainingLesson.DEPLOY) {
 			mc.gui.setScreen(null);
 		}
-		if (current == TrainingLesson.DEPLOY && mc.player != null && mc.player.isPassenger() && mc.gui.screen() == null && dropTicks < 0) {
+		if (current == TrainingLesson.DEPLOY && mc.player != null && mc.player.isPassenger() && mc.gui.screen() == null && !dropping()) {
 			mc.gui.setScreen(new TrainingCompleteScreen(mode ->
 				ClientPlayNetworking.send(new TrainingService.DeployPayload(mode == WorldMode.STORY))));
 		}
@@ -120,15 +113,11 @@ public final class TrainingClient {
 
 	public static void draw(final GuiGraphicsExtractor g, final DeltaTracker delta) {
 		Minecraft mc = Minecraft.getInstance();
-		if (dropTicks >= 0) {
-			// dark by the third bell, held through the drop, lifting again in the new world
-			float alpha;
-			if (dropTicks <= dropLength) {
-				alpha = Math.min(1.0F, Math.max(0.0F, (dropTicks - 10) / (float) (dropLength - 30)));
-			} else {
-				alpha = 1.0F - Math.min(1.0F, Math.max(0.0F, (dropTicks - dropLength - 40) / (float) DROP_FADE_IN));
+		if (dropping()) {
+			// the drop is drawn by its own screen; between its screens (a world loading) it is drawn here
+			if (!(mc.gui.screen() instanceof DropScreen)) {
+				DropCinematic.draw(g, delta.getGameTimeDeltaPartialTick(false));
 			}
-			g.fill(0, 0, g.guiWidth(), g.guiHeight(), ((int) (alpha * 255.0F) << 24));
 			return;
 		}
 		TrainingLesson lesson = current(mc);

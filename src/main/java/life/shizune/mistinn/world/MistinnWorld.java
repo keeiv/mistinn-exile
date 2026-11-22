@@ -132,9 +132,48 @@ public final class MistinnWorld {
 		builder.clear(-6, 1, -6, 6, 12, 6);
 		Structures.Station kind = random.nextBoolean() ? Structures.Station.BROKEN : Structures.Station.COUNTERFEIT;
 		BlockPos stand = floor.offset(Structures.station(builder, kind));
+		Structures.plate(builder, kind);
 		level.setRespawnData(new LevelData.RespawnData(GlobalPos.of(Level.OVERWORLD, stand), 0.0F, 0.0F));
 		level.getGameRules().set(GameRules.RESPAWN_RADIUS, 0, server);
 		level.setAttached(SPAWN_STATION, true);
 		Mistinn.LOGGER.info("Built a {} drop station at the world spawn {}", kind.name().toLowerCase(java.util.Locale.ROOT), stand);
+	}
+
+	/** Where the spawn pod's number plate hangs, from the stand on its pad. */
+	public static BlockPos plate(final BlockPos stand) {
+		return stand.offset(1, 1, 1);
+	}
+
+	/** The middle of the spawn pod, from the stand on its pad. */
+	public static net.minecraft.world.phys.Vec3 pod(final BlockPos stand) {
+		return new net.minecraft.world.phys.Vec3(stand.getX() + 0.5, stand.getY() + 1.5, stand.getZ() + 3.5);
+	}
+
+	/**
+	 * Puts the number plate up on a spawn pod built before pods had plates; nothing if one hangs
+	 * there already, or if there is no pod by the stand (a spawn moved off the station). Which kind
+	 * of pod it is is read off its shell: clay for a copy, copper for a broken one.
+	 */
+	public static void ensurePlate(final ServerLevel level, final BlockPos stand) {
+		if (level.getBlockState(plate(stand)).getBlock() instanceof net.minecraft.world.level.block.WallSignBlock) {
+			return;
+		}
+		BlockPos floor = stand.offset(0, -1, 3);
+		boolean clay = false;
+		boolean copper = false;
+		for (int y = 1; y <= 3; y++) {
+			for (int x = -1; x <= 1; x += 2) {
+				for (int z = -1; z <= 1; z += 2) {
+					net.minecraft.world.level.block.state.BlockState shell = level.getBlockState(floor.offset(x, y, z));
+					clay |= shell.is(net.minecraft.world.level.block.Blocks.TERRACOTTA) || shell.is(net.minecraft.world.level.block.Blocks.DYED_TERRACOTTA.orange());
+					copper |= net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(shell.getBlock()).getPath().contains("copper");
+				}
+			}
+		}
+		if (!clay && !copper) {
+			return;
+		}
+		Structures.plate(new Builder(level, floor, RandomSource.create(level.getSeed())),
+			clay ? Structures.Station.COUNTERFEIT : Structures.Station.BROKEN);
 	}
 }

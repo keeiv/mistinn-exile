@@ -185,6 +185,23 @@ public final class Structures {
 		}
 	}
 
+	/**
+	 * The number plate by a spawn pod's hatch, on the north face where the pad looks at it. A
+	 * spawn's pod is never a real one, yet its plate carries the number of the hunter who comes
+	 * down beside it: faded on a broken pod; on a copy, on another wood, without the station's gold,
+	 * the name not quite right. The block it hangs on is put back first, as a broken pod may have
+	 * lost it.
+	 */
+	public static void plate(final Builder b, final Station kind) {
+		boolean fake = kind == Station.COUNTERFEIT;
+		if (b.get(1, 2, -1).isAir()) {
+			b.set(1, 2, -1, fake ? Blocks.TERRACOTTA : Blocks.CUT_COPPER.waxed().oxidized());
+		}
+		b.sign(1, 2, -2, fake ? Blocks.SPRUCE_WALL_SIGN : Blocks.DARK_OAK_WALL_SIGN, Direction.NORTH,
+			PodPlate.text(fake ? PodPlate.COPY_KEY : PodPlate.STATION_KEY, PodPlate.HUNTER,
+				fake ? net.minecraft.world.item.DyeColor.ORANGE : net.minecraft.world.item.DyeColor.GRAY, false));
+	}
+
 	/** The drop pod: a 3x3 copper shell with a tapered nose, its hatch to the north. */
 	private static void stationPod(final Builder b, final Station kind) {
 		boolean broken = kind == Station.BROKEN;
