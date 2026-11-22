@@ -1171,5 +1171,6 @@
   "subtitles.mistinn.ui.grid.pickup.grain": "Grains shift",
   "subtitles.mistinn.ui.grid.pickup.glass": "Bottle clinks",
   "subtitles.mistinn.ui.grid.pickup.paper": "Pages turn",
-  "subtitles.mistinn.ui.grid.pickup.wood": "Wood lifted"
+  "subtitles.mistinn.ui.grid.pickup.wood": "Wood lifted",
+  "subtitles.mistinn.ambient.shore_mist": "Surf and wind in the mist"
 }

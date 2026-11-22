@@ -141,6 +141,7 @@ public class MistinnClient implements ClientModInitializer {
 			ExecutionView.tick(minecraft);
 			life.shizune.mistinn.client.death.DeathScene.tick(minecraft);
 			life.shizune.mistinn.client.mist.ShoreMistClient.tick(minecraft);
+			life.shizune.mistinn.client.mist.ShoreAmbience.tick(minecraft);
 			life.shizune.mistinn.client.story.StoryClient.tick(minecraft);
 			TrainingClient.tick(minecraft);
 			while (journal.consumeClick()) {

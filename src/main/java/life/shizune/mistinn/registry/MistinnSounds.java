@@ -175,6 +175,8 @@ public final class MistinnSounds {
 	public static final SoundEvent RADIO_TUNE = register("block.radio.tune");
 	// the shore at the title, and the Snuffer's fight and its turn into darkness
 	public static final SoundEvent MUSIC_SHORE = register("music.shore");
+	/** 霧岸的聲音: surf and wind heard in the shore mist, as loud as the mist is thick. */
+	public static final SoundEvent AMBIENT_SHORE_MIST = register("ambient.shore_mist");
 	public static final SoundEvent MUSIC_KEEPER = register("music.keeper");
 	public static final SoundEvent MUSIC_KEEPER_TURN = register("music.keeper_turn");
 	public static final SoundEvent MUSIC_KEEPER_DARK = register("music.keeper_dark");

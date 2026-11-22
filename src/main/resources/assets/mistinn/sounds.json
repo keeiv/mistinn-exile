@@ -1185,5 +1185,14 @@
       "mistinn:ui/grid/pickup_wood_3"
     ],
     "subtitle": "subtitles.mistinn.ui.grid.pickup.wood"
+  },
+  "ambient.shore_mist": {
+    "sounds": [
+      {
+        "name": "mistinn:ambient/shore_mist",
+        "stream": true
+      }
+    ],
+    "subtitle": "subtitles.mistinn.ambient.shore_mist"
   }
 }
