@@ -26,6 +26,8 @@ public final class BodyHud implements HudElement {
 	};
 	public static final int WIDTH = 18;
 	public static final int HEIGHT = 28;
+	/** How far vanilla's off-hand slot reaches out from the side of the hotbar. */
+	private static final int OFFHAND_SLOT = 29;
 	private static final int OUTLINE = 0xC0101010;
 	private static final int DEAD = 0xFF4A1414;
 	/** Wound marks on the figure. */
@@ -63,8 +65,9 @@ public final class BodyHud implements HudElement {
 		if (body.destroyed(BodyPart.HEAD)) {
 			vignette(g);
 		}
-		// left of the hotbar, resting on the bottom edge
-		int x = g.guiWidth() / 2 - 91 - WIDTH - 6;
+		// left of the hotbar, resting on the bottom edge, and clear of the off-hand slot when that is on the left
+		int offhandSlot = player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT ? OFFHAND_SLOT : 0;
+		int x = g.guiWidth() / 2 - 91 - offhandSlot - WIDTH - 6;
 		int y = g.guiHeight() - HEIGHT - 3;
 		figure(g, body, life.shizune.mistinn.body.WoundService.get(player), player.level().getGameTime(), x, y, 1);
 	}

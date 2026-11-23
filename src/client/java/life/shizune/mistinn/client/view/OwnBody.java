@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Pose;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 自己的身體: in one's own view the hunter has a body. Looking down they see their chest, their legs walking and
@@ -17,6 +18,27 @@ import net.minecraft.world.entity.Pose;
 public final class OwnBody {
 	/** Set on the local hunter's render state while the world is drawn through their own eyes. */
 	public static final RenderStateDataKey<Boolean> KEY = RenderStateDataKey.create(() -> "mistinn:own_body");
+	/**
+	 * Set with {@link #KEY} while the hands are up in front of the eye: the arms they belong to, and what those hold, are
+	 * drawn there by the hand pass, so the body leaves them out instead of drawing them twice.
+	 */
+	public static final RenderStateDataKey<Hands> HANDS_UP = RenderStateDataKey.create(() -> "mistinn:own_body_hands_up");
+
+	/**
+	 * Which of the body's arms are up in front of the eye. The main arm always is while the hands work; the other one
+	 * only when it holds something, since the hand pass never draws an empty off hand.
+	 */
+	public record Hands(boolean main, boolean off) {
+	}
+
+	/** The arms that are up now; null while both hang at the hunter's sides. */
+	public static @Nullable Hands handsUp(final LocalPlayer player, final float partial) {
+		if (raised(partial) <= 0.0F) {
+			return null;
+		}
+		return new Hands(true, !player.getOffhandItem().isEmpty());
+	}
+
 	/** How far behind the eye the body stands, in blocks. */
 	public static final float BACK = 0.28F;
 	/** How fast the hands come down again once they are done, a share a tick; they come up at once. */

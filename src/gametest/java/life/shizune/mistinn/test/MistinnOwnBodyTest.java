@@ -72,6 +72,36 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 			context.waitTicks(40);
 			context.runOnClient(mc -> check(OwnBody.raised(1.0F) == 0.0F, "and they hang at the sides again afterwards: " + OwnBody.raised(1.0F)));
 
+			// with a torch in the off hand, a swing brings that hand up too: drawn once, in front of the eye, not also at the side
+			context.runOnClient(mc -> check(OwnBody.handsUp(mc.player, 1.0F) == null, "hanging, no hand is up"));
+			world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst()
+				.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(net.minecraft.world.item.Items.TORCH)));
+			look(context, world, stage, 60.0F);
+			context.waitTicks(5);
+			context.runOnClient(mc -> {
+				mc.player.swing(InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getAttackAnimation(), true);
+			});
+			context.waitTicks(2);
+			context.runOnClient(mc -> {
+				OwnBody.Hands up = OwnBody.handsUp(mc.player, 1.0F);
+				check(up != null && up.main() && up.off(), "a swing with a torch in the off hand brings both hands up: " + up);
+			});
+			context.takeScreenshot("ownbody-05-offhand-swing");
+			context.waitTicks(40);
+			context.runOnClient(mc -> check(OwnBody.handsUp(mc.player, 1.0F) == null, "and both hang again afterwards"));
+			context.takeScreenshot("ownbody-06-offhand-hanging");
+			world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst().setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY));
+			context.waitTicks(3);
+			context.runOnClient(mc -> {
+				mc.player.swing(InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getAttackAnimation(), true);
+			});
+			context.waitTicks(2);
+			context.runOnClient(mc -> {
+				OwnBody.Hands up = OwnBody.handsUp(mc.player, 1.0F);
+				check(up != null && up.main() && !up.off(), "an empty off hand stays at the side: " + up);
+			});
+			context.waitTicks(40);
+
 			// dropped from five blocks up, the landing is felt
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
