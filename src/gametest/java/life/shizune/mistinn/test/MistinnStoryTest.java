@@ -8,11 +8,14 @@ import life.shizune.mistinn.client.story.SceneScreen;
 import life.shizune.mistinn.client.story.StoryCardScreen;
 import life.shizune.mistinn.client.story.StoryClient;
 import life.shizune.mistinn.keeper.Snuffer;
+import life.shizune.mistinn.keeper.SunkenBell;
 import life.shizune.mistinn.registry.MistinnBlocks;
 import life.shizune.mistinn.registry.MistinnItems;
 import life.shizune.mistinn.salt.SaltService;
 import life.shizune.mistinn.story.StoryPlaces;
 import life.shizune.mistinn.story.StoryProgress;
+import life.shizune.mistinn.story.StoryRoad;
+import life.shizune.mistinn.story.StoryScript;
 import life.shizune.mistinn.story.StoryService;
 import life.shizune.mistinn.story.StoryStep;
 import life.shizune.mistinn.story.WorldMode;
@@ -155,7 +158,8 @@ public class MistinnStoryTest implements FabricClientGameTest {
 			world.getConnection().waitForChunksRender();
 			context.waitTicks(10);
 			useRadio(world, new ItemStack(MistinnItems.RUST_GOD_SALT));
-			check(step(world) == StoryStep.WAIT, "handing in the salt ends the chapter");
+			check(step(world) == StoryStep.LISTEN, "handing in the salt ends the chapter; the next waits for the night");
+			check(world.getServer().computeOnServer(server -> server.overworld().getAttached(StoryService.ROAD) != null), "the salt road was laid out");
 			context.waitTicks(40);
 			context.runOnClient(mc -> StoryClient.skip());
 			context.waitFor(mc -> mc.gui.screen() instanceof StoryCardScreen, 100);
@@ -167,15 +171,153 @@ public class MistinnStoryTest implements FabricClientGameTest {
 			// ── The journal keeps it all ──────────────────────────────
 			context.runOnClient(mc -> mc.gui.setScreen(new JournalScreen()));
 			context.waitTicks(5);
-			check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 3), "the journal heard all three sequences");
+			check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 3), "the journal heard all three sequences of chapter 1");
 			context.takeScreenshot("story-journal");
 			context.runOnClient(mc -> mc.gui.setScreen(null));
 
 			// A hunter who catches up after the rest of the party needs no second boss or salt block.
 			world.getServer().runOnServer(server -> StoryService.advance(player(server), StoryStep.SNUFFER));
 			context.waitFor(mc -> mc.player != null && mc.player.getAttached(StoryService.PROGRESS) != null
-				&& mc.player.getAttached(StoryService.PROGRESS).step() == StoryStep.WAIT, 80);
+				&& mc.player.getAttached(StoryService.PROGRESS).step() == StoryStep.LISTEN, 80);
+			context.waitTicks(20);
+			context.runOnClient(mc -> StoryClient.skip());
+			context.waitFor(mc -> mc.gui.screen() instanceof StoryCardScreen, 200);
+			context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+			context.waitFor(mc -> mc.gui.screen() == null, 100);
+
+			playRoad(context, world);
 		}
+	}
+
+	/** Chapter 2, the salt road, and chapter 3, the Sunken Bell, to the end of what is written. */
+	private static void playRoad(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		// ── The bell at night ─────────────────────────────────────────
+		world.getServer().runOnServer(server -> {
+			StoryPlaces places = places(server);
+			StoryRoad road = server.overworld().getAttached(StoryService.ROAD);
+			check(road.cairns().size() == 3, "three cairns mark the road: " + road.cairns());
+			check(road.bellStation().distSqr(places.lighthouse()) > 96.0 * 96.0, "the fog-bell station stands apart from the lighthouse");
+			// out in the open by the drop station, at noon: nothing yet
+			stand(server, places.station().offset(10, 0, 0));
+		});
+		world.getConnection().waitForChunksRender();
+		context.waitTicks(30);
+		check(step(world) == StoryStep.LISTEN, "by day no bell is heard");
+		world.getServer().runCommand("time set midnight");
+		context.waitTicks(30);
+		check(step(world) == StoryStep.CAIRN_1, "at night the bell is heard, and the road opens");
+		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).target().isPresent()), "the minimap points at the first cairn");
+		context.waitTicks(90);
+		context.runOnClient(mc -> StoryClient.skip());
+		context.waitFor(mc -> mc.gui.screen() instanceof StoryCardScreen, 200);
+		context.waitTicks(60);
+		context.takeScreenshot("story-card-salt-road");
+		context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+		context.waitFor(mc -> mc.gui.screen() == null, 100);
+		world.getServer().runCommand("time set noon");
+
+		// ── Three cairns, three tags ──────────────────────────────────
+		StoryStep[] after = {StoryStep.CAIRN_2, StoryStep.CAIRN_3, StoryStep.BELL_STATION};
+		for (int cairn = 0; cairn < 3; cairn++) {
+			int at = cairn;
+			world.getServer().runOnServer(server -> stand(server, server.overworld().getAttached(StoryService.ROAD).cairns().get(at).offset(2, 0, 2)));
+			world.getConnection().waitForChunksRender();
+			context.waitTicks(30);
+			check(step(world) == after[cairn], "cairn " + (cairn + 1) + " moves on to " + after[cairn].id);
+			if (cairn == 0) {
+				context.waitTicks(20);
+				context.takeScreenshot("story-cairn");
+			}
+			context.runOnClient(mc -> StoryClient.skip());
+		}
+		world.getServer().runOnServer(server -> {
+			java.util.List<ItemStack> tags = new java.util.ArrayList<>();
+			for (int slot = 0; slot < player(server).getInventory().getContainerSize(); slot++) {
+				if (player(server).getInventory().getItem(slot).is(MistinnItems.HUNTER_TAG)) {
+					tags.add(player(server).getInventory().getItem(slot));
+				}
+			}
+			var grid = life.shizune.mistinn.grid.GridService.get(player(server));
+			for (var area : life.shizune.mistinn.grid.Area.values()) {
+				grid.items(area).stream().filter(placed -> placed.stack().is(MistinnItems.HUNTER_TAG)).forEach(placed -> tags.add(placed.stack()));
+			}
+			check(tags.size() == 3, "the hunter carries three tags: " + tags.size());
+			check(tags.stream().anyMatch(tag -> tag.getHoverName().getString().contains("3409")), "the last bears number 3409: " + tags);
+		});
+
+		// ── The fog-bell station ──────────────────────────────────────
+		world.getServer().runOnServer(server -> stand(server, server.overworld().getAttached(StoryService.ROAD).bellStation().offset(0, 1, -12)));
+		// out over the sea the chunks may take a while to draw; the card does not need them
+		context.waitTicks(40);
+		for (int i = 0; i < 40 && !context.computeOnClient(mc -> mc.gui.screen() instanceof StoryCardScreen); i++) {
+			context.waitTicks(5);
+		}
+		String seen = context.computeOnClient(mc -> "screen " + mc.gui.screen() + ", playing " + StoryClient.playing() + ", at " + mc.player.blockPosition());
+		check(step(world) == StoryStep.BELL_REST, "reaching the fog-bell station opens chapter 3: " + step(world) + ", " + seen + ", station "
+			+ world.getServer().computeOnServer(server -> server.overworld().getAttached(StoryService.ROAD).bellStation()));
+		check(context.computeOnClient(mc -> mc.gui.screen() instanceof StoryCardScreen), "with its card: " + seen);
+		context.waitTicks(60);
+		context.takeScreenshot("story-card-bell-station");
+		context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+		context.waitFor(mc -> mc.gui.screen() == null, 100);
+		world.getServer().runOnServer(server -> StoryService.rested(player(server)));
+		check(step(world) == StoryStep.BELFRY, "resting at its bell sends the hunter up to the belfry");
+		world.getServer().runOnServer(server -> {
+			BlockPos belfry = server.overworld().getAttached(StoryService.ROAD).belfry();
+			player(server).teleportTo(server.overworld(), belfry.getX() - 4.5, belfry.getY(), belfry.getZ() + 0.5, Set.of(), -90.0F, 0.0F, true);
+		});
+		world.getConnection().waitForChunksRender();
+		context.waitTicks(20);
+		check(step(world) == StoryStep.SUNKEN_BELL, "up in the belfry, the Sunken Bell");
+		check(world.getServer().computeOnServer(server -> server.overworld().getEntitiesOfClass(SunkenBell.class,
+			new AABB(server.overworld().getAttached(StoryService.ROAD).belfry()).inflate(8.0)).size() == 1), "it waits there, the one the story built");
+		context.takeScreenshot("story-belfry");
+
+		// ── It falls, and says what the bell is for ─────────────────────
+		world.getServer().runOnServer(server -> {
+			BlockPos belfry = server.overworld().getAttached(StoryService.ROAD).belfry();
+			SunkenBell bell = server.overworld().getEntitiesOfClass(SunkenBell.class, new AABB(belfry).inflate(8.0)).getFirst();
+			bell.setLastHurtByPlayer(player(server), 100);
+			bell.kill(server.overworld());
+		});
+		context.waitTicks(10);
+		check(step(world) == StoryStep.RING, "with the Sunken Bell down, the bell is to be rung");
+		context.waitTicks(60);
+		check(context.computeOnClient(mc -> StoryClient.line() != null), "its last words play as subtitles");
+		context.takeScreenshot("story-sunken-bell-end");
+		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().contains(StoryScript.SUNKEN_BELL_END)), "and are kept for the journal");
+		context.runOnClient(mc -> StoryClient.skip());
+		context.waitTicks(20);
+
+		// ── The great bell, and the answer ──────────────────────────────
+		check(world.getServer().computeOnServer(server -> {
+			BlockPos belfry = server.overworld().getAttached(StoryService.ROAD).belfry();
+			return !StoryService.ring(player(server), belfry.offset(9, 0, 0));
+		}), "a click beside the bell does not ring it");
+		check(world.getServer().computeOnServer(server -> {
+			BlockPos belfry = server.overworld().getAttached(StoryService.ROAD).belfry();
+			BlockPos lip = belfry.above(life.shizune.mistinn.world.BellTower.BELL_LIP - life.shizune.mistinn.world.BellTower.DECK - 1).offset(2, 0, 0);
+			return StoryService.ring(player(server), lip);
+		}), "the great bell rings");
+		check(step(world) == StoryStep.WAIT, "and the story waits for what comes next");
+		context.waitFor(mc -> mc.gui.screen() instanceof StoryCardScreen, 400);
+		context.waitTicks(80);
+		context.takeScreenshot("story-card-answer");
+		context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+		context.waitFor(mc -> mc.gui.screen() == null, 100);
+		context.runOnClient(mc -> mc.gui.setScreen(new JournalScreen()));
+		context.waitTicks(5);
+		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 8), "the journal heard every sequence of the three chapters");
+		context.takeScreenshot("story-journal-chapter-3");
+		context.runOnClient(mc -> mc.gui.setScreen(null));
+	}
+
+	/** Puts the hunter on the ground at (x, z) of {@code at}, under the open sky. */
+	private static void stand(final MinecraftServer server, final BlockPos at) {
+		var level = server.overworld();
+		level.getChunk(at.getX() >> 4, at.getZ() >> 4);
+		int y = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, at.getX(), at.getZ());
+		player(server).teleportTo(level, at.getX() + 0.5, y, at.getZ() + 0.5, Set.of(), 0.0F, 10.0F, true);
 	}
 
 	private static void clickThroughCard(final ClientGameTestContext context) {

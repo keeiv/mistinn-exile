@@ -5,6 +5,10 @@ import io.netty.buffer.ByteBuf;
 import java.util.Optional;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.keeper.Snuffer;
+import life.shizune.mistinn.keeper.SunkenBell;
+import life.shizune.mistinn.registry.MistinnItems;
+import life.shizune.mistinn.registry.MistinnSounds;
+import life.shizune.mistinn.world.BellTower;
 import life.shizune.mistinn.salt.SaltService;
 import life.shizune.mistinn.world.Builder;
 import life.shizune.mistinn.world.Structures;
@@ -19,6 +23,15 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemLore;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -50,6 +63,11 @@ public final class StoryService {
 		.persistent(StoryPlaces.CODEC)
 		.buildAndRegister(Mistinn.id("story_places"));
 
+	/** The places of chapters 2 and 3, kept on the overworld once built. */
+	public static final AttachmentType<StoryRoad> ROAD = AttachmentRegistry.<StoryRoad>builder()
+		.persistent(StoryRoad.CODEC)
+		.buildAndRegister(Mistinn.id("story_road"));
+
 	/** The last shared objective completed in the story world. */
 	private static final AttachmentType<StoryStep> CHAPTER_PROGRESS = AttachmentRegistry.<StoryStep>builder()
 		.persistent(Codec.STRING.xmap(StoryStep::byId, step -> step.id))
@@ -59,6 +77,17 @@ public final class StoryService {
 	private static final double STATION_REACH = 7.0;
 	private static final double LIGHTHOUSE_REACH = 28.0;
 	private static final double LAMP_ROOM_REACH = 7.0;
+	private static final double CAIRN_REACH = 6.0;
+	private static final double BELL_STATION_REACH = 28.0;
+	private static final double BELFRY_REACH = 7.0;
+	/** How far from the drop station the fog-bell station of the story is first looked for, on the far side from the lighthouse. */
+	private static final int ROAD_LENGTH = 360;
+	/** The fog-bell station stands at least this far from the lighthouse. */
+	private static final int APART = 96;
+	/** Where along the road, as a share of it, its three cairns stand. */
+	private static final double[] CAIRN_AT = {0.3, 0.55, 0.8};
+	/** The station's bell, as rung at every drop: the night toll and the answer are the same sound. */
+	private static final float DROP_BELL_PITCH = 0.6F;
 	/** How far from spawn the guaranteed drop station stands. */
 	private static final int STATION_MIN = 150;
 	private static final int STATION_MAX = 240;
@@ -107,10 +136,21 @@ public final class StoryService {
 		ServerLifecycleEvents.SERVER_STARTED.register(StoryService::ensurePlaces);
 		ServerPlayerEvents.JOIN.register(StoryService::join);
 		ServerTickEvents.END_SERVER_TICK.register(StoryService::tick);
+		// nothing still to come carries over into another world
+		ServerLifecycleEvents.SERVER_STOPPING.register(server -> LATER.clear());
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
 			if (entity instanceof Snuffer keeper) {
 				keeperDown(keeper);
+			} else if (entity instanceof SunkenBell bell) {
+				bellDown(bell);
 			}
+		});
+		// the great bell of the story's belfry, rung by hand at the end of chapter 3
+		UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+			if (level.isClientSide() || !(player instanceof ServerPlayer hunter) || hand != InteractionHand.MAIN_HAND) {
+				return InteractionResult.PASS;
+			}
+			return ring(hunter, hit.getBlockPos()) ? InteractionResult.SUCCESS : InteractionResult.PASS;
 		});
 	}
 
@@ -136,7 +176,12 @@ public final class StoryService {
 		StoryProgress progress = get(player);
 		if (progress == null) {
 			player.setAttached(PROGRESS, StoryProgress.START);
-		} else if (progress.step() == StoryStep.WAIT) {
+		} else if (progress.step() == StoryStep.WAIT && !completed(server, StoryStep.RING)) {
+			// waiting at the end of chapter 1 since before chapter 2 was written: the road opens now
+			complete(server, StoryStep.DELIVER);
+			ensureRoad(server);
+			advance(player, StoryStep.LISTEN);
+		} else if (progress.step().ordinal() > StoryStep.DELIVER.ordinal()) {
 			complete(server, StoryStep.DELIVER);
 		} else if (progress.step() == StoryStep.DELIVER) {
 			complete(server, StoryStep.SNUFFER);
@@ -164,6 +209,7 @@ public final class StoryService {
 		if (!active(server)) {
 			return;
 		}
+		later();
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 			StoryProgress progress = get(player);
 			if (progress == null) {
@@ -214,6 +260,44 @@ public final class StoryService {
 					finishDelivery(player);
 				}
 			}
+			case LISTEN -> {
+				StoryRoad road = ensureRoad(server);
+				if (road != null && nightOutside(player)) {
+					heardTheBell(player, road);
+				}
+			}
+			case CAIRN_1, CAIRN_2, CAIRN_3 -> {
+				StoryRoad road = road(server);
+				int cairn = StoryStep.CAIRNS.indexOf(progress.step());
+				if (road != null && cairn < road.cairns().size() && near(player, road.cairns().get(cairn), CAIRN_REACH)) {
+					foundCairn(player, cairn);
+				}
+			}
+			case BELL_STATION -> {
+				StoryRoad road = road(server);
+				if (road != null && near(player, road.bellStation(), BELL_STATION_REACH)) {
+					advance(player, StoryStep.BELL_REST);
+					ServerPlayNetworking.send(player, new CardPayload(StoryScript.BELL_STATION.id()));
+				}
+			}
+			case BELFRY -> {
+				StoryRoad road = road(server);
+				if (road != null && near(player, road.belfry(), BELFRY_REACH) && player.getY() >= road.belfry().getY() - 0.5) {
+					advance(player, StoryStep.SUNKEN_BELL);
+				}
+			}
+			case SUNKEN_BELL -> {
+				// it fell to someone else while this hunter was elsewhere
+				if (completed(server, StoryStep.SUNKEN_BELL)) {
+					advance(player, StoryStep.RING);
+				}
+			}
+			case RING -> {
+				if (completed(server, StoryStep.RING)) {
+					advance(player, StoryStep.WAIT);
+					ServerPlayNetworking.send(player, new CardPayload(StoryScript.ANSWER.id()));
+				}
+			}
 			default -> {
 			}
 		}
@@ -244,6 +328,22 @@ public final class StoryService {
 			case RADIO, DELIVER -> Optional.of(places.radio());
 			case LIGHTHOUSE, BELL -> Optional.of(places.lighthouse());
 			case LAMP_ROOM, SNUFFER -> Optional.of(places.lampRoom());
+			default -> roadTarget(server, step);
+		};
+	}
+
+	private static Optional<BlockPos> roadTarget(final MinecraftServer server, final StoryStep step) {
+		StoryRoad road = road(server);
+		if (road == null) {
+			return Optional.empty();
+		}
+		int cairn = StoryStep.CAIRNS.indexOf(step);
+		if (cairn >= 0) {
+			return cairn < road.cairns().size() ? Optional.of(road.cairns().get(cairn)) : Optional.of(road.bellStation());
+		}
+		return switch (step) {
+			case BELL_STATION, BELL_REST -> Optional.of(road.bellStation());
+			case BELFRY, SUNKEN_BELL, RING -> Optional.of(road.belfry());
 			default -> Optional.empty();
 		};
 	}
@@ -285,7 +385,9 @@ public final class StoryService {
 	}
 
 	private static void finishDelivery(final ServerPlayer player) {
-		advance(player, StoryStep.WAIT);
+		// nothing answers; the road is laid out now, for the night the bell is heard
+		ensureRoad(player.level().getServer());
+		advance(player, StoryStep.LISTEN);
 		play(player, StoryScript.NO_ANSWER, -1, StoryScript.UNANSWERED.id());
 	}
 
@@ -294,6 +396,8 @@ public final class StoryService {
 		StoryProgress progress = get(player);
 		if (progress != null && progress.step() == StoryStep.BELL) {
 			advance(player, StoryStep.LAMP_ROOM);
+		} else if (progress != null && progress.step() == StoryStep.BELL_REST) {
+			advance(player, StoryStep.BELFRY);
 		}
 	}
 
@@ -319,6 +423,215 @@ public final class StoryService {
 				play(player, StoryScript.SNUFFER_END, keeper.getId(), "");
 			}
 		}
+	}
+
+	// ── Chapters 2 and 3: the salt road and the Sunken Bell ────────────
+
+	private static @Nullable StoryRoad road(final MinecraftServer server) {
+		return server.overworld().getAttached(ROAD);
+	}
+
+	/** Out under the night sky in the overworld, where a bell from the sea is heard. */
+	private static boolean nightOutside(final ServerPlayer player) {
+		ServerLevel level = player.level();
+		return level == level.getServer().overworld() && level.isDarkOutside() && level.canSeeSky(player.blockPosition().above());
+	}
+
+	/**
+	 * The bell from the sea, three times, the station's own sound at every drop, heard from the
+	 * way the road goes. Then the chapter opens on the road of salt.
+	 */
+	private static void heardTheBell(final ServerPlayer player, final StoryRoad road) {
+		Vec3 toward = Vec3.atCenterOf(road.bellStation()).subtract(player.position()).multiply(1.0, 0.0, 1.0);
+		Vec3 from = player.position().add(toward.lengthSqr() < 1.0 ? new Vec3(40.0, 0.0, 0.0) : toward.normalize().scale(40.0)).add(0.0, 12.0, 0.0);
+		for (int toll = 0; toll < 3; toll++) {
+			later(toll * 34, () -> player.level().playSound(null, from.x, from.y, from.z, SoundEvents.BELL_BLOCK, SoundSource.AMBIENT, 4.0F, DROP_BELL_PITCH));
+		}
+		advance(player, StoryStep.CAIRN_1);
+		play(player, StoryScript.NIGHT_TOLL, -1, StoryScript.SALT_ROAD.id());
+	}
+
+	/** A cairn of the road: the tag under its stone, what the hunter before wrote, and the next. */
+	private static void foundCairn(final ServerPlayer player, final int cairn) {
+		int number = StoryScript.TAG_NUMBERS.get(cairn);
+		String sequence = StoryScript.TAGS.get(cairn);
+		ItemStack tag = new ItemStack(MistinnItems.HUNTER_TAG);
+		tag.set(DataComponents.ITEM_NAME, Component.translatable("item.mistinn.hunter_tag.numbered", number));
+		java.util.List<Component> lore = new java.util.ArrayList<>();
+		for (StoryScript.Line line : StoryScript.sequence(sequence)) {
+			lore.add(Component.translatable(line.key()).withStyle(s -> s.withColor(0x9A968E).withItalic(true)));
+		}
+		tag.set(DataComponents.LORE, new ItemLore(lore));
+		if (!player.getInventory().add(tag)) {
+			player.drop(tag, false, net.minecraft.util.Prediction.SERVER_ONLY);
+		}
+		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.CHAIN_BREAK, SoundSource.PLAYERS, 0.6F, 1.3F);
+		advance(player, cairn + 1 < StoryStep.CAIRNS.size() ? StoryStep.CAIRNS.get(cairn + 1) : StoryStep.BELL_STATION);
+		play(player, sequence, -1, "");
+	}
+
+	/** The Sunken Bell fell: everyone near it who was after it hears its last words, then is told to ring the bell. */
+	private static void bellDown(final SunkenBell bell) {
+		if (!(bell.level() instanceof ServerLevel level) || !active(level.getServer())) {
+			return;
+		}
+		StoryRoad road = road(level.getServer());
+		if (level == level.getServer().overworld() && road != null && bell.distanceToSqr(Vec3.atCenterOf(road.belfry())) <= 48.0 * 48.0) {
+			complete(level.getServer(), StoryStep.SUNKEN_BELL);
+		}
+		for (ServerPlayer player : level.players()) {
+			StoryProgress progress = get(player);
+			if (progress == null || player.distanceToSqr(bell) > 64.0 * 64.0) {
+				continue;
+			}
+			int step = progress.step().ordinal();
+			if (step >= StoryStep.BELL_STATION.ordinal() && step <= StoryStep.SUNKEN_BELL.ordinal()) {
+				advance(player, StoryStep.RING);
+				play(player, StoryScript.SUNKEN_BELL_END, bell.getId(), "");
+			}
+		}
+	}
+
+	/** Whether {@code pos} is part of the great bell hanging over the story's belfry floor. */
+	public static boolean greatBell(final StoryRoad road, final BlockPos pos) {
+		int dx = pos.getX() - road.belfry().getX();
+		int dy = pos.getY() - road.belfry().getY();
+		int dz = pos.getZ() - road.belfry().getZ();
+		return Math.abs(dx) <= 3 && Math.abs(dz) <= 3 && dy >= BellTower.BELL_LIP - BellTower.DECK - 2 && dy <= BellTower.BELL_LIP - BellTower.DECK + 3;
+	}
+
+	/**
+	 * The hunter rings the great bell. It answers from beyond the fog: the station's bell, three
+	 * times, as at a drop. Returns whether the story took the click.
+	 */
+	public static boolean ring(final ServerPlayer player, final BlockPos pos) {
+		MinecraftServer server = player.level().getServer();
+		StoryProgress progress = get(player);
+		StoryRoad road = server == null ? null : road(server);
+		if (!active(server) || progress == null || progress.step() != StoryStep.RING || road == null || !greatBell(road, pos)
+			|| player.level() != server.overworld()) {
+			return false;
+		}
+		ServerLevel level = player.level();
+		Vec3 bell = Vec3.atCenterOf(pos);
+		level.playSound(null, bell.x, bell.y, bell.z, MistinnSounds.SUNKEN_BELL_RING, SoundSource.BLOCKS, 4.0F, 0.8F);
+		complete(server, StoryStep.RING);
+		advance(player, StoryStep.WAIT);
+		// long after, far out over the fog and high up, three tolls
+		Vec3 away = bell.subtract(Vec3.atCenterOf(road.bellStation())).multiply(1.0, 0.0, 1.0);
+		Vec3 far = player.position().add(away.lengthSqr() < 1.0 ? new Vec3(0.0, 0.0, 48.0) : away.normalize().scale(48.0)).add(0.0, 30.0, 0.0);
+		for (int toll = 0; toll < 3; toll++) {
+			later(90 + toll * 34, () -> level.playSound(null, far.x, far.y, far.z, SoundEvents.BELL_BLOCK, SoundSource.AMBIENT, 3.0F, DROP_BELL_PITCH));
+		}
+		later(90 + 3 * 34 + 30, () -> ServerPlayNetworking.send(player, new CardPayload(StoryScript.ANSWER.id())));
+		return true;
+	}
+
+	/** Things the story does a little later: tolls spaced out, a card after them. */
+	private record Later(int tick, Runnable run) {
+	}
+
+	private static final java.util.List<Later> LATER = new java.util.ArrayList<>();
+	private static int now;
+
+	private static void later(final int ticks, final Runnable run) {
+		LATER.add(new Later(now + ticks, run));
+	}
+
+	private static void later() {
+		now++;
+		for (int i = LATER.size() - 1; i >= 0; i--) {
+			if (LATER.get(i).tick() <= now) {
+				LATER.remove(i).run().run();
+			}
+		}
+	}
+
+	/**
+	 * The salt road, laid out the first time the story reaches chapter 2: a fog-bell station on a
+	 * reef along the coast, out the other way from the lighthouse, and three salt cairns on the
+	 * way to it from the drop station. Returns null outside a story world.
+	 */
+	public static @Nullable StoryRoad ensureRoad(final MinecraftServer server) {
+		ServerLevel level = server.overworld();
+		StoryRoad built = level.getAttached(ROAD);
+		StoryPlaces places = places(server);
+		if (built != null || places == null || !active(server)) {
+			return built;
+		}
+		RandomSource random = RandomSource.create(level.getSeed() ^ 0x526F6164L);
+		BlockPos from = places.station();
+		double ax = from.getX() - places.lighthouse().getX();
+		double az = from.getZ() - places.lighthouse().getZ();
+		double length = Math.sqrt(ax * ax + az * az);
+		double angle = length < 1.0 ? 0.0 : Math.atan2(az, ax);
+		BlockPos tower = null;
+		for (int attempt = 0; attempt < 6 && tower == null; attempt++) {
+			// straight away from the lighthouse first, then turning a little each way, then further out
+			double turn = (attempt % 3 == 0 ? 0.0 : attempt % 3 == 1 ? 1.0 : -1.0) * Math.PI / 4.0;
+			int reach = ROAD_LENGTH + attempt / 3 * 200;
+			BlockPos aim = from.offset((int) Math.round(Math.cos(angle + turn) * reach), 0, (int) Math.round(Math.sin(angle + turn) * reach));
+			BlockPos found = findReef(level, aim);
+			if (found.distSqr(places.lighthouse()) > (double) APART * APART) {
+				tower = found;
+			}
+		}
+		if (tower == null) {
+			tower = findReef(level, from.offset((int) Math.round(Math.cos(angle) * ROAD_LENGTH), 0, (int) Math.round(Math.sin(angle) * ROAD_LENGTH)));
+		}
+		BlockPos belfry = BellTower.build(new Builder(level, tower, random));
+		java.util.List<BlockPos> cairns = new java.util.ArrayList<>();
+		for (double share : CAIRN_AT) {
+			int x = (int) Math.round(from.getX() + (tower.getX() - from.getX()) * share);
+			int z = (int) Math.round(from.getZ() + (tower.getZ() - from.getZ()) * share);
+			BlockPos floor = dryGround(level, x, z, from);
+			Structures.saltCairn(new Builder(level, floor, random));
+			cairns.add(floor);
+		}
+		StoryRoad road = new StoryRoad(cairns, tower, belfry);
+		level.setAttached(ROAD, road);
+		Mistinn.LOGGER.info("Story road: cairns {}, fog-bell station {}", cairns, tower);
+		return road;
+	}
+
+	/**
+	 * A reef off the coast nearest {@code aim}, as the fog-bell stations stand: the sea floor one
+	 * to seven blocks down, the tower built from the sea's surface. Failing that, the shore itself.
+	 */
+	private static BlockPos findReef(final ServerLevel level, final BlockPos aim) {
+		var found = level.findClosestBiome3d(biome -> biome.is(BiomeTags.IS_BEACH), aim, 3200, 32, 64);
+		BlockPos centre = found == null ? aim : found.getFirst();
+		int sea = level.getSeaLevel();
+		for (int r = 4; r <= 48; r += 4) {
+			for (int dx = -r; dx <= r; dx += 4) {
+				for (int dz = -r; dz <= r; dz += 4) {
+					if (Math.max(Math.abs(dx), Math.abs(dz)) != r) {
+						continue;
+					}
+					int x = centre.getX() + dx;
+					int z = centre.getZ() + dz;
+					level.getChunk(x >> 4, z >> 4);
+					int floor = level.getHeight(Heightmap.Types.OCEAN_FLOOR, x, z) - 1;
+					if (floor <= sea - 1 && floor >= sea - 7) {
+						return new BlockPos(x, sea, z);
+					}
+				}
+			}
+		}
+		BlockPos shore = ground(level, centre.getX(), centre.getZ());
+		return new BlockPos(shore.getX(), Math.max(sea, shore.getY()), shore.getZ());
+	}
+
+	/** Dry ground at (x, z), or the nearest dry ground back toward {@code home} if that is water. */
+	private static BlockPos dryGround(final ServerLevel level, final int x, final int z, final BlockPos home) {
+		BlockPos floor = ground(level, x, z);
+		double dx = home.getX() - x;
+		double dz = home.getZ() - z;
+		double length = Math.max(1.0, Math.sqrt(dx * dx + dz * dz));
+		for (int step = 4; step <= 64 && !level.getBlockState(floor).getFluidState().isEmpty(); step += 4) {
+			floor = ground(level, x + (int) Math.round(dx / length * step), z + (int) Math.round(dz / length * step));
+		}
+		return floor;
 	}
 
 	// ── The guaranteed places ────────────────────────────────────────

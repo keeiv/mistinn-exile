@@ -24,11 +24,34 @@ public enum StoryStep {
 	SNUFFER("snuffer", 1),
 	/** Hand the Rust God's salt block in at the drop station. */
 	DELIVER("deliver", 1),
-	/** The end of what is written so far: Rust Anchor does not answer. */
-	WAIT("wait", 1);
+
+	// ── 第二章「鹽之路」 ──────────────────────────────────────────────
+	/** Rust Anchor does not answer; at night a bell sounds from the sea, three times. */
+	LISTEN("listen", 2),
+	/** Follow the road of salt cairns earlier hunters piled toward the bell, each with a tag under its stone. */
+	CAIRN_1("cairn_1", 2),
+	CAIRN_2("cairn_2", 2),
+	CAIRN_3("cairn_3", 2),
+	/** Reach the fog-bell station on its reef. */
+	BELL_STATION("bell_station", 2),
+
+	// ── 第三章「沉鐘」 ────────────────────────────────────────────────
+	/** Rest at the golden bell by its jetty. */
+	BELL_REST("bell_rest", 3),
+	/** Climb to the belfry. */
+	BELFRY("belfry", 3),
+	/** Bring down the Sunken Bell. */
+	SUNKEN_BELL("sunken_bell", 3),
+	/** Ring the great bell, as it said not to. */
+	RING("ring", 3),
+	/** The end of what is written so far: far off, the station answers. */
+	WAIT("wait", 3);
 
 	/** How many chapters have a title so far. */
-	public static final int CHAPTERS = 2;
+	public static final int CHAPTERS = 4;
+
+	/** The salt cairns of the road, in order. */
+	public static final java.util.List<StoryStep> CAIRNS = java.util.List.of(CAIRN_1, CAIRN_2, CAIRN_3);
 
 	/** Salt the first objective asks for. */
 	public static final int SALT_GOAL = 10;
