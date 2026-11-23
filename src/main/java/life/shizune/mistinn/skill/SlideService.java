@@ -72,7 +72,8 @@ public final class SlideService {
 			return false;
 		}
 		Body body = BodyService.get(player);
-		return !(body.destroyed(BodyPart.LEFT_LEG) && body.destroyed(BodyPart.RIGHT_LEG));
+		// a lost leg takes the slide with it
+		return life.shizune.mistinn.body.LostLimbs.legs(player) == 0 && !(body.destroyed(BodyPart.LEFT_LEG) && body.destroyed(BodyPart.RIGHT_LEG));
 	}
 
 	/** The client asked to slide towards {@code yaw}; returns whether the slide happens. */

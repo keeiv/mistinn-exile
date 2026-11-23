@@ -38,6 +38,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 
 - [Features](#features)
 - [Playing](#playing)
+- [Difficulty and Rust Anchor](#difficulty-and-rust-anchor)
 - [Story mode](#story-mode)
 - [World and structures](#world-and-structures)
 - [Body parts](#body-parts)
@@ -64,6 +65,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Residue and gravestones | When you fall, all the salt you carry becomes residue, and everything else you carry (gear, hotbar, pockets, chest rig and backpack; not the safe box) goes into the same gravestone instead of onto the ground; right-click it to take it all back. Fall again first and the old residue fades: the salt is lost and the things spill where the stone stood. |
 | Death scene | Killed by a creature, every other creature vanishes; the hunter drops to one knee, topples onto one side and turns to smoke. Other deaths are a plain fall. Then the mission ends: the cause, a line from Rust Anchor, and the choice to return or to rest. |
 | Story mode | A prologue and a first chapter with objectives, radio calls, pixel-art story cards and in-world scenes, with a mission journal on `K`. Later chapters are still being made. |
+| Difficulty | Story and training worlds choose Easy, Normal or Rust Anchor. Rust Anchor feeds you only the station's twenty foods, makes weapons from outside hit soft and break fast, can cost you a limb, and wears your gear down and takes four tenths of your salt when you fall; the safe box is 3x3. See [Difficulty and Rust Anchor](#difficulty-and-rust-anchor). |
 | Hunter Training | An optional course for a new singleplayer world. Follow the instructor's radio, the glowing arrows and Rust Anchor's staff (report to Steelyard, the quartermaster, first; right-click staff to talk) through equipment, heavy blows, sprinting, rolling and sliding, reading a monster's windup, crossing the listening pen without a sound, medicine, crafting, the guide and your stats, the bell and residue, radio repair, and a keeper rehearsal (the lent slide, practice stat points and achievements earned in training are taken back when you leave), all at Rust Anchor Station, a base built over the sea round a giant anchor. Board the drop pod to choose Story or Free exploration. |
 | Golden bells | Ring one to set your respawn point. Each bell has its own one-hour cooldown in real time, shared by everyone. The border world has no such metal, so they cannot be crafted. |
 | Body parts | Hearts are replaced by six parts (head, torso, both arms, both legs), 80 health each (up to 120 with constitution); three destroyed parts kill. Each part is protected only by the gear that covers it, and a destroyed one has lasting effects. |
@@ -149,6 +151,33 @@ The host enters a Story or Free exploration world, presses Esc, and chooses **Wo
 Friends on different networks can connect over a reachable public address or a shared private virtual network. For a public IPv4 connection, forward the chosen TCP port (default `25565`) to the host computer and allow it through the firewall. A shared private virtual network also works when the host's ISP uses CGNAT. Guests need a verified Minecraft account to join the room. [Minecraft Java multiplayer help](https://help.minecraft.net/hc/en-us/articles/32899741198989)
 
 Story worlds remember whether the keeper has fallen and the salt block has been turned in. Friends who join later can continue their own objectives when they reach those steps.
+
+## Difficulty and Rust Anchor
+
+Story and Hunter Training ask how hard the world will be when you create it. Normal is the default; Free exploration does not ask and is always Normal. The choice is kept with the world and carries over from training into Story or Free exploration.
+
+| | Easy | Normal | Rust Anchor |
+| --- | --- | --- | --- |
+| Damage taken | x0.7 | x1 | x1.25 |
+| Chance of bleeding and broken bones | x0.5 | x1 | x1.5 |
+| Bleeding speed | x0.75 | x1 | x1.5 |
+| Natural healing | twice as fast | as before | half as fast |
+| Hunger | x0.8 | x1 | x1.25 |
+
+**Rust Anchor** also lives by the station's rules:
+
+- **Station food only**:
+  - Vanilla food turns into red-named Damp Food the moment it is in your hands; each one eaten takes a drumstick off the hunger bar for good, down to four, and the lost ones are drawn mouldy. Cake cannot be eaten.
+  - Animals and catches drop pig, beef and mutton fat, sinew, chicken scraps and fish offal instead; cook them, or make hardtack, kelp cake, drippings porridge, bone broth, offal soup and mushroom mash.
+  - Crates hold ration biscuits and rusted cans. All twenty foods exist on every difficulty.
+- **Weapons from outside**: vanilla weapons (netherite aside) hit for half and wear 2.5 times as fast; the station's own hit 5% harder and wear 1.15 times as fast.
+- **Lost limbs**:
+  - A destroyed arm or leg struck hard again, a blow that goes clean through, or a limb left to rot under a tourniquet may be lost for good, until death.
+  - A lost leg takes the sprint, the jump, the roll and the slide; with both gone you crawl.
+  - Without your working arm you cannot dig or strike; a lost hand holds nothing, and two-handed things cannot be used.
+- **When you fall**: the gear you carried loses six tenths of its durability (never below one point), four tenths of your salt is lost, and you wake with half your health and 10 hunger.
+- **Safe box**: grows to 3x3.
+- On the training ground, lost limbs and the heavier death do not apply.
 
 ## Story mode
 

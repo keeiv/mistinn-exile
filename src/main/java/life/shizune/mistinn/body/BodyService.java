@@ -105,7 +105,9 @@ public final class BodyService {
 	}
 
 	/** Stores the body and brings vanilla health and the part penalties in line with it. */
-	public static void set(final ServerPlayer player, final Body body) {
+	public static void set(final ServerPlayer player, final Body mended) {
+		// a lost limb stays at nothing, whatever tried to mend it
+		Body body = LostLimbs.hold(player, mended);
 		Body before = get(player);
 		player.setAttached(MistinnAttachments.BODY, body);
 		if (body.lethal()) {
@@ -271,8 +273,8 @@ public final class BodyService {
 		player.getCombatTracker().recordDamage(source, damage);
 		player.awardStat(Stats.DAMAGE_TAKEN, Math.round(Math.min(damage, 1.0E5F) * 10.0F));
 		hurting = true;
+		Body body = get(player);
 		try {
-			Body body = get(player);
 			set(player, execution ? body.with(BodyPart.TORSO, 0.0F) : apply(body, hit, damage * DAMAGE_SCALE));
 		} finally {
 			hurting = false;
@@ -280,6 +282,8 @@ public final class BodyService {
 		if (player.isAlive()) {
 			// blows may open a bleeding wound, falls and crushing blows may break a limb
 			WoundService.afterHit(player, hit, source, damage * DAMAGE_SCALE);
+			// and in a Rust Anchor world, out in the field, take one off
+			LostLimbs.afterHit(player, hit, source, damage * DAMAGE_SCALE, body);
 		}
 		player.gameEvent(GameEvent.ENTITY_DAMAGE);
 	}
@@ -491,19 +495,30 @@ public final class BodyService {
 	/**
 	 * Each dead leg slows and weighs down; each dead arm weakens blows and work. Painkillers
 	 * hide all of it while they last. A broken limb not held by a splint counts as dead, and
-	 * painkillers do nothing for it: the bone does not hold whether it hurts or not.
+	 * painkillers do nothing for it: the bone does not hold whether it hurts or not. Nor for a
+	 * lost limb ({@link LostLimbs}): a lost leg takes the jump and half the pace, and with both
+	 * gone the hunter crawls.
 	 */
 	public static void applyPenalties(final ServerPlayer player, final Body body) {
 		boolean numb = TreatmentService.numb(player);
-		int legs = (numb ? 0 : (body.destroyed(BodyPart.LEFT_LEG) ? 1 : 0) + (body.destroyed(BodyPart.RIGHT_LEG) ? 1 : 0))
+		int lost = LostLimbs.mask(player);
+		int legs = felt(body, numb, lost, BodyPart.LEFT_LEG) + felt(body, numb, lost, BodyPart.RIGHT_LEG)
 			+ (WoundService.broken(player, BodyPart.LEFT_LEG) ? 1 : 0) + (WoundService.broken(player, BodyPart.RIGHT_LEG) ? 1 : 0);
-		int arms = (numb ? 0 : (body.destroyed(BodyPart.LEFT_ARM) ? 1 : 0) + (body.destroyed(BodyPart.RIGHT_ARM) ? 1 : 0))
+		int arms = felt(body, numb, lost, BodyPart.LEFT_ARM) + felt(body, numb, lost, BodyPart.RIGHT_ARM)
 			+ (WoundService.broken(player, BodyPart.LEFT_ARM) ? 1 : 0) + (WoundService.broken(player, BodyPart.RIGHT_ARM) ? 1 : 0);
-		penalty(player, Attributes.MOVEMENT_SPEED, LEGS_ID, -0.25 * legs);
-		penalty(player, Attributes.JUMP_STRENGTH, LEGS_ID, -0.25 * legs);
+		int lostLegs = (LostLimbs.lost(lost, BodyPart.LEFT_LEG) ? 1 : 0) + (LostLimbs.lost(lost, BodyPart.RIGHT_LEG) ? 1 : 0);
+		// both legs lost: crawling, which is slow of itself (see the pose), a little slower still
+		double pace = lostLegs == 2 ? -0.5 : lostLegs == 1 ? Math.min(-0.5, -0.25 * legs) : -0.25 * legs;
+		penalty(player, Attributes.MOVEMENT_SPEED, LEGS_ID, pace);
+		penalty(player, Attributes.JUMP_STRENGTH, LEGS_ID, lostLegs > 0 ? -1.0 : -0.25 * legs);
 		penalty(player, Attributes.ATTACK_DAMAGE, ARMS_ID, -0.25 * arms);
 		penalty(player, Attributes.ATTACK_SPEED, ARMS_ID, -0.2 * arms);
 		penalty(player, Attributes.BLOCK_BREAK_SPEED, ARMS_ID, -0.3 * arms);
+	}
+
+	/** One if this part is felt as dead: destroyed and not numbed, or lost whatever numbs it. */
+	private static int felt(final Body body, final boolean numb, final int lost, final BodyPart part) {
+		return LostLimbs.lost(lost, part) || !numb && body.destroyed(part) ? 1 : 0;
 	}
 
 	private static void penalty(final ServerPlayer player, final Holder<Attribute> attribute, final Identifier id, final double amount) {

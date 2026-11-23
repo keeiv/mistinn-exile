@@ -17,7 +17,8 @@ public abstract class StaminaSprintMixin {
 	@Inject(method = "aiStep", at = @At("TAIL"))
 	private void mistinn$spent(final CallbackInfo ci) {
 		LocalPlayer self = (LocalPlayer) (Object) this;
-		if (StaminaService.applies(self) && self.isSprinting() && (StaminaService.get(self) <= 0.0F || TreatmentClient.busy())) {
+		boolean legLost = life.shizune.mistinn.body.LostLimbs.legs(self) > 0;
+		if (StaminaService.applies(self) && self.isSprinting() && (StaminaService.get(self) <= 0.0F || TreatmentClient.busy() || legLost)) {
 			self.setSprinting(false);
 		}
 	}

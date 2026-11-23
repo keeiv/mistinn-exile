@@ -2,6 +2,22 @@ package life.shizune.mistinn.test;
 
 import java.util.List;
 import life.shizune.mistinn.block.GravestoneBlockEntity;
+import life.shizune.mistinn.body.Body;
+import life.shizune.mistinn.body.LostLimbs;
+import life.shizune.mistinn.medical.SurgeryKitItem;
+import life.shizune.mistinn.skill.SlideService;
+import life.shizune.mistinn.stamina.RollService;
+import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
 import life.shizune.mistinn.grid.Area;
@@ -244,6 +260,97 @@ public class MistinnHardshipTest implements FabricClientGameTest {
 				server.overworld().setBlockAndUpdate(cake, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
 			});
 
+			// ── Lost limbs ───────────────────────────────────────────
+			// a dead arm struck hard again comes off, sooner or later; then nothing mends it
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				ServerLevel level = server.overworld();
+				Zombie zombie = EntityTypes.ZOMBIE.create(level, EntitySpawnReason.COMMAND);
+				zombie.setNoAi(true);
+				zombie.snapTo(player.getX() + 1.5, player.getY(), player.getZ(), 0.0F, 0.0F);
+				level.addFreshEntity(zombie);
+				float max = BodyService.max(player);
+				for (int i = 0; i < 60 && !LostLimbs.lost(player, BodyPart.LEFT_ARM); i++) {
+					BodyService.set(player, Body.whole(max).with(BodyPart.LEFT_ARM, 0.0F));
+					BodyService.aim(player, BodyService.Hit.on(BodyPart.LEFT_ARM, false));
+					player.damageCooldownTime = 0;
+					player.hurtServer(level, player.damageSources().mobAttack(zombie), 4.0F);
+				}
+				zombie.discard();
+				check(LostLimbs.lost(player, BodyPart.LEFT_ARM), "a dead arm struck again comes off");
+				BodyService.restoreAll(player);
+				check(BodyService.get(player).get(BodyPart.LEFT_ARM) == 0.0F && BodyService.get(player).get(BodyPart.TORSO) == max,
+					"nothing mends a lost limb: " + BodyService.get(player));
+				ItemStack kit = new ItemStack(MistinnItems.SURGERY_KIT);
+				check(((SurgeryKitItem) MistinnItems.SURGERY_KIT).refusal(player, kit) != null, "an operation has nothing to do for it");
+				// the off hand's arm is gone: what it holds is no use, and a bow takes two hands
+				player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.TORCH));
+				check(LostLimbs.refuses(player, InteractionHand.OFF_HAND), "the lost arm's hand holds nothing to use");
+				player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BOW));
+				check(LostLimbs.refuses(player, InteractionHand.MAIN_HAND), "a bow takes two hands");
+				player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_SWORD));
+				check(!LostLimbs.refuses(player, InteractionHand.MAIN_HAND), "the other hand still holds a sword");
+				check(AttackBlockCallback.EVENT.invoker().interact(player, level, InteractionHand.MAIN_HAND, player.blockPosition().below(), Direction.UP) == InteractionResult.PASS,
+					"and still digs");
+			});
+			// out on open ground, clear of the drop station, to be seen
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				ServerLevel level = server.overworld();
+				BlockPos open = level.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, player.blockPosition().offset(30, 0, 30));
+				player.teleportTo(level, open.getX() + 0.5, open.getY(), open.getZ() + 0.5, java.util.Set.of(), 30.0F, 15.0F, true);
+			});
+			world.getConnection().waitForChunksRender();
+			context.waitTicks(10);
+			check(context.computeOnClient(mc -> LostLimbs.lost(mc.player, BodyPart.LEFT_ARM)), "the client knows the arm is gone");
+			context.takeScreenshot("hardship-lost-arm-own");
+			context.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
+			context.waitTicks(10);
+			context.takeScreenshot("hardship-lost-arm");
+			context.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
+
+			// without the working arm there is no digging and no striking
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				ServerLevel level = server.overworld();
+				player.setAttached(LostLimbs.LOST, 1 << BodyPart.RIGHT_ARM.ordinal());
+				BodyService.set(player, Body.whole(BodyService.max(player)));
+				check(BodyService.get(player).get(BodyPart.RIGHT_ARM) == 0.0F && BodyService.get(player).get(BodyPart.LEFT_ARM) > 0.0F, "the right arm lost instead");
+				check(AttackBlockCallback.EVENT.invoker().interact(player, level, InteractionHand.MAIN_HAND, player.blockPosition().below(), Direction.UP) == InteractionResult.FAIL,
+					"without the working arm there is no digging");
+				check(!PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(level, player, player.blockPosition().below(), level.getBlockState(player.blockPosition().below()), null),
+					"not even a block already started");
+				// a lost leg takes the jump, the roll and the slide
+				player.setAttached(LostLimbs.LOST, 1 << BodyPart.LEFT_LEG.ordinal());
+				BodyService.set(player, Body.whole(BodyService.max(player)));
+				BodyService.applyPenalties(player, BodyService.get(player));
+				check(player.getAttributeValue(Attributes.JUMP_STRENGTH) < 1.0E-6, "a lost leg takes the jump: " + player.getAttributeValue(Attributes.JUMP_STRENGTH));
+				check(RollService.kind(player) == RollService.Kind.DIVE, "and the roll, leaving only the dive");
+				check(!SlideService.able(player), "and the slide");
+				// both lost: the hunter crawls
+				player.setAttached(LostLimbs.LOST, 1 << BodyPart.LEFT_LEG.ordinal() | 1 << BodyPart.RIGHT_LEG.ordinal());
+				BodyService.set(player, Body.whole(BodyService.max(player)));
+				BodyService.applyPenalties(player, BodyService.get(player));
+				player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+				player.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+				// looking up a little, so the camera in front stays clear of the ground
+				player.teleportTo(level, player.getX(), player.getY(), player.getZ(), java.util.Set.of(), 30.0F, -25.0F, true);
+			});
+			context.waitTicks(5);
+			check(world.getServer().computeOnServer(server -> player(server).getPose() == Pose.SWIMMING), "with both legs lost the hunter crawls");
+			check(context.computeOnClient(mc -> mc.player.getPose() == Pose.SWIMMING), "and so the client shows");
+			context.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
+			context.waitTicks(10);
+			context.takeScreenshot("hardship-lost-legs");
+			context.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
+			// one leg lost, kept to the end: death gives it back
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				player.setAttached(LostLimbs.LOST, 1 << BodyPart.LEFT_LEG.ordinal());
+				BodyService.set(player, Body.whole(BodyService.max(player)));
+				BodyService.applyPenalties(player, BodyService.get(player));
+			});
+
 			// a death wears down what was carried and keeps only part of the salt
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = player(server);
@@ -302,6 +409,7 @@ public class MistinnHardshipTest implements FabricClientGameTest {
 				check(player.getFoodData().getFoodLevel() == RustAnchorDeath.RESPAWN_FOOD, "and hungry: " + player.getFoodData().getFoodLevel());
 				check(GridService.get(player).safeSize() == 3, "the safe box is still 3x3");
 				check(HungerCap.of(player) == HungerCap.FULL, "and the stomach is whole again");
+				check(LostLimbs.mask(player) == 0, "and every limb is back");
 			});
 		}
 	}

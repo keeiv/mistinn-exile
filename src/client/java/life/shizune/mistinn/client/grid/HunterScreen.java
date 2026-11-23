@@ -286,7 +286,9 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 		for (BodyPart part : BodyPart.values()) {
 			float health = body.get(part);
 			Component name = Component.translatable("gui.mistinn.part." + part.id);
-			String value = health <= 0.0F ? "×" : Mth.ceil(health) + "/" + (int) BodyService.max(this.minecraft.player);
+			boolean lost = life.shizune.mistinn.body.LostLimbs.lost(this.minecraft.player, part);
+			String value = lost ? Component.translatable("gui.mistinn.part.lost").getString()
+				: health <= 0.0F ? "×" : Mth.ceil(health) + "/" + (int) BodyService.max(this.minecraft.player);
 			g.text(this.font, name, x + 8, ly, GridPanel.LABEL, false);
 			g.text(this.font, value, x + RIGHT_W - 8 - this.font.width(value), ly, BodyHud.colour(health), false);
 			// what the part carries, beside its name: bleeding, a broken bone, a tourniquet or splint with its time
