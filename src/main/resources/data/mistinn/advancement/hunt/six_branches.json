@@ -1,0 +1,56 @@
+{
+	"parent": "mistinn:hunt/first_kill",
+	"criteria": {
+		"blade": {
+			"trigger": "minecraft:impossible"
+		},
+		"greatsword": {
+			"trigger": "minecraft:impossible"
+		},
+		"spear": {
+			"trigger": "minecraft:impossible"
+		},
+		"dagger": {
+			"trigger": "minecraft:impossible"
+		},
+		"hammer": {
+			"trigger": "minecraft:impossible"
+		},
+		"scythe": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.six_branches.desc"
+		},
+		"icon": {
+			"id": "mistinn:netherite_scythe"
+		},
+		"title": {
+			"translate": "achievement.mistinn.six_branches"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"blade"
+		],
+		[
+			"greatsword"
+		],
+		[
+			"spear"
+		],
+		[
+			"dagger"
+		],
+		[
+			"hammer"
+		],
+		[
+			"scythe"
+		]
+	]
+}

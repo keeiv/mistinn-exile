@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/snuffer",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.sunken_bell.desc"
+		},
+		"icon": {
+			"id": "mistinn:bell_clapper"
+		},
+		"title": {
+			"translate": "achievement.mistinn.sunken_bell"
+		},
+		"frame": "challenge"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

@@ -1,6 +1,7 @@
 package life.shizune.mistinn.achievement;
 
-import io.netty.buffer.ByteBuf;
+import java.util.List;
+import java.util.function.Predicate;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.registry.MistinnAttachments;
 import life.shizune.mistinn.registry.MistinnSounds;
@@ -8,18 +9,21 @@ import life.shizune.mistinn.salt.SaltService;
 import life.shizune.mistinn.skill.SkillService;
 import life.shizune.mistinn.skill.Stat;
 import life.shizune.mistinn.weapon.WeaponStyle;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementProgress;
+import net.minecraft.advancements.CriterionProgress;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
+import org.jspecify.annotations.Nullable;
 
 /**
- * Reads and records a hunter's achievements. The record is saved, kept through death and sent
- * to its owner; the first time an achievement is earned it pays its salt and the hunter is told.
+ * Reads and records a hunter's achievements. They are the game's own advancements, on a tab of their own
+ * ({@code data/mistinn/advancement/hunt}): the game keeps them with the hunter, through death and across sessions,
+ * shows them on the advancements screen and announces each with its own toast. Nothing triggers them from data; the
+ * mod grants each when it happens, and the first time one is earned it pays its salt.
  */
 public final class AchievementService {
 	/** 打倒熄燈人: the first lighthouse keeper has fallen with this hunter near. */
@@ -28,26 +32,60 @@ public final class AchievementService {
 	public static final String SUNKEN_BELL = "sunken_bell";
 	/** 鹽商: salt carried at once. */
 	public static final int RICH = 5000;
-	/** 百兵: marks kept in the same record, one per weapon branch a creature was brought down with. */
+	/** 百兵: one mark per weapon branch a creature was brought down with; each is a criterion of that advancement. */
 	private static final String KILL = "kill:";
+	/** The folder of the tab, under the mod's namespace. */
+	private static final String TAB = "hunt/";
+	/** The tab's root: every hunter has it from the moment they arrive, so the tab is there before anything is earned. */
+	public static final Identifier ROOT = Mistinn.id(TAB + "root");
+
+	/**
+	 * Set by the client: whether the local hunter has an achievement or mark, read from the advancements the server
+	 * sent. Here, where no client class may be named, it answers no.
+	 */
+	public static Predicate<String> clientHas = id -> false;
 
 	private AchievementService() {
 	}
 
-	public static Achievements get(final Player player) {
-		Achievements achievements = player.getAttached(MistinnAttachments.ACHIEVEMENTS);
-		return achievements != null ? achievements : Achievements.EMPTY;
+	/** Where an achievement or mark is kept: an advancement, and one of its criteria or all of them. */
+	public record Target(Identifier advancement, @Nullable String criterion) {
+	}
+
+	/** Where {@code id} (an achievement's id, or a mark toward one) is kept. */
+	public static Target target(final String id) {
+		if (id.startsWith(KILL)) {
+			return new Target(Mistinn.id(TAB + Achievement.SIX_BRANCHES.id), id.substring(KILL.length()));
+		}
+		return new Target(Mistinn.id(TAB + id), null);
+	}
+
+	private static @Nullable AdvancementHolder holder(final ServerPlayer player, final Identifier id) {
+		return player.level().getServer().getAdvancements().get(id);
 	}
 
 	public static boolean has(final Player player, final String id) {
-		return get(player).has(id);
+		if (!(player instanceof ServerPlayer hunter)) {
+			return clientHas.test(id);
+		}
+		Target target = target(id);
+		AdvancementHolder holder = holder(hunter, target.advancement());
+		if (holder == null) {
+			return false;
+		}
+		AdvancementProgress progress = hunter.getAdvancements().getOrStartProgress(holder);
+		if (target.criterion() == null) {
+			return progress.isDone();
+		}
+		CriterionProgress criterion = progress.getCriterion(target.criterion());
+		return criterion != null && criterion.isDone();
 	}
 
 	public static boolean has(final Player player, final Achievement achievement) {
 		return has(player, achievement.id);
 	}
 
-	/** Achievements earned, of those the guide lists. */
+	/** Achievements earned, of those the tab lists. */
 	public static int earned(final Player player) {
 		int count = 0;
 		for (Achievement achievement : Achievement.values()) {
@@ -60,26 +98,65 @@ public final class AchievementService {
 
 	/** Records an achievement (or a mark toward one); returns true the first time. */
 	public static boolean grant(final ServerPlayer player, final String id) {
-		Achievements achievements = get(player);
-		if (achievements.has(id)) {
-			return false;
-		}
-		player.setAttached(MistinnAttachments.ACHIEVEMENTS, achievements.with(id));
-		Achievement achievement = Achievement.byId(id);
-		if (achievement != null) {
-			if (achievement.reward > 0) {
-				SaltService.add(player, achievement.reward);
-			}
-			player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.ACHIEVEMENT, SoundSource.PLAYERS, 0.8F, 1.0F);
-			if (ServerPlayNetworking.canSend(player, EarnedPayload.TYPE)) {
-				ServerPlayNetworking.send(player, new EarnedPayload(id));
-			}
-		}
-		return true;
+		return grant(player, id, true);
 	}
 
 	public static boolean grant(final ServerPlayer player, final Achievement achievement) {
 		return grant(player, achievement.id);
+	}
+
+	/**
+	 * Records an achievement or mark. When that completes an achievement for the first time and {@code reward} is set,
+	 * its salt is paid and its chime rung; the game shows the toast either way, except before a hunter's first tick in
+	 * a session, when what they already have is sent without one.
+	 */
+	private static boolean grant(final ServerPlayer player, final String id, final boolean reward) {
+		Target target = target(id);
+		AdvancementHolder holder = holder(player, target.advancement());
+		if (holder == null) {
+			return false;
+		}
+		PlayerAdvancements advancements = player.getAdvancements();
+		boolean was = advancements.getOrStartProgress(holder).isDone();
+		boolean changed = false;
+		if (target.criterion() == null) {
+			for (String criterion : List.copyOf(holder.value().criteria().keySet())) {
+				changed |= advancements.award(holder, criterion);
+			}
+		} else if (holder.value().criteria().containsKey(target.criterion())) {
+			changed = advancements.award(holder, target.criterion());
+		}
+		if (!changed) {
+			return false;
+		}
+		Achievement achievement = Achievement.byId(target.advancement().getPath().substring(TAB.length()));
+		if (reward && achievement != null && !was && advancements.getOrStartProgress(holder).isDone()) {
+			if (achievement.reward > 0) {
+				SaltService.add(player, achievement.reward);
+			}
+			player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.ACHIEVEMENT, SoundSource.PLAYERS, 0.8F, 1.0F);
+		}
+		return true;
+	}
+
+	/**
+	 * A hunter has arrived in a world: they get the tab's root, and a record kept the old way (before achievements
+	 * were advancements) is moved over once, without paying its salt again.
+	 */
+	public static void joined(final ServerPlayer player) {
+		AdvancementHolder root = holder(player, ROOT);
+		if (root != null) {
+			for (String criterion : List.copyOf(root.value().criteria().keySet())) {
+				player.getAdvancements().award(root, criterion);
+			}
+		}
+		Achievements old = player.getAttached(MistinnAttachments.ACHIEVEMENTS);
+		if (old != null) {
+			for (String id : old.earned()) {
+				grant(player, id, false);
+			}
+			player.removeAttached(MistinnAttachments.ACHIEVEMENTS);
+		}
 	}
 
 	// ── What earns them ───────────────────────────────────────────
@@ -93,16 +170,10 @@ public final class AchievementService {
 		// a heavy blow lands ticks after it is let go: the kill is the weapon's that struck, not the one in hand now
 		WeaponStyle landing = life.shizune.mistinn.weapon.HeavyService.landing();
 		WeaponStyle style = landing != null ? landing : WeaponStyle.of(player.getMainHandItem());
-		if (style == null) {
-			return;
+		if (style != null) {
+			// the last branch's mark completes the achievement by itself
+			grant(player, KILL + style.id);
 		}
-		grant(player, KILL + style.id);
-		for (WeaponStyle each : WeaponStyle.values()) {
-			if (!has(player, KILL + each.id)) {
-				return;
-			}
-		}
-		grant(player, Achievement.SIX_BRANCHES);
 	}
 
 	/** After a skill node is learned. */
@@ -128,23 +199,20 @@ public final class AchievementService {
 		}
 	}
 
-	/** Test hook: forgets every achievement. */
+	/** Forgets every achievement and mark (the root stays): leaving the training ground, and tests. */
 	public static void clear(final ServerPlayer player) {
-		player.removeAttached(MistinnAttachments.ACHIEVEMENTS);
-	}
-
-	public static void register() {
-		PayloadTypeRegistry.clientboundPlay().register(EarnedPayload.TYPE, EarnedPayload.CODEC);
-	}
-
-	/** Tells a hunter an achievement was just earned, so the notice slides in. */
-	public record EarnedPayload(String id) implements CustomPacketPayload {
-		public static final Type<EarnedPayload> TYPE = new Type<>(Mistinn.id("achievement_earned"));
-		public static final StreamCodec<ByteBuf, EarnedPayload> CODEC = ByteBufCodecs.stringUtf8(64).map(EarnedPayload::new, EarnedPayload::id);
-
-		@Override
-		public Type<? extends CustomPacketPayload> type() {
-			return TYPE;
+		PlayerAdvancements advancements = player.getAdvancements();
+		for (AdvancementHolder holder : player.level().getServer().getAdvancements().getAllAdvancements()) {
+			Identifier id = holder.id();
+			if (!id.getNamespace().equals(Mistinn.MOD_ID) || !id.getPath().startsWith(TAB) || id.equals(ROOT)) {
+				continue;
+			}
+			List<String> done = new java.util.ArrayList<>();
+			advancements.getOrStartProgress(holder).getCompletedCriteria().forEach(done::add);
+			for (String criterion : done) {
+				advancements.revoke(holder, criterion);
+			}
 		}
+		player.removeAttached(MistinnAttachments.ACHIEVEMENTS);
 	}
 }

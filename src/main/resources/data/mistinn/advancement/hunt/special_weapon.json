@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/heavy_three",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.special_weapon.desc"
+		},
+		"icon": {
+			"id": "mistinn:tide_maul"
+		},
+		"title": {
+			"translate": "achievement.mistinn.special_weapon"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

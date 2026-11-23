@@ -827,9 +827,6 @@
   "item.mistinn.hunter_guide.page.17": "【特殊武器】\n\n有名字的武器，只聽配得上它的獵人。\n\n條件不足時，攻擊力減半、揮得慢，也放不出重擊。\n\n條件寫在武器的說明裡：屬性要夠，有的還要先打倒某個燈守。",
   "item.mistinn.hunter_guide.page.18": "【熄燈鉤鐮】打倒熄燈人、力量 3。迴鐮之後，把最遠的一個鉤到腳邊。\n\n【霧燈杖】智力 4。燈爆讓前方一圈著火，威力看智力。用魂燈和木棍做。\n\n【潮鐘巨鎚】力量 5、體質 3。鐘震震飛身邊一整圈。用鐘、鐵塊和木棍做。",
   "gui.mistinn.guide.tab.achievements": "成就",
-  "gui.mistinn.guide.achievements": "成就 %s / %s",
-  "gui.mistinn.guide.achievement_salt": "已經得到的鹽：%s",
-  "gui.mistinn.achievement.earned": "成就達成",
   "subtitles.mistinn.ui.achievement": "成就達成",
   "achievement.mistinn.first_kill": "第一次狩獵",
   "achievement.mistinn.first_kill.desc": "親手打倒一隻怪物",
@@ -1000,7 +997,7 @@
   "staff.mistinn.archivist.ask.skills": "技能樹",
   "staff.mistinn.archivist.skills.0": "普通的鹽解小技能點，鏽神的鹽塊解大技能點。第一個大技能是滑鏟。",
   "staff.mistinn.archivist.ask.achievements": "成就",
-  "staff.mistinn.archivist.achievements.0": "十五個。達成時右上角會滑出來，各有獎勵的鹽。",
+  "staff.mistinn.archivist.achievements.0": "十六個。達成時右上角會跳出來，各有獎勵的鹽；按 L 打開進度，都記在追獵者那一頁。",
   "staff.mistinn.archivist.achievements.1": "我把每個人的成就都抄進冊子裡。……大部分人的那一頁，都很短。",
   "staff.mistinn.archivist.ask.map": "小地圖和日誌",
   "staff.mistinn.archivist.map.0": "小地圖在右上角，北方朝上，標出你的朝向、金鐘、陣亡點。M 鍵切換縮放。",
@@ -1189,5 +1186,7 @@
   "voice.mistinn.none": "不使用",
   "voice.mistinn.current": "使用中",
   "voice.mistinn.note.change": "會跟著這位獵人保存。按 Esc 維持原樣。",
-  "key.mistinn.voice": "更改聲音"
+  "key.mistinn.voice": "更改聲音",
+  "advancement.mistinn.root": "霧宿：追放",
+  "advancement.mistinn.root.desc": "追獵者在禁區裡留下的事蹟"
 }

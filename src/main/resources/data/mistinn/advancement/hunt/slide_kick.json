@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/perfect_roll",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.slide_kick.desc"
+		},
+		"icon": {
+			"id": "mistinn:leggings_1"
+		},
+		"title": {
+			"translate": "achievement.mistinn.slide_kick"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

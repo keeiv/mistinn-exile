@@ -10,7 +10,7 @@ import life.shizune.mistinn.achievement.Achievements;
 import life.shizune.mistinn.bell.BellService;
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
-import life.shizune.mistinn.client.achievement.AchievementToast;
+import life.shizune.mistinn.client.achievement.ClientAchievements;
 import life.shizune.mistinn.client.death.DeathScene;
 import life.shizune.mistinn.client.death.MissionEndScreen;
 import life.shizune.mistinn.client.guide.HunterGuideScreen;
@@ -80,7 +80,7 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 				AchievementService.clear(player(server));
 				SaltService.set(player(server), 0);
 			});
-			recordSurvivesSaving();
+			oldRecordMovesOver(world);
 			huntsAndWeapons(context, world, arena);
 			toastSlidesIn(context);
 			skillsAndStats(context, world, arena);
@@ -92,9 +92,23 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		}
 	}
 
-	private static void recordSurvivesSaving() {
+	/** A record kept the old way still reads, and is moved into the advancements once, without paying its salt again. */
+	private static void oldRecordMovesOver(final TestSingleplayerContext world) {
 		Achievements some = new Achievements(new LinkedHashSet<>(List.of("first_kill", "kill:blade", "snuffer")));
-		check(Achievements.CODEC.parse(JsonOps.INSTANCE, Achievements.CODEC.encodeStart(JsonOps.INSTANCE, some).getOrThrow()).getOrThrow().equals(some), "the record survives saving");
+		check(Achievements.CODEC.parse(JsonOps.INSTANCE, Achievements.CODEC.encodeStart(JsonOps.INSTANCE, some).getOrThrow()).getOrThrow().equals(some), "an old record still reads");
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			check(AchievementService.has(player, AchievementService.ROOT.getPath().substring("hunt/".length())), "every hunter has the tab's root from the start");
+			player.setAttached(MistinnAttachments.ACHIEVEMENTS, some);
+			AchievementService.joined(player);
+			check(AchievementService.has(player, Achievement.FIRST_KILL) && AchievementService.has(player, AchievementService.SNUFFER) && AchievementService.has(player, "kill:blade"),
+				"an old record is moved into the advancements");
+			check(!AchievementService.has(player, "kill:scythe") && !AchievementService.has(player, Achievement.SIX_BRANCHES), "and nothing else with it");
+			check(SaltService.get(player) == 0, "without paying its salt a second time: " + SaltService.get(player));
+			check(player.getAttached(MistinnAttachments.ACHIEVEMENTS) == null, "and the old record is gone");
+			AchievementService.clear(player);
+			check(AchievementService.earned(player) == 0 && !AchievementService.has(player, "kill:blade"), "clearing forgets every one");
+		});
 	}
 
 	// ── The arena ─────────────────────────────────────────────────
@@ -176,13 +190,15 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		}
 	}
 
-	/** The notice slides in at the top right when an achievement is earned, and away again. */
+	/** The game's own toast shows at the top right when an achievement is earned, and the client knows it has it. */
 	private static void toastSlidesIn(final ClientGameTestContext context) {
-		check(context.computeOnClient(mc -> AchievementToast.showing()) != null, "the notice is up after an achievement");
+		context.waitFor(mc -> ClientAchievements.has(Achievement.SIX_BRANCHES.id), 100);
+		check(context.computeOnClient(mc -> ClientAchievements.has("kill:scythe") && ClientAchievements.has(Achievement.FIRST_KILL.id)), "the client knows what was earned, mark by mark");
+		check(context.computeOnClient(mc -> mc.gui.toastManager().getToast(net.minecraft.client.gui.components.toasts.AdvancementToast.class,
+			net.minecraft.client.gui.components.toasts.Toast.NO_TOKEN)) != null, "the game's toast is up after an achievement");
 		context.waitTicks(10);
 		context.takeScreenshot(TestScreenshotOptions.of("toast").disableCounterPrefix().withDestinationDir(Path.of("achievements")));
-		// the first hunt's notice and then the armory's, each about four and a half seconds
-		context.waitFor(mc -> AchievementToast.showing() == null, 400);
+		context.runOnClient(mc -> mc.gui.toastManager().clear());
 	}
 
 	private static void skillsAndStats(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
@@ -334,29 +350,33 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		context.waitTicks(5);
 		int client = context.computeOnClient(mc -> AchievementService.earned(mc.player));
 		check(client == server && client == Achievement.values().length, "the client knows every one: " + client + " / " + server);
-		// a fresh record, half earned, for the picture of the page
+		// half earned, for the picture of the tab
 		world.getServer().runOnServer(s -> {
 			ServerPlayer player = player(s);
-			Set<String> half = new LinkedHashSet<>();
+			AchievementService.clear(player);
 			for (Achievement each : Achievement.values()) {
 				if (each.ordinal() % 2 == 0) {
-					half.add(each.id);
+					AchievementService.grant(player, each);
 				}
 			}
-			player.setAttached(MistinnAttachments.ACHIEVEMENTS, new Achievements(half));
+			AchievementService.grant(player, "kill:blade");
+			AchievementService.grant(player, "kill:hammer");
 		});
-		context.waitTicks(5);
-		context.runOnClient(mc -> mc.gui.setScreen(new HunterGuideScreen()));
+		context.waitTicks(10);
+		context.runOnClient(mc -> {
+			mc.gui.toastManager().clear();
+			mc.gui.setScreen(new HunterGuideScreen());
+		});
 		context.waitTicks(5);
 		HunterGuideScreen screen = context.computeOnClient(mc -> (HunterGuideScreen) mc.gui.screen());
 		click(context, context.computeOnClient(mc -> screen.tabCentre(HunterGuideScreen.Tab.ACHIEVEMENTS)));
-		check(context.computeOnClient(mc -> screen.tab()) == HunterGuideScreen.Tab.ACHIEVEMENTS, "the fourth bookmark opens the achievements");
+		check(context.computeOnClient(mc -> mc.gui.screen() instanceof net.minecraft.client.gui.screens.advancements.AdvancementsScreen),
+			"the fourth bookmark opens the game's advancements");
+		context.waitTicks(5);
+		context.takeScreenshot(TestScreenshotOptions.of("advancements-tab").disableCounterPrefix().withDestinationDir(Path.of("achievements")));
+		context.runOnClient(mc -> mc.gui.screen().onClose());
 		context.waitTicks(3);
-		context.takeScreenshot(TestScreenshotOptions.of("guide-achievements-1").disableCounterPrefix().withDestinationDir(Path.of("achievements")));
-		click(context, context.computeOnClient(mc -> screen.nextPage()));
-		check(context.computeOnClient(mc -> screen.achievementSpread()) == 1, "the arrow turns to the rest");
-		context.waitTicks(3);
-		context.takeScreenshot(TestScreenshotOptions.of("guide-achievements-2").disableCounterPrefix().withDestinationDir(Path.of("achievements")));
+		check(context.computeOnClient(mc -> mc.gui.screen() instanceof HunterGuideScreen), "and closing them goes back to the guide");
 		context.runOnClient(mc -> mc.gui.setScreen(null));
 	}
 

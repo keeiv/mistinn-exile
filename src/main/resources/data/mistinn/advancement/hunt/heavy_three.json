@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/first_kill",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.heavy_three.desc"
+		},
+		"icon": {
+			"id": "mistinn:iron_hammer"
+		},
+		"title": {
+			"translate": "achievement.mistinn.heavy_three"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

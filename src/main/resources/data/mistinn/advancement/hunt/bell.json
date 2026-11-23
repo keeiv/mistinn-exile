@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/root",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.bell.desc"
+		},
+		"icon": {
+			"id": "mistinn:ore_bell"
+		},
+		"title": {
+			"translate": "achievement.mistinn.bell"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

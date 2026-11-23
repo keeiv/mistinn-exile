@@ -78,7 +78,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Stamina and rolls | Swings, sprints and rolls cost stamina. The legs determine how far a roll goes and the arms shape its motion. Badly injured legs can force a dive, whose landing strains the upper body. |
 | Title screen | An original misty shore with a dead lighthouse: drifting fog, glinting water and a last ember in the lamp room. |
 | Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: eleven pages on the world, the mission and the rules, the stats, the skill tree and the achievements. |
-| Achievements | Sixteen of them, from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer and the Sunken Bell. A notice slides in at the top right and pays some salt; all are listed on the guide's deeds page. See [Achievements](#achievements). |
+| Achievements | Sixteen of them, from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer and the Sunken Bell. The game's toast shows at the top right and some salt is paid; all are kept on the mod's own tab of the advancements screen. See [Achievements](#achievements). |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V; each with its own durability, protection, capacity, layout and a two-line story. |
@@ -372,9 +372,9 @@ A hunter starts growing once a keeper falls and its rust god salt comes home. Op
 
 | | |
 | --- | --- |
-| ![The deeds page of the Hunter's Guide: how many are earned and the salt they paid, then the achievements one per row, earned ones bright and the rest dim](images/guide-achievements.png) | ![The achievement notice at the top right of the screen: the emblem and name on a strip of paper](images/achievement-toast.png) |
+| ![The mod's own tab on the game's advancements screen: lines for hunting, footwork, growth, the bells and the keepers spread out from the golden bell, earned ones lit](images/advancements-tab.png) | ![The game's toast at the top right, left of the minimap: the icon and the achievement's name](images/advancement-toast.png) |
 
-When you do something worth remembering, a notice slides in at the top right, a bell chimes and some salt is paid (the first time only). Every achievement is listed on the **deeds** page of the Hunter's Guide: earned ones bright, the rest dim, with the count and the salt earned at the top. Achievements are saved and kept through death; bringing down the Snuffer is also what the Snuffer's Hook asks for.
+Achievements are the game's own **advancements**: press `L` and the mod has a tab of its own (the golden bell), which the guide's deeds bookmark opens too. When you do something worth remembering, the game's toast shows at the top right (left of the minimap, so neither hides the other), a bell chimes and some salt is paid (the first time only). The Armory shows how many of the six weapon branches are done. Achievements are saved and kept through death; achievements in an older save are moved into the advancements when you enter the world, without paying their salt again; bringing down the Snuffer is also what the Snuffer's Hook asks for.
 
 | Achievement | How | Salt |
 | --- | --- | --- |

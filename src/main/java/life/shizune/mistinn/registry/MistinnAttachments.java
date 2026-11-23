@@ -60,10 +60,12 @@ public final class MistinnAttachments {
 		.copyOnDeath()
 		.buildAndRegister(Mistinn.id("skills"));
 
-	/** What the hunter has achieved (a keeper brought down, ...). Kept through death. */
+	/**
+	 * How achievements were kept before they became advancements. Only read now: a record found on a hunter is moved
+	 * over when they arrive, and removed ({@code AchievementService.joined}).
+	 */
 	public static final AttachmentType<life.shizune.mistinn.achievement.Achievements> ACHIEVEMENTS = AttachmentRegistry.<life.shizune.mistinn.achievement.Achievements>builder()
 		.persistent(life.shizune.mistinn.achievement.Achievements.CODEC)
-		.syncWith(life.shizune.mistinn.achievement.Achievements.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
 		.copyOnDeath()
 		.buildAndRegister(Mistinn.id("achievements"));
 

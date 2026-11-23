@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/bell",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.residue.desc"
+		},
+		"icon": {
+			"id": "minecraft:candle"
+		},
+		"title": {
+			"translate": "achievement.mistinn.residue"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

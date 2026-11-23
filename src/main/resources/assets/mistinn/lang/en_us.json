@@ -827,9 +827,6 @@
   "item.mistinn.hunter_guide.page.17": "[Named Weapons]\n\nA weapon with a name answers only a hunter who has earned it.\n\nShort of that, it hits at half strength, swings slowly and gives no heavy blow.\n\nIts tooltip says what it asks: a stat, or a keeper slain.",
   "item.mistinn.hunter_guide.page.18": "Snuffer Hook: slay the Snuffer; Strength 3. Hooks the farthest foe to your feet.\n\nLantern Staff: Intellect 4. Sets all ahead alight. Soul lantern and sticks.\n\nTide Maul: Strength 5, Constitution 3. Throws back all around you. Bell, iron blocks, sticks.",
   "gui.mistinn.guide.tab.achievements": "Deeds",
-  "gui.mistinn.guide.achievements": "Deeds %s / %s",
-  "gui.mistinn.guide.achievement_salt": "Salt earned: %s",
-  "gui.mistinn.achievement.earned": "Achievement earned",
   "subtitles.mistinn.ui.achievement": "Achievement earned",
   "achievement.mistinn.first_kill": "First Hunt",
   "achievement.mistinn.first_kill.desc": "Bring down a monster",
@@ -1000,7 +997,7 @@
   "staff.mistinn.archivist.ask.skills": "The skill tree",
   "staff.mistinn.archivist.skills.0": "Common salt opens the small nodes, a rust god's salt the great ones. The first great skill is the slide.",
   "staff.mistinn.archivist.ask.achievements": "Achievements",
-  "staff.mistinn.archivist.achievements.0": "Fifteen. They slide in at the top right when earned, each with a salt reward.",
+  "staff.mistinn.archivist.achievements.0": "Sixteen. Each shows at the top right when earned and pays its salt; they are all in your advancements (L), on the hunter's tab.",
   "staff.mistinn.archivist.achievements.1": "I copy everyone's into the ledger. ...Most people's pages are very short.",
   "staff.mistinn.archivist.ask.map": "The minimap and the log",
   "staff.mistinn.archivist.map.0": "The minimap is top right, north up, showing your heading, your bell and where you fell. M changes the zoom.",
@@ -1189,5 +1186,7 @@
   "voice.mistinn.none": "No voice",
   "voice.mistinn.current": "in use",
   "voice.mistinn.note.change": "Kept with this hunter. Press Esc to leave it as it is.",
-  "key.mistinn.voice": "Change Voice"
+  "key.mistinn.voice": "Change Voice",
+  "advancement.mistinn.root": "Mistinn: Exile",
+  "advancement.mistinn.root.desc": "What a hunter has done in the forbidden zone"
 }

@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/stat_five",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.all_stats.desc"
+		},
+		"icon": {
+			"id": "mistinn:hunter_guide"
+		},
+		"title": {
+			"translate": "achievement.mistinn.all_stats"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

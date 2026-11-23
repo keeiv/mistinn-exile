@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/bell",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.revive_limb.desc"
+		},
+		"icon": {
+			"id": "mistinn:surgery_kit"
+		},
+		"title": {
+			"translate": "achievement.mistinn.revive_limb"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/root",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.snuffer.desc"
+		},
+		"icon": {
+			"id": "mistinn:snuffer_hook"
+		},
+		"title": {
+			"translate": "achievement.mistinn.snuffer"
+		},
+		"frame": "challenge"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}
