@@ -50,14 +50,22 @@ public abstract class AvatarRollMixin {
 		// through their own eyes: nothing worn on the head is drawn, nor what a hand holds up in front of the eye
 		boolean own = OwnBody.inWorldPass() && entity == net.minecraft.client.Minecraft.getInstance().player && OwnBody.active();
 		state.setData(OwnBody.KEY, own ? Boolean.TRUE : null);
+		state.setData(OwnBody.HANDS_UP, null);
 		if (own) {
 			state.headEquipment = net.minecraft.world.item.ItemStack.EMPTY;
 			state.headItem.clear();
 			state.heldOnHead.clear();
 			state.wornHeadType = null;
 			state.setData(life.shizune.mistinn.client.gear.MaskLayer.KEY, null);
-			if (OwnBody.raised(partialTicks) > 0.0F) {
-				(state.mainArm == net.minecraft.world.entity.HumanoidArm.RIGHT ? state.rightHandItemState : state.leftHandItemState).clear();
+			// what the hand pass draws in front of the eye is left off the body, so nothing is drawn twice
+			OwnBody.Hands up = OwnBody.handsUp(net.minecraft.client.Minecraft.getInstance().player, partialTicks);
+			state.setData(OwnBody.HANDS_UP, up);
+			if (up != null) {
+				boolean right = state.mainArm == net.minecraft.world.entity.HumanoidArm.RIGHT;
+				(right ? state.rightHandItemState : state.leftHandItemState).clear();
+				if (up.off()) {
+					(right ? state.leftHandItemState : state.rightHandItemState).clear();
+				}
 			}
 		}
 	}

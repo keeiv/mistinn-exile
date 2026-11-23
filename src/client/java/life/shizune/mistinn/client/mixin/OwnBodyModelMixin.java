@@ -21,10 +21,12 @@ public abstract class OwnBodyModelMixin {
 		if (state.isSpectator) {
 			return;
 		}
-		boolean handsUp = own && OwnBody.raised(1.0F) > 0.0F;
+		OwnBody.Hands up = own ? state.getData(OwnBody.HANDS_UP) : null;
 		boolean right = state.mainArm == HumanoidArm.RIGHT;
-		model.rightArm.visible = !(handsUp && right);
-		model.leftArm.visible = !(handsUp && !right);
+		boolean mainUp = up != null && up.main();
+		boolean offUp = up != null && up.off();
+		model.rightArm.visible = !(right ? mainUp : offUp);
+		model.leftArm.visible = !(right ? offUp : mainUp);
 		model.rightSleeve.visible = model.rightArm.visible && state.showRightSleeve;
 		model.leftSleeve.visible = model.leftArm.visible && state.showLeftSleeve;
 	}
