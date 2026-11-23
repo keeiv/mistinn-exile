@@ -62,8 +62,10 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 	/** Height of the three columns and the row of the hotbar, from the worn rig and backpack. */
 	private int panelHeight = HEIGHT;
 	private int hotbarY = HEIGHT - 19;
-	/** The left column needs this much for gear, pockets, safe box and crafting. */
+	/** The left column needs this much for gear, pockets, a 2x2 safe box and crafting. */
 	private static final int LEFT_MIN = 214;
+	/** How far a safe box larger than 2x2 pushes the crafting grid down. */
+	private int safeExtra;
 
 	public HunterScreen(final Player player) {
 		super(player.inventoryMenu, player.getInventory(), Component.translatable("container.inventory"), WIDTH, HEIGHT);
@@ -85,7 +87,9 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 		if (this.minecraft == null || this.minecraft.player == null) {
 			return;
 		}
-		this.gridLayout = this.layoutGrid(GridPanel.inventory(this.minecraft.player));
+		GridInventory inv = GridPanel.inventory(this.minecraft.player);
+		this.safeExtra = Math.max(0, inv.safeSize() - GridInventory.SAFE_SIZE) * GridPanel.CELL;
+		this.gridLayout = this.layoutGrid(inv);
 		this.placeSlots();
 	}
 
@@ -103,9 +107,9 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 		}
 		move(this.menu.slots.get(OFFHAND), 97, 39);
 		for (int i = 0; i < 4; i++) {
-			move(this.menu.slots.get(CRAFT_FIRST + i), 9 + (i % 2) * SLOT, 171 + (i / 2) * SLOT);
+			move(this.menu.slots.get(CRAFT_FIRST + i), 9 + (i % 2) * SLOT, 171 + this.safeExtra + (i / 2) * SLOT);
 		}
-		move(this.menu.slots.get(RESULT), 57, 180);
+		move(this.menu.slots.get(RESULT), 57, 180 + this.safeExtra);
 		int hotbarX = CENTRE_X + (CENTRE_W - 9 * SLOT) / 2 + 1;
 		for (int i = 0; i < 9; i++) {
 			move(this.menu.slots.get(HOTBAR_FIRST + i), hotbarX + i * SLOT, this.hotbarY);
@@ -155,7 +159,7 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 			}
 			int packTitle = cy;
 			int bottom = GridPanel.placeSections(boxes, Area.BACKPACK, inv.shape(Area.BACKPACK), CENTRE_X + 4, cy + 11, CENTRE_W - 8, attempt[1])[1];
-			int needed = Math.max(LEFT_MIN, bottom + 6 + SLOT + 4);
+			int needed = Math.max(LEFT_MIN + this.safeExtra, bottom + 6 + SLOT + 4);
 			if (chosen == null || needed < chosenHeight) {
 				chosen = boxes;
 				chosenHeight = needed;
@@ -185,7 +189,7 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 		for (int i = 0; i < 4; i++) {
 			boxes.add(new GridPanel.Box(Area.POCKETS, i, x + 9 + i * (GridPanel.CELL + GridPanel.GAP), y + 83, 1, 1));
 		}
-		boxes.add(new GridPanel.Box(Area.SAFE, 0, x + 9, y + 117, 2, 2));
+		boxes.add(new GridPanel.Box(Area.SAFE, 0, x + 9, y + 117, inv.safeSize(), inv.safeSize()));
 		List<GridPanel.SocketBox> sockets = new ArrayList<>();
 		sockets.add(new GridPanel.SocketBox(GridPanel.Socket.RIG, x + 57, y + 17, GridPanel.CELL));
 		sockets.add(new GridPanel.SocketBox(GridPanel.Socket.BACKPACK, x + 79, y + 17, GridPanel.CELL));
@@ -259,7 +263,7 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 		g.text(this.font, Component.translatable("gui.mistinn.offhand"), x + 95, y + 59, GridPanel.LABEL_DIM, false);
 		g.text(this.font, Component.translatable("gui.mistinn.pockets"), x + 6, y + 72, GridPanel.LABEL, false);
 		g.text(this.font, Component.translatable("gui.mistinn.safe"), x + 6, y + 106, GridPanel.LABEL, false);
-		g.text(this.font, Component.translatable("gui.mistinn.crafting"), x + 6, y + 160, GridPanel.LABEL, false);
+		g.text(this.font, Component.translatable("gui.mistinn.crafting"), x + 6, y + 160 + this.safeExtra, GridPanel.LABEL, false);
 		int cx = x + CENTRE_X + 4;
 		ItemStack rig = inv.rig();
 		g.text(this.font, rig.isEmpty() ? Component.translatable("gui.mistinn.no_rig") : TierText.name(rig), cx, this.rigTitleY, rig.isEmpty() ? GridPanel.LABEL_DIM : Tiers.of(rig).color, false);

@@ -353,7 +353,7 @@ public final class GridService {
 				Containers.dropItemStack(player.level(), player.getX(), player.getY(), player.getZ(), worn.copy());
 			}
 		}
-		set(player, new GridInventory(List.of(), inv.safe(), ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY));
+		set(player, inv.onlySafe());
 	}
 
 	/** The worn backpack slows the hunter by its weight. */

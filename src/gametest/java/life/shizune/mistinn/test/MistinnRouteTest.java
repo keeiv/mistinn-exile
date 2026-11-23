@@ -46,7 +46,7 @@ public final class MistinnRouteTest implements FabricClientGameTest {
 			|| Boolean.getBoolean("mistinn.reel") || Boolean.getBoolean("mistinn.medreel") || Boolean.getBoolean("mistinn.bossreel")) {
 			return;
 		}
-		context.runOnClient(TrainingClient::createWorld);
+		context.runOnClient(mc -> TrainingClient.createWorld(mc, life.shizune.mistinn.hardship.Hardship.NORMAL));
 		context.waitFor(mc -> mc.player != null && mc.player.level().dimension().equals(TrainingGround.KEY), 2000);
 		context.waitTicks(40);
 		// a save built by the second station, with its rails across the forge bridge and its bridge to

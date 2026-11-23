@@ -5,6 +5,8 @@ import life.shizune.mistinn.grid.GridInventory;
 import life.shizune.mistinn.grid.GridRules;
 import life.shizune.mistinn.grid.GridService;
 import life.shizune.mistinn.grid.Placed;
+import life.shizune.mistinn.hardship.Hardship;
+import life.shizune.mistinn.hardship.RustAnchorDeath;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -53,27 +55,29 @@ public final class ResidueService {
 			return;
 		}
 		java.util.List<Kept> kept = new java.util.ArrayList<>(CARRIED.getOrDefault(player.getUUID(), java.util.List.of()));
+		// a Rust Anchor world wears down everything carried; the safe box is spared
+		java.util.function.UnaryOperator<ItemStack> worn = Hardship.rustAnchorAfield(player) ? RustAnchorDeath::wear : stack -> stack;
 		Inventory inventory = player.getInventory();
 		for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
 			ItemStack stack = inventory.removeItemNoUpdate(slot);
 			if (!stack.isEmpty() && !EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_EQUIPMENT_DROP)) {
-				kept.add(new Kept(Kept.SLOT, slot, stack));
+				kept.add(new Kept(Kept.SLOT, slot, worn.apply(stack)));
 			}
 		}
 		GridInventory grid = GridService.get(player);
 		for (Placed placed : grid.pockets()) {
-			kept.add(new Kept(Kept.POCKET, 0, placed.stack().copy()));
+			kept.add(new Kept(Kept.POCKET, 0, worn.apply(placed.stack().copy())));
 		}
 		if (!grid.mask().isEmpty()) {
-			kept.add(new Kept(Kept.MASK, 0, grid.mask().copy()));
+			kept.add(new Kept(Kept.MASK, 0, worn.apply(grid.mask().copy())));
 		}
 		if (!grid.rig().isEmpty()) {
-			kept.add(new Kept(Kept.RIG, 0, grid.rig().copy()));
+			kept.add(new Kept(Kept.RIG, 0, worn.apply(grid.rig().copy())));
 		}
 		if (!grid.backpack().isEmpty()) {
-			kept.add(new Kept(Kept.BACKPACK, 0, grid.backpack().copy()));
+			kept.add(new Kept(Kept.BACKPACK, 0, worn.apply(grid.backpack().copy())));
 		}
-		GridService.set(player, new GridInventory(java.util.List.of(), grid.safe(), ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY));
+		GridService.set(player, grid.onlySafe());
 		CARRIED.put(player.getUUID(), kept);
 	}
 
@@ -81,7 +85,9 @@ public final class ResidueService {
 		ServerLevel level = player.level();
 		java.util.List<Kept> items = java.util.List.copyOf(CARRIED.getOrDefault(player.getUUID(), java.util.List.of()));
 		CARRIED.remove(player.getUUID());
-		int salt = SaltService.get(player);
+		int carried = SaltService.get(player);
+		// a Rust Anchor world keeps only part of it
+		int salt = Hardship.rustAnchorAfield(player) ? RustAnchorDeath.saltKept(carried) : carried;
 		int serial = player.getAttachedOrElse(MistinnAttachments.RESIDUE_SERIAL, 0) + 1;
 		BlockPos pos = findSpot(level, player.blockPosition());
 

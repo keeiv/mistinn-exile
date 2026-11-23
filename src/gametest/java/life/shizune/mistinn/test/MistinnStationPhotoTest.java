@@ -42,7 +42,7 @@ public final class MistinnStationPhotoTest implements FabricClientGameTest {
 			mc.options.renderDistance().set(16);
 			mc.getWindow().setWindowed(1920, 1080);
 		});
-		context.runOnClient(TrainingClient::createWorld);
+		context.runOnClient(mc -> TrainingClient.createWorld(mc, life.shizune.mistinn.hardship.Hardship.NORMAL));
 		context.waitFor(mc -> mc.player != null && mc.player.level().dimension().equals(TrainingGround.KEY), 2000);
 		// with Sodium and Iris the chunk checks never report done: wait for the station to load and the shaders to settle
 		context.waitTicks(600);
