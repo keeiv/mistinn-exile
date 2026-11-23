@@ -13,6 +13,7 @@ public final class StoryScript {
 	public static final String HELM = "helm";
 	public static final String SNUFFER = "snuffer";
 	public static final String SUNKEN_BELL = "sunken_bell";
+	public static final String RUST_WHEEL = "rust_wheel";
 	public static final String NARRATION = "narration";
 	/** The hunters whose tags lie under the cairns of the salt road, by their numbers. */
 	public static final String TAG_3388 = "tag_3388";
@@ -47,9 +48,13 @@ public final class StoryScript {
 	public static final Card BELL_STATION = new Card("bell_station", 3, "story.mistinn.chapter.3");
 	/** Chapter 3 ends: the great bell rung, and the station answering from beyond the fog. */
 	public static final Card ANSWER = new Card("answer", 5, "");
+	/** Chapter 4 opens after the pod's call: the salt works inland, and the wheel. */
+	public static final Card SALT_WORKS = new Card("salt_works", 3, "story.mistinn.chapter.4");
+	/** Chapter 4 ends: the wheel stopped, and far off the anchor's chain. */
+	public static final Card STOPPED = new Card("stopped", 4, "");
 
 	private static final Map<String, Card> CARDS = Map.of(DROP.id(), DROP, LIGHTHOUSE.id(), LIGHTHOUSE, UNANSWERED.id(), UNANSWERED,
-		SALT_ROAD.id(), SALT_ROAD, BELL_STATION.id(), BELL_STATION, ANSWER.id(), ANSWER);
+		SALT_ROAD.id(), SALT_ROAD, BELL_STATION.id(), BELL_STATION, ANSWER.id(), ANSWER, SALT_WORKS.id(), SALT_WORKS, STOPPED.id(), STOPPED);
 
 	// ── Sequences ────────────────────────────────────────────────────
 	/** Helm's first call over the mended radio. */
@@ -66,6 +71,10 @@ public final class StoryScript {
 	public static final String TAG_3 = "tag_3";
 	/** The Sunken Bell's last words as it falls. */
 	public static final String SUNKEN_BELL_END = "sunken_bell_end";
+	/** The pod that answered the bell: empty, and its radio calling. */
+	public static final String SUPPLY_CALL = "supply_call";
+	/** What the man at the wheel says when it stops. */
+	public static final String RUST_WHEEL_END = "rust_wheel_end";
 
 	/** The tag sequences, in the order of the cairns they lie under. */
 	public static final List<String> TAGS = List.of(TAG_1, TAG_2, TAG_3);
@@ -80,7 +89,9 @@ public final class StoryScript {
 		TAG_1, List.of(TAG_3388),
 		TAG_2, List.of(TAG_3401, TAG_3401),
 		TAG_3, List.of(TAG_3409, TAG_3409),
-		SUNKEN_BELL_END, List.of(SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL)
+		SUNKEN_BELL_END, List.of(SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL),
+		SUPPLY_CALL, List.of(NARRATION, NARRATION, HELM, HELM, HELM, HELM, HELM, HELM, HELM),
+		RUST_WHEEL_END, List.of(RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL)
 	);
 
 	private StoryScript() {
@@ -101,6 +112,6 @@ public final class StoryScript {
 
 	/** Every sequence, in the order the story reaches them: for the journal. */
 	public static List<String> sequences() {
-		return List.of(FIRST_CALL, SNUFFER_END, NO_ANSWER, NIGHT_TOLL, TAG_1, TAG_2, TAG_3, SUNKEN_BELL_END);
+		return List.of(FIRST_CALL, SNUFFER_END, NO_ANSWER, NIGHT_TOLL, TAG_1, TAG_2, TAG_3, SUNKEN_BELL_END, SUPPLY_CALL, RUST_WHEEL_END);
 	}
 }

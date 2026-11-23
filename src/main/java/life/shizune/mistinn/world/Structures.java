@@ -38,6 +38,9 @@ public final class Structures {
 	/** Where an intact station keeps its radio, relative to the station's origin. */
 	public static final BlockPos RADIO = new BlockPos(2, 1, -3);
 
+	/** Where the barrel of supplies that rolled out of the answering pod stands, from the middle of its crater. */
+	public static final BlockPos POD_SUPPLY = new BlockPos(-2, 1, -1);
+
 	// ── 追獵者投放站 ──────────────────────────────────────────────
 
 	/**
@@ -76,6 +79,35 @@ public final class Structures {
 		b.clear(0, 1, -3, 0, 3, -3);
 		b.settle();
 		return new BlockPos(0, 1, -3);
+	}
+
+	/**
+	 * The pod Rust Anchor sends down when the great bell is rung: come down hard on open ground with no station to
+	 * land on, the earth burnt black round it and still smouldering, its hatch thrown open and nobody inside. A barrel of
+	 * supplies has rolled out beside it. Built with its origin on the ground at the middle.
+	 */
+	public static void supplyPod(final Builder b) {
+		b.clear(-5, 1, -5, 5, 8, 5);
+		for (int x = -6; x <= 6; x++) {
+			for (int z = -6; z <= 6; z++) {
+				double r = Math.sqrt(x * x + z * z);
+				if (r > 6.2 || (r > 4.5 && b.chance(0.5F))) {
+					continue;
+				}
+				float roll = b.random().nextFloat();
+				Block burnt = r < 2.5
+					? (roll < 0.5F ? Blocks.BLACKSTONE : Blocks.COARSE_DIRT)
+					: roll < 0.3F ? Blocks.COARSE_DIRT : roll < 0.5F ? Blocks.TUFF : roll < 0.65F ? Blocks.GRAVEL : roll < 0.75F ? Blocks.BLACKSTONE : Blocks.ROOTED_DIRT;
+				b.set(x, 0, z, burnt);
+				b.footing(x, z, Blocks.DIRT, 4);
+			}
+		}
+		stationPod(b, Station.INTACT);
+		b.container(POD_SUPPLY.getX(), POD_SUPPLY.getY(), POD_SUPPLY.getZ(), Blocks.BARREL, Direction.UP, "chests/drop_station");
+		// where it struck the ground is still smouldering
+		b.set(3, 0, -3, Blocks.CAMPFIRE);
+		b.set(-3, 0, 3, Blocks.CAMPFIRE);
+		b.settle();
 	}
 
 	/** The plinth's steps and the scorched ring of ground around the pad (within six blocks). */

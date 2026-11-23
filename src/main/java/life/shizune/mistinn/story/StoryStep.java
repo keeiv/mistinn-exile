@@ -44,11 +44,23 @@ public enum StoryStep {
 	SUNKEN_BELL("sunken_bell", 3),
 	/** Ring the great bell, as it said not to. */
 	RING("ring", 3),
-	/** The end of what is written so far: far off, the station answers. */
-	WAIT("wait", 3);
+
+	// ── 第四章「鹽坊」 ────────────────────────────────────────────────
+	/** Far off, the station answered with a pod: find where it came down. */
+	POD("pod", 4),
+	/** Its radio sends the hunter inland, to the salt works whose salt stopped coming. */
+	SALT_WORKS("salt_works", 4),
+	/** Rest at the golden bell by its gate. */
+	WORKS_BELL("works_bell", 4),
+	/** Walk into the walled yard of the wheel. */
+	YARD("yard", 4),
+	/** Stop the Rust Wheel. */
+	RUST_WHEEL("rust_wheel", 4),
+	/** The end of what is written so far. */
+	WAIT("wait", 4);
 
 	/** How many chapters have a title so far. */
-	public static final int CHAPTERS = 4;
+	public static final int CHAPTERS = 5;
 
 	/** The salt cairns of the road, in order. */
 	public static final java.util.List<StoryStep> CAIRNS = java.util.List.of(CAIRN_1, CAIRN_2, CAIRN_3);

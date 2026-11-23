@@ -20,6 +20,8 @@ public final class SaltWorks {
 	public static final int[][] PILLARS = {{7, 7}, {-7, 7}, {7, -7}, {-7, -7}};
 	/** The gate: in the south wall, this far either side of the middle. */
 	public static final int GATE = 2;
+	/** Where the golden bell by the gate stands, from the middle of the yard where the wheel stands. */
+	public static final BlockPos BELL = new BlockPos(4, 0, YARD + 5);
 
 	private SaltWorks() {
 	}
@@ -125,7 +127,7 @@ public final class SaltWorks {
 				b.footing(x, z + dz, Blocks.STONE, 6);
 			}
 		}
-		b.set(4, 1, z, MistinnBlocks.GOLDEN_BELL);
+		b.set(BELL.getX(), 1, BELL.getZ(), MistinnBlocks.GOLDEN_BELL);
 		b.set(5, 1, z, Blocks.STONE_BRICK_WALL);
 		b.set(5, 2, z, Blocks.STONE_BRICK_WALL);
 		b.set(4, 1, z + 1, Blocks.STONE_BRICKS);
