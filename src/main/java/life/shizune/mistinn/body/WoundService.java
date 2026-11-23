@@ -172,6 +172,7 @@ public final class WoundService {
 			if (!wounds.any()) {
 				continue;
 			}
+			java.util.List<BodyPart> starved = new java.util.ArrayList<>();
 			long now = player.level().getGameTime();
 			Body body = BodyService.get(player);
 			Body hurt = body;
@@ -187,6 +188,9 @@ public final class WoundService {
 				}
 				if (wound.tied() && now - wound.tourniquet() > TOURNIQUET_SAFE) {
 					hurt = hurt.with(part, hurt.get(part) - NECROSIS_PER_SECOND);
+					if (hurt.get(part) <= 0.0F) {
+						starved.add(part);
+					}
 				} else if (wound.bleeding() && !wound.tied()) {
 					hurt = hurt.with(part, hurt.get(part) - bleed);
 				}
@@ -199,6 +203,12 @@ public final class WoundService {
 			set(player, wounds);
 			if (!hurt.equals(body)) {
 				BodyService.set(player, hurt);
+			}
+			// a limb left to die under a tourniquet, out in a Rust Anchor field, is lost
+			for (BodyPart part : starved) {
+				if ((part.isArm() || part.isLeg()) && player.isAlive() && LostLimbs.applies(player)) {
+					LostLimbs.lose(player, part);
+				}
 			}
 		}
 	}

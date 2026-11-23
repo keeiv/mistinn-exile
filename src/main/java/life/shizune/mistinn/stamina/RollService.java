@@ -76,7 +76,7 @@ public final class RollService {
 
 	/** The hunter's own roll kind, painkillers counted; a broken leg not held by a splint only dives. */
 	public static Kind kind(final Player player) {
-		if (life.shizune.mistinn.body.WoundService.legBroken(player)) {
+		if (life.shizune.mistinn.body.WoundService.legBroken(player) || life.shizune.mistinn.body.LostLimbs.legs(player) > 0) {
 			return Kind.DIVE;
 		}
 		return kind(BodyService.get(player), TreatmentService.numb(player));

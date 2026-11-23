@@ -72,6 +72,10 @@ public final class BodyHud implements HudElement {
 		figure(g, body, life.shizune.mistinn.body.WoundService.get(player), player.level().getGameTime(), x, y, 1);
 	}
 
+	/** A lost limb's outline, and the cut across its top. */
+	private static final int LOST_LINE = 0x80504646;
+	private static final int LOST_CUT = 0xFF8A2A22;
+
 	/** Draws the figure at (x, y), each figure pixel {@code scale} screen pixels wide. */
 	public static void figure(final GuiGraphicsExtractor g, final Body body, final int x, final int y, final int scale) {
 		figure(g, body, life.shizune.mistinn.body.Wounds.NONE, 0L, x, y, scale);
@@ -83,12 +87,20 @@ public final class BodyHud implements HudElement {
 	 * too long), a splint two wooden slats down its sides.
 	 */
 	public static void figure(final GuiGraphicsExtractor g, final Body body, final life.shizune.mistinn.body.Wounds wounds, final long now, final int x, final int y, final int scale) {
+		net.minecraft.client.player.LocalPlayer player = net.minecraft.client.Minecraft.getInstance().player;
+		int lost = player == null ? 0 : life.shizune.mistinn.body.LostLimbs.mask(player);
 		for (BodyPart part : BodyPart.values()) {
 			int[] s = SHAPE[part.ordinal()];
 			int px = x + s[0] * scale;
 			int py = y + s[1] * scale;
 			int w = s[2] * scale;
 			int h = s[3] * scale;
+			if (life.shizune.mistinn.body.LostLimbs.lost(lost, part)) {
+				// a lost limb: only a faint outline where it was, cut across at the top
+				g.outline(px - 1, py - 1, w + 2, h + 2, LOST_LINE);
+				g.fill(px - 1, py, px + w + 1, py + Math.max(1, scale / 2), LOST_CUT);
+				continue;
+			}
 			g.fill(px - 1, py - 1, px + w + 1, py + h + 1, OUTLINE);
 			life.shizune.mistinn.body.Wounds.Wound wound = wounds.get(part);
 			boolean flash = wound.bleeding() && !wound.tied() && !body.destroyed(part) && (now / 8) % 2 == 0;

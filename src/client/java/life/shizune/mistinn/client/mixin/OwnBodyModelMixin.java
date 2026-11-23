@@ -1,5 +1,7 @@
 package life.shizune.mistinn.client.mixin;
 
+import life.shizune.mistinn.body.BodyPart;
+import life.shizune.mistinn.client.body.LostLimbsView;
 import life.shizune.mistinn.client.view.OwnArms;
 import life.shizune.mistinn.client.view.OwnBody;
 import net.minecraft.client.model.player.PlayerModel;
@@ -12,7 +14,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * In the hunter's own view their head is not drawn, and their arms reach up to the work in front of the eye
- * ({@link OwnArms}); an arm the game draws there itself, holding up a map, is left off.
+ * ({@link OwnArms}); an arm the game draws there itself, holding up a map, is left off. Any player's lost limbs
+ * are left off in every view.
  */
 @Mixin(PlayerModel.class)
 public abstract class OwnBodyModelMixin {
@@ -22,6 +25,11 @@ public abstract class OwnBodyModelMixin {
 		boolean own = Boolean.TRUE.equals(state.getData(OwnBody.KEY));
 		model.head.visible = !own;
 		model.hat.visible = !own && state.showHat;
+		Integer lost = state.getData(LostLimbsView.KEY);
+		model.leftLeg.visible = !LostLimbsView.lost(lost, BodyPart.LEFT_LEG);
+		model.rightLeg.visible = !LostLimbsView.lost(lost, BodyPart.RIGHT_LEG);
+		model.leftPants.visible = model.leftLeg.visible && state.showLeftPants;
+		model.rightPants.visible = model.rightLeg.visible && state.showRightPants;
 		if (state.isSpectator) {
 			return;
 		}
@@ -29,8 +37,8 @@ public abstract class OwnBodyModelMixin {
 		boolean right = state.mainArm == HumanoidArm.RIGHT;
 		boolean mainUp = up != null && up.main();
 		boolean offUp = up != null && up.off();
-		model.rightArm.visible = !(right ? mainUp : offUp);
-		model.leftArm.visible = !(right ? offUp : mainUp);
+		model.rightArm.visible = !(right ? mainUp : offUp) && !LostLimbsView.lost(lost, BodyPart.RIGHT_ARM);
+		model.leftArm.visible = !(right ? offUp : mainUp) && !LostLimbsView.lost(lost, BodyPart.LEFT_ARM);
 		model.rightSleeve.visible = model.rightArm.visible && state.showRightSleeve;
 		model.leftSleeve.visible = model.leftArm.visible && state.showLeftSleeve;
 		Float raised = state.getData(OwnBody.RAISED);

@@ -69,7 +69,9 @@ public class SurgeryKitItem extends TreatmentItem {
 
 	@Override
 	public @Nullable String refusal(final ServerPlayer player, final ItemStack stack) {
-		return next(BodyService.get(player), life.shizune.mistinn.body.WoundService.get(player)) == null ? "message.mistinn.surgery.none" : null;
+		// a lost limb is past an operation
+		Body body = life.shizune.mistinn.body.LostLimbs.treatable(player, BodyService.get(player));
+		return next(body, life.shizune.mistinn.body.WoundService.get(player)) == null ? "message.mistinn.surgery.none" : null;
 	}
 
 	@Override
@@ -80,7 +82,7 @@ public class SurgeryKitItem extends TreatmentItem {
 	@Override
 	public void finish(final ServerPlayer player, final ItemStack stack, final InteractionHand hand) {
 		Body body = BodyService.get(player);
-		BodyPart part = next(body, life.shizune.mistinn.body.WoundService.get(player));
+		BodyPart part = next(life.shizune.mistinn.body.LostLimbs.treatable(player, body), life.shizune.mistinn.body.WoundService.get(player));
 		if (part == null) {
 			return;
 		}

@@ -35,6 +35,10 @@ public abstract class OwnArmItemMixin {
 		if (Boolean.TRUE.equals(state.getData(OwnBody.KEY)) && OwnArms.presented(arm)) {
 			ci.cancel();
 		}
+		// a lost arm holds nothing, in any view
+		if (life.shizune.mistinn.client.body.LostLimbsView.lost(state.getData(life.shizune.mistinn.client.body.LostLimbsView.KEY), life.shizune.mistinn.body.LostLimbs.arm(arm))) {
+			ci.cancel();
+		}
 	}
 
 	@Inject(
