@@ -88,6 +88,9 @@ public class MistinnRustWheelTest implements FabricClientGameTest {
 		check(feints >= 1, "the wheel has its feint");
 		check(WheelMoves.CIRCUIT.in(RustWheel.BROKEN) && !WheelMoves.CIRCUIT.in(RustWheel.WHOLE), "only the broken wheel runs the circuit");
 		check(WheelMoves.SET.get("stuck") != null && WheelMoves.SET.get("stagger") != null, "it can be stuck and staggered");
+		for (String key : java.util.List.of("entity.mistinn.rust_wheel", "message.mistinn.rust_wheel.sealed", "message.mistinn.rust_wheel.stagger_blows")) {
+			check(net.minecraft.locale.Language.getInstance().has(key), "what the hunter is told has its words: " + key);
+		}
 		// what the planner may choose keeps to that: the circuit once broken, the back roll only out of a ram
 		check(!Planner.allowedIn(WheelMoves.CIRCUIT, RustWheel.WHOLE) && Planner.allowedIn(WheelMoves.CIRCUIT, RustWheel.BROKEN),
 			"the planner keeps the circuit for the broken wheel");

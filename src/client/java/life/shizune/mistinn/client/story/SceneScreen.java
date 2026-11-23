@@ -7,6 +7,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -23,6 +25,8 @@ public class SceneScreen extends Screen {
 	private static final double RISE = 1.4;
 	/** Degrees the view circles per tick. */
 	private static final float ORBIT = 0.35F;
+	/** Degrees off the hunter's side the view begins, circling on away from them: the hunter is never in the way. */
+	private static final float ASIDE = 45.0F;
 
 	private static @Nullable SceneScreen current;
 
@@ -30,7 +34,7 @@ public class SceneScreen extends Screen {
 	private int ticks;
 	private @Nullable CameraType camera;
 	private boolean hudWasHidden;
-	/** The direction (degrees) the view first stood in from the entity: towards the hunter. */
+	/** The direction (degrees) the view first stands in from the entity: a little aside of the hunter. */
 	private float baseYaw = Float.NaN;
 	private Vec3 target = Vec3.ZERO;
 
@@ -87,7 +91,9 @@ public class SceneScreen extends Screen {
 			if (Float.isNaN(this.baseYaw) && mc.player != null) {
 				double dx = mc.player.getX() - entity.getX();
 				double dz = mc.player.getZ() - entity.getZ();
-				this.baseYaw = dx * dx + dz * dz < 0.01 ? entity.getYRot() : (float) Math.toDegrees(Math.atan2(dz, dx));
+				// the entity's facing turned into the same measure as the orbit's (yaw 0 faces +z, the orbit's 0 is +x)
+				float toward = dx * dx + dz * dz < 0.01 ? entity.getYRot() + 90.0F : (float) Math.toDegrees(Math.atan2(dz, dx));
+				this.baseYaw = toward + ASIDE;
 			}
 		}
 		if (mc.player != null && this.target == Vec3.ZERO) {
@@ -105,7 +111,14 @@ public class SceneScreen extends Screen {
 		float ramp = 30.0F;
 		float travelled = time < ramp ? time * time * time / (ramp * ramp) - time * time * time * time / (2.0F * ramp * ramp * ramp) : time - ramp / 2.0F;
 		double angle = Math.toRadians(this.baseYaw + travelled * ORBIT);
-		return this.target.add(Math.cos(angle) * DISTANCE, RISE, Math.sin(angle) * DISTANCE);
+		Vec3 wanted = this.target.add(Math.cos(angle) * DISTANCE, RISE, Math.sin(angle) * DISTANCE);
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.level == null || mc.player == null) {
+			return wanted;
+		}
+		// a wall in the way: the view comes in to stand in front of it, as the game's own third-person view does
+		HitResult wall = mc.level.clip(new ClipContext(this.target, wanted, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, mc.player));
+		return wall.getType() == HitResult.Type.MISS ? wanted : wall.getLocation().lerp(this.target, 0.14);
 	}
 
 	/** What the view looks at. */

@@ -148,6 +148,7 @@ public class MistinnStoryTest implements FabricClientGameTest {
 			context.waitFor(mc -> mc.gui.screen() instanceof SceneScreen, 100);
 			check(step(world) == StoryStep.DELIVER, "the fallen keeper moves on to the hand-in");
 			context.waitTicks(80);
+			viewIsClear(context, "the Snuffer");
 			context.takeScreenshot("story-scene");
 			context.getInput().pressKey(InputConstants.KEY_ESCAPE);
 			context.waitFor(mc -> mc.gui.screen() == null && !StoryClient.inScene(), 100);
@@ -286,6 +287,7 @@ public class MistinnStoryTest implements FabricClientGameTest {
 		check(step(world) == StoryStep.RING, "with the Sunken Bell down, the bell is to be rung");
 		context.waitTicks(60);
 		check(context.computeOnClient(mc -> StoryClient.line() != null), "its last words play as subtitles");
+		viewIsClear(context, "the Sunken Bell");
 		context.takeScreenshot("story-sunken-bell-end");
 		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().contains(StoryScript.SUNKEN_BELL_END)), "and are kept for the journal");
 		context.runOnClient(mc -> StoryClient.skip());
@@ -373,6 +375,7 @@ public class MistinnStoryTest implements FabricClientGameTest {
 		check(step(world) == StoryStep.WAIT, "with the Rust Wheel stopped, the story waits for what comes next");
 		context.waitTicks(60);
 		check(context.computeOnClient(mc -> StoryClient.line() != null), "its last words play as subtitles");
+		viewIsClear(context, "the Rust Wheel");
 		context.takeScreenshot("story-rust-wheel-end");
 		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().contains(StoryScript.RUST_WHEEL_END)), "and are kept for the journal");
 		context.runOnClient(mc -> StoryClient.skip());
@@ -386,6 +389,28 @@ public class MistinnStoryTest implements FabricClientGameTest {
 		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 10), "the journal heard every sequence of the four chapters");
 		context.takeScreenshot("story-journal-chapter-4");
 		context.runOnClient(mc -> mc.gui.setScreen(null));
+	}
+
+	/** Nothing stands between a scene's view and what it watches: no wall, and not the hunter. */
+	private static void viewIsClear(final ClientGameTestContext context, final String what) {
+		String trouble = context.computeOnClient(mc -> {
+			SceneScreen scene = SceneScreen.current();
+			Vec3 eye = scene == null ? null : scene.eye(1.0F);
+			if (eye == null) {
+				return "no scene";
+			}
+			Vec3 target = scene.target();
+			net.minecraft.world.phys.HitResult wall = mc.level.clip(new net.minecraft.world.level.ClipContext(eye, target,
+				net.minecraft.world.level.ClipContext.Block.VISUAL, net.minecraft.world.level.ClipContext.Fluid.NONE, mc.player));
+			if (wall.getType() != net.minecraft.world.phys.HitResult.Type.MISS) {
+				return "a block stands between, at " + wall.getLocation() + " (view " + eye + ", on " + target + ")";
+			}
+			if (mc.player.getBoundingBox().inflate(0.3).clip(eye, target).isPresent() || mc.player.getEyePosition().distanceTo(eye) < 2.5) {
+				return "the hunter stands in it (view " + eye + ", hunter " + mc.player.getEyePosition() + ")";
+			}
+			return null;
+		});
+		check(trouble == null, "the scene over " + what + " sees clearly: " + trouble);
 	}
 
 	/** Puts the hunter on the ground at (x, z) of {@code at}, under the open sky. */
