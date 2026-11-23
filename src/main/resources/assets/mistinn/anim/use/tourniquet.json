@@ -1,5 +1,5 @@
 {
-	"_comment": "止血帶 TOURNIQUET: the other arm is held out; the strap is slipped over its hand and up the forearm, pulled snug, then the windlass is wrenched round, eased and wrenched again, and held. Stretched over the whole use (TourniquetItem.USE_TICKS, 2 s).",
+	"_comment": "止血帶 TOURNIQUET: the other arm is held out; the strap is slipped over its hand and up the forearm, pulled snug, then the windlass is wrenched round, then wrenched tight, and held. Stretched over the whole use (TourniquetItem.USE_TICKS, 2 s).",
 	"keys": [0, 0.15, 0.32, 0.5, 0.68, 0.8, 0.92, 1],
 	"eases": ["out_cubic", "in_out_sine", "in_out_sine", "in_out_sine", "in_quart", "out_quad", "in_out_sine"],
 	"tip_x": 8.5,
@@ -8,22 +8,22 @@
 	"axis_y": 7,
 	"grip": 6.5,
 	"camera": {
-		"pitch": [0, 3, 5, 5, 7, 6, 8, 0],
+		"pitch": [0, 3, 5, 5, 6, 8, 7, 0],
 		"yaw": [0, 0, 0, 0, 0, 0, 0, 0]
 	},
 	"tool": {
 		"x": [0.327, 0.327, -0.025, -0.038, -0.038, -0.038, -0.038, -0.038],
 		"y": [0.255, 0.255, -0.068, -0.079, -0.079, -0.079, -0.079, -0.079],
 		"z": [-1.038, -1.038, -0.765, -0.755, -0.755, -0.755, -0.755, -0.755],
-		"yaw": [81.4, 81.4, 87.9, 107.2, 80.5, 87.9, 77, 78.7],
-		"pitch": [-28.5, -28.5, -39.2, -57.2, -26.6, -39.2, -19.3, -23],
-		"roll": [-49.7, -49.7, -24.8, -23, -22.1, -23.4, -20.8, -21.5],
+		"yaw": [81.4, 81.4, 87.9, 107.2, 84.5, 76.1, 78.2, 78.2],
+		"pitch": [-28.5, -28.5, -39.2, -57.2, -33.9, -17.5, -22.1, -22.1],
+		"roll": [-49.7, -49.7, -24.8, -23, -23, -20.4, -21.3, -21.3],
 		"size": [1.15, 1.15, 1.15, 1.08, 1, 1, 1, 1],
 		"w": [0, 1, 1, 1, 1, 1, 1, 0]
 	},
 	"other": {
 		"x": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-		"y": [0.04, 0.04, 0.04, 0.034, 0.024, 0.03, 0.018, 0.04],
+		"y": [0.04, 0.04, 0.04, 0.034, 0.026, 0.016, 0.022, 0.04],
 		"z": [-0.98, -0.98, -0.98, -0.98, -0.98, -0.98, -0.98, -0.98],
 		"ex": [-0.62, -0.62, -0.62, -0.62, -0.62, -0.62, -0.62, -0.62],
 		"ey": [-0.62, -0.62, -0.62, -0.62, -0.62, -0.62, -0.62, -0.62],
