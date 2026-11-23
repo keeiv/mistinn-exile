@@ -1295,6 +1295,7 @@
   "item.mistinn.hunter_guide.page.19": "【霧鐘台】\n\n霧岸外淺水的礁石上，比燈塔更少見。從前起霧時，這裡敲鐘替船指路。\n\n上岸處有一口金鐘。塔有三層，越往上補給越好；頂上的鐘樓吊著一口大鐘，沉鐘就在鐘下。",
   "item.mistinn.hunter_guide.page.20": "【沉鐘】\n\n每敲一聲鐘，聲波就貼著地面滾開，跳起來或翻滾就躲得過。\n\n每響一聲霧就濃一層，到第四層它會接連三響。鐘響之前，鐘會先低鳴。\n\n蓄滿的重擊會敲響它自己的鐘，把霧打散；連三記，它會站不穩。",
   "message.mistinn.sunken_bell.sealed": "霧封住了來路。",
+  "message.mistinn.rust_wheel.sealed": "霧封住了來路。",
   "subtitles.mistinn.entity.sunken_bell.bell_drop": "沉鐘蹲低，鐘裡咕嚕作響",
   "item.mistinn.bell_clapper": "鐘舌",
   "item.mistinn.bell_clapper.lore.1": "沉鐘的鐘舌。敲一下，連自己的鐘都會回話。",

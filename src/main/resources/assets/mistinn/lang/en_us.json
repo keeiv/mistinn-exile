@@ -1295,6 +1295,7 @@
   "item.mistinn.hunter_guide.page.19": "[Fog-Bell Station]\n\nOn a reef in the shallows, rarer than a lighthouse.\n\nA golden bell where the boats tied up; the higher the floor, the better the stores. The Sunken Bell waits under the great bell on top.",
   "item.mistinn.hunter_guide.page.20": "[The Sunken Bell]\n\nA toll rolls a ring along the floor: jump it or roll.\n\nEach toll thickens the mist; at four layers, three tolls. Its bell hums first.\n\nA full heavy blow rings its own bell and thins the mist.",
   "message.mistinn.sunken_bell.sealed": "The mist closes the way you came.",
+  "message.mistinn.rust_wheel.sealed": "The mist closes the way you came.",
   "subtitles.mistinn.entity.sunken_bell.bell_drop": "The Sunken Bell crouches, its bell gurgling",
   "item.mistinn.bell_clapper": "Bell Clapper",
   "item.mistinn.bell_clapper.lore.1": "The Sunken Bell's own tongue. Strike with it and even its bell answers.",
