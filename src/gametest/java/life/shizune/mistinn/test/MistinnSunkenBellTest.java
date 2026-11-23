@@ -178,6 +178,16 @@ public final class MistinnSunkenBellTest implements FabricClientGameTest {
 		context.takeScreenshot("bell-01-raised");
 		context.waitTicks(6);
 		context.takeScreenshot("bell-02-stroke");
+		// close by, from the front quarter and from behind, to see the bell's bronze, the barnacles and the chains
+		context.waitTicks(30);
+		world.getServer().runOnServer(server -> player(server).teleportTo(server.overworld(), stage.getX() + 2.3, stage.getY(), stage.getZ() + 4.3,
+			Set.of(), 152.0F, -6.0F, true));
+		context.waitTicks(10);
+		context.takeScreenshot("bell-03-close");
+		world.getServer().runOnServer(server -> player(server).teleportTo(server.overworld(), stage.getX() - 1.6, stage.getY(), stage.getZ() - 3.4,
+			Set.of(), -26.0F, -6.0F, true));
+		context.waitTicks(10);
+		context.takeScreenshot("bell-04-back");
 		world.getServer().runOnServer(server -> {
 			clear(server, stage);
 			player(server).setGameMode(GameType.SURVIVAL);
