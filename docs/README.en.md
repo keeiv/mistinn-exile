@@ -366,7 +366,7 @@ A hunter starts growing once a keeper falls and its rust god salt comes home. Op
 
 - **Major nodes** take one rust god salt, from the hands, the hotbar or the grid. Later keepers guard the other major nodes; the guide shows them as not yet open.
 - **Minor nodes** cost 200 salt for the first and 100 more for each one after. Each of the four branches has five.
-- **Slide** (crouch while running): feet first for about five blocks, slowing as it goes; 18 stamina, a 1.2 second cooldown, and it breaks off a treatment in hand. Every hostile creature in the way is swept off its feet for 3 damage, once each. The slide gives no dodge, and two dead legs cannot slide.
+- **Slide** (crouch while running): feet first for about five blocks, slowing as it goes. The body leans back only about 40 degrees with the head up and looking ahead, the lead leg straight and the other folded under it, the hand on the low side taking the weight on the floor and the other out in front for balance, then it pushes off and stands; 18 stamina, a 1.2 second cooldown, and it breaks off a treatment in hand. Every hostile creature in the way is swept off its feet for 3 damage, once each. The slide gives no dodge, and two dead legs cannot slide.
 - Skills are saved with the hunter and kept through death. The guide's Stats page shows what each stat does for you now, and the salt and rust god salt you carry.
 
 ## Achievements

@@ -325,7 +325,8 @@ public final class MistinnSkillTest implements FabricClientGameTest {
 				ClipProbe.Box rightLeg = part(boxes, "/right_leg");
 				ClipProbe.Box leftLeg = part(boxes, "/left_leg");
 				ClipProbe.Box body = part(boxes, "/body");
-				check(head.center().y < 1.0F, String.format("at t=%.2f the hunter is low: head at %.2f", t, head.center().y));
+				// low, a good half block under a standing head (1.64), though the head is kept up to see where it goes
+				check(head.center().y < 1.15F, String.format("at t=%.2f the hunter is low: head at %.2f", t, head.center().y));
 				check(lowest < 0.12F, String.format("at t=%.2f the hunter is on the floor, lowest %.3f", t, lowest));
 				// the hunter faces +z: the feet are ahead, the head leans back behind the hips
 				check(rightLeg.center().z > body.center().z + 0.2F && leftLeg.center().z > body.center().z, String.format("at t=%.2f the feet lead", t));
