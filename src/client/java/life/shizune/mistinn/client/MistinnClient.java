@@ -153,6 +153,7 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.mist.ShoreMistClient.tick(minecraft);
 			life.shizune.mistinn.client.mist.ShoreAmbience.tick(minecraft);
 			life.shizune.mistinn.client.view.OwnBody.tick(minecraft);
+			life.shizune.mistinn.client.view.OwnHand.tick();
 			life.shizune.mistinn.client.view.ViewMotion.tick(minecraft);
 			life.shizune.mistinn.client.voice.VoiceClient.tick(minecraft);
 			while (voice.consumeClick()) {
