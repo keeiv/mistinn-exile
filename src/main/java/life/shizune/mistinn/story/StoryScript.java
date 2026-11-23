@@ -12,7 +12,12 @@ public final class StoryScript {
 	/** Who is speaking. NARRATION has no name: it describes what happens. */
 	public static final String HELM = "helm";
 	public static final String SNUFFER = "snuffer";
+	public static final String SUNKEN_BELL = "sunken_bell";
 	public static final String NARRATION = "narration";
+	/** The hunters whose tags lie under the cairns of the salt road, by their numbers. */
+	public static final String TAG_3388 = "tag_3388";
+	public static final String TAG_3401 = "tag_3401";
+	public static final String TAG_3409 = "tag_3409";
 
 	/** One line of a sequence. */
 	public record Line(String speaker, String key) {
@@ -36,8 +41,15 @@ public final class StoryScript {
 	public static final Card LIGHTHOUSE = new Card("lighthouse", 3, "story.mistinn.chapter.1");
 	/** Chapter 1 ends: the salt in the pod, and no answer. */
 	public static final Card UNANSWERED = new Card("unanswered", 4, "");
+	/** Chapter 2 opens after the bell at night: a road of salt cairns toward the sea. */
+	public static final Card SALT_ROAD = new Card("salt_road", 3, "story.mistinn.chapter.2");
+	/** Chapter 3 opens at the fog-bell station. */
+	public static final Card BELL_STATION = new Card("bell_station", 3, "story.mistinn.chapter.3");
+	/** Chapter 3 ends: the great bell rung, and the station answering from beyond the fog. */
+	public static final Card ANSWER = new Card("answer", 5, "");
 
-	private static final Map<String, Card> CARDS = Map.of(DROP.id(), DROP, LIGHTHOUSE.id(), LIGHTHOUSE, UNANSWERED.id(), UNANSWERED);
+	private static final Map<String, Card> CARDS = Map.of(DROP.id(), DROP, LIGHTHOUSE.id(), LIGHTHOUSE, UNANSWERED.id(), UNANSWERED,
+		SALT_ROAD.id(), SALT_ROAD, BELL_STATION.id(), BELL_STATION, ANSWER.id(), ANSWER);
 
 	// ── Sequences ────────────────────────────────────────────────────
 	/** Helm's first call over the mended radio. */
@@ -46,11 +58,29 @@ public final class StoryScript {
 	public static final String SNUFFER_END = "snuffer_end";
 	/** The salt block goes into the pod; nothing answers. */
 	public static final String NO_ANSWER = "no_answer";
+	/** At night a bell sounds from the sea, three times, as on the day of the drop. */
+	public static final String NIGHT_TOLL = "night_toll";
+	/** What the hunters before wrote on the tags under the cairns, one sequence a cairn. */
+	public static final String TAG_1 = "tag_1";
+	public static final String TAG_2 = "tag_2";
+	public static final String TAG_3 = "tag_3";
+	/** The Sunken Bell's last words as it falls. */
+	public static final String SUNKEN_BELL_END = "sunken_bell_end";
+
+	/** The tag sequences, in the order of the cairns they lie under. */
+	public static final List<String> TAGS = List.of(TAG_1, TAG_2, TAG_3);
+	/** The numbers on those tags, in the same order. */
+	public static final List<Integer> TAG_NUMBERS = List.of(3388, 3401, 3409);
 
 	private static final Map<String, List<String>> SPEAKERS = Map.of(
 		FIRST_CALL, List.of(HELM, HELM, HELM, HELM, HELM, HELM, HELM, HELM, HELM),
 		SNUFFER_END, List.of(SNUFFER, SNUFFER, SNUFFER, SNUFFER),
-		NO_ANSWER, List.of(NARRATION, NARRATION, NARRATION)
+		NO_ANSWER, List.of(NARRATION, NARRATION, NARRATION),
+		NIGHT_TOLL, List.of(NARRATION, NARRATION, NARRATION),
+		TAG_1, List.of(TAG_3388),
+		TAG_2, List.of(TAG_3401, TAG_3401),
+		TAG_3, List.of(TAG_3409, TAG_3409),
+		SUNKEN_BELL_END, List.of(SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL)
 	);
 
 	private StoryScript() {
@@ -71,6 +101,6 @@ public final class StoryScript {
 
 	/** Every sequence, in the order the story reaches them: for the journal. */
 	public static List<String> sequences() {
-		return List.of(FIRST_CALL, SNUFFER_END, NO_ANSWER);
+		return List.of(FIRST_CALL, SNUFFER_END, NO_ANSWER, NIGHT_TOLL, TAG_1, TAG_2, TAG_3, SUNKEN_BELL_END);
 	}
 }

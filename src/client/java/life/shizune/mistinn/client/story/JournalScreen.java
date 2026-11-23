@@ -26,7 +26,8 @@ public class JournalScreen extends Screen {
 	private static final int DONE = 0xFF7E786E;
 	private static final int DIM = 0xFF9A948A;
 
-	private double scroll;
+	/** How far the radio log is scrolled; it opens on the latest lines. */
+	private double scroll = Double.MAX_VALUE;
 
 	public JournalScreen() {
 		super(Component.translatable("story.mistinn.journal"));
@@ -61,7 +62,7 @@ public class JournalScreen extends Screen {
 			return;
 		}
 
-		// objectives, chapter by chapter, up to the current one
+		// objectives: a finished chapter on one line, the chapter under way step by step
 		int left = x + 10;
 		int colW = 150;
 		int ty = y + 26;
@@ -69,6 +70,11 @@ public class JournalScreen extends Screen {
 		ty += 14;
 		StoryStep now = progress.step();
 		for (int chapter = 0; chapter <= now.chapter; chapter++) {
+			if (chapter < now.chapter) {
+				g.text(font, Component.literal("✔ ").append(Component.translatable("story.mistinn.chapter." + chapter)), left, ty, DONE, false);
+				ty += 12;
+				continue;
+			}
 			g.text(font, Component.translatable("story.mistinn.chapter." + chapter), left, ty, GOLD, true);
 			ty += 11;
 			for (StoryStep step : StoryStep.values()) {

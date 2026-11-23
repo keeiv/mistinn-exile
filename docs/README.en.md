@@ -64,7 +64,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Salt | The currency. Defeating a hostile creature gives salt equal to its maximum health; others give a fifth (at least 1). Salt found in structures is worth 10 each when used. |
 | Residue and gravestones | When you fall, all the salt you carry becomes residue, and everything else you carry (gear, hotbar, pockets, chest rig and backpack; not the safe box) goes into the same gravestone instead of onto the ground; right-click it to take it all back. Fall again first and the old residue fades: the salt is lost and the things spill where the stone stood. |
 | Death scene | Killed by a creature, every other creature vanishes; the hunter drops to one knee, topples onto one side and turns to smoke. Other deaths are a plain fall. Then the mission ends: the cause, a line from Rust Anchor, and the choice to return or to rest. |
-| Story mode | A prologue and a first chapter with objectives, radio calls, pixel-art story cards and in-world scenes, with a mission journal on `K`. Later chapters are still being made. |
+| Story mode | A prologue and three chapters with objectives, radio calls, tags left by the hunters before you, pixel-art story cards and in-world scenes, with a mission journal on `K`. Later chapters are still being made. |
 | Difficulty | Story and training worlds choose Easy, Normal or Rust Anchor. Rust Anchor feeds you only the station's twenty foods, makes weapons from outside hit soft and break fast, can cost you a limb, and wears your gear down and takes four tenths of your salt when you fall; the safe box is 3x3. See [Difficulty and Rust Anchor](#difficulty-and-rust-anchor). |
 | Hunter Training | An optional course for a new singleplayer world. Follow the instructor's radio, the glowing arrows and Rust Anchor's staff (report to Steelyard, the quartermaster, first; right-click staff to talk) through equipment, heavy blows, sprinting, rolling and sliding, reading a monster's windup, crossing the listening pen without a sound, medicine, crafting, the guide and your stats, the bell and residue, radio repair, and a keeper rehearsal (the lent slide, practice stat points and achievements earned in training are taken back when you leave), all at Rust Anchor Station, a base built over the sea round a giant anchor. Board the drop pod to choose Story or Free exploration. |
 | Golden bells | Ring one to set your respawn point. Each bell has its own one-hour cooldown in real time, shared by everyone. The border world has no such metal, so they cannot be crafted. |
@@ -181,7 +181,7 @@ Story and Hunter Training ask how hard the world will be when you create it. Nor
 
 ## Story mode
 
-When creating a new world from the world list, choose **Story**, **Free exploration**, or **Hunter Training**. Free exploration has no mission and otherwise plays the same. Story mode has the prologue, *The Drop*, and chapter 1, *Lights Out*, so far.
+When creating a new world from the world list, choose **Story**, **Free exploration**, or **Hunter Training**. Free exploration has no mission and otherwise plays the same. Story mode has the prologue, *The Drop*, chapter 1, *Lights Out*, chapter 2, *The Salt Road*, and chapter 3, *The Sunken Bell*, so far.
 
 Hunter Training creates a save with standard survival settings and sends you to Rust Anchor Station, a base built over the sea round a giant anchor standing slanted in the water. You wake in the barracks. The docks, the market and mess, the forge, the drill yard, the infirmary, the workshop, the archive, the bell tower and memorial wall, the radio room and the lamp hall spread over three decks, quieter the higher you go, with the drop crane alone at the top by the fog. Fifteen staff keep their posts: right-click them to talk and ask questions, and they call out as you pass; dock hands carry cargo up and down the quay, and Helm speaks over the station speakers now and then; near the forge you hear the hammer, and on the quay barrels, chains and water against the boats. Fall into the sea and you are fished out onto the nearest deck. At the end of the course the whole station gathers on the drop platform to see your bunkmate, number 3411, go down first. Then walk into the drop pod and press the console button to take your seat, and choose where to deploy in the same save: the station bell rings three times, with every ring there are fewer people on the deck, and the screen goes dark. Practice salt and gear stay at the range.
 
@@ -191,13 +191,16 @@ Hunter Training creates a save with standard survival settings and sends you to 
 - **Objectives**: shown in the top-left corner with a hint and the distance, lit up when they change. The amber diamond on the minimap is where to go.
 - **The radio**: the drop station's radio has burned out. Mend it by using it with 4 redstone, and Helm, Rust Anchor's operator, starts calling; the lines appear as typed subtitles.
 - **Story cards**: chapters open and close on full-screen pixel art; click to continue, `Esc` to skip.
-- **Scenes**: when the Snuffer falls, black bars close in and the view leaves you to circle it while it says its last words; `Esc` skips.
+- **Scenes**: when the Snuffer or the Sunken Bell falls, black bars close in and the view leaves you to circle it while it says its last words; `Esc` skips.
+- **The salt road**: after chapter 1, the first night you are out under the sky a bell sounds three times through the fog. The story builds a fog-bell station out the other way from the lighthouse, with three salt cairns on the way; under each lies an earlier hunter's tag with the last words they left.
 - **Mission journal** (`K`): the objectives so far and every call you have heard.
 
 | Chapter | Objectives |
 | --- | --- |
 | Prologue: The Drop | Gather 10 salt → find an intact drop station → repair its radio |
 | Chapter 1: Lights Out | Reach the fog-shore lighthouse → rest at the bell by its door → climb to the lamp room → bring down the Snuffer → hand the Rust God's salt block in at a drop station |
+| Chapter 2: The Salt Road | Listen for the bell at night → find the three salt cairns → go to the fog-bell station |
+| Chapter 3: The Sunken Bell | Rest at the fog-bell station's golden bell → climb to the belfry → bring down the Sunken Bell → ring the station's bell |
 
 ## World and structures
 
@@ -503,10 +506,9 @@ Textures and models are original work by MoriTeahouse. Sound effects combine edi
 
 ## What comes next
 
-1. **The rest of the story**: chapter 2, *The Salt Road*, then the keepers of the Sunken Bell and the Rust Wheel, and the Mist Inn with the endings.
-2. **More of the Sunken Bell**: its own spoils and its chapter of the story ([design, in Chinese](phase3-design.md)).
-3. **The Rust Wheel**: a rolling, ramming machine with its weak point on the axle at its back, built on the same keeper moves and brain.
-4. **Later**: co-op.
+1. **The rest of the story**: the Rust Wheel, then the Mist Inn and the endings.
+2. **The Rust Wheel**: a rolling, ramming machine with its weak point on the axle at its back, built on the same keeper moves and brain.
+3. **Later**: co-op.
 
 ## Contributing
 

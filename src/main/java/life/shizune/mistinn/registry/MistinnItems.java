@@ -77,6 +77,9 @@ public final class MistinnItems {
 					new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.NAUSEA, 200, 0), 0.4F))
 				.build()));
 
+	/** 舊編號牌: a hunter's tag found under a cairn of the salt road; its number and last words are on the stack. */
+	public static final Item HUNTER_TAG = register("hunter_tag", Item::new, new Item.Properties().stacksTo(1));
+
 	/** Pages of the guide's text (item.mistinn.hunter_guide.page.N), read as spreads in its screen. */
 	public static final int GUIDE_PAGES = 21;
 	public static final Item HUNTER_GUIDE = register("hunter_guide", life.shizune.mistinn.story.HunterGuideItem::new, new Item.Properties().stacksTo(1));
