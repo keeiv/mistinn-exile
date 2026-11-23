@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:bowl",
+    "minecraft:wheat",
+    "mistinn:pork_cracklings"
+  ],
+  "result": {
+    "id": "mistinn:drippings_porridge"
+  }
+}

@@ -46,6 +46,10 @@ public final class MistinnTab {
 				output.accept(MistinnItems.SALT);
 				output.accept(MistinnItems.RUST_GOD_SALT);
 				output.accept(MistinnItems.LAMP_OIL);
+				for (life.shizune.mistinn.food.StationFood food : life.shizune.mistinn.food.StationFood.values()) {
+					output.accept(MistinnItems.FOODS.get(food));
+				}
+				output.accept(MistinnItems.DAMP_FOOD);
 				MistinnItems.HELMETS.forEach(output::accept);
 				MistinnItems.MASKS.forEach(output::accept);
 				MistinnItems.ARMORS.forEach(output::accept);

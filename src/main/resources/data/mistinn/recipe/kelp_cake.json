@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:kelp",
+    "minecraft:kelp",
+    "minecraft:kelp",
+    "minecraft:wheat"
+  ],
+  "result": {
+    "id": "mistinn:kelp_cake",
+    "count": 2
+  }
+}

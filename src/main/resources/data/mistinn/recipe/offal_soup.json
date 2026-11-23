@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:bowl",
+    "mistinn:fish_offal",
+    "minecraft:kelp"
+  ],
+  "result": {
+    "id": "mistinn:offal_soup"
+  }
+}
