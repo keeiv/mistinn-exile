@@ -527,7 +527,7 @@ Textures and models are original work by MoriTeahouse. Sound effects combine edi
 ## What comes next
 
 1. **The rest of the story**: whether the Rust God's salt goes up, then the Mist Inn and the endings.
-2. **More of the Rust Wheel**: its own spoils and sounds of its own ([design, in Chinese](phase4-design.md)).
+2. **More of the Rust Wheel**: its own spoils ([design, in Chinese](phase4-design.md)).
 3. **Later**: co-op.
 
 ## Contributing

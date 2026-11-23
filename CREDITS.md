@@ -92,6 +92,29 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `entity/sunken_bell/death_1.ogg` | `synth:groan, a sour cracked bell, a thud and chain clinks` | project synthesis |
 | `entity/sunken_bell/step_1.ogg` | `synth:low thud and water slosh` | project synthesis |
 | `entity/sunken_bell/step_2.ogg` | `synth:low thud and water slosh` | project synthesis |
+| `entity/rust_wheel/spin_1.ogg` | `synth:iron rim scraped round on stone, quickening, with sparks and a wooden creak` | project synthesis |
+| `entity/rust_wheel/spin_2.ogg` | `synth:iron rim scraped round on stone, quickening, with sparks and a wooden creak` | project synthesis |
+| `entity/rust_wheel/screech_1.ogg` | `synth:iron rim braking: a falling stick-slip screech over grit` | project synthesis |
+| `entity/rust_wheel/screech_2.ogg` | `synth:iron rim braking: a falling stick-slip screech over grit` | project synthesis |
+| `entity/rust_wheel/tilt_1.ogg` | `synth:wooden creak, chain rattle and a swing of air` | project synthesis |
+| `entity/rust_wheel/tilt_2.ogg` | `synth:wooden creak, chain rattle and a swing of air` | project synthesis |
+| `entity/rust_wheel/creak_1.ogg` | `synth:the whole wheel creaking down under its weight, wood and iron` | project synthesis |
+| `entity/rust_wheel/creak_2.ogg` | `synth:the whole wheel creaking down under its weight, wood and iron` | project synthesis |
+| `entity/rust_wheel/chain_1.ogg` | `synth:a chain whirled round and a man's grunt` | project synthesis |
+| `entity/rust_wheel/chain_2.ogg` | `synth:a chain whirled round and a man's grunt` | project synthesis |
+| `entity/rust_wheel/grind_1.ogg` | `synth:gear teeth knocking round one by one over a low rumble` | project synthesis |
+| `entity/rust_wheel/grind_2.ogg` | `synth:gear teeth knocking round one by one over a low rumble` | project synthesis |
+| `entity/rust_wheel/crash_1.ogg` | `synth:an iron rim slammed into stone, debris and the wheel spinning down` | project synthesis |
+| `entity/rust_wheel/crash_2.ogg` | `synth:an iron rim slammed into stone, debris and the wheel spinning down` | project synthesis |
+| `entity/rust_wheel/clang_1.ogg` | `synth:struck iron plate and a shower of sparks` | project synthesis |
+| `entity/rust_wheel/clang_2.ogg` | `synth:struck iron plate and a shower of sparks` | project synthesis |
+| `entity/rust_wheel/hurt_1.ogg` | `synth:a man's hoarse groan and a wooden knock` | project synthesis |
+| `entity/rust_wheel/hurt_2.ogg` | `synth:a man's hoarse groan and a wooden knock` | project synthesis |
+| `entity/rust_wheel/ambient_1.ogg` | `synth:a slow wooden creak, laboured breathing and drips` | project synthesis |
+| `entity/rust_wheel/ambient_2.ogg` | `synth:a slow wooden creak, laboured breathing and drips` | project synthesis |
+| `entity/rust_wheel/break_1.ogg` | `synth:a chain snapping and iron plates falling, a man's cry` | project synthesis |
+| `entity/rust_wheel/break_2.ogg` | `synth:a chain snapping and iron plates falling, a man's cry` | project synthesis |
+| `entity/rust_wheel/death_1.ogg` | `synth:a long creak, chains and plates falling, a heavy iron crash and a last breath` | project synthesis |
 | `entity/sunken_bell/bell_drop_1.ogg` | `synth:rushing water with bubbles, a sour rising bell hum, a groan through a bell` | project synthesis |
 | `entity/sunken_bell/bell_drop_2.ogg` | `synth:rushing water with bubbles, a sour rising bell hum, a groan through a bell` | project synthesis |
 | `gear/equip/backpack_1.ogg` | `kenney_rpg:beltHandle1`; `kenney_rpg:clothBelt`; `kenney_rpg:dropLeather`; `kenney_rpg:handleCoins`; `kenney_rpg:metalClick` | CC0 1.0 sources |
