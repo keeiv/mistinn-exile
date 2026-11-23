@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Tilts a medical or repair item in the hand through its use, seen from outside: the injector points down at the thigh. */
+/** Tilts a medical or repair item in the hand through its use, seen from outside: the injector points down at the other forearm. */
 @Mixin(ItemInHandLayer.class)
 public abstract class ThirdPersonTreatmentItemMixin {
 	@Inject(

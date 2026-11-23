@@ -54,6 +54,8 @@ public final class OwnHand {
 	 */
 	private static final float BACK = 10.5F / 16.0F;
 	private static final float PAST = 1.5F / 16.0F;
+	/** How thick the arm is drawn, in blocks. */
+	public static final float THICK = 4.0F / 16.0F * SIZE;
 	/** Below this a direction is too short to turn the fist by. */
 	private static final float TINY = 1.0E-4F;
 	/**
@@ -69,6 +71,8 @@ public final class OwnHand {
 	private static @Nullable Arm offDrawn;
 	private static @Nullable Arm mainSeen;
 	private static @Nullable Arm offSeen;
+	private static @Nullable Vector3f pointDrawn;
+	private static @Nullable Vector3f pointSeen;
 
 	/**
 	 * An arm holding an item: how to draw its forearm and its upper arm (each the transform from the arm's model, as the
@@ -180,11 +184,40 @@ public final class OwnHand {
 		along.normalize();
 		// the arm's model hangs down its own y, its front (the thumb's side of a fist) toward its -z
 		Vector3f back = along.negate(new Vector3f());
-		Vector3f across = forearm.cross(back, new Vector3f());
+		return whole(forearm.cross(back, new Vector3f()), forearm, back, fist, side);
+	}
+
+	/**
+	 * An arm held out in front of the eye with nothing in its hand, for the other hand to work on (a needle put into
+	 * it, a strap wound round it).
+	 *
+	 * @param fist where the middle of its fist is, in the hands' space
+	 * @param elbow where its elbow is
+	 * @param turn which way the inside of the arm faces, in radians: 0 up, a quarter turn toward the eye
+	 * @param side 1 for the right arm, -1 for the left
+	 */
+	public static @Nullable Arm held(final Vector3fc fist, final Vector3fc elbow, final float turn, final int side) {
+		Vector3f forearm = new Vector3f(fist).sub(elbow);
+		if (forearm.lengthSquared() < TINY) {
+			return null;
+		}
+		forearm.normalize();
+		Vector3f inside = new Vector3f(0.0F, Mth.cos(turn), Mth.sin(turn));
+		inside.sub(new Vector3f(forearm).mul(inside.dot(forearm)));
+		if (inside.lengthSquared() < TINY) {
+			return null;
+		}
+		// the inside of the right arm is its model's +x, of the left its -x
+		Vector3f across = inside.normalize().mul(side);
+		return whole(across, forearm, across.cross(forearm, new Vector3f()), new Vector3f(fist), side);
+	}
+
+	/** The forearm and the upper arm behind it, for an arm whose fist and three axes are known. */
+	private static Arm whole(final Vector3f across, final Vector3f forearm, final Vector3f back, final Vector3f fist, final int side) {
 		Matrix4f fore = model(across, forearm, back, fist, side);
 		// the upper arm: the same model turned about its width, its shoulder end on the forearm's
 		Vector3f turned = new Vector3f(fist).sub(new Vector3f(forearm).mul(2.0F * BACK * SIZE));
-		Matrix4f upper = model(across, forearm.negate(new Vector3f()), along, turned, side);
+		Matrix4f upper = model(across, forearm.negate(new Vector3f()), back.negate(new Vector3f()), turned, side);
 		Vector3f end = new Vector3f(turned).sub(new Vector3f(forearm).mul(PAST * SIZE));
 		return new Arm(fore, upper, fist, end);
 	}
@@ -221,11 +254,36 @@ public final class OwnHand {
 		}
 	}
 
+	/**
+	 * Notes where the working point of a tool was in this frame (a needle's tip, the middle of a strap), in the hands'
+	 * space, {@code lowered} as in {@link #drawn}.
+	 */
+	public static void worked(final Vector3fc point, final float lowered) {
+		pointDrawn = new Vector3f(point).sub(0.0F, lowered, 0.0F);
+	}
+
 	public static void tick() {
 		mainSeen = mainDrawn;
 		offSeen = offDrawn;
+		pointSeen = pointDrawn;
 		mainDrawn = null;
 		offDrawn = null;
+		pointDrawn = null;
+	}
+
+	/**
+	 * How far a tool's working point last was from the middle line of a hand's forearm, in blocks (the forearm is
+	 * {@link #THICK} through); NaN if either was not drawn since the tick before last.
+	 */
+	public static float fromForearm(final InteractionHand hand) {
+		Arm arm = hand == InteractionHand.MAIN_HAND ? mainSeen : offSeen;
+		Vector3f point = pointSeen;
+		if (arm == null || point == null) {
+			return Float.NaN;
+		}
+		Vector3f toward = new Vector3f(arm.end()).sub(arm.fist()).normalize();
+		float along = Mth.clamp(new Vector3f(point).sub(arm.fist()).dot(toward), 0.0F, BACK * SIZE);
+		return new Vector3f(arm.fist()).add(toward.mul(along)).distance(point);
 	}
 
 	/**
