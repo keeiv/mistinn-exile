@@ -28,6 +28,6 @@ public abstract class OwnBodyHandsMixin {
 			ci.cancel();
 			return;
 		}
-		poseStack.translate(0.0F, -(1.0F - raised) * (1.0F - raised) * OwnBody.DROP, 0.0F);
+		poseStack.translate(0.0F, -OwnBody.lowered(partialTicks), 0.0F);
 	}
 }

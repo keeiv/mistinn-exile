@@ -309,6 +309,7 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 
 In first person you have a body: look down and there is your chest, your legs walking, your hands hanging at your sides with whatever they hold. They come up in front of you only to swing, charge, draw a bow, eat or dig, and sink back afterwards.
 
+- **The hand that holds it**: a hand that comes up is drawn with its arm, fist closed on the grip of what it holds; a swing, a heavy blow, a drawn bow or a pick at work is the hand moving the thing. Each of the six weapon branches has its own swing, the hand stays in sight all the way through it, and a left-handed hunter sees it mirrored.
 - **The view moves with the body**: it rocks from foot to foot at a walk and harder at a sprint; a landing dips it, harder from higher. Below 35% stamina it heaves with your breath.
 - **Running looks like running**: at a sprint the body leans in and the arms pump, in the same stride the view rocks to. A hand with a weapon in it pumps less.
 - **Treatment with your own hands**: injecting, pills, tourniquet, splint, surgery, armour and helmet repair are done by the body's own hands, and the view tips down to the work (back, to swallow pills); the small beats of the job (a stitch, a binding pulled tight, a patch pressed down) are there to see.

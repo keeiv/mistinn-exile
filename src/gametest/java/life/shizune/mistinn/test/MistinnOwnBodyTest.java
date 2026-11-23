@@ -2,6 +2,7 @@ package life.shizune.mistinn.test;
 
 import java.util.Set;
 import life.shizune.mistinn.client.view.OwnBody;
+import life.shizune.mistinn.client.view.OwnHand;
 import life.shizune.mistinn.client.view.ViewMotion;
 import life.shizune.mistinn.registry.MistinnItems;
 import life.shizune.mistinn.weapon.WeaponMaterial;
@@ -25,6 +26,9 @@ import net.minecraft.world.level.block.Blocks;
  */
 @SuppressWarnings("UnstableApiUsage")
 public final class MistinnOwnBodyTest implements FabricClientGameTest {
+	/** The lowest a working fist may be on the screen (-1 is its bottom edge): above the hotbar and the bars over it. */
+	private static final float HAND_FLOOR = -0.82F;
+
 	@Override
 	public void runTest(final ClientGameTestContext context) {
 		if (TestFilter.skip(getClass())) {
@@ -115,6 +119,8 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 			}
 			check(felt, "a five-block drop is felt in the view");
 
+			handsHoldWhatTheySwing(context, world, stage);
+
 			runsLikeARunner(context, world, stage);
 
 			treatsWithOwnHands(context, world, stage);
@@ -147,6 +153,70 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 		check(ViewMotion.impact(3.0F) > 0.0F && ViewMotion.impact(3.0F) < ViewMotion.impact(8.0F) && ViewMotion.impact(8.0F) == 1.0F, "a longer fall lands harder");
 		check(ViewMotion.dip(0.05F) > 0.5F && ViewMotion.dip(0.3F) < ViewMotion.dip(0.1F) && ViewMotion.dip(ViewMotion.LANDING) == 0.0F,
 			"the dip comes fast and is gone in a third of a second");
+	}
+
+	/**
+	 * A swing is the hunter's own hand at work: through every branch's swing the fist that holds the weapon stays inside
+	 * the view above the bars, and the arm runs out of the view before it ends, so no cut-off arm is seen. Held in the
+	 * left hand, the same is seen on the left.
+	 */
+	private static void handsHoldWhatTheySwing(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos stage) {
+		look(context, world, stage, 0.0F);
+		for (WeaponStyle style : WeaponStyle.values()) {
+			world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst()
+				.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(MistinnItems.WEAPONS.get(style).get(WeaponMaterial.IRON))));
+			context.waitTicks(25);
+			context.runOnClient(mc -> {
+				check(OwnHand.seen(InteractionHand.MAIN_HAND, aspect(mc)) == null, style + ": hanging at the side, no hand is drawn before the eye");
+				mc.player.swing(InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getAttackAnimation(), true);
+			});
+			// the first two ticks carry the hand up from the side
+			context.waitTicks(3);
+			int inView = 0;
+			int ticks = style.swingTicks - 3;
+			for (int i = 0; i < ticks; i++) {
+				context.waitTicks(1);
+				int tick = i + 3;
+				inView += context.computeOnClient(mc -> {
+					OwnHand.Seen seen = OwnHand.seen(InteractionHand.MAIN_HAND, aspect(mc));
+					check(seen != null, style + ": the hand is drawn through the swing, tick " + tick);
+					check(seen.whole(), style + ": the arm runs out of the view, tick " + tick + ": " + seen);
+					check(OwnBody.handsUp(mc.player, 1.0F) != null, style + ": and the body leaves that arm out, tick " + tick);
+					return seen.fistInView() && seen.fistY() > HAND_FLOOR ? 1 : 0;
+				});
+			}
+			check(inView == ticks, style + ": the fist stays in view through the swing: " + inView + " of " + ticks + " ticks");
+			context.waitTicks(20);
+		}
+
+		// in the left hand the same swing is seen on the left
+		world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst()
+			.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(MistinnItems.WEAPONS.get(WeaponStyle.SLASH).get(WeaponMaterial.IRON))));
+		context.runOnClient(mc -> {
+			mc.options.mainHand().set(net.minecraft.world.entity.HumanoidArm.LEFT);
+			mc.options.broadcastOptions();
+		});
+		context.waitTicks(25);
+		context.runOnClient(mc -> mc.player.swing(InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getAttackAnimation(), true));
+		context.waitTicks(2);
+		context.runOnClient(mc -> {
+			OwnHand.Seen seen = OwnHand.seen(InteractionHand.MAIN_HAND, aspect(mc));
+			check(seen != null && seen.fistInView() && seen.whole(), "left-handed, the hand is drawn whole through a swing: " + seen);
+			check(seen.fistX() < 0.0F || seen.endX() < 0.0F, "and its arm comes in from the left: " + seen);
+		});
+		context.takeScreenshot("ownbody-07-left-handed-swing");
+		context.runOnClient(mc -> {
+			mc.options.mainHand().set(net.minecraft.world.entity.HumanoidArm.RIGHT);
+			mc.options.broadcastOptions();
+		});
+		context.waitTicks(40);
+		world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst()
+			.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(MistinnItems.WEAPONS.get(WeaponStyle.SLASH).get(WeaponMaterial.IRON))));
+		context.waitTicks(5);
+	}
+
+	private static float aspect(final net.minecraft.client.Minecraft mc) {
+		return (float) mc.getWindow().getWidth() / mc.getWindow().getHeight();
 	}
 
 	/**

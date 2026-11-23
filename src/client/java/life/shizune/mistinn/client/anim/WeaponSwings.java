@@ -55,6 +55,8 @@ public final class WeaponSwings {
 	/** {@link #firstPerson(WeaponStyle, float, PoseStack, int)} for any clip with a first-person group. */
 	public static void firstPerson(final Clip clip, final float p, final PoseStack pose, final int side) {
 		pose.translate(side * clip.at("first_person.tx", p), clip.at("first_person.ty", p), clip.at("first_person.tz", p));
+		// the whole motion tipped up toward the eye, so a level sweep is seen from above its plane and not along it
+		pose.rotateDegrees(Axis.XP, clip.at("first_person.lift", p));
 		pose.rotateDegrees(Axis.YP, side * clip.at("first_person.ry", p));
 		pose.rotateDegrees(Axis.ZP, side * clip.at("first_person.rz", p));
 		pose.rotateDegrees(Axis.XP, clip.at("first_person.rx", p));

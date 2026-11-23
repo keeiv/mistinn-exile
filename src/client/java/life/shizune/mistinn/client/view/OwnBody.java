@@ -13,7 +13,8 @@ import org.jspecify.annotations.Nullable;
  * 自己的身體: in one's own view the hunter has a body. Looking down they see their chest, their legs walking and
  * their arms hanging at their sides, whatever they carry in their hands; the head is not drawn, and the body stands a
  * little behind the eye so the view is never inside it. The hands only come up in front of the eye when they are
- * doing something there: a swing, a heavy blow drawn back, a bow, food, a block being broken.
+ * doing something there: a swing, a heavy blow drawn back, a bow, food, a block being broken. Up there each hand is
+ * drawn with its arm, gripping what it holds ({@link OwnHand}), so it is the hunter's hand that does the work.
  */
 public final class OwnBody {
 	/** Set on the local hunter's render state while the world is drawn through their own eyes. */
@@ -103,5 +104,11 @@ public final class OwnBody {
 	/** How far the hands are up in front of the eye, 0 (hanging at the sides) to 1. */
 	public static float raised(final float partial) {
 		return Mth.lerp(partial, raisedO, raised);
+	}
+
+	/** How far below their working place the hands are drawn while they are lowered, in the hand pass's own units. */
+	public static float lowered(final float partial) {
+		float down = 1.0F - raised(partial);
+		return down * down * DROP;
 	}
 }
