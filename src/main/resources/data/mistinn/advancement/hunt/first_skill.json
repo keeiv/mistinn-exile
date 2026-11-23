@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/root",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.first_skill.desc"
+		},
+		"icon": {
+			"id": "mistinn:rust_god_salt"
+		},
+		"title": {
+			"translate": "achievement.mistinn.first_skill"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

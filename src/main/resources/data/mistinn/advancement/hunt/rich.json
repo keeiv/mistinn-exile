@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/residue",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.rich.desc"
+		},
+		"icon": {
+			"id": "mistinn:salt"
+		},
+		"title": {
+			"translate": "achievement.mistinn.rich"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

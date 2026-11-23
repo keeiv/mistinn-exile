@@ -1,0 +1,26 @@
+{
+	"criteria": {
+		"arrived": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"background": "minecraft:block/polished_deepslate",
+		"description": {
+			"translate": "advancement.mistinn.root.desc"
+		},
+		"icon": {
+			"id": "mistinn:golden_bell"
+		},
+		"show_toast": false,
+		"title": {
+			"translate": "advancement.mistinn.root"
+		}
+	},
+	"requirements": [
+		[
+			"arrived"
+		]
+	]
+}

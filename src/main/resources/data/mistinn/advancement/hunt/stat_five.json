@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/first_skill",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.stat_five.desc"
+		},
+		"icon": {
+			"id": "mistinn:armor_4"
+		},
+		"title": {
+			"translate": "achievement.mistinn.stat_five"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

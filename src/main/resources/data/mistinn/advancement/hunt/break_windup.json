@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/heavy_three",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.break_windup.desc"
+		},
+		"icon": {
+			"id": "mistinn:iron_greatsword"
+		},
+		"title": {
+			"translate": "achievement.mistinn.break_windup"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

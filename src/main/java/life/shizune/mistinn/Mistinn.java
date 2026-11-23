@@ -53,7 +53,6 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.skill.SlideService.register();
 		life.shizune.mistinn.voice.Voice.register();
 		life.shizune.mistinn.weapon.HeavyService.register();
-		life.shizune.mistinn.achievement.AchievementService.register();
 		life.shizune.mistinn.enemy.NoiseService.register();
 		life.shizune.mistinn.enemy.PackService.register();
 		life.shizune.mistinn.enemy.StalkGoal.register();
@@ -89,6 +88,7 @@ public class Mistinn implements ModInitializer {
 			BodyService.applyPenalties(newPlayer, BodyService.get(newPlayer));
 		});
 		ServerPlayerEvents.JOIN.register(player -> {
+			life.shizune.mistinn.achievement.AchievementService.joined(player);
 			GridService.applyWeight(player);
 			// the worn mask, backpack and rig tiers are not saved on their own: show them again from the grid
 			GridService.showWorn(player, GridService.get(player));

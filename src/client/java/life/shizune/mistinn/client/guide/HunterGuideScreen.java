@@ -26,8 +26,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import org.jspecify.annotations.Nullable;
-import life.shizune.mistinn.achievement.Achievement;
-import life.shizune.mistinn.achievement.AchievementService;
 
 /**
  * 追獵者手冊: an open field manual with four bookmarks. The guide's pages read as spreads; the
@@ -72,10 +70,6 @@ public class HunterGuideScreen extends Screen {
 	private static final Identifier ICONS = tex("icons");
 	private static final Identifier ARROWS = tex("arrows");
 	private static final Identifier GLOW = tex("glow");
-	private static final Identifier ACHIEVEMENT_ICONS = tex("achievements");
-	/** Achievements on each page of a spread, and how tall each row is. */
-	private static final int[] ROWS = {4, 5};
-	private static final int ROW_H = 31;
 
 	/** The answer the server last gave to an unlock request, for the line under the tree. */
 	private static @Nullable Component notice;
@@ -85,7 +79,6 @@ public class HunterGuideScreen extends Screen {
 
 	private Tab tab = Tab.PAGES;
 	private int spread;
-	private int achievementSpread;
 	private @Nullable String armed;
 
 	public HunterGuideScreen() {
@@ -108,11 +101,6 @@ public class HunterGuideScreen extends Screen {
 	/** Which two pages are open (0 for pages 1 and 2). */
 	public int spread() {
 		return this.spread;
-	}
-
-	/** Which spread of the achievements is open. */
-	public int achievementSpread() {
-		return this.achievementSpread;
 	}
 
 	/** Centre of the next-page arrow, in GUI pixels. */
@@ -168,6 +156,12 @@ public class HunterGuideScreen extends Screen {
 		for (Tab each : Tab.values()) {
 			double[] c = this.tabCentre(each);
 			if (Math.abs(mx - c[0]) <= TAB_W / 2.0 && Math.abs(my - c[1]) <= TAB_H / 2.0) {
+				if (each == Tab.ACHIEVEMENTS) {
+					// achievements are the game's own advancements: the bookmark opens them, on the hunter's tab
+					click(SoundEvents.BOOK_PAGE_TURN);
+					life.shizune.mistinn.client.achievement.ClientAchievements.open(this.minecraft, this);
+					return true;
+				}
 				if (this.tab != each) {
 					this.tab = each;
 					this.armed = null;
@@ -186,20 +180,6 @@ public class HunterGuideScreen extends Screen {
 			}
 			if (this.spread < spreads() - 1 && inside(mx, my, x + W - 34, y + 176, 18, 12)) {
 				this.spread++;
-				click(SoundEvents.BOOK_PAGE_TURN);
-				return true;
-			}
-		}
-		if (this.tab == Tab.ACHIEVEMENTS) {
-			int x = this.left();
-			int y = this.top();
-			if (this.achievementSpread > 0 && inside(mx, my, x + 16, y + 176, 18, 12)) {
-				this.achievementSpread--;
-				click(SoundEvents.BOOK_PAGE_TURN);
-				return true;
-			}
-			if (this.achievementSpread < achievementSpreads() - 1 && inside(mx, my, x + W - 34, y + 176, 18, 12)) {
-				this.achievementSpread++;
 				click(SoundEvents.BOOK_PAGE_TURN);
 				return true;
 			}
@@ -280,7 +260,8 @@ public class HunterGuideScreen extends Screen {
 			case PAGES -> this.pages(g, x, y, mouseX, mouseY);
 			case STATS -> this.stats(g, x, y);
 			case SKILLS -> this.skills(g, x, y, mouseX, mouseY);
-			case ACHIEVEMENTS -> this.achievements(g, x, y, mouseX, mouseY);
+			case ACHIEVEMENTS -> {
+			}
 		}
 	}
 
@@ -308,70 +289,6 @@ public class HunterGuideScreen extends Screen {
 			g.blit(RenderPipelines.GUI_TEXTURED, ARROWS, x + 16, y + 176, 0.0F, hover ? 12 : 0, 18, 12, 36, 24);
 		}
 		if (this.spread < spreads() - 1) {
-			boolean hover = inside(mouseX, mouseY, x + W - 34, y + 176, 18, 12);
-			g.blit(RenderPipelines.GUI_TEXTURED, ARROWS, x + W - 34, y + 176, 18.0F, hover ? 12 : 0, 18, 12, 36, 24);
-		}
-	}
-
-	/** Spreads the achievements take: the first holds the count and four, then five a page. */
-	private static int achievementSpreads() {
-		int left = Achievement.values().length - ROWS[0] - ROWS[1];
-		return 1 + Math.max(0, (left + 2 * ROWS[1] - 1) / (2 * ROWS[1]));
-	}
-
-	/** The achievements on one page of one spread (side 0 left, 1 right). */
-	private static java.util.List<Achievement> onPage(final int spread, final int side) {
-		Achievement[] all = Achievement.values();
-		int from = spread == 0 ? (side == 0 ? 0 : ROWS[0]) : ROWS[0] + ROWS[1] + ((spread - 1) * 2 + side) * ROWS[1];
-		int count = spread == 0 && side == 0 ? ROWS[0] : ROWS[1];
-		java.util.List<Achievement> out = new java.util.ArrayList<>();
-		for (int i = from; i < Math.min(all.length, from + count); i++) {
-			out.add(all[i]);
-		}
-		return out;
-	}
-
-	private void achievements(final GuiGraphicsExtractor g, final int x, final int y, final int mouseX, final int mouseY) {
-		LocalPlayer player = this.minecraft.player;
-		for (int side = 0; side < 2; side++) {
-			int px = x + (side == 0 ? 20 : 172);
-			int py = y + 18;
-			if (this.achievementSpread == 0 && side == 0) {
-				int salt = 0;
-				for (Achievement each : Achievement.values()) {
-					if (AchievementService.has(player, each)) {
-						salt += each.reward;
-					}
-				}
-				g.text(this.font, Component.translatable("gui.mistinn.guide.achievements", AchievementService.earned(player), Achievement.values().length), px, py, INK, false);
-				g.text(this.font, Component.translatable("gui.mistinn.guide.achievement_salt", salt), px, py + 12, FADED, false);
-				py += 32;
-			}
-			for (Achievement each : onPage(this.achievementSpread, side)) {
-				boolean earned = AchievementService.has(player, each);
-				int colour = earned ? 0xFFFFFFFF : 0x55FFFFFF;
-				g.blit(RenderPipelines.GUI_TEXTURED, ACHIEVEMENT_ICONS, px, py, (each.icon % 4) * 16, (each.icon / 4) * 16, 16, 16, 64, 64, colour);
-				g.text(this.font, Component.translatable(each.key()), px + 20, py, earned ? INK : FADED, false);
-				if (each.reward > 0) {
-					String reward = "+" + each.reward;
-					g.text(this.font, reward, px + 128 - this.font.width(reward), py, earned ? AMBER : FADED, false);
-				}
-				int line = py + 10;
-				for (FormattedCharSequence row : this.font.split(Component.translatable(each.descriptionKey()), 108)) {
-					if (line > py + 20) {
-						break;
-					}
-					g.text(this.font, row, px + 20, line, FADED, false);
-					line += 10;
-				}
-				py += ROW_H;
-			}
-		}
-		if (this.achievementSpread > 0) {
-			boolean hover = inside(mouseX, mouseY, x + 16, y + 176, 18, 12);
-			g.blit(RenderPipelines.GUI_TEXTURED, ARROWS, x + 16, y + 176, 0.0F, hover ? 12 : 0, 18, 12, 36, 24);
-		}
-		if (this.achievementSpread < achievementSpreads() - 1) {
 			boolean hover = inside(mouseX, mouseY, x + W - 34, y + 176, 18, 12);
 			g.blit(RenderPipelines.GUI_TEXTURED, ARROWS, x + W - 34, y + 176, 18.0F, hover ? 12 : 0, 18, 12, 36, 24);
 		}
