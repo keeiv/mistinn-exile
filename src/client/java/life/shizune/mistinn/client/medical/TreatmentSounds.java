@@ -100,8 +100,8 @@ public final class TreatmentSounds {
 				new Beat(0.8F, 1.4F, 0.49F, MistinnSounds.REPAIR_STRAP, 0.7F, 0.25F),
 				new Beat(0.8F, 1.4F, 0.91F, MistinnSounds.REPAIR_HAMMER, 0.5F, 0.25F)
 			)),
-		// the tourniquet (2 s): the strap torn free of its wrap, wound round twice (keys 0.32,
-		// 0.68), then the windlass wrenched tight (key 0.8)
+		// the tourniquet (2 s): the strap torn free of its wrap and slipped up the forearm (key 0.32),
+		// the windlass wrenched round (key 0.68), then wrenched tight (key 0.8)
 		Treatment.TOURNIQUET, new Score(List.of(
 			new Cue(0.0F, MistinnSounds.SURGERY_TEAR, 0.6F),
 			new Cue(0.6F, MistinnSounds.REPAIR_STRAP, 0.6F),
