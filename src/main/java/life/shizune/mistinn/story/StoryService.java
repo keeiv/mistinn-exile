@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
 import life.shizune.mistinn.Mistinn;
+import life.shizune.mistinn.keeper.RustWheel;
 import life.shizune.mistinn.keeper.Snuffer;
 import life.shizune.mistinn.keeper.SunkenBell;
 import life.shizune.mistinn.registry.MistinnItems;
@@ -11,6 +12,7 @@ import life.shizune.mistinn.registry.MistinnSounds;
 import life.shizune.mistinn.world.BellTower;
 import life.shizune.mistinn.salt.SaltService;
 import life.shizune.mistinn.world.Builder;
+import life.shizune.mistinn.world.SaltWorks;
 import life.shizune.mistinn.world.Structures;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
@@ -68,6 +70,11 @@ public final class StoryService {
 		.persistent(StoryRoad.CODEC)
 		.buildAndRegister(Mistinn.id("story_road"));
 
+	/** The places of chapter 4, kept on the overworld once built. */
+	public static final AttachmentType<StoryWorks> WORKS = AttachmentRegistry.<StoryWorks>builder()
+		.persistent(StoryWorks.CODEC)
+		.buildAndRegister(Mistinn.id("story_works"));
+
 	/** The last shared objective completed in the story world. */
 	private static final AttachmentType<StoryStep> CHAPTER_PROGRESS = AttachmentRegistry.<StoryStep>builder()
 		.persistent(Codec.STRING.xmap(StoryStep::byId, step -> step.id))
@@ -80,6 +87,14 @@ public final class StoryService {
 	private static final double CAIRN_REACH = 6.0;
 	private static final double BELL_STATION_REACH = 28.0;
 	private static final double BELFRY_REACH = 7.0;
+	private static final double POD_REACH = 8.0;
+	private static final double WORKS_REACH = 28.0;
+	/** Inside the wall of the wheel's yard, a little in from it. */
+	private static final double YARD_REACH = SaltWorks.YARD - 1.0;
+	/** How far inland from the drop station the salt works of the story is first looked for. */
+	private static final int WORKS_INLAND = 260;
+	/** Where along the way from the fog-bell station to the salt works, as a share of it, the answering pod comes down. */
+	private static final double POD_AT = 0.35;
 	/** How far from the drop station the fog-bell station of the story is first looked for, on the far side from the lighthouse. */
 	private static final int ROAD_LENGTH = 360;
 	/** The fog-bell station stands at least this far from the lighthouse. */
@@ -143,6 +158,8 @@ public final class StoryService {
 				keeperDown(keeper);
 			} else if (entity instanceof SunkenBell bell) {
 				bellDown(bell);
+			} else if (entity instanceof RustWheel wheel) {
+				wheelDown(wheel);
 			}
 		});
 		// the great bell of the story's belfry, rung by hand at the end of chapter 3
@@ -181,6 +198,11 @@ public final class StoryService {
 			complete(server, StoryStep.DELIVER);
 			ensureRoad(server);
 			advance(player, StoryStep.LISTEN);
+		} else if (progress.step() == StoryStep.WAIT && !completed(server, StoryStep.RUST_WHEEL)) {
+			// waiting at the end of chapter 3 since before chapter 4 was written: the station answers now
+			complete(server, StoryStep.DELIVER);
+			ensureWorks(server);
+			advance(player, StoryStep.POD);
 		} else if (progress.step().ordinal() > StoryStep.DELIVER.ordinal()) {
 			complete(server, StoryStep.DELIVER);
 		} else if (progress.step() == StoryStep.DELIVER) {
@@ -294,8 +316,35 @@ public final class StoryService {
 			}
 			case RING -> {
 				if (completed(server, StoryStep.RING)) {
-					advance(player, StoryStep.WAIT);
+					ensureWorks(server);
+					advance(player, StoryStep.POD);
 					ServerPlayNetworking.send(player, new CardPayload(StoryScript.ANSWER.id()));
+				}
+			}
+			case POD -> {
+				StoryWorks works = ensureWorks(server);
+				if (works != null && near(player, works.pod(), POD_REACH)) {
+					advance(player, StoryStep.SALT_WORKS);
+					play(player, StoryScript.SUPPLY_CALL, -1, StoryScript.SALT_WORKS.id());
+				}
+			}
+			case SALT_WORKS -> {
+				StoryWorks works = works(server);
+				if (works != null && near(player, works.works(), WORKS_REACH)) {
+					advance(player, StoryStep.WORKS_BELL);
+				}
+			}
+			case YARD -> {
+				StoryWorks works = works(server);
+				if (works != null && near(player, works.works(), YARD_REACH) && Math.abs(player.getY() - works.works().getY()) <= 4.0) {
+					advance(player, StoryStep.RUST_WHEEL);
+				}
+			}
+			case RUST_WHEEL -> {
+				// it stopped for someone else while this hunter was elsewhere
+				if (completed(server, StoryStep.RUST_WHEEL)) {
+					advance(player, StoryStep.WAIT);
+					ServerPlayNetworking.send(player, new CardPayload(StoryScript.STOPPED.id()));
 				}
 			}
 			default -> {
@@ -344,6 +393,19 @@ public final class StoryService {
 		return switch (step) {
 			case BELL_STATION, BELL_REST -> Optional.of(road.bellStation());
 			case BELFRY, SUNKEN_BELL, RING -> Optional.of(road.belfry());
+			default -> worksTarget(server, step);
+		};
+	}
+
+	private static Optional<BlockPos> worksTarget(final MinecraftServer server, final StoryStep step) {
+		StoryWorks works = works(server);
+		if (works == null) {
+			return Optional.empty();
+		}
+		return switch (step) {
+			case POD -> Optional.of(works.pod());
+			case SALT_WORKS, YARD, RUST_WHEEL -> Optional.of(works.works());
+			case WORKS_BELL -> Optional.of(works.works().offset(SaltWorks.BELL));
 			default -> Optional.empty();
 		};
 	}
@@ -398,6 +460,8 @@ public final class StoryService {
 			advance(player, StoryStep.LAMP_ROOM);
 		} else if (progress != null && progress.step() == StoryStep.BELL_REST) {
 			advance(player, StoryStep.BELFRY);
+		} else if (progress != null && progress.step() == StoryStep.WORKS_BELL) {
+			advance(player, StoryStep.YARD);
 		}
 	}
 
@@ -516,7 +580,9 @@ public final class StoryService {
 		Vec3 bell = Vec3.atCenterOf(pos);
 		level.playSound(null, bell.x, bell.y, bell.z, MistinnSounds.SUNKEN_BELL_RING, SoundSource.BLOCKS, 4.0F, 0.8F);
 		complete(server, StoryStep.RING);
-		advance(player, StoryStep.WAIT);
+		// the answer: a pod, already on its way down inland
+		ensureWorks(server);
+		advance(player, StoryStep.POD);
 		// long after, far out over the fog and high up, three tolls
 		Vec3 away = bell.subtract(Vec3.atCenterOf(road.bellStation())).multiply(1.0, 0.0, 1.0);
 		Vec3 far = player.position().add(away.lengthSqr() < 1.0 ? new Vec3(0.0, 0.0, 48.0) : away.normalize().scale(48.0)).add(0.0, 30.0, 0.0);
@@ -632,6 +698,136 @@ public final class StoryService {
 			floor = ground(level, x + (int) Math.round(dx / length * step), z + (int) Math.round(dz / length * step));
 		}
 		return floor;
+	}
+
+	// ── Chapter 4: the salt works ─────────────────────────────────────
+
+	private static @Nullable StoryWorks works(final MinecraftServer server) {
+		return server.overworld().getAttached(WORKS);
+	}
+
+	/** The Rust Wheel stopped: everyone near it who was after it hears the man at the wheel, then the chapter ends. */
+	private static void wheelDown(final RustWheel wheel) {
+		if (!(wheel.level() instanceof ServerLevel level) || !active(level.getServer())) {
+			return;
+		}
+		StoryWorks works = works(level.getServer());
+		if (level == level.getServer().overworld() && works != null && wheel.distanceToSqr(Vec3.atCenterOf(works.works())) <= 48.0 * 48.0) {
+			complete(level.getServer(), StoryStep.RUST_WHEEL);
+		}
+		for (ServerPlayer player : level.players()) {
+			StoryProgress progress = get(player);
+			if (progress == null || player.distanceToSqr(wheel) > 64.0 * 64.0) {
+				continue;
+			}
+			int step = progress.step().ordinal();
+			// a hunter who went straight in (or found another salt works) still counts
+			if (step >= StoryStep.SALT_WORKS.ordinal() && step <= StoryStep.RUST_WHEEL.ordinal()) {
+				advance(player, StoryStep.WAIT);
+				play(player, StoryScript.RUST_WHEEL_END, wheel.getId(), StoryScript.STOPPED.id());
+			}
+		}
+	}
+
+	/**
+	 * The places of chapter 4, built when the great bell is first rung: the salt works on level ground inland of the
+	 * coast the lighthouse and the fog-bell station stand on, and the pod the station sends down in answer, on the way
+	 * there from the fog-bell station. Returns null outside a story world or before the road was laid out.
+	 */
+	public static @Nullable StoryWorks ensureWorks(final MinecraftServer server) {
+		ServerLevel level = server.overworld();
+		StoryWorks built = level.getAttached(WORKS);
+		StoryPlaces places = places(server);
+		StoryRoad road = road(server);
+		if (built != null || places == null || road == null || !active(server)) {
+			return built;
+		}
+		RandomSource random = RandomSource.create(level.getSeed() ^ 0x576F726BL);
+		BlockPos from = places.station();
+		// square to the line of the coast, from the lighthouse to the fog-bell station, on the drop station's side
+		double cx = road.bellStation().getX() - places.lighthouse().getX();
+		double cz = road.bellStation().getZ() - places.lighthouse().getZ();
+		double nx = -cz;
+		double nz = cx;
+		if (nx * (from.getX() - places.lighthouse().getX()) + nz * (from.getZ() - places.lighthouse().getZ()) < 0.0) {
+			nx = -nx;
+			nz = -nz;
+		}
+		double length = Math.sqrt(nx * nx + nz * nz);
+		double angle = length < 1.0 ? random.nextDouble() * Math.PI * 2.0 : Math.atan2(nz, nx);
+		BlockPos aim = from.offset((int) Math.round(Math.cos(angle) * WORKS_INLAND), 0, (int) Math.round(Math.sin(angle) * WORKS_INLAND));
+		BlockPos site = findWorksGround(level, aim, angle, places, road);
+		BlockPos middle = SaltWorks.build(new Builder(level, site, random));
+		int px = (int) Math.round(road.bellStation().getX() + (site.getX() - road.bellStation().getX()) * POD_AT);
+		int pz = (int) Math.round(road.bellStation().getZ() + (site.getZ() - road.bellStation().getZ()) * POD_AT);
+		BlockPos pod = dryGround(level, px, pz, site);
+		Structures.supplyPod(new Builder(level, pod, random));
+		StoryWorks works = new StoryWorks(pod, middle);
+		level.setAttached(WORKS, works);
+		Mistinn.LOGGER.info("Story salt works: pod {}, works {}", pod, middle);
+		return works;
+	}
+
+	/**
+	 * Level, dry, open ground near {@code aim} wide enough for the salt works, well away from the lighthouse and the
+	 * fog-bell station; failing open ground, level ground; failing that, the first place tried.
+	 */
+	private static BlockPos findWorksGround(final ServerLevel level, final BlockPos aim, final double angle, final StoryPlaces places, final StoryRoad road) {
+		BlockPos fallback = null;
+		BlockPos levelOnly = null;
+		for (int ring = 0; ring < 3; ring++) {
+			int radius = ring * 48;
+			int around = ring == 0 ? 1 : 8;
+			for (int i = 0; i < around; i++) {
+				double a = angle + i * Math.PI * 2.0 / around;
+				BlockPos floor = ground(level, aim.getX() + (int) Math.round(Math.cos(a) * radius), aim.getZ() + (int) Math.round(Math.sin(a) * radius));
+				if (fallback == null) {
+					fallback = floor;
+				}
+				if (floor.distSqr(places.lighthouse()) <= (double) APART * APART || floor.distSqr(road.bellStation()) <= (double) APART * APART
+					|| !dryLand(level, floor) || !wideAndLevel(level, floor)) {
+					continue;
+				}
+				if (open(level, floor)) {
+					return floor;
+				}
+				if (levelOnly == null) {
+					levelOnly = floor;
+				}
+			}
+		}
+		return levelOnly != null ? levelOnly : fallback;
+	}
+
+	/** Whether the ground round {@code floor} is within three blocks of it across the salt works' whole yard. */
+	private static boolean wideAndLevel(final ServerLevel level, final BlockPos floor) {
+		int reach = SaltWorks.YARD;
+		// the boiling house and the pans reach further out past the gate, to the south
+		int[] across = {-reach, 0, reach, reach + 8};
+		for (int dx = -reach; dx <= reach; dx += reach) {
+			for (int dz : across) {
+				int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, floor.getX() + dx, floor.getZ() + dz) - 1;
+				if (Math.abs(y - floor.getY()) > 3) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/** Whether no trees stand over the middle and the corners of the yard. */
+	private static boolean open(final ServerLevel level, final BlockPos floor) {
+		int reach = SaltWorks.YARD;
+		for (int dx = -reach; dx <= reach; dx += reach) {
+			for (int dz = -reach; dz <= reach; dz += reach) {
+				int x = floor.getX() + dx;
+				int z = floor.getZ() + dz;
+				if (level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z) != level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z)) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	// ── The guaranteed places ────────────────────────────────────────

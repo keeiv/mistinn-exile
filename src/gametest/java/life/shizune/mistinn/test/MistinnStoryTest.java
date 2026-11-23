@@ -7,6 +7,7 @@ import life.shizune.mistinn.client.story.JournalScreen;
 import life.shizune.mistinn.client.story.SceneScreen;
 import life.shizune.mistinn.client.story.StoryCardScreen;
 import life.shizune.mistinn.client.story.StoryClient;
+import life.shizune.mistinn.keeper.RustWheel;
 import life.shizune.mistinn.keeper.Snuffer;
 import life.shizune.mistinn.keeper.SunkenBell;
 import life.shizune.mistinn.registry.MistinnBlocks;
@@ -18,6 +19,7 @@ import life.shizune.mistinn.story.StoryRoad;
 import life.shizune.mistinn.story.StoryScript;
 import life.shizune.mistinn.story.StoryService;
 import life.shizune.mistinn.story.StoryStep;
+import life.shizune.mistinn.story.StoryWorks;
 import life.shizune.mistinn.story.WorldMode;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -299,7 +301,7 @@ public class MistinnStoryTest implements FabricClientGameTest {
 			BlockPos lip = belfry.above(life.shizune.mistinn.world.BellTower.BELL_LIP - life.shizune.mistinn.world.BellTower.DECK - 1).offset(2, 0, 0);
 			return StoryService.ring(player(server), lip);
 		}), "the great bell rings");
-		check(step(world) == StoryStep.WAIT, "and the story waits for what comes next");
+		check(step(world) == StoryStep.POD, "and the answer is a pod coming down");
 		context.waitFor(mc -> mc.gui.screen() instanceof StoryCardScreen, 400);
 		context.waitTicks(80);
 		context.takeScreenshot("story-card-answer");
@@ -309,6 +311,80 @@ public class MistinnStoryTest implements FabricClientGameTest {
 		context.waitTicks(5);
 		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 8), "the journal heard every sequence of the three chapters");
 		context.takeScreenshot("story-journal-chapter-3");
+		context.runOnClient(mc -> mc.gui.setScreen(null));
+
+		playWorks(context, world);
+	}
+
+	/** Chapter 4: the pod that answered, the salt works inland and the Rust Wheel, to the end of what is written. */
+	private static void playWorks(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		// ── The pod ───────────────────────────────────────────────────
+		world.getServer().runOnServer(server -> {
+			StoryWorks works = server.overworld().getAttached(StoryService.WORKS);
+			check(works != null, "the pod and the salt works were placed when the bell was rung");
+			StoryRoad road = server.overworld().getAttached(StoryService.ROAD);
+			check(works.works().distSqr(places(server).lighthouse()) > 96.0 * 96.0 && works.works().distSqr(road.bellStation()) > 96.0 * 96.0,
+				"the salt works stand apart from the lighthouse and the fog-bell station: " + works);
+			check(StoryService.get(player(server)).target().filter(works.pod()::equals).isPresent(), "the minimap points at the pod");
+			check(server.overworld().getBlockEntity(works.pod().offset(life.shizune.mistinn.world.Structures.POD_SUPPLY))
+				instanceof net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity, "the pod brought supplies");
+			stand(server, works.pod().offset(0, 0, -5));
+		});
+		world.getConnection().waitForChunksRender();
+		context.waitTicks(30);
+		check(step(world) == StoryStep.SALT_WORKS, "at the pod, the station calls and sends the hunter to the salt works");
+		context.waitTicks(40);
+		check(context.computeOnClient(mc -> StoryClient.line() != null), "the call plays as subtitles");
+		context.takeScreenshot("story-pod");
+		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().contains(StoryScript.SUPPLY_CALL)), "and is kept for the journal");
+		context.runOnClient(mc -> StoryClient.skip());
+		context.waitFor(mc -> mc.gui.screen() instanceof StoryCardScreen, 200);
+		context.waitTicks(60);
+		context.takeScreenshot("story-card-salt-works");
+		context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+		context.waitFor(mc -> mc.gui.screen() == null, 100);
+
+		// ── The salt works ────────────────────────────────────────────
+		world.getServer().runOnServer(server -> stand(server, server.overworld().getAttached(StoryService.WORKS).works().offset(0, 0, life.shizune.mistinn.world.SaltWorks.YARD + 8)));
+		world.getConnection().waitForChunksRender();
+		context.waitTicks(30);
+		check(step(world) == StoryStep.WORKS_BELL, "at the salt works, rest at its bell first");
+		world.getServer().runOnServer(server -> StoryService.rested(player(server)));
+		check(step(world) == StoryStep.YARD, "resting at its bell sends the hunter into the yard");
+		world.getServer().runOnServer(server -> {
+			BlockPos middle = server.overworld().getAttached(StoryService.WORKS).works();
+			player(server).teleportTo(server.overworld(), middle.getX() + 0.5, middle.getY(), middle.getZ() + 9.5, Set.of(), 180.0F, 0.0F, true);
+		});
+		world.getConnection().waitForChunksRender();
+		context.waitTicks(20);
+		check(step(world) == StoryStep.RUST_WHEEL, "inside the walls, the Rust Wheel");
+		check(world.getServer().computeOnServer(server -> server.overworld().getEntitiesOfClass(RustWheel.class,
+			new AABB(server.overworld().getAttached(StoryService.WORKS).works()).inflate(10.0)).size() == 1), "it waits there, the one the story built");
+		context.takeScreenshot("story-yard");
+
+		// ── It stops, and says what the salt is for ──────────────────────
+		world.getServer().runOnServer(server -> {
+			BlockPos middle = server.overworld().getAttached(StoryService.WORKS).works();
+			RustWheel wheel = server.overworld().getEntitiesOfClass(RustWheel.class, new AABB(middle).inflate(10.0)).getFirst();
+			wheel.setLastHurtByPlayer(player(server), 100);
+			wheel.kill(server.overworld());
+		});
+		context.waitTicks(10);
+		check(step(world) == StoryStep.WAIT, "with the Rust Wheel stopped, the story waits for what comes next");
+		context.waitTicks(60);
+		check(context.computeOnClient(mc -> StoryClient.line() != null), "its last words play as subtitles");
+		context.takeScreenshot("story-rust-wheel-end");
+		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().contains(StoryScript.RUST_WHEEL_END)), "and are kept for the journal");
+		context.runOnClient(mc -> StoryClient.skip());
+		context.waitFor(mc -> mc.gui.screen() instanceof StoryCardScreen, 200);
+		context.waitTicks(80);
+		context.takeScreenshot("story-card-stopped");
+		context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+		context.waitFor(mc -> mc.gui.screen() == null, 100);
+		context.runOnClient(mc -> mc.gui.setScreen(new JournalScreen()));
+		context.waitTicks(5);
+		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 10), "the journal heard every sequence of the four chapters");
+		context.takeScreenshot("story-journal-chapter-4");
 		context.runOnClient(mc -> mc.gui.setScreen(null));
 	}
 
