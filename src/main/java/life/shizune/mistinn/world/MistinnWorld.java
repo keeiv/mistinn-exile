@@ -131,6 +131,7 @@ public final class MistinnWorld {
 		feature("watchpost", 2, 4, false, Structures::watchpost);
 		feature("lighthouse", 3, 6, true, Structures::lighthouse);
 		reef("bell_tower", 1, 7, BellTower::build);
+		feature("salt_works", 3, 12, false, SaltWorks::build);
 
 		GenerationStep.Decoration step = GenerationStep.Decoration.SURFACE_STRUCTURES;
 		BiomeModifications.addFeature(
@@ -152,6 +153,13 @@ public final class MistinnWorld {
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_BEACH)
 			.or(BiomeSelectors.includeByKey(net.minecraft.world.level.biome.Biomes.OCEAN, net.minecraft.world.level.biome.Biomes.LUKEWARM_OCEAN,
 				net.minecraft.world.level.biome.Biomes.WARM_OCEAN, net.minecraft.world.level.biome.Biomes.COLD_OCEAN)), step, placed("bell_tower"));
+
+		// inland on level ground, rarest of the keepers' places: the salt works
+		BiomeModifications.addFeature(
+			BiomeSelectors.foundInOverworld().and(c -> !c.hasTag(BiomeTags.IS_OCEAN) && !c.hasTag(BiomeTags.IS_RIVER) && !c.hasTag(BiomeTags.IS_BEACH)),
+			step,
+			placed("salt_works")
+		);
 
 		ServerLifecycleEvents.SERVER_STARTED.register(MistinnWorld::ensureSpawnStation);
 		ShoreMist.init();

@@ -19,6 +19,7 @@ public enum Achievement {
 	SPECIAL_WEAPON("special_weapon", 400),
 	SNUFFER(AchievementService.SNUFFER, 1000),
 	SUNKEN_BELL(AchievementService.SUNKEN_BELL, 1200),
+	RUST_WHEEL(AchievementService.RUST_WHEEL, 1500),
 	REVIVE_LIMB("revive_limb", 150),
 	BELL("bell", 50),
 	RESIDUE("residue", 100),

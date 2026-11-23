@@ -118,6 +118,10 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.keeper.SunkenBellModel::definition);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SUNKEN_BELL,
 			life.shizune.mistinn.client.keeper.SunkenBellRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.keeper.RustWheelModel.LAYER,
+			life.shizune.mistinn.client.keeper.RustWheelModel::definition);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.RUST_WHEEL,
+			life.shizune.mistinn.client.keeper.RustWheelRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.STATION_HAND,
 			life.shizune.mistinn.client.station.StationHandRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.shore.SaltCorpseModel.LAYER,

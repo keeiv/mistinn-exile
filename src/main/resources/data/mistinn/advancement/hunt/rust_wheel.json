@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/sunken_bell",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.rust_wheel.desc"
+		},
+		"icon": {
+			"id": "mistinn:rust_god_salt"
+		},
+		"title": {
+			"translate": "achievement.mistinn.rust_wheel"
+		},
+		"frame": "challenge"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}
