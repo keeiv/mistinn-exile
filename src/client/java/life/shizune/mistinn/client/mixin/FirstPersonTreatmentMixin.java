@@ -17,8 +17,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Moves a medical or repair item through its use in one's own view: the injector is raised
- * and driven down toward the thigh (kept in view), the pills brought up to the mouth, the kit worked on.
+ * Moves a medical or repair item through its use in one's own view while the hunter's own body is not drawn (swimming,
+ * lying down): the injector is raised and driven down, the pills brought up to the mouth, the kit worked on. With the
+ * body in view, {@link OwnHandMixin} places the item along with the arms that work it.
  */
 @Mixin(FirstPersonHandsAndItemsRenderer.class)
 public abstract class FirstPersonTreatmentMixin {
@@ -46,7 +47,8 @@ public abstract class FirstPersonTreatmentMixin {
 			return;
 		}
 		TreatmentClient.Pose pose = TreatmentClient.sample(mc.player.getId());
-		if (pose == null) {
+		// with the hunter's own body in view, a use worked in the hands is placed along with the arms that work it
+		if (pose == null || (life.shizune.mistinn.client.view.OwnBody.active() && TreatmentClient.inHands(mc.player) != null)) {
 			return;
 		}
 		HumanoidArm arm = hand == InteractionHand.MAIN_HAND ? mc.player.getMainArm() : mc.player.getMainArm().getOpposite();

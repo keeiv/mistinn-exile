@@ -1,13 +1,37 @@
 {
-	"_comment": "夾板 SPLINT: the boards are laid along the limb with the left hand while the right winds the binding round them, pass after pass, and pulls each turn tight. Loops every 1.0 s for the whole use.",
-	"loop": 1.0,
+	"_comment": "夾板 SPLINT: the other arm is held out and the boards laid along its forearm; the hand holds them there by their edge, shifting and pressing them down as the binding is taken round, pass after pass. Loops every 1.0 s for the whole use.",
+	"loop": 1,
 	"first_person_loop": 0.5,
-	"keys": [0.0, 0.3, 0.55, 0.8, 1.0],
+	"keys": [0, 0.3, 0.55, 0.8, 1],
 	"eases": ["in_out_sine", "in_out_sine", "in_cubic", "out_quad"],
-	"own_lift": 20,
+	"tip_x": 7.5,
+	"tip_y": 7,
+	"axis_x": 1,
+	"axis_y": 0,
+	"grip": 4.5,
 	"camera": {
-		"pitch": [55, 56, 56, 58, 55],
+		"pitch": [6, 7, 6, 7, 6],
 		"yaw": [0, 0, 0, 0, 0]
+	},
+	"tool": {
+		"x": [-0.025, -0.063, -0.031, 0.007, -0.025],
+		"y": [-0.068, -0.103, -0.073, -0.038, -0.068],
+		"z": [-0.765, -0.735, -0.76, -0.79, -0.765],
+		"yaw": [101.5, 86.7, 103.6, 85.5, 101.5],
+		"pitch": [-53.4, -37.4, -55, -35.6, -53.4],
+		"roll": [-24.7, -20.5, -23.9, -27.8, -24.7],
+		"size": [0.9, 0.9, 0.9, 0.9, 0.9],
+		"w": [1, 1, 1, 1, 1]
+	},
+	"other": {
+		"x": [0.1, 0.1, 0.1, 0.1, 0.1],
+		"y": [0.04, 0.028, 0.04, 0.028, 0.04],
+		"z": [-0.98, -0.98, -0.98, -0.98, -0.98],
+		"ex": [-0.62, -0.62, -0.62, -0.62, -0.62],
+		"ey": [-0.62, -0.62, -0.62, -0.62, -0.62],
+		"ez": [-0.42, -0.42, -0.42, -0.42, -0.42],
+		"turn": [30, 30, 30, 30, 30],
+		"up": [1, 1, 1, 1, 1]
 	},
 	"limbs": {
 		"head_x": [24, 26, 26, 28, 24],

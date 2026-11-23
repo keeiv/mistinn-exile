@@ -13,7 +13,7 @@ import org.jspecify.annotations.Nullable;
  * 自己的身體: in one's own view the hunter has a body. Looking down they see their chest, their legs walking and
  * their arms hanging at their sides, whatever they carry in their hands; the head is not drawn, and the body stands a
  * little behind the eye so the view is never inside it. The hands only come up in front of the eye when they are
- * doing something there: a swing, a heavy blow drawn back, a bow, food, a block being broken. Up there each hand is
+ * doing something there: a swing, a heavy blow drawn back, a bow, food, a block being broken, a wound treated. Up there each hand is
  * drawn with its arm, gripping what it holds ({@link OwnHand}), so it is the hunter's hand that does the work.
  */
 public final class OwnBody {
@@ -37,7 +37,9 @@ public final class OwnBody {
 		if (raised(partial) <= 0.0F) {
 			return null;
 		}
-		return new Hands(true, !player.getOffhandItem().isEmpty());
+		life.shizune.mistinn.client.medical.TreatmentClient.InHands work = life.shizune.mistinn.client.medical.TreatmentClient.inHands(player);
+		// held out to be worked on, the other arm is up there too, empty-handed
+		return new Hands(true, !player.getOffhandItem().isEmpty() || (work != null && work.presents()));
 	}
 
 	/** How far behind the eye the body stands, in blocks. */
@@ -84,8 +86,8 @@ public final class OwnBody {
 	/** Whether the hands have work in front of the eye now. */
 	private static boolean working(final Minecraft mc, final LocalPlayer player) {
 		if (life.shizune.mistinn.client.medical.TreatmentClient.sample(player.getId()) != null) {
-			// treating a wound or mending a plate is done with the body's own hands, in sight below the eye
-			return false;
+			// a wound is treated with the hands up in front of the eye; a plate is mended on the body, in sight below it
+			return life.shizune.mistinn.client.medical.TreatmentClient.inHands(player) != null;
 		}
 		return player.isSwinging() || player.isUsingItem() || HeavyClient.sample(player, 1.0F) != null
 			|| (mc.gameMode != null && mc.gameMode.isDestroying());

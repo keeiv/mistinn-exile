@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import life.shizune.mistinn.client.anim.Clip;
 import life.shizune.mistinn.client.anim.Poser;
+import life.shizune.mistinn.client.view.OwnBody;
+import life.shizune.mistinn.client.view.OwnHand;
 import life.shizune.mistinn.medical.Treatment;
 import life.shizune.mistinn.medical.TreatmentService;
 import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
@@ -13,7 +15,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Item;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -24,6 +31,15 @@ import org.jspecify.annotations.Nullable;
  * in one's own view. A clip with {@code loop} (seconds) repeats its motion for as long as the
  * use lasts; one without is stretched over the whole use. Clips blend in over
  * {@link #BLEND} seconds and back out when the use ends, finished or not.
+ *
+ * <p>A clip with a {@code tool} group is worked with the hands up in front of the hunter's own eye ({@link InHands}):
+ * the tool's working point (a needle's tip, a bottle's mouth; {@code tip_x tip_y} in the item's picture, in pixels
+ * from its lower left) is put where {@code tool.x y z} say in the hands' space, the rest of the tool running off toward
+ * {@code tool.yaw pitch} ({@code axis_x axis_y} is that direction in the picture, and the fist closes {@code grip}
+ * pixels along it), turned {@code tool.roll} about itself and drawn {@code tool.size} as large as when plainly held;
+ * {@code tool.w} is how far from the plain hold (0) to there (1). {@code other} holds the other arm out to be worked
+ * on: its fist at {@code x y z}, its elbow at {@code ex ey ez}, its inside turned {@code turn}, {@code up} from below
+ * the view (0) into it (1). So the hand that works is never the limb worked on.
  */
 public final class TreatmentClient {
 	/** Seconds a use takes to blend in and out. */
@@ -36,6 +52,17 @@ public final class TreatmentClient {
 	 * {@code seconds} into the use, for the first-person work beat that runs on its own clock.
 	 */
 	public record Pose(Treatment treatment, float p, float weight, float seconds) {
+	}
+
+	/**
+	 * The local hunter's use, when it is one worked with the hands up in front of their own eye: {@code hand} holds the
+	 * tool, the other arm is the one worked on.
+	 */
+	public record InHands(Pose pose, Item item, InteractionHand hand, Clip clip) {
+		/** Whether the other arm is held out to be worked on (a bottle of pills needs only the hand that holds it). */
+		public boolean presents() {
+			return this.clip.has("other.up");
+		}
 	}
 
 	/** A use as the HUD shows it. */
@@ -52,14 +79,16 @@ public final class TreatmentClient {
 		final Item item;
 		final long start;
 		final float duration;
+		final InteractionHand hand;
 		long end = -1L;
 		int result = TreatmentService.RESULT_RUNNING;
 
-		Use(final Treatment treatment, final Item item, final long start, final float duration) {
+		Use(final Treatment treatment, final Item item, final long start, final float duration, final InteractionHand hand) {
 			this.treatment = treatment;
 			this.item = item;
 			this.start = start;
 			this.duration = duration;
+			this.hand = hand;
 		}
 
 		float seconds(final long now) {
@@ -85,7 +114,12 @@ public final class TreatmentClient {
 	public static void received(final TreatmentService.TreatmentPayload payload) {
 		long now = System.nanoTime();
 		if (payload.treatment() >= 0) {
-			USES.put(payload.entity(), new Use(Treatment.byId(payload.treatment()), Item.byId(payload.item()), now, payload.ticks() / 20.0F));
+			Item item = Item.byId(payload.item());
+			// which hand works is settled when the use begins: the tool may be used up before the hands are down again
+			LocalPlayer local = Minecraft.getInstance().player;
+			boolean off = local != null && local.getId() == payload.entity() && !local.getMainHandItem().is(item) && local.getOffhandItem().is(item);
+			USES.put(payload.entity(), new Use(Treatment.byId(payload.treatment()), item, now, payload.ticks() / 20.0F,
+				off ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND));
 			return;
 		}
 		Use use = USES.get(payload.entity());
@@ -254,6 +288,85 @@ public final class TreatmentClient {
 		// held at arm's length rather than up against the eye: the item shrinks while it is in use
 		float scale = Mth.lerp(w, 1.0F, FIRST_PERSON_SCALE);
 		stack.scale(scale, scale, scale);
+	}
+
+	// ── 手舉到眼前的處置 Worked in the hands ──────────────────────
+
+	/** The local hunter's use, if it is one worked with the hands up in front of the eye; null otherwise. */
+	public static @Nullable InHands inHands(final LocalPlayer player) {
+		Use use = USES.get(player.getId());
+		if (use == null || !clip(use.treatment).has("tool.w")) {
+			return null;
+		}
+		Pose pose = sample(player.getId());
+		return pose == null ? null : new InHands(pose, use.item, use.hand, clip(use.treatment));
+	}
+
+	/** The tool's working point, in the item's own model. */
+	public static Vector3f point(final Clip clip) {
+		return new Vector3f(clip.number("tip_x", 8.0F) / 16.0F, clip.number("tip_y", 8.0F) / 16.0F, 0.5F);
+	}
+
+	/** Where the hand closes on the tool: {@code grip} pixels from its working point toward its other end. */
+	public static OwnHand.Grip grip(final Clip clip) {
+		Vector3f axis = new Vector3f(clip.number("axis_x", 0.0F), clip.number("axis_y", 1.0F), 0.0F).normalize();
+		Vector3f at = point(clip).add(new Vector3f(axis).mul(clip.number("grip", 6.0F) / 16.0F));
+		return new OwnHand.Grip(at.x, at.y, at.z, axis.x, axis.y, 0.0F);
+	}
+
+	/**
+	 * Where the tool is drawn: from its model to the hands' space, between {@code held} (as it is plainly held, measured
+	 * from the game) and where the clip puts it; {@code side} 1 when the right hand holds it.
+	 */
+	public static Matrix4f tool(final InHands work, final Matrix4fc held, final int side) {
+		Clip clip = work.clip();
+		float p = work.pose().p();
+		float w = Mth.clamp(clip.at("tool.w", p) * work.pose().weight(), 0.0F, 1.0F);
+		if (w <= 0.0F) {
+			return new Matrix4f(held);
+		}
+		Vector3f at = new Vector3f(side * clip.at("tool.x", p), clip.at("tool.y", p), clip.at("tool.z", p));
+		float yaw = side * clip.rad("tool.yaw", p);
+		float pitch = clip.rad("tool.pitch", p);
+		// the tool runs from its working point toward here; of the ways to turn about that, its picture faces the eye
+		Vector3f run = new Vector3f(Mth.sin(yaw) * Mth.cos(pitch), Mth.sin(pitch), -Mth.cos(yaw) * Mth.cos(pitch));
+		Vector3f eye = at.negate(new Vector3f()).normalize();
+		Vector3f face = eye.sub(new Vector3f(run).mul(eye.dot(run)), new Vector3f());
+		if (face.lengthSquared() < 1.0E-6F) {
+			face.set(0.0F, 0.0F, 1.0F);
+		}
+		face.normalize();
+		float roll = side * clip.rad("tool.roll", p);
+		face.mul(Mth.cos(roll)).add(run.cross(face, new Vector3f()).mul(Mth.sin(roll)));
+		Vector3f cross = face.cross(run, new Vector3f());
+		Vector3f axis = new Vector3f(clip.number("axis_x", 0.0F), clip.number("axis_y", 1.0F), 0.0F).normalize();
+		float size = held.getScale(new Vector3f()).x * (clip.has("tool.size") ? clip.at("tool.size", p) : 1.0F);
+		// the picture's own axes: along the tool, square to it, and out of the picture
+		Vector3f x = new Vector3f(run).mul(axis.x).sub(new Vector3f(cross).mul(axis.y)).mul(size);
+		Vector3f y = new Vector3f(run).mul(axis.y).add(new Vector3f(cross).mul(axis.x)).mul(size);
+		Vector3f z = new Vector3f(face).mul(size);
+		Vector3f tip = point(clip);
+		Matrix4f there = new Matrix4f(x.x, x.y, x.z, 0.0F, y.x, y.y, y.z, 0.0F, z.x, z.y, z.z, 0.0F, at.x, at.y, at.z, 1.0F).translate(-tip.x, -tip.y, -tip.z);
+		if (w >= 1.0F) {
+			return there;
+		}
+		Quaternionf turn = held.getNormalizedRotation(new Quaternionf()).slerp(there.getNormalizedRotation(new Quaternionf()), w);
+		Vector3f place = held.getTranslation(new Vector3f()).lerp(there.getTranslation(new Vector3f()), w);
+		return new Matrix4f().translationRotateScale(place, turn, Mth.lerp(w, held.getScale(new Vector3f()).x, there.getScale(new Vector3f()).x));
+	}
+
+	/** The other arm, held out to be worked on; null while it is not in view. {@code side} 1 when the right hand holds the tool. */
+	public static OwnHand.@Nullable Arm other(final InHands work, final int side) {
+		Clip clip = work.clip();
+		float p = work.pose().p();
+		float up = Mth.clamp(clip.at("other.up", p) * work.pose().weight(), 0.0F, 1.0F);
+		if (up <= 0.001F) {
+			return null;
+		}
+		float low = (1.0F - up) * (1.0F - up) * OwnBody.DROP;
+		Vector3f fist = new Vector3f(side * clip.at("other.x", p), clip.at("other.y", p) - low, clip.at("other.z", p));
+		Vector3f elbow = new Vector3f(side * clip.at("other.ex", p), clip.at("other.ey", p) - low, clip.at("other.ez", p));
+		return OwnHand.held(fist, elbow, clip.rad("other.turn", p), -side);
 	}
 
 	private static float smooth(final float t) {

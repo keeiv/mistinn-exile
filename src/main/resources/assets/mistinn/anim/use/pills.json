@@ -1,11 +1,25 @@
 {
-	"_comment": "服藥 PILLS: the bottle is brought up to the mouth, tipped with the head thrown back, and lowered. Stretched over the whole use (PainkillerItem.USE_TICKS, 2 s).",
-	"keys": [0.0, 0.25, 0.45, 0.62, 0.8, 1.0],
+	"_comment": "服藥 PILLS: the bottle is brought up in the one hand, tipped mouth down toward the mouth below the view with the head thrown back, and lowered. Stretched over the whole use (PainkillerItem.USE_TICKS, 2 s).",
+	"keys": [0, 0.25, 0.45, 0.62, 0.8, 1],
 	"eases": ["out_cubic", "in_out_sine", "in_out_sine", "in_out_sine", "in_out_quad"],
-	"own_lift": -40,
+	"tip_x": 6,
+	"tip_y": 13.5,
+	"axis_x": 0,
+	"axis_y": -1,
+	"grip": 7,
 	"camera": {
-		"pitch": [0, 22, 8, -22, -4, 0],
+		"pitch": [0, 3, -6, -12, -3, 0],
 		"yaw": [0, 0, 0, 0, 0, 0]
+	},
+	"tool": {
+		"x": [0.1, 0.1, 0, 0.01, 0.08, 0.1],
+		"y": [0.06, 0.06, -0.33, -0.34, 0, 0.06],
+		"z": [-0.68, -0.68, -0.58, -0.58, -0.64, -0.68],
+		"yaw": [90, 90, 90, 90, 90, 90],
+		"pitch": [-75, -75, 50, 60, -55, -75],
+		"roll": [0, 0, 0, 0, 0, 0],
+		"size": [0.9, 0.9, 0.9, 0.9, 0.9, 0.9],
+		"w": [0, 1, 1, 1, 1, 0]
 	},
 	"limbs": {
 		"head_x": [0, 0, -20, -30, -5, 0],

@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 /**
- * 強效注射器: a cold dose into the thigh. Over the next {@link #HEAL_TICKS} it gives
+ * 強效注射器: a cold dose into the forearm. Over the next {@link #HEAL_TICKS} it gives
  * {@link #HEAL} part health back to the living parts, most hurt first; it cannot reach a
  * destroyed part.
  */

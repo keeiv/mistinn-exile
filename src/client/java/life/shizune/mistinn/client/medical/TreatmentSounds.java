@@ -38,7 +38,7 @@ public final class TreatmentSounds {
 	}
 
 	private static final Map<Treatment, Score> SCORES = Map.of(
-		// the injector (3 s): the cap off, the needle in as it is driven into the thigh (keys 0.32
+		// the injector (3 s): the cap off, the needle in as it is driven into the forearm (keys 0.32
 		// to 0.4), the serum pushed while it is held there, and out again (keys 0.8 to 0.9)
 		Treatment.INJECT, new Score(List.of(
 			new Cue(0.05F, MistinnSounds.INJECT_CAP, 0.7F),

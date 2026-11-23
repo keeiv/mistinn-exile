@@ -9,7 +9,7 @@ public enum Treatment {
 	ARMOR_REPAIR("armor_repair", 0.4),
 	/** 修頭盔: working on the worn helmet, hands at the head. */
 	HELMET_REPAIR("helmet_repair", 0.4),
-	/** 注射: the injector driven into the thigh. */
+	/** 注射: the injector driven into the other forearm. */
 	INJECT("inject", 0.3),
 	/** 手術: stitching and binding a destroyed part. */
 	SURGERY("surgery", 0.6),
