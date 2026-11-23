@@ -55,6 +55,7 @@ public final class MistinnVoiceTest implements FabricClientGameTest {
 					VoiceClient.askUnderHarness = true;
 				});
 				context.waitFor(mc -> mc.gui.screen() instanceof VoiceScreen, 100);
+				context.runOnClient(mc -> check(!mc.gui.screen().shouldCloseOnEsc(), "the first time, the question cannot be waved away"));
 				context.takeScreenshot("voice-00-ask");
 				context.runOnClient(mc -> {
 					Button girl = mc.gui.screen().children().stream().filter(Button.class::isInstance).map(Button.class::cast)
@@ -112,6 +113,32 @@ public final class MistinnVoiceTest implements FabricClientGameTest {
 					check(Voice.of(mc.player) == Voice.FEMALE, "back in the world another day, the voice is still theirs");
 					check(!(mc.gui.screen() instanceof VoiceScreen), "and nobody asks");
 				});
+
+				// the voice key opens the same screen to change it; it shows the voice in use and can be left with Esc
+				context.runOnClient(VoiceClient::open);
+				context.waitFor(mc -> mc.gui.screen() instanceof VoiceScreen, 40);
+				context.runOnClient(mc -> {
+					check(mc.gui.screen().shouldCloseOnEsc(), "opened with its key, the screen closes like any other");
+					check(!button(mc, "voice.mistinn.female").active && button(mc, "voice.mistinn.male").active,
+						"the voice in use is marked and cannot be chosen again");
+				});
+				context.takeScreenshot("voice-01-change");
+				// no voice at all is a choice too: kept, never asked about again, and the plain sounds come back
+				context.runOnClient(mc -> button(mc, "voice.mistinn.none").onPress(null));
+				context.waitFor(mc -> Voice.choice(mc.player) == Voice.NONE, 100);
+				context.runOnClient(mc -> check(Voice.chosen(mc.player) && Voice.of(mc.player) == null && Voice.hurt(mc.player) == null,
+					"a hunter who chose no voice has answered, and has none"));
+				check(world.getServer().computeOnServer(server -> Voice.choice(server.getPlayerList().getPlayers().getFirst()) == Voice.NONE),
+					"the server keeps that answer too");
+				heard.clear();
+				world.getServer().runOnServer(server -> {
+					ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+					player.setGameMode(GameType.SURVIVAL);
+					player.hurtServer(server.overworld(), player.damageSources().generic(), 1.0F);
+				});
+				context.waitTicks(80);
+				check(heard.stream().noneMatch(sound -> sound.startsWith("voice.")), "with no voice, a blow is heard as it always was: " + heard);
+				context.runOnClient(mc -> check(!(mc.gui.screen() instanceof VoiceScreen), "and choosing none is not asked about again"));
 			}
 		} finally {
 			context.runOnClient(mc -> {
@@ -119,6 +146,13 @@ public final class MistinnVoiceTest implements FabricClientGameTest {
 				mc.getSoundManager().removeListener(listener);
 			});
 		}
+	}
+
+	/** The voice screen's button whose label is (or wraps) this translation key. */
+	private static Button button(final net.minecraft.client.Minecraft mc, final String key) {
+		return mc.gui.screen().children().stream().filter(Button.class::isInstance).map(Button.class::cast)
+			.filter(button -> button.getMessage().getContents() instanceof TranslatableContents text && text.getKey().equals(key))
+			.findFirst().orElseThrow();
 	}
 
 	private static void check(final boolean condition, final String message) {

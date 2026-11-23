@@ -19,10 +19,11 @@ import net.minecraft.world.entity.player.Player;
 import org.jspecify.annotations.Nullable;
 
 /**
- * 獵人的聲音: every hunter has a voice, chosen the first time they enter a world: a man's (about twenty-five) or a
- * girl's (of high-school age). It is heard when they are struck, badly wounded, driven to effort by a heavy blow or a
- * roll, winded, and when they fall. The choice is kept with the hunter and known to everyone near them, since each
- * client plays a hunter's cries itself. A hunter who has not chosen keeps the plain sounds.
+ * 獵人的聲音: every hunter is asked for a voice the first time they enter a world: a man's (about twenty-five), a
+ * girl's (of high-school age), or none. A voice is heard when they are struck, badly wounded, driven to effort by a
+ * heavy blow or a roll, winded, and when they fall. The choice is kept with the hunter and known to everyone near
+ * them, since each client plays a hunter's cries itself, and it can be changed at any time. A hunter with no voice
+ * (not chosen yet, or chosen so) keeps the plain sounds.
  */
 public enum Voice {
 	MALE(MistinnSounds.VOICE_MALE_HURT, MistinnSounds.VOICE_MALE_HURT_BAD, MistinnSounds.VOICE_MALE_EFFORT, MistinnSounds.VOICE_MALE_LAND,
@@ -33,7 +34,12 @@ public enum Voice {
 	/** Below this share of their health a blow draws the cry of a bad wound. */
 	public static final float BAD = 0.4F;
 
-	/** 0: not chosen yet; otherwise the voice's ordinal + 1. Saved with the hunter and sent to everyone who sees them. */
+	/** What {@link #CHOICE} holds before the hunter has answered. */
+	public static final int UNSET = 0;
+	/** What {@link #CHOICE} holds for a hunter who chose to have no voice. */
+	public static final int NONE = values().length + 1;
+
+	/** {@link #UNSET}, a voice's ordinal + 1, or {@link #NONE}. Saved with the hunter and sent to everyone who sees them. */
 	public static final AttachmentType<Integer> CHOICE = AttachmentRegistry.<Integer>builder()
 		.persistent(Codec.INT)
 		.syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.all())
@@ -59,14 +65,33 @@ public enum Voice {
 		this.pant = pant;
 	}
 
-	/** The hunter's voice; null while they have not chosen one. */
+	/** What {@link #CHOICE} holds for this voice. */
+	public int stored() {
+		return this.ordinal() + 1;
+	}
+
+	/** What the hunter chose: {@link #UNSET}, a voice's {@link #stored}, or {@link #NONE}. */
+	public static int choice(final Player player) {
+		int choice = player.getAttachedOrElse(CHOICE, UNSET);
+		return choice >= UNSET && choice <= NONE ? choice : UNSET;
+	}
+
+	/** Whether the hunter has answered, with a voice or with none. */
+	public static boolean chosen(final Player player) {
+		return choice(player) != UNSET;
+	}
+
+	/** The hunter's voice; null while they have none (not chosen yet, or chosen so). */
 	public static @Nullable Voice of(final Player player) {
 		int choice = player.getAttachedOrElse(CHOICE, 0);
 		return choice >= 1 && choice <= values().length ? values()[choice - 1] : null;
 	}
 
-	public static void choose(final ServerPlayer player, final Voice voice) {
-		player.setAttached(CHOICE, voice.ordinal() + 1);
+	/** Records the hunter's answer: a voice's {@link #stored}, or {@link #NONE}. Anything else is ignored. */
+	public static void choose(final ServerPlayer player, final int choice) {
+		if (choice > UNSET && choice <= NONE) {
+			player.setAttached(CHOICE, choice);
+		}
 	}
 
 	/** What a blow draws from this hunter: the cry of a bad wound when little health is left; null for the plain sound. */
@@ -89,17 +114,13 @@ public enum Voice {
 
 	public static void register() {
 		PayloadTypeRegistry.serverboundPlay().register(ChoicePayload.TYPE, ChoicePayload.CODEC);
-		ServerPlayNetworking.registerGlobalReceiver(ChoicePayload.TYPE, (payload, context) -> {
-			if (payload.voice() >= 0 && payload.voice() < values().length) {
-				choose(context.player(), values()[payload.voice()]);
-			}
-		});
+		ServerPlayNetworking.registerGlobalReceiver(ChoicePayload.TYPE, (payload, context) -> choose(context.player(), payload.choice()));
 	}
 
-	/** The hunter chose a voice (by ordinal). */
-	public record ChoicePayload(int voice) implements CustomPacketPayload {
+	/** The hunter's answer: a voice's {@link #stored}, or {@link #NONE}. */
+	public record ChoicePayload(int choice) implements CustomPacketPayload {
 		public static final Type<ChoicePayload> TYPE = new Type<>(Mistinn.id("voice_choice"));
-		public static final StreamCodec<ByteBuf, ChoicePayload> CODEC = ByteBufCodecs.VAR_INT.map(ChoicePayload::new, ChoicePayload::voice);
+		public static final StreamCodec<ByteBuf, ChoicePayload> CODEC = ByteBufCodecs.VAR_INT.map(ChoicePayload::new, ChoicePayload::choice);
 
 		@Override
 		public Type<? extends CustomPacketPayload> type() {
