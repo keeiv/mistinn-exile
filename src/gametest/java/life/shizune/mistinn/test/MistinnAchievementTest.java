@@ -303,6 +303,18 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		check(has(world, Achievement.SUNKEN_BELL), "so is the Sunken Bell falling near");
 		int gainedBell = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeBell;
 		check(gainedBell == Achievement.SUNKEN_BELL.reward, "and pays 1200: " + gainedBell);
+		int beforeWheel = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
+		world.getServer().runOnServer(server -> {
+			life.shizune.mistinn.keeper.RustWheel wheel = MistinnEntities.RUST_WHEEL.create(server.overworld(), EntitySpawnReason.COMMAND);
+			wheel.setNoAi(true);
+			wheel.snapTo(arena.getX() + 0.5, arena.getY(), arena.getZ() + 8.5, 180.0F, 0.0F);
+			server.overworld().addFreshEntity(wheel);
+			wheel.kill(server.overworld());
+		});
+		context.waitTicks(5);
+		check(has(world, Achievement.RUST_WHEEL), "so is the Rust Wheel stopping near");
+		int gainedWheel = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeWheel;
+		check(gainedWheel == Achievement.RUST_WHEEL.reward && gainedWheel == 1500, "and pays 1500: " + gainedWheel);
 		world.getServer().runOnServer(server -> {
 			ServerPlayer player = player(server);
 			player.removeAttached(MistinnAttachments.WOUNDS);

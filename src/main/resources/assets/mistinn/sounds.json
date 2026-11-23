@@ -1296,5 +1296,125 @@
       "mistinn:voice/female/pant_3"
     ],
     "subtitle": "subtitles.mistinn.voice.pant"
+  },
+  "entity.rust_wheel.spin": {
+    "sounds": [
+      {
+        "name": "minecraft:block.grindstone.use",
+        "type": "event",
+        "pitch": 0.45
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.rust_wheel.spin"
+  },
+  "entity.rust_wheel.screech": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.minecart.riding",
+        "type": "event",
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.rust_wheel.screech"
+  },
+  "entity.rust_wheel.tilt": {
+    "sounds": [
+      {
+        "name": "minecraft:block.chain.place",
+        "type": "event",
+        "pitch": 0.5
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.rust_wheel.tilt"
+  },
+  "entity.rust_wheel.creak": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.iron_golem.step",
+        "type": "event",
+        "pitch": 0.5
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.rust_wheel.creak"
+  },
+  "entity.rust_wheel.chain": {
+    "sounds": [
+      {
+        "name": "minecraft:block.chain.step",
+        "type": "event",
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.rust_wheel.chain"
+  },
+  "entity.rust_wheel.grind": {
+    "sounds": [
+      {
+        "name": "minecraft:block.grindstone.use",
+        "type": "event",
+        "pitch": 0.7
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.rust_wheel.grind"
+  },
+  "entity.rust_wheel.crash": {
+    "sounds": [
+      {
+        "name": "minecraft:block.anvil.land",
+        "type": "event",
+        "pitch": 0.5
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.rust_wheel.crash"
+  },
+  "entity.rust_wheel.clang": {
+    "sounds": [
+      {
+        "name": "minecraft:block.anvil.land",
+        "type": "event",
+        "pitch": 1.6
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.rust_wheel.clang"
+  },
+  "entity.rust_wheel.hurt": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.iron_golem.hurt",
+        "type": "event",
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.rust_wheel.hurt"
+  },
+  "entity.rust_wheel.death": {
+    "sounds": [
+      {
+        "name": "minecraft:block.anvil.destroy",
+        "type": "event",
+        "pitch": 0.5
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.rust_wheel.death"
+  },
+  "entity.rust_wheel.ambient": {
+    "sounds": [
+      {
+        "name": "minecraft:block.chain.step",
+        "type": "event",
+        "pitch": 0.8
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.rust_wheel.ambient"
+  },
+  "entity.rust_wheel.break": {
+    "sounds": [
+      {
+        "name": "minecraft:block.chain.break",
+        "type": "event",
+        "pitch": 0.4
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.rust_wheel.break"
   }
 }

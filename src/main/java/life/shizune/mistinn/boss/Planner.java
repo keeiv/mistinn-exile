@@ -253,8 +253,11 @@ public final class Planner {
 		return true;
 	}
 
+	/** The family of a move that only ever comes out of the move it is linked from, never on its own. */
+	public static final String FOLLOW_UP = "follow_up";
+
 	/** The families that are phases of a fight: a move in one of them belongs to that phase only. */
-	private static final java.util.List<String> PHASES = java.util.List.of("dark", "whole", "cracked");
+	private static final java.util.List<String> PHASES = java.util.List.of("dark", "whole", "cracked", "broken");
 
 	/** Whether {@code move} may be chosen in {@code phase}: a move tied to a phase (the dark, the cracked bell) only in that phase. */
 	public static boolean allowedIn(final BossMove move, final String phase) {
@@ -285,6 +288,9 @@ public final class Planner {
 			}
 		}
 		if (index >= 0 && node.readyAt[index] > start) {
+			return null;
+		}
+		if (move.in(FOLLOW_UP) && !chained) {
 			return null;
 		}
 		if (!allowedIn(move, now.phase())) {

@@ -30,6 +30,8 @@ public final class AchievementService {
 	public static final String SNUFFER = "snuffer";
 	/** 打倒沉鐘: the second keeper has fallen with this hunter near. */
 	public static final String SUNKEN_BELL = "sunken_bell";
+	/** 打倒鏽輪: the third keeper has fallen with this hunter near. */
+	public static final String RUST_WHEEL = "rust_wheel";
 	/** 鹽商: salt carried at once. */
 	public static final int RICH = 5000;
 	/** 百兵: one mark per weapon branch a creature was brought down with; each is a criterion of that advancement. */

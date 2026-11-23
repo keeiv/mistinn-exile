@@ -47,6 +47,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 - [Swings, stamina and rolls](#swings-stamina-and-rolls)
 - [The fog-shore lighthouse and the Snuffer](#the-fog-shore-lighthouse-and-the-snuffer)
 - [The fog-bell station and the Sunken Bell](#the-fog-bell-station-and-the-sunken-bell)
+- [The salt works and the Rust Wheel](#the-salt-works-and-the-rust-wheel)
 - [Stats and skills](#stats-and-skills)
 - [Achievements](#achievements)
 - [Controls](#controls)
@@ -80,13 +81,14 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Stamina and rolls | Swings, sprints and rolls cost stamina. The legs determine how far a roll goes and the arms shape its motion. Badly injured legs can force a dive, whose landing strains the upper body. |
 | Title screen | An original misty shore with a dead lighthouse: drifting fog, glinting water and a last ember in the lamp room. |
 | Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: eleven pages on the world, the mission and the rules, the stats, the skill tree and the achievements. |
-| Achievements | Sixteen of them, from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer and the Sunken Bell. The game's toast shows at the top right and some salt is paid; all are kept on the mod's own tab of the advancements screen. See [Achievements](#achievements). |
+| Achievements | Seventeen of them, from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer, the Sunken Bell and the Rust Wheel. The game's toast shows at the top right and some salt is paid; all are kept on the mod's own tab of the advancements screen. See [Achievements](#achievements). |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V; each with its own durability, protection, capacity, layout and a two-line story. |
 | Grid inventory | Four pockets, the chest rig's and backpack's grids, and a safe box kept through death. Every item takes a footprint by kind and can be rotated. Packs, rigs and some medical supplies have sprites drawn for their footprints. Packs and rigs also show on the body; each of the seven rigs is built after its own icon: a bandolier with its row of cartridges, the dockworker's canvas belt, the tide patrol's upright pouches and signal-lamp pouch, the anchor guard's brass-snapped square pouches, the mist walker's long pouches and document pouch, the bell keepers' full vest with a small bell on every pouch flap, and the rust god's ribs, all worn over a chestplate; looking down through your own eyes, the straps over the shoulders stay out of the way. Survival and adventure use the mod's own inventory screen and seal off the 27 vanilla slots. |
 | Fog-shore lighthouses | Dead lighthouses on the coast; the lamp room at the top is held by the first keeper, **the Snuffer**, whose every move strikes a set part of the body. The fight has its own music, which turns more frantic in its dark half. |
 | Fog-bell stations | Bell towers on reefs in the shallows off the misty shore, held by the second keeper, **the Sunken Bell**. Each toll of its bell rolls a ring out along the floor and thickens the mist by a layer; a fully charged heavy blow rings its own bell and thins the mist again. See [The fog-bell station and the Sunken Bell](#the-fog-bell-station-and-the-sunken-bell). |
+| Salt works | Dead salt works inland, held by the third keeper, **the Rust Wheel**. It rolls and rams, faster with every run; its front is iron, its back is its weak spot, and a pillar in its way leaves it stuck. See [The salt works and the Rust Wheel](#the-salt-works-and-the-rust-wheel). |
 | Stats and skills | Bring back a keeper's rust god salt to learn the **slide**, the first major skill, on the guide's skills page; after that, salt buys strength, speed, constitution and intellect a point at a time. See [Stats and skills](#stats-and-skills). |
 | Languages | Traditional Chinese and English. |
 
@@ -381,6 +383,21 @@ The Sunken Bell is a drowned bell-ringer, his head and shoulders sealed in a cra
 - Left alone at night, he now and then tolls his bell by himself: it carries a long way, but no ring rolls out and no mist comes of it. Lost in the mist, you can follow the sound.
 - He drops the **Rust God's salt block**, 3500 salt, and a 30% chance of a piece of tier III–IV gear.
 
+## The salt works and the Rust Wheel
+
+Inland on level ground, rarer than the lighthouses, stand dead **salt works**: a round yard walled in stone, four stone pillars in it and a dry channel round its edge; outside the gate a golden bell, the boiling house with what stores are left, and the salt pans gone to crust. In the middle of the yard waits the third keeper, **the Rust Wheel**.
+
+The Rust Wheel is the great brine wheel itself, still turning: an iron-shod rim with rivets and plates, rotten buckets between the spokes, and a yoke back from the axle with a man chained across it, bent over, his feet dragging. It fights with the same brain as the other keepers, one that plans ahead and learns your habits.
+
+- 420 health, 12 armour, unshakeable, with a boss bar.
+- **Front and back**: a blow on its front lands on the iron rim for only 35% of its weight and throws sparks; a blow on its back lands on the axle and the man for half again, and a full heavy blow there counts twice toward its balance. It turns slowly; getting round to its back is the opening.
+- **Ram**: it rocks back and spins in place, grinding sparks off the floor, then rolls straight at you and runs over your legs. Every run that hits nothing builds a layer of momentum (three at most), faster and harder each time. It also fakes the spin-up and does something else.
+- **Stuck**: running into a wall or a pillar leaves it stuck for about two and a half seconds, its momentum gone and its back bare; one full heavy blow while it is stuck throws it off balance at once. Lure it into the pillars.
+- **Close in**: a rim sweep, a hop and slam (the shock runs along the floor; jump or roll), and a back-roll when a run overshoots. Stay at its back too long and the man lashes out with his chain.
+- Below half health the man tears a chain loose and plates fall from the rim: its front takes 55% now; its runs turn toward you once halfway, its slams and crashes spill brine that slows you, and it runs a lap round the edge of the yard before cutting in.
+- Once you are in the yard, the mist closes the gate behind you until it falls.
+- It drops the **Rust God's salt block**, 4000 salt, and a 30% chance of a piece of tier IV–V gear.
+
 ## Stats and skills
 
 | | |
@@ -423,6 +440,7 @@ Achievements are the game's own **advancements**: press `L` and the mod has a ta
 | Chosen | Land a special weapon's own heavy blow | 400 |
 | Snuffer Slain | The Snuffer falls with you near | 1000 |
 | Sunken Bell Silenced | The Sunken Bell falls with you near | 1200 |
+| Rust Wheel Stopped | The Rust Wheel stops with you near | 1500 |
 | Steady Hands | Save a destroyed part with a surgery kit | 150 |
 | The Bell | Rest at a golden bell | 50 |
 | Gathered Back | Take your residue back from your gravestone | 100 |
@@ -506,8 +524,8 @@ Textures and models are original work by MoriTeahouse. Sound effects combine edi
 
 ## What comes next
 
-1. **The rest of the story**: the Rust Wheel, then the Mist Inn and the endings.
-2. **The Rust Wheel**: a rolling, ramming machine with its weak point on the axle at its back, built on the same keeper moves and brain.
+1. **The rest of the story**: chapter 4 into the salt works and the Rust Wheel, then the Mist Inn and the endings.
+2. **More of the Rust Wheel**: its own spoils and sounds of its own ([design, in Chinese](phase4-design.md)).
 3. **Later**: co-op.
 
 ## Contributing

@@ -31,6 +31,14 @@ public final class MistinnEntities {
 		.clientTrackingRange(10)
 		.fireImmune());
 
+	/** 鏽輪: the great brine wheel of a dead salt works, a man chained across the yoke at its back. */
+	public static final EntityType<life.shizune.mistinn.keeper.RustWheel> RUST_WHEEL = register("rust_wheel",
+		EntityType.Builder.<life.shizune.mistinn.keeper.RustWheel>of(life.shizune.mistinn.keeper.RustWheel::new, MobCategory.MONSTER)
+		.sized(2.6F, 3.0F)
+		.eyeHeight(1.6F)
+		.clientTrackingRange(10)
+		.fireImmune());
+
 	/** 鹽屍: a hunter dried in the brine, the salt crusted over them; it gets back up once. */
 	public static final EntityType<SaltCorpse> SALT_CORPSE = register("salt_corpse", EntityType.Builder.<SaltCorpse>of(SaltCorpse::new, MobCategory.MONSTER)
 		.sized(0.6F, 1.95F)
@@ -66,6 +74,7 @@ public final class MistinnEntities {
 	public static void init() {
 		FabricDefaultAttributeRegistry.register(SNUFFER, Snuffer.createAttributes());
 		FabricDefaultAttributeRegistry.register(SUNKEN_BELL, life.shizune.mistinn.keeper.SunkenBell.createAttributes());
+		FabricDefaultAttributeRegistry.register(RUST_WHEEL, life.shizune.mistinn.keeper.RustWheel.createAttributes());
 		FabricDefaultAttributeRegistry.register(STATION_HAND, StationHand.createAttributes());
 		FabricDefaultAttributeRegistry.register(SALT_CORPSE, SaltCorpse.createAttributes());
 		FabricDefaultAttributeRegistry.register(LAMP_THRALL, LampThrall.createAttributes());

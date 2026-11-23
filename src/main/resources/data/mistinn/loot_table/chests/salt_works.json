@@ -1,0 +1,183 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 3,
+        "max": 6
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:salt",
+          "weight": 20,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 2,
+              "max": 8
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bread",
+          "weight": 10,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 2,
+              "max": 5
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:iron_greatsword",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:iron_hammer",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:diamond_blade",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:diamond_spear",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:diamond_scythe",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_2",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_3",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_4",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_2",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_3",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_4",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:mask_2",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:mask_3",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:mask_4",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:rig_2",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:rig_3",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:rig_4",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:leggings_2",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:boots_3",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:ore_bell",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_repair_kit_5",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_repair_kit_5",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_repair_kit_6",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_repair_kit_6",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:surgery_kit",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:potent_injector",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:rust_can",
+          "weight": 2,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 2
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

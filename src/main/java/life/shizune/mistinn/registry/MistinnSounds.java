@@ -116,6 +116,19 @@ public final class MistinnSounds {
 	public static final SoundEvent SUNKEN_BELL_HURT = register("entity.sunken_bell.hurt");
 	public static final SoundEvent SUNKEN_BELL_DEATH = register("entity.sunken_bell.death");
 	public static final SoundEvent SUNKEN_BELL_STEP = register("entity.sunken_bell.step");
+	// the Rust Wheel: the game's own iron and chain sounds, under its own subtitles
+	public static final SoundEvent RUST_WHEEL_SPIN = register("entity.rust_wheel.spin");
+	public static final SoundEvent RUST_WHEEL_SCREECH = register("entity.rust_wheel.screech");
+	public static final SoundEvent RUST_WHEEL_TILT = register("entity.rust_wheel.tilt");
+	public static final SoundEvent RUST_WHEEL_CREAK = register("entity.rust_wheel.creak");
+	public static final SoundEvent RUST_WHEEL_CHAIN = register("entity.rust_wheel.chain");
+	public static final SoundEvent RUST_WHEEL_GRIND = register("entity.rust_wheel.grind");
+	public static final SoundEvent RUST_WHEEL_CRASH = register("entity.rust_wheel.crash");
+	public static final SoundEvent RUST_WHEEL_CLANG = register("entity.rust_wheel.clang");
+	public static final SoundEvent RUST_WHEEL_HURT = register("entity.rust_wheel.hurt");
+	public static final SoundEvent RUST_WHEEL_DEATH = register("entity.rust_wheel.death");
+	public static final SoundEvent RUST_WHEEL_AMBIENT = register("entity.rust_wheel.ambient");
+	public static final SoundEvent RUST_WHEEL_BREAK = register("entity.rust_wheel.break");
 	public static final SoundEvent SUNKEN_BELL_DROP = register("entity.sunken_bell.bell_drop");
 	// the creatures of the mist
 	public static final SoundEvent SALT_CORPSE_AMBIENT = register("entity.salt_corpse.ambient");
