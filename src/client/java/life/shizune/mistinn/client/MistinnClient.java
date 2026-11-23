@@ -100,6 +100,8 @@ public class MistinnClient implements ClientModInitializer {
 		// the mask over every player's face, the backpack on the back and the rig on the chest
 		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.gear.MaskLayer.LAYER, life.shizune.mistinn.client.gear.MaskLayer::definition);
 		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.gear.GearLayer.LAYER, life.shizune.mistinn.client.gear.GearLayer::definition);
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.gear.GearLayer.RIG_LAYER,
+			life.shizune.mistinn.client.gear.GearLayer::rigDefinition);
 		net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
 			if (renderer instanceof net.minecraft.client.renderer.entity.player.AvatarRenderer<?> avatar) {
 				@SuppressWarnings("unchecked")
