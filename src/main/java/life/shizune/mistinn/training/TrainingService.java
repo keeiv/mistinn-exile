@@ -258,10 +258,10 @@ public final class TrainingService {
 		move(player, range, ENTRY);
 	}
 
-	/** The staff member speaks to the hunter: the cook hands over the soup the greeting offers, once. */
+	/** The staff member speaks to the hunter: the cook hands over the soup the greeting offers, once: fish, and kelp. */
 	public static void greeted(final ServerPlayer player, final StaffRole role) {
 		if (role == StaffRole.COOK && player.level().dimension().equals(TrainingGround.KEY) && FED.add(player.getUUID())) {
-			player.getInventory().add(new ItemStack(Items.MUSHROOM_STEW));
+			player.getInventory().add(new ItemStack(MistinnItems.FOODS.get(life.shizune.mistinn.food.StationFood.OFFAL_SOUP)));
 		}
 	}
 

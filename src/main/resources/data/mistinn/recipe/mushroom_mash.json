@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:bowl",
+    "minecraft:brown_mushroom",
+    "minecraft:red_mushroom",
+    "mistinn:mutton_fat"
+  ],
+  "result": {
+    "id": "mistinn:mushroom_mash"
+  }
+}

@@ -67,6 +67,16 @@ public final class MistinnItems {
 	public static final Item TIDE_MAUL = special(SpecialWeapon.TIDE_MAUL, WeaponStyle.SMASH, 12.0, 0.3, 1400, MistinnSounds.HAMMER_SWING, MistinnSounds.BELL_GREATSWORD_HIT);
 	public static final Item BELL_CLAPPER = special(SpecialWeapon.BELL_CLAPPER, WeaponStyle.SMASH, 10.0, 0.5, 1200, MistinnSounds.HAMMER_SWING, MistinnSounds.BELL_GREATSWORD_HIT);
 
+	/** Rust Anchor Station's food, one item each. */
+	public static final Map<life.shizune.mistinn.food.StationFood, Item> FOODS = stationFoods();
+	/** 受潮的食物: ordinary food in a hunter's hands in a Rust Anchor world. Eating it shrinks the stomach for good. */
+	public static final Item DAMP_FOOD = register("damp_food", life.shizune.mistinn.food.DampFoodItem::new, new Item.Properties()
+		.food(new net.minecraft.world.food.FoodProperties.Builder().nutrition(1).saturationModifier(0.0F).build(),
+			net.minecraft.world.item.component.Consumables.defaultFood()
+				.onConsume(new net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect(
+					new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.NAUSEA, 200, 0), 0.4F))
+				.build()));
+
 	/** Pages of the guide's text (item.mistinn.hunter_guide.page.N), read as spreads in its screen. */
 	public static final int GUIDE_PAGES = 21;
 	public static final Item HUNTER_GUIDE = register("hunter_guide", life.shizune.mistinn.story.HunterGuideItem::new, new Item.Properties().stacksTo(1));
@@ -216,6 +226,14 @@ public final class MistinnItems {
 			all.put(style, Map.copyOf(byMaterial));
 		}
 		return all;
+	}
+
+	private static Map<life.shizune.mistinn.food.StationFood, Item> stationFoods() {
+		Map<life.shizune.mistinn.food.StationFood, Item> foods = new EnumMap<>(life.shizune.mistinn.food.StationFood.class);
+		for (life.shizune.mistinn.food.StationFood food : life.shizune.mistinn.food.StationFood.values()) {
+			foods.put(food, register(food.id, Item::new, food.properties()));
+		}
+		return Map.copyOf(foods);
 	}
 
 	private static Item named(final String name, final WeaponStyle style, final double damage, final double reach, final int durability, final SoundEvent swing, final SoundEvent hit) {

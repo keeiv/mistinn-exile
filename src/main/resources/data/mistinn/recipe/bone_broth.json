@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:bowl",
+    "minecraft:bone",
+    "minecraft:bone",
+    "#mistinn:fats"
+  ],
+  "result": {
+    "id": "mistinn:bone_broth"
+  }
+}

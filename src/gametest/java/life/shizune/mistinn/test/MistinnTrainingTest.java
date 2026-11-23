@@ -519,7 +519,7 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 			StationHand cook = player.level().getEntitiesOfClass(StationHand.class, player.getBoundingBox().inflate(8.0),
 				h -> h.role() == StaffRole.COOK).getFirst();
 			cook.interact(player, InteractionHand.MAIN_HAND, Vec3.ZERO);
-			check(has(player, Items.MUSHROOM_STEW), "the cook hands over the bowl of soup the greeting offers");
+			check(has(player, life.shizune.mistinn.registry.MistinnItems.FOODS.get(life.shizune.mistinn.food.StationFood.OFFAL_SOUP)), "the cook hands over the bowl of fish soup the greeting offers");
 		});
 		context.waitFor(mc -> mc.gui.screen() instanceof StationTalkScreen, 100);
 		context.runOnClient(mc -> mc.gui.setScreen(null));

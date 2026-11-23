@@ -63,6 +63,8 @@ public class Mistinn implements ModInitializer {
 		MistinnWorld.init();
 		life.shizune.mistinn.story.WorldMode.init();
 		life.shizune.mistinn.hardship.Hardship.init();
+		life.shizune.mistinn.food.HungerCap.init();
+		life.shizune.mistinn.food.RustAnchorFood.init();
 		life.shizune.mistinn.story.StoryService.init();
 		TrainingService.init();
 		life.shizune.mistinn.station.StationTalk.init();

@@ -21,9 +21,13 @@ public final class TierText {
 	private TierText() {
 	}
 
+	/** Damp food's name stays red, whatever its tier: it is not food any more. */
+	private static final int DAMP = 0xFFE0403A;
+
 	public static MutableComponent name(final ItemStack stack) {
 		Tier tier = Tiers.of(stack);
-		return Component.literal(DIAMOND).withColor(tier.rgb()).append(stack.getHoverName().copy().withColor(tier.rgb()));
+		int rgb = stack.is(life.shizune.mistinn.registry.MistinnItems.DAMP_FOOD) ? DAMP : tier.rgb();
+		return Component.literal(DIAMOND).withColor(rgb).append(stack.getHoverName().copy().withColor(rgb));
 	}
 
 	public static void decorate(final ItemStack stack, final List<Component> lines) {
