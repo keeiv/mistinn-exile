@@ -50,6 +50,13 @@ public class MistinnHardshipTest implements FabricClientGameTest {
 		if (Boolean.getBoolean("mistinn.photo") || Boolean.getBoolean("mistinn.animsheet") || Boolean.getBoolean("mistinn.medreel")) {
 			return;
 		}
+		// the hardship screen as it opens after the story card: normal lit, the cards as tall as their text
+		context.setScreen(() -> new life.shizune.mistinn.client.title.HardshipScreen(new net.minecraft.client.gui.screens.TitleScreen(),
+			life.shizune.mistinn.story.WorldMode.STORY, hardship -> { }));
+		context.waitTicks(20);
+		check(context.computeOnClient(mc -> ((life.shizune.mistinn.client.title.HardshipScreen) mc.gui.screen()).lit(Hardship.NORMAL)), "normal is lit when the screen opens");
+		context.takeScreenshot("hardship-screen");
+		context.setScreen(net.minecraft.client.gui.screens.TitleScreen::new);
 		// the choice made on the hardship screen, as the player would make it
 		Hardship.choose(Hardship.RUST_ANCHOR);
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
@@ -78,6 +85,49 @@ public class MistinnHardshipTest implements FabricClientGameTest {
 			context.waitTicks(10);
 			context.takeScreenshot("hardship-safe-box");
 			context.setScreen(() -> null);
+
+			// ── Weapons ──────────────────────────────────────────────
+			// an ordinary sword hits for half and wears two and a half times as fast; netherite is spared;
+			// the station's own blades wear a little faster and hit a little harder
+			world.getServer().runOnServer(server -> player(server).getInventory().setItem(0, new ItemStack(Items.IRON_SWORD)));
+			context.waitTicks(2);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				player.getInventory().setSelectedSlot(0);
+				double iron = player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+				check(Math.abs(iron - 3.0) < 1.0E-6, "an iron sword hits for half its 6: " + iron);
+				ItemStack sword = new ItemStack(Items.IRON_SWORD);
+				sword.hurtAndBreak(4, server.overworld(), player, item -> { });
+				check(sword.getDamageValue() == 10, "four uses' wear takes ten from an iron sword: " + sword.getDamageValue());
+				ItemStack netherite = new ItemStack(Items.NETHERITE_SWORD);
+				netherite.hurtAndBreak(4, server.overworld(), player, item -> { });
+				check(netherite.getDamageValue() == 4, "a netherite sword wears as it always did: " + netherite.getDamageValue());
+				ItemStack shovel = new ItemStack(Items.IRON_SHOVEL);
+				shovel.hurtAndBreak(4, server.overworld(), player, item -> { });
+				check(shovel.getDamageValue() == 4, "a shovel is no weapon: " + shovel.getDamageValue());
+				ItemStack blade = new ItemStack(MistinnItems.WEAPONS.get(life.shizune.mistinn.weapon.WeaponStyle.SLASH).get(life.shizune.mistinn.weapon.WeaponMaterial.IRON));
+				blade.hurtAndBreak(20, server.overworld(), player, item -> { });
+				check(blade.getDamageValue() == 23, "twenty uses take twenty-three from the station's iron blade: " + blade.getDamageValue());
+				player.getInventory().setItem(0, new ItemStack(Items.NETHERITE_SWORD));
+			});
+			context.waitTicks(2);
+			world.getServer().runOnServer(server -> {
+				double netherite = player(server).getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+				check(Math.abs(netherite - 8.0) < 1.0E-6, "a netherite sword keeps its 8: " + netherite);
+				player(server).getInventory().setItem(0, blade(life.shizune.mistinn.weapon.WeaponMaterial.IRON));
+			});
+			context.waitTicks(2);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				double blade = player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+				check(Math.abs(blade - 6.0 * 1.05) < 1.0E-6, "the station's iron blade hits a little harder than its 6: " + blade);
+				player.getInventory().setItem(0, ItemStack.EMPTY);
+			});
+			context.waitTicks(2);
+			world.getServer().runOnServer(server -> {
+				double bare = player(server).getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+				check(Math.abs(bare - 1.0) < 1.0E-6, "an empty hand is a fist again: " + bare);
+			});
 
 			// blows land harder: a plain hit on the torso takes a quarter more
 			float lost = world.getServer().computeOnServer(server -> {
@@ -254,6 +304,10 @@ public class MistinnHardshipTest implements FabricClientGameTest {
 				check(HungerCap.of(player) == HungerCap.FULL, "and the stomach is whole again");
 			});
 		}
+	}
+
+	private static ItemStack blade(final life.shizune.mistinn.weapon.WeaponMaterial material) {
+		return new ItemStack(MistinnItems.WEAPONS.get(life.shizune.mistinn.weapon.WeaponStyle.SLASH).get(material));
 	}
 
 	/** Damage of the item kept from a hotbar slot. */

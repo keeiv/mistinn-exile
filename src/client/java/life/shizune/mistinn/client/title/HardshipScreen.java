@@ -1,26 +1,41 @@
 package life.shizune.mistinn.client.title;
 
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import life.shizune.mistinn.hardship.Hardship;
 import life.shizune.mistinn.story.WorldMode;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Asked after the story or training card: how hard the world will be. Normal is the default,
- * already lit when the screen opens, so Enter takes it; Escape goes back to the modes.
+ * Asked after the story or training card: how hard the world will be. Each card says in a line
+ * what it is; the full rules of the card under the pointer (or the one chosen with the keys) are
+ * written out across the screen below them. Normal is the default, already lit when the screen
+ * opens, so Enter takes it; Escape goes back to the modes.
  */
 public class HardshipScreen extends Screen {
 	private static final int CARD_W = 172;
-	private static final int CARD_H = 150;
+	private static final int CARD_H = 66;
+	private static final int GAP = 14;
+	/** Space between the cards and the rules below them, and around the rules' text. */
+	private static final int PAD = 8;
+	private static final int LINE = 11;
 
 	private final Screen parent;
 	private final WorldMode mode;
 	private final Consumer<Hardship> proceed;
 	private final long opened = System.nanoTime();
-	private @Nullable ChoiceCard normal;
+	private final Map<Hardship, ChoiceCard> cards = new EnumMap<>(Hardship.class);
+	private int top;
+	private int left;
+	private int rowWidth;
+	/** Lines of the longest rules: the box below the cards is always this tall, so nothing moves. */
+	private int rulesLines;
 
 	public HardshipScreen(final Screen parent, final WorldMode mode, final Consumer<Hardship> proceed) {
 		super(Component.translatable("hardship.mistinn.title"));
@@ -31,22 +46,38 @@ public class HardshipScreen extends Screen {
 
 	@Override
 	protected void init() {
-		int gap = 14;
-		int cardWidth = Math.min(CARD_W, (this.width - 2 * gap - 24) / 3);
-		int x = (this.width - 3 * cardWidth - 2 * gap) / 2;
-		int y = this.height / 2 - CARD_H / 2 + 10;
-		this.addRenderableWidget(this.card(x, y, cardWidth, Hardship.EASY));
-		ChoiceCard middle = this.addRenderableWidget(this.card(x + cardWidth + gap, y, cardWidth, Hardship.NORMAL));
-		this.addRenderableWidget(this.card(x + 2 * (cardWidth + gap), y, cardWidth, Hardship.RUST_ANCHOR));
-		this.normal = middle;
-		this.setInitialFocus(middle);
+		int cardWidth = Math.min(CARD_W, (this.width - 2 * GAP - 24) / 3);
+		this.rowWidth = 3 * cardWidth + 2 * GAP;
+		this.left = (this.width - this.rowWidth) / 2;
+		this.rulesLines = 1;
+		for (Hardship hardship : Hardship.values()) {
+			this.rulesLines = Math.max(this.rulesLines, this.font.split(rules(hardship), this.rowWidth - 2 * PAD).size());
+		}
+		int total = 22 + CARD_H + PAD + this.rulesBoxHeight() + 22;
+		this.top = Math.max(4, (this.height - total) / 2);
+		int y = this.top + 22;
+		this.cards.clear();
+		int x = this.left;
+		for (Hardship hardship : Hardship.values()) {
+			this.cards.put(hardship, this.addRenderableWidget(this.card(x, y, cardWidth, hardship)));
+			x += cardWidth + GAP;
+		}
+		this.setInitialFocus(this.cards.get(Hardship.NORMAL));
+	}
+
+	private int rulesBoxHeight() {
+		return this.rulesLines * LINE + 2 * PAD - 2;
 	}
 
 	private ChoiceCard card(final int x, final int y, final int width, final Hardship hardship) {
 		String key = "hardship.mistinn." + hardship.id;
-		return new ChoiceCard(x, y, width, CARD_H, Component.translatable(key), Component.translatable(key + ".desc"),
+		return new ChoiceCard(x, y, width, CARD_H, Component.translatable(key), Component.translatable(key + ".tagline"),
 			hardship == Hardship.NORMAL ? Component.translatable("hardship.mistinn.default") : null,
 			hardship == Hardship.RUST_ANCHOR ? ChoiceCard.RUST : ChoiceCard.GOLD, () -> this.pick(hardship));
+	}
+
+	private static Component rules(final Hardship hardship) {
+		return Component.translatable("hardship.mistinn." + hardship.id + ".desc");
 	}
 
 	/** The mode this screen was opened for. */
@@ -61,7 +92,22 @@ public class HardshipScreen extends Screen {
 
 	/** Whether the card already lit, the one Enter takes, is the given one. */
 	public boolean lit(final Hardship hardship) {
-		return hardship == Hardship.NORMAL && this.normal != null && this.getFocused() == this.normal;
+		ChoiceCard card = this.cards.get(hardship);
+		return card != null && this.getFocused() == card;
+	}
+
+	/** The card whose rules are shown: the one under the pointer, else the one chosen with the keys. */
+	private @Nullable Hardship shown() {
+		Hardship focused = null;
+		for (Map.Entry<Hardship, ChoiceCard> entry : this.cards.entrySet()) {
+			if (entry.getValue().isHovered()) {
+				return entry.getKey();
+			}
+			if (this.getFocused() == entry.getValue()) {
+				focused = entry.getKey();
+			}
+		}
+		return focused;
 	}
 
 	@Override
@@ -84,8 +130,22 @@ public class HardshipScreen extends Screen {
 	public void extractRenderState(final GuiGraphicsExtractor g, final int mouseX, final int mouseY, final float a) {
 		super.extractRenderState(g, mouseX, mouseY, a);
 		Component title = Component.translatable("hardship.mistinn.title");
-		g.text(this.font, title, (this.width - this.font.width(title)) / 2, this.height / 2 - CARD_H / 2 - 22, 0xFFE4DED0, true);
+		g.text(this.font, title, (this.width - this.font.width(title)) / 2, this.top, 0xFFE4DED0, true);
+		int boxY = this.top + 22 + CARD_H + PAD;
+		int boxHeight = this.rulesBoxHeight();
+		Hardship shown = this.shown();
+		if (shown != null) {
+			ChoiceCard.Palette palette = shown == Hardship.RUST_ANCHOR ? ChoiceCard.RUST : ChoiceCard.GOLD;
+			g.fill(this.left, boxY, this.left + this.rowWidth, boxY + boxHeight, 0xC00C0F12);
+			g.outline(this.left, boxY, this.rowWidth, boxHeight, 0xFF000000 | palette.rest());
+			List<FormattedCharSequence> lines = this.font.split(rules(shown), this.rowWidth - 2 * PAD);
+			int line = boxY + PAD;
+			for (FormattedCharSequence part : lines) {
+				g.text(this.font, part, this.left + PAD, line, 0xFFC8C0B0, false);
+				line += LINE;
+			}
+		}
 		Component hint = Component.translatable("hardship.mistinn.hint", Component.translatable("mode.mistinn." + this.mode.id));
-		g.text(this.font, hint, (this.width - this.font.width(hint)) / 2, this.height / 2 + CARD_H / 2 + 22, 0xFF8E887C, false);
+		g.text(this.font, hint, (this.width - this.font.width(hint)) / 2, boxY + boxHeight + 10, 0xFF8E887C, false);
 	}
 }
