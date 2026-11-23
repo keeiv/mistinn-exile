@@ -51,13 +51,20 @@ public abstract class AvatarRollMixin {
 		boolean own = OwnBody.inWorldPass() && entity == net.minecraft.client.Minecraft.getInstance().player && OwnBody.active();
 		state.setData(OwnBody.KEY, own ? Boolean.TRUE : null);
 		state.setData(OwnBody.HANDS_UP, null);
+		float raised = own ? OwnBody.raised(partialTicks) : 0.0F;
+		state.setData(OwnBody.RAISED, own ? raised : null);
+		if (raised > 0.0F) {
+			// working in front of the eye, the body turns square to where the hunter looks
+			state.bodyRot += state.yRot * raised;
+			state.yRot *= 1.0F - raised;
+		}
 		if (own) {
 			state.headEquipment = net.minecraft.world.item.ItemStack.EMPTY;
 			state.headItem.clear();
 			state.heldOnHead.clear();
 			state.wornHeadType = null;
 			state.setData(life.shizune.mistinn.client.gear.MaskLayer.KEY, null);
-			// what the hand pass draws in front of the eye is left off the body, so nothing is drawn twice
+			// a map held up is drawn by the game's own hands in front of the eye: those arms are left off the body
 			OwnBody.Hands up = OwnBody.handsUp(net.minecraft.client.Minecraft.getInstance().player, partialTicks);
 			state.setData(OwnBody.HANDS_UP, up);
 			if (up != null) {
@@ -70,11 +77,15 @@ public abstract class AvatarRollMixin {
 		}
 	}
 
-	/** The body stands a little behind the eye, so the hunter looks down their own chest and never out of it. */
+	/**
+	 * The body stands a little behind the eye, so the hunter looks down their own chest and never out of it; while the
+	 * arms work in front of the eye it steps up under it.
+	 */
 	@Inject(method = "setupRotations(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V", at = @At("TAIL"))
 	private void mistinn$standBack(final AvatarRenderState state, final PoseStack pose, final float bodyRot, final float entityScale, final CallbackInfo ci) {
 		if (Boolean.TRUE.equals(state.getData(OwnBody.KEY))) {
-			pose.translate(0.0F, 0.0F, OwnBody.BACK * entityScale);
+			Float raised = state.getData(OwnBody.RAISED);
+			pose.translate(0.0F, 0.0F, OwnBody.back(raised == null ? 0.0F : raised, state.xRot) * entityScale);
 		}
 		Float run = state.getData(life.shizune.mistinn.client.view.RunPose.KEY);
 		if (run != null) {

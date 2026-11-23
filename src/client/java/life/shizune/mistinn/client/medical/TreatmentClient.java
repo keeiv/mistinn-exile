@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import life.shizune.mistinn.client.anim.Clip;
 import life.shizune.mistinn.client.anim.Poser;
+import life.shizune.mistinn.client.view.OwnArms;
 import life.shizune.mistinn.client.view.OwnBody;
 import life.shizune.mistinn.client.view.OwnHand;
 import life.shizune.mistinn.medical.Treatment;
@@ -355,8 +356,8 @@ public final class TreatmentClient {
 		return new Matrix4f().translationRotateScale(place, turn, Mth.lerp(w, held.getScale(new Vector3f()).x, there.getScale(new Vector3f()).x));
 	}
 
-	/** The other arm, held out to be worked on; null while it is not in view. {@code side} 1 when the right hand holds the tool. */
-	public static OwnHand.@Nullable Arm other(final InHands work, final int side) {
+	/** Where the other arm is held out to be worked on; null while it is not raised. {@code side} 1 when the right hand holds the tool. */
+	public static OwnArms.@Nullable Present other(final InHands work, final int side) {
 		Clip clip = work.clip();
 		float p = work.pose().p();
 		float up = Mth.clamp(clip.at("other.up", p) * work.pose().weight(), 0.0F, 1.0F);
@@ -366,7 +367,7 @@ public final class TreatmentClient {
 		float low = (1.0F - up) * (1.0F - up) * OwnBody.DROP;
 		Vector3f fist = new Vector3f(side * clip.at("other.x", p), clip.at("other.y", p) - low, clip.at("other.z", p));
 		Vector3f elbow = new Vector3f(side * clip.at("other.ex", p), clip.at("other.ey", p) - low, clip.at("other.ez", p));
-		return OwnHand.held(fist, elbow, clip.rad("other.turn", p), -side);
+		return new OwnArms.Present(fist, elbow, clip.rad("other.turn", p));
 	}
 
 	private static float smooth(final float t) {

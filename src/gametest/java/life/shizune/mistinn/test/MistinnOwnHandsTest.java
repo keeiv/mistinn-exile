@@ -21,8 +21,8 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 
 /**
- * 自己的手: films what a hunter sees of their own hands, tick by tick, through the real keys: a swing, a block mined,
- * food eaten, a bow drawn, an injector used. Nothing is asserted; the frames in {@code hands/} are for judging the
+ * 自己的手: films what a hunter sees of their own hands, tick by tick, through the real keys: a swing, a bare-handed
+ * punch and dig, a swing looking down and turned, a block mined, food eaten, a bow drawn, an injector used. Nothing is asserted; the frames in {@code hands/} are for judging the
  * motion by eye, and where each fist was on the screen is printed with them. Runs only when picked with {@code -PonlyTest=MistinnOwnHandsTest}.
  */
 @SuppressWarnings("UnstableApiUsage")
@@ -59,6 +59,27 @@ public final class MistinnOwnHandsTest implements FabricClientGameTest {
 				click(context, true);
 				film(context, style.id, style.swingTicks + 6, 1);
 			}
+
+			// a bare fist: a punch, and a block dug out by hand
+			hold(world, ItemStack.EMPTY, ItemStack.EMPTY);
+			look(context, world, stage, 180.0F, 0.0F);
+			click(context, true);
+			film(context, "punch", 8, 1);
+			look(context, world, stage, 0.0F, 10.0F);
+			context.runOnClient(mc -> mc.options.keyAttack.setDown(true));
+			film(context, "dig", 10, 1);
+			context.runOnClient(mc -> mc.options.keyAttack.setDown(false));
+
+			// looking down and turned away from where the body faces: the body turns square, the arm stays on its shoulder
+			hold(world, new ItemStack(MistinnItems.WEAPONS.get(WeaponStyle.SLASH).get(WeaponMaterial.IRON)), ItemStack.EMPTY);
+			look(context, world, stage, 180.0F, 40.0F);
+			context.runOnClient(mc -> mc.player.setYRot(mc.player.getYRot() + 40.0F));
+			context.waitTicks(2);
+			click(context, true);
+			film(context, "turned", 12, 1);
+			look(context, world, stage, 180.0F, 65.0F);
+			click(context, true);
+			film(context, "down", 12, 1);
 
 			// a heavy blow: drawn back while the use key is held, let go when it is full
 			hold(world, new ItemStack(MistinnItems.WEAPONS.get(WeaponStyle.SLASH).get(WeaponMaterial.IRON)), ItemStack.EMPTY);
@@ -152,10 +173,18 @@ public final class MistinnOwnHandsTest implements FabricClientGameTest {
 			context.takeScreenshot(TestScreenshotOptions.of(frame).disableCounterPrefix().withDestinationDir(OUT));
 			String fists = context.computeOnClient(mc -> {
 				float aspect = (float) mc.getWindow().getWidth() / mc.getWindow().getHeight();
-				return place(OwnHand.seen(InteractionHand.MAIN_HAND, aspect)) + " off " + place(OwnHand.seen(InteractionHand.OFF_HAND, aspect));
+				return place(OwnHand.seen(InteractionHand.MAIN_HAND, aspect)) + " off " + place(OwnHand.seen(InteractionHand.OFF_HAND, aspect))
+					+ " at " + at(OwnHand.where(InteractionHand.MAIN_HAND));
 			});
 			System.out.println("[hands] " + frame + " main " + fists);
 		}
+	}
+
+	private static String at(final org.joml.Vector3fc[] arm) {
+		if (arm == null) {
+			return "-";
+		}
+		return String.format(java.util.Locale.ROOT, "fist (%.2f %.2f %.2f) shoulder (%.2f %.2f %.2f)", arm[0].x(), arm[0].y(), arm[0].z(), arm[1].x(), arm[1].y(), arm[1].z());
 	}
 
 	private static String place(final OwnHand.Seen at) {
