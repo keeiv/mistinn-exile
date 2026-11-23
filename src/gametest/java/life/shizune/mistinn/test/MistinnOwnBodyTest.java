@@ -81,8 +81,8 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 			context.waitTicks(40);
 			context.runOnClient(mc -> check(OwnBody.raised(1.0F) == 0.0F, "and they hang at the sides again afterwards: " + OwnBody.raised(1.0F)));
 
-			// with a torch in the off hand, a swing brings that hand up too: drawn once, in front of the eye, not also at the side
-			context.runOnClient(mc -> check(OwnBody.handsUp(mc.player, 1.0F) == null, "hanging, no hand is up"));
+			// with a torch in the off hand, a swing brings that arm up too: the body's own arm, holding the torch up in view
+			context.runOnClient(mc -> check(OwnHand.seen(InteractionHand.OFF_HAND, aspect(mc)) == null, "hanging, no hand is at work"));
 			world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst()
 				.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(net.minecraft.world.item.Items.TORCH)));
 			look(context, world, stage, 60.0F);
@@ -90,14 +90,19 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 			context.runOnClient(mc -> {
 				mc.player.swing(InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getAttackAnimation(), true);
 			});
+			// the body's arms follow what the hand pass found a frame behind: a few ticks for both to be up
 			context.waitTicks(2);
+			for (int i = 0; i < 5 && context.computeOnClient(mc -> OwnHand.seen(InteractionHand.OFF_HAND, aspect(mc)) == null); i++) {
+				context.waitTicks(1);
+			}
 			context.runOnClient(mc -> {
-				OwnBody.Hands up = OwnBody.handsUp(mc.player, 1.0F);
-				check(up != null && up.main() && up.off(), "a swing with a torch in the off hand brings both hands up: " + up);
+				check(OwnBody.handsUp(mc.player, 1.0F) == null, "the body's own arms do it, none is left off it");
+				OwnHand.Seen off = OwnHand.seen(InteractionHand.OFF_HAND, aspect(mc));
+				check(off != null && OwnHand.seen(InteractionHand.MAIN_HAND, aspect(mc)) != null, "a swing with a torch in the off hand brings both arms up: " + off);
 			});
 			context.takeScreenshot("ownbody-05-offhand-swing");
 			context.waitTicks(40);
-			context.runOnClient(mc -> check(OwnBody.handsUp(mc.player, 1.0F) == null, "and both hang again afterwards"));
+			context.runOnClient(mc -> check(OwnBody.raised(1.0F) == 0.0F && OwnHand.seen(InteractionHand.OFF_HAND, aspect(mc)) == null, "and both hang again afterwards"));
 			context.takeScreenshot("ownbody-06-offhand-hanging");
 			world.getServer().runOnServer(server -> server.getPlayerList().getPlayers().getFirst().setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY));
 			context.waitTicks(3);
@@ -105,10 +110,8 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 				mc.player.swing(InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getAttackAnimation(), true);
 			});
 			context.waitTicks(2);
-			context.runOnClient(mc -> {
-				OwnBody.Hands up = OwnBody.handsUp(mc.player, 1.0F);
-				check(up != null && up.main() && !up.off(), "an empty off hand stays at the side: " + up);
-			});
+			context.runOnClient(mc -> check(OwnHand.seen(InteractionHand.MAIN_HAND, aspect(mc)) != null && OwnHand.seen(InteractionHand.OFF_HAND, aspect(mc)) == null,
+				"an empty off hand stays at the side"));
 			context.waitTicks(40);
 
 			// dropped from five blocks up, the landing is felt
@@ -186,7 +189,7 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 					OwnHand.Seen seen = OwnHand.seen(InteractionHand.MAIN_HAND, aspect(mc));
 					check(seen != null, style + ": the hand is drawn through the swing, tick " + tick);
 					check(seen.whole(), style + ": the arm runs out of the view, tick " + tick + ": " + seen);
-					check(OwnBody.handsUp(mc.player, 1.0F) != null, style + ": and the body leaves that arm out, tick " + tick);
+					check(OwnBody.handsUp(mc.player, 1.0F) == null, style + ": and it is the body's own arm, tick " + tick);
 					return seen.fistInView() && seen.fistY() > HAND_FLOOR ? 1 : 0;
 				});
 			}
@@ -203,13 +206,19 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 		});
 		context.waitTicks(25);
 		context.runOnClient(mc -> mc.player.swing(InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getAttackAnimation(), true));
-		context.waitTicks(2);
-		context.runOnClient(mc -> {
-			OwnHand.Seen seen = OwnHand.seen(InteractionHand.MAIN_HAND, aspect(mc));
-			check(seen != null && seen.fistInView() && seen.whole(), "left-handed, the hand is drawn whole through a swing: " + seen);
-			check(seen.fistX() < 0.0F || seen.endX() < 0.0F, "and its arm comes in from the left: " + seen);
-		});
-		context.takeScreenshot("ownbody-07-left-handed-swing");
+		context.waitTicks(3);
+		for (int i = 3; i < WeaponStyle.SLASH.swingTicks; i++) {
+			int tick = i;
+			context.runOnClient(mc -> {
+				OwnHand.Seen seen = OwnHand.seen(InteractionHand.MAIN_HAND, aspect(mc));
+				check(seen != null && seen.fistInView() && seen.whole(), "left-handed, the hand is drawn whole through a swing, tick " + tick + ": " + seen);
+				check(seen.fistX() < 0.0F || seen.endX() < 0.0F, "and its arm comes in from the left, tick " + tick + ": " + seen);
+			});
+			if (i == 4) {
+				context.takeScreenshot("ownbody-07-left-handed-swing");
+			}
+			context.waitTicks(1);
+		}
 		context.runOnClient(mc -> {
 			mc.options.mainHand().set(net.minecraft.world.entity.HumanoidArm.RIGHT);
 			mc.options.broadcastOptions();
@@ -368,7 +377,7 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 			worksOnTheOtherArm(mc, "inject, left-handed", true);
 			OwnHand.Seen tool = OwnHand.seen(InteractionHand.MAIN_HAND, aspect(mc));
 			OwnHand.Seen held = OwnHand.seen(InteractionHand.OFF_HAND, aspect(mc));
-			check(tool.endX() < 0.0F && held.endX() > 0.0F, "left-handed, the arm that works comes in from the left and the one worked on from the right: " + tool + ", " + held);
+			check(tool.fistX() < held.fistX() && held.endX() > 0.0F, "left-handed, the hand that works is on the left and the arm worked on runs off to the right: " + tool + ", " + held);
 		});
 		context.takeScreenshot("ownbody-treat-inject-left-handed");
 		end(context, "inject, left-handed");
@@ -418,8 +427,7 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 		}
 		OwnHand.Seen held = OwnHand.seen(InteractionHand.OFF_HAND, aspect(mc));
 		check(held != null && held.whole(), name + ": the other arm is held out, and runs out of the view: " + held);
-		OwnBody.Hands up = OwnBody.handsUp(mc.player, 1.0F);
-		check(up != null && up.main() && up.off(), name + ": the body leaves both arms out, they are up here");
+		check(OwnBody.handsUp(mc.player, 1.0F) == null, name + ": both are the body's own arms");
 		float other = OwnHand.fromForearm(InteractionHand.OFF_HAND);
 		float own = OwnHand.fromForearm(InteractionHand.MAIN_HAND);
 		check(other < own, name + ": the tool works on the other arm, not on the one that holds it: " + other + " against " + own);

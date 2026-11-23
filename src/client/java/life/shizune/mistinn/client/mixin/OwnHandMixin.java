@@ -1,8 +1,9 @@
 package life.shizune.mistinn.client.mixin;
 
-import com.mojang.blaze3d.platform.Window;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.mojang.blaze3d.vertex.PoseStack;
 import life.shizune.mistinn.client.medical.TreatmentClient;
+import life.shizune.mistinn.client.view.OwnArms;
 import life.shizune.mistinn.client.view.OwnBody;
 import life.shizune.mistinn.client.view.OwnHand;
 import net.minecraft.client.Minecraft;
@@ -17,41 +18,34 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Draws the arm that holds an item in the hunter's own view, gripping it ({@link OwnHand}). Applied after the mixins
- * that move the item through a swing or a heavy blow, so the arm is found from where the item really is.
- *
- * <p>A treatment worked in the hands ({@link TreatmentClient.InHands}) is placed here too: the tool is put where its
- * clip says, the hand that holds it follows, and the other arm is held out to be worked on, whatever it was holding
- * put away meanwhile.
+ * With the hunter's own body in view, the hand pass draws nothing: it only works out where each hand and what it
+ * holds should be in front of the eye, for the body's own arms to reach there ({@link OwnArms}). Applied after the
+ * mixins that move a held thing through a swing or a heavy blow, so every motion is in what it finds. A treatment worked
+ * in the hands is laid out here too: the tool where its clip puts it, and the other arm held out to be worked on.
  */
 @Mixin(value = FirstPersonHandsAndItemsRenderer.class, priority = 1100)
 public abstract class OwnHandMixin {
-	/** The hands' space while one hand is drawn: the pose before anything is moved for that hand. Render thread only. */
+	/** The view's space for the hand now being worked out: the pose before anything is moved for it. Render thread only. */
 	@Unique
 	private PoseStack.@Nullable Pose mistinn$hands;
-	/** The treatment the hand now being drawn works with its tool; null for any other hand. */
+	/** The treatment the hand now being worked out holds the tool of; null for any other hand. */
 	@Unique
 	private TreatmentClient.@Nullable InHands mistinn$work;
-	/**
-	 * How the tool of the treatment under way sat in the hand when plainly held, kept so the hand can finish its motion
-	 * after the last of a stack is used up.
-	 */
+	/** How the tool of the treatment under way sat in the hand when plainly held, for after the last of a stack is used. */
 	@Unique
 	private @Nullable Matrix4f mistinn$held;
-
-	@Shadow
-	private void renderPlayerHand(final PoseStack poseStack, final SubmitNodeCollector collector, final int light, final HumanoidArm arm, final PlayerRenderState playerState) {
-		throw new AssertionError();
-	}
+	/** The hand now being worked out was found, so the hand pass draws nothing for it. */
+	@Unique
+	private boolean mistinn$found;
 
 	@Inject(method = "submitArmWithItem", at = @At("HEAD"), cancellable = true)
 	private void mistinn$work(
@@ -69,9 +63,13 @@ public abstract class OwnHandMixin {
 		final CallbackInfo ci
 	) {
 		this.mistinn$work = null;
+		this.mistinn$hands = null;
+		this.mistinn$found = false;
 		LocalPlayer player = Minecraft.getInstance().player;
-		TreatmentClient.InHands work = player == null || playerState.avatarRenderState == null || playerState.avatarRenderState.isInvisible || !OwnBody.active()
-			? null : TreatmentClient.inHands(player);
+		if (!mistinn$ours(playerState, state) || player == null) {
+			return;
+		}
+		TreatmentClient.InHands work = TreatmentClient.inHands(player);
 		if (work == null) {
 			if (hand == InteractionHand.MAIN_HAND) {
 				this.mistinn$held = null;
@@ -79,19 +77,17 @@ public abstract class OwnHandMixin {
 			return;
 		}
 		int side = mistinn$side(playerState, work.hand());
-		OwnHand.Arm other = TreatmentClient.other(work, side);
 		if (hand != work.hand()) {
-			// this arm is the one held out: what it was holding is put away, and it is drawn with the hand that works
-			if (other != null) {
+			// the other arm is held out to be worked on: what it held is put away
+			if (work.presents()) {
 				ci.cancel();
 			}
 			return;
 		}
-		PoseStack.Pose hands = poseStack.last().copy();
-		float lowered = OwnBody.lowered(partialTicks);
-		if (other != null) {
-			OwnHand.drawn(hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND, other, lowered);
-			this.mistinn$draw(poseStack, submitNodeCollector, lightCoords, hands, other, -side, playerState);
+		InteractionHand otherHand = hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+		OwnArms.Present present = TreatmentClient.other(work, side);
+		if (present != null) {
+			OwnArms.present(otherHand, present);
 		}
 		if (itemStack.is(work.item())) {
 			this.mistinn$work = work;
@@ -99,13 +95,9 @@ public abstract class OwnHandMixin {
 		}
 		Matrix4f held = this.mistinn$held;
 		if (itemStack.isEmpty() && held != null) {
-			// the last of the stack is used up: the hand finishes its motion without it, instead of a bare arm cutting in
+			// the last of the stack is used up: the hand finishes its motion without it, instead of hanging at once
 			Matrix4f tool = TreatmentClient.tool(work, held, side);
-			OwnHand.Arm arm = OwnHand.arm(tool, TreatmentClient.grip(work.clip()), side, mistinn$aspect());
-			if (arm != null) {
-				OwnHand.drawn(hand, arm, lowered);
-				this.mistinn$draw(poseStack, submitNodeCollector, lightCoords, hands, arm, side, playerState);
-			}
+			OwnArms.hold(hand, mistinn$hold(tool, TreatmentClient.grip(work.clip()), work));
 			ci.cancel();
 		}
 	}
@@ -125,13 +117,13 @@ public abstract class OwnHandMixin {
 		final int lightCoords,
 		final CallbackInfo ci
 	) {
-		this.mistinn$hands = null;
-		// a bare hand and a map are drawn with the game's own arms, where the game puts them
-		if (itemStack.isEmpty() || itemStack.has(DataComponents.MAP_ID) || playerState.avatarRenderState == null || !OwnBody.active()) {
+		if (!mistinn$ours(playerState, state)) {
 			return;
 		}
 		this.mistinn$hands = poseStack.last().copy();
-		poseStack.translate(mistinn$side(playerState, hand) * OwnHand.VIEW_X, OwnHand.VIEW_Y, OwnHand.VIEW_Z);
+		if (!itemStack.isEmpty()) {
+			poseStack.translate(mistinn$side(playerState, hand) * OwnHand.VIEW_X, OwnHand.VIEW_Y, OwnHand.VIEW_Z);
+		}
 	}
 
 	@Inject(
@@ -139,7 +131,7 @@ public abstract class OwnHandMixin {
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;submit(Lcom/mojang/blaze3d/vertex/PoseStack;"
 			+ "Lnet/minecraft/client/renderer/SubmitNodeCollector;III)V")
 	)
-	private void mistinn$arm(
+	private void mistinn$find(
 		final PlayerRenderState playerState,
 		final FirstPersonHandsAndItemsRenderState state,
 		final float partialTicks,
@@ -155,9 +147,8 @@ public abstract class OwnHandMixin {
 	) {
 		PoseStack.Pose hands = this.mistinn$hands;
 		TreatmentClient.InHands work = this.mistinn$work;
-		this.mistinn$hands = null;
 		this.mistinn$work = null;
-		if (hands == null || playerState.avatarRenderState == null || playerState.avatarRenderState.isInvisible) {
+		if (hands == null) {
 			return;
 		}
 		ItemStackRenderState item = hand == InteractionHand.MAIN_HAND ? state.mainHandRenderState : state.offHandRenderState;
@@ -165,7 +156,7 @@ public abstract class OwnHandMixin {
 		if (layers.mistinn$layerCount() == 0) {
 			return;
 		}
-		// from the item's model to the hands' space: how the item is set in the hand, then everything that moved it
+		// from the item's model to the view's space: how the item is set in the hand, then everything that moved it
 		ItemLayerAccessor layer = (ItemLayerAccessor) layers.mistinn$layers()[0];
 		OwnHand.Grip grip = layer.mistinn$special() == null ? OwnHand.Grip.of(itemStack) : OwnHand.Grip.around(layer.mistinn$corners().get());
 		if (grip == null) {
@@ -174,44 +165,67 @@ public abstract class OwnHandMixin {
 		PoseStack.Pose display = new PoseStack.Pose();
 		layer.mistinn$applyTransform(display);
 		Matrix4f model = new Matrix4f(hands.pose()).invert().mul(poseStack.last().pose()).mul(display.pose());
-		int side = mistinn$side(playerState, hand);
-		float lowered = OwnBody.lowered(partialTicks);
 		if (work != null) {
 			// a treatment: the tool goes where its clip puts it, and the hand closes where the clip says it is held
 			this.mistinn$held = new Matrix4f(model);
-			model = TreatmentClient.tool(work, model, side);
-			grip = TreatmentClient.grip(work.clip());
-			poseStack.last().set(hands);
-			poseStack.mulPose(model);
-			poseStack.mulPose(new Matrix4f(display.pose()).invert());
-			OwnHand.worked(model.transformPosition(TreatmentClient.point(work.clip())), lowered);
+			OwnArms.hold(hand, mistinn$hold(TreatmentClient.tool(work, model, mistinn$side(playerState, hand)), TreatmentClient.grip(work.clip()), work));
+		} else {
+			OwnArms.hold(hand, mistinn$hold(model, grip, null));
 		}
-		OwnHand.Arm arm = OwnHand.arm(model, grip, side, mistinn$aspect());
-		if (arm == null) {
-			return;
-		}
-		OwnHand.drawn(hand, arm, lowered);
-		this.mistinn$draw(poseStack, submitNodeCollector, lightCoords, hands, arm, side, playerState);
+		this.mistinn$found = true;
 	}
 
-	/** Draws an arm, its upper part and its forearm, in the hands' space. */
-	@Unique
-	private void mistinn$draw(final PoseStack poseStack, final SubmitNodeCollector collector, final int light, final PoseStack.Pose hands, final OwnHand.Arm arm,
-		final int side, final PlayerRenderState playerState) {
-		for (Matrix4f part : new Matrix4f[] {arm.upper(), arm.fore()}) {
-			poseStack.pushPose();
-			poseStack.last().set(hands);
-			poseStack.mulPose(part);
-			this.renderPlayerHand(poseStack, collector, light, side > 0 ? HumanoidArm.RIGHT : HumanoidArm.LEFT, playerState);
-			poseStack.popPose();
-		}
+	/** What the hand pass found is drawn by the body's own hand, not here. */
+	@WrapWithCondition(
+		method = "submitArmWithItem",
+		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;submit(Lcom/mojang/blaze3d/vertex/PoseStack;"
+			+ "Lnet/minecraft/client/renderer/SubmitNodeCollector;III)V")
+	)
+	private boolean mistinn$drawItem(final ItemStackRenderState item, final PoseStack poseStack, final SubmitNodeCollector collector, final int light, final int overlay,
+		final int outline) {
+		boolean found = this.mistinn$found;
+		this.mistinn$found = false;
+		return !found;
 	}
 
-	/** How many times as wide as it is high the view is. */
+	/** An empty hand at work (a punch, a block placed with a bare hand): the body's own fist goes where the game's would. */
+	@WrapWithCondition(
+		method = "renderPlayerArm",
+		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/FirstPersonHandsAndItemsRenderer;renderPlayerHand(Lcom/mojang/blaze3d/vertex/PoseStack;"
+			+ "Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/world/entity/HumanoidArm;Lnet/minecraft/client/renderer/state/level/PlayerRenderState;)V")
+	)
+	private boolean mistinn$drawBareArm(final FirstPersonHandsAndItemsRenderer renderer, final PoseStack poseStack, final SubmitNodeCollector collector, final int light,
+		final HumanoidArm arm, final PlayerRenderState playerState) {
+		PoseStack.Pose hands = this.mistinn$hands;
+		if (hands == null || playerState.avatarRenderState == null) {
+			return true;
+		}
+		// the game draws the arm from its shoulder, slanted a little outward
+		int sign = arm == HumanoidArm.RIGHT ? 1 : -1;
+		Matrix4f model = new Matrix4f(hands.pose()).invert().mul(poseStack.last().pose())
+			.translate(-sign * 5.0F / 16.0F, 2.0F / 16.0F, 0.0F).rotateZ(sign * 0.1F);
+		// raised into the view as far as a held thing is
+		Vector3f fist = model.transformPosition(new Vector3f(-sign / 16.0F, OwnHand.REACH, 0.0F)).add(sign * OwnHand.VIEW_X, OwnHand.VIEW_Y, OwnHand.VIEW_Z);
+		Vector3f front = model.transformDirection(new Vector3f(0.0F, 0.0F, -1.0F)).normalize();
+		InteractionHand hand = arm == playerState.avatarRenderState.mainArm ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+		OwnArms.hold(hand, new OwnArms.Hold(fist, front, null, null));
+		return false;
+	}
+
+	/** What a hand holds, as found: where the fist closes on it and which way it runs on, and the tool's tip if it is one. */
 	@Unique
-	private static float mistinn$aspect() {
-		Window window = Minecraft.getInstance().getWindow();
-		return (float) window.getWidth() / Math.max(1, window.getHeight());
+	private static OwnArms.Hold mistinn$hold(final Matrix4f model, final OwnHand.Grip grip, final TreatmentClient.@Nullable InHands work) {
+		Vector3f fist = model.transformPosition(new Vector3f(grip.x(), grip.y(), grip.z()));
+		Vector3f along = model.transformDirection(new Vector3f(grip.alongX(), grip.alongY(), grip.alongZ())).normalize();
+		Vector3f tip = work == null || !work.presents() ? null : model.transformPosition(TreatmentClient.point(work.clip()));
+		return new OwnArms.Hold(fist, along, model, tip);
+	}
+
+	/** Whether this hand pass is the hunter's own body's to stand in for: their body is in view and nothing in hand is a map. */
+	@Unique
+	private static boolean mistinn$ours(final PlayerRenderState playerState, final FirstPersonHandsAndItemsRenderState state) {
+		return OwnBody.active() && playerState.avatarRenderState != null && !playerState.avatarRenderState.isInvisible
+			&& !state.mainHandItem.has(DataComponents.MAP_ID) && !state.offHandItem.has(DataComponents.MAP_ID);
 	}
 
 	/** 1 if {@code hand} is the hunter's right arm, -1 if their left. */

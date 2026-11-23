@@ -12,14 +12,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * The hands in front of the eye are only there while they work (a swing, a bow drawn, a block broken); otherwise they
- * hang at the hunter's sides on their own body, and this pass draws nothing. They sink out of view as they are lowered.
+ * The hands only work in front of the eye while there is work there (a swing, a bow drawn, a block broken); otherwise
+ * they hang at the hunter's sides on their own body, and this pass has nothing to find. Lowered, it finds them sinking.
  */
 @Mixin(FirstPersonHandsAndItemsRenderer.class)
 public abstract class OwnBodyHandsMixin {
 	@Inject(method = "submitHandsWithItems", at = @At("HEAD"), cancellable = true)
 	private void mistinn$lowered(final float partialTicks, final PoseStack poseStack, final SubmitNodeCollector collector, final PlayerRenderState playerState,
 		final FirstPersonHandsAndItemsRenderState state, final CallbackInfo ci) {
+		life.shizune.mistinn.client.view.OwnArms.begin();
 		if (!OwnBody.active()) {
 			return;
 		}

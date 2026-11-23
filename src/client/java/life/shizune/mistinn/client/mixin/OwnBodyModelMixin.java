@@ -1,5 +1,6 @@
 package life.shizune.mistinn.client.mixin;
 
+import life.shizune.mistinn.client.view.OwnArms;
 import life.shizune.mistinn.client.view.OwnBody;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
@@ -9,7 +10,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** In the hunter's own view their head is not drawn, nor an arm that is up in front of the eye in the hand pass. */
+/**
+ * In the hunter's own view their head is not drawn, and their arms reach up to the work in front of the eye
+ * ({@link OwnArms}); an arm the game draws there itself, holding up a map, is left off.
+ */
 @Mixin(PlayerModel.class)
 public abstract class OwnBodyModelMixin {
 	@Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At("TAIL"))
@@ -29,5 +33,9 @@ public abstract class OwnBodyModelMixin {
 		model.leftArm.visible = !(right ? offUp : mainUp);
 		model.rightSleeve.visible = model.rightArm.visible && state.showRightSleeve;
 		model.leftSleeve.visible = model.leftArm.visible && state.showLeftSleeve;
+		Float raised = state.getData(OwnBody.RAISED);
+		if (own && up == null && raised != null) {
+			OwnArms.pose(model, state, raised);
+		}
 	}
 }
