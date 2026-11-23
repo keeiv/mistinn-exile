@@ -312,7 +312,7 @@ In first person you have a body: look down and there is your chest, your legs wa
 - **The view moves with the body**: it rocks from foot to foot at a walk and harder at a sprint; a landing dips it, harder from higher. Below 35% stamina it heaves with your breath.
 - **Running looks like running**: at a sprint the body leans in and the arms pump, in the same stride the view rocks to. A hand with a weapon in it pumps less.
 - **Treatment with your own hands**: injecting, pills, tourniquet, splint, surgery, armour and helmet repair are done by the body's own hands, and the view tips down to the work (back, to swallow pills); the small beats of the job (a stitch, a binding pulled tight, a patch pressed down) are there to see.
-- **Your own voice**: the first time you enter a world you are asked for a man's voice or a girl's (you can listen first), and it stays with that hunter. You hear yourself struck, badly wounded, straining behind a heavy blow or a roll, out of breath, landing hard and falling; others nearby hear your cries too.
+- **Your own voice**: the first time you enter a world you are asked for a man's voice, a girl's, or none (you can listen first), and it stays with that hunter; `V` changes it at any time. You hear yourself struck, badly wounded, straining behind a heavy blow or a roll, out of breath, landing hard and falling; others nearby hear your cries too.
 
 ## The fog-shore lighthouse and the Snuffer
 
@@ -412,6 +412,7 @@ When you do something worth remembering, a notice slides in at the top right, a 
 | Hold use with a weapon | Charge; let go for a heavy blow |
 | Use the Hunter's Guide | Open the guide: pages, stats and skills |
 | `J` | Toggle the first-person swing view |
+| `V` | Change your voice (a man's, a girl's, none) |
 | Click a cell | Pick up or put down |
 | Drag | Move between cells, or between the grid and the hotbar or a chest |
 | `R` while carrying | Rotate |

@@ -8,9 +8,10 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvent;
 
 /**
- * 自己的聲音: the client half of a hunter's voice. The first time a hunter stands in a world without a voice, in any
- * mode, they are asked which they will play with ({@link VoiceScreen}). After that they hear themself: breathing hard
- * when winded, panting when spent, and the wind knocked out of them by a hard landing.
+ * 自己的聲音: the client half of a hunter's voice. The first time a hunter stands in a world, in any mode, they are
+ * asked which voice they will play with, or none ({@link VoiceScreen}); a key opens the same screen later to change
+ * it. With a voice they hear themself: breathing hard when winded, panting when spent, and the wind knocked out of
+ * them by a hard landing.
  */
 public final class VoiceClient {
 	/** Ticks in a world before the question is asked, so the world is there to be seen behind it. */
@@ -40,15 +41,18 @@ public final class VoiceClient {
 			settled = 0;
 			return;
 		}
-		Voice voice = Voice.of(player);
-		if (voice == null) {
+		if (!Voice.chosen(player)) {
 			settled++;
 			if (settled >= SETTLE && shouldAsk(mc, player)) {
-				mc.gui.setScreen(new VoiceScreen());
+				mc.gui.setScreen(new VoiceScreen(Voice.UNSET));
 			}
 			return;
 		}
 		settled = 0;
+		Voice voice = Voice.of(player);
+		if (voice == null) {
+			return;
+		}
 		if (!player.isAlive() || mc.isPaused()) {
 			return;
 		}
@@ -72,6 +76,13 @@ public final class VoiceClient {
 	/** The hunter has just answered: the question waits while the choice travels to the server and back. */
 	public static void answered() {
 		settled = -ANSWER_WAIT;
+	}
+
+	/** Opens the screen to change the voice (its key was pressed); nothing while another screen is up. */
+	public static void open(final Minecraft mc) {
+		if (mc.player != null && mc.gui.screen() == null) {
+			mc.gui.setScreen(new VoiceScreen(Voice.choice(mc.player)));
+		}
 	}
 
 	/** Whether the hunter should be asked now: nothing else is on screen or playing out. */

@@ -74,6 +74,9 @@ public class MistinnClient implements ClientModInitializer {
 		KeyMapping swingCamera = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.swing_camera", InputConstants.KEY_J, CATEGORY)
 		);
+		KeyMapping voice = KeyMappingHelper.registerKeyMapping(
+			new KeyMapping("key.mistinn.voice", InputConstants.KEY_V, CATEGORY)
+		);
 		// the view jolts when one's own blow lands
 		net.fabricmc.fabric.api.event.player.AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
 			if (level.isClientSide()) {
@@ -156,6 +159,9 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.view.OwnBody.tick(minecraft);
 			life.shizune.mistinn.client.view.ViewMotion.tick(minecraft);
 			life.shizune.mistinn.client.voice.VoiceClient.tick(minecraft);
+			while (voice.consumeClick()) {
+				life.shizune.mistinn.client.voice.VoiceClient.open(minecraft);
+			}
 			life.shizune.mistinn.client.story.StoryClient.tick(minecraft);
 			TrainingClient.tick(minecraft);
 			while (journal.consumeClick()) {
