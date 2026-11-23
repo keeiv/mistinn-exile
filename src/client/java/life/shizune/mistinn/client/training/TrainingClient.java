@@ -3,6 +3,7 @@ package life.shizune.mistinn.client.training;
 import java.io.IOException;
 import java.util.List;
 import life.shizune.mistinn.Mistinn;
+import life.shizune.mistinn.hardship.Hardship;
 import life.shizune.mistinn.story.WorldMode;
 import life.shizune.mistinn.training.TrainingGround;
 import life.shizune.mistinn.training.TrainingLesson;
@@ -39,15 +40,22 @@ public final class TrainingClient {
 	private TrainingClient() {
 	}
 
-	public static void createWorld(final Minecraft mc) {
+	public static void createWorld(final Minecraft mc, final Hardship hardship) {
 		String title = Component.translatable("mode.mistinn.training").getString();
 		try {
 			String folder = FileUtil.findAvailableName(mc.getLevelSource().getBaseDir(), title, "");
 			var packs = new DataPackConfig(List.of("vanilla", TrainingGround.PACK_ID), List.of());
 			var config = new WorldDataConfiguration(packs, WorldDataConfiguration.DEFAULT.enabledFeatures());
+			Difficulty difficulty = switch (hardship) {
+				case EASY -> Difficulty.EASY;
+				case NORMAL -> Difficulty.NORMAL;
+				case RUST_ANCHOR -> Difficulty.HARD;
+			};
 			var settings = new LevelSettings(title, GameType.SURVIVAL,
-				new LevelSettings.DifficultySettings(Difficulty.NORMAL, false, false), false, config);
+				new LevelSettings.DifficultySettings(difficulty, false, false), false, config);
 			WorldMode.choose(null);
+			// read by the new world's server when it first starts
+			Hardship.choose(hardship);
 			mc.createWorldOpenFlows().createFreshLevel(folder, settings, WorldOptions.defaultWithRandomSeed(),
 				WorldPresets::createNormalWorldDimensions, mc.gui.screen());
 		} catch (IOException error) {

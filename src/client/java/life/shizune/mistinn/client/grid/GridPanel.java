@@ -231,8 +231,9 @@ public final class GridPanel {
 		sockets.add(new SocketBox(Socket.BACKPACK, lx, socketY, CELL));
 		sockets.add(new SocketBox(Socket.RIG, lx + CELL + 2 * GAP + 20, socketY, CELL));
 		int safeY = socketY + 18 + 22;
-		boxes.add(new Box(Area.SAFE, 0, lx, safeY, 2, 2));
-		int leftBottom = safeY + 2 * CELL + 6;
+		int safe = inv.safeSize();
+		boxes.add(new Box(Area.SAFE, 0, lx, safeY, safe, safe));
+		int leftBottom = safeY + safe * CELL + 6;
 
 		int rx = leftPos + imageWidth + 10;
 		int maxWidth = Math.max(4 * CELL, guiWidth - 6 - rx);

@@ -2,6 +2,7 @@ package life.shizune.mistinn.client.mixin;
 
 import life.shizune.mistinn.client.title.ModeSelectScreen;
 import life.shizune.mistinn.client.training.TrainingClient;
+import life.shizune.mistinn.hardship.Hardship;
 import life.shizune.mistinn.story.WorldMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
@@ -13,7 +14,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * The world list asks which Mistinn experience to create before opening the settings or course.
+ * The world list asks which Mistinn experience to create, and for story and training how hard,
+ * before opening the settings or course.
  */
 @Mixin(CreateWorldScreen.class)
 public abstract class CreateWorldMixin {
@@ -29,16 +31,18 @@ public abstract class CreateWorldMixin {
 			return;
 		}
 		ci.cancel();
-		minecraft.gui.setScreen(new ModeSelectScreen(mode -> {
+		minecraft.gui.setScreen(new ModeSelectScreen((mode, hardship) -> {
 			if (mode == WorldMode.TRAINING) {
-				TrainingClient.createWorld(minecraft);
+				TrainingClient.createWorld(minecraft, hardship);
 				return;
 			}
 			WorldMode.choose(mode);
+			Hardship.choose(hardship);
 			mistinn$chosen = true;
 			try {
 				CreateWorldScreen.openFresh(minecraft, () -> {
 					WorldMode.choose(null);
+					Hardship.choose(null);
 					onClose.run();
 				});
 			} finally {

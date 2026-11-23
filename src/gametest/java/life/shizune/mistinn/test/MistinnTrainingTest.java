@@ -104,8 +104,10 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		}
 		// World creation through the mode card was exercised above. Reuse its creation action
 		// here to isolate the second destination from the previous save's world-list reload.
-		context.runOnClient(TrainingClient::createWorld);
-		waitForCourse(context);
+		// the second save is a Rust Anchor one: the course runs the same, with a 3x3 safe box
+		context.runOnClient(mc -> TrainingClient.createWorld(mc, life.shizune.mistinn.hardship.Hardship.RUST_ANCHOR));
+		waitForCourse(context, life.shizune.mistinn.hardship.Hardship.RUST_ANCHOR);
+		server(context, player -> check(life.shizune.mistinn.grid.GridService.get(player).safeSize() == 3, "a Rust Anchor hunter keeps a 3x3 safe box"));
 		try {
 			// The full course above proves how the last objective is earned. This world checks
 			// the other branch from the same final objective.
@@ -140,15 +142,28 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 		context.waitForScreen(ModeSelectScreen.class);
 		context.takeScreenshot("training-01-mode-select");
 		context.runOnClient(mc -> ((ModeSelectScreen) mc.gui.screen()).pick(WorldMode.TRAINING));
-		waitForCourse(context);
+		// training asks how hard the world is; normal is already lit, and Escape goes back to the modes
+		context.waitForScreen(life.shizune.mistinn.client.title.HardshipScreen.class);
+		check(context.computeOnClient(mc -> ((life.shizune.mistinn.client.title.HardshipScreen) mc.gui.screen()).lit(life.shizune.mistinn.hardship.Hardship.NORMAL)),
+			"normal is the hardship already chosen");
+		context.waitTicks(10);
+		context.takeScreenshot("training-01b-hardship");
+		context.getInput().pressKey(com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE);
+		context.waitForScreen(ModeSelectScreen.class);
+		context.runOnClient(mc -> ((ModeSelectScreen) mc.gui.screen()).pick(WorldMode.TRAINING));
+		context.waitForScreen(life.shizune.mistinn.client.title.HardshipScreen.class);
+		context.runOnClient(mc -> ((life.shizune.mistinn.client.title.HardshipScreen) mc.gui.screen()).pick(life.shizune.mistinn.hardship.Hardship.NORMAL));
+		waitForCourse(context, life.shizune.mistinn.hardship.Hardship.NORMAL);
+		server(context, player -> check(life.shizune.mistinn.grid.GridService.get(player).safeSize() == 2, "a normal hunter keeps a 2x2 safe box"));
 	}
 
-	private static void waitForCourse(final ClientGameTestContext context) {
+	private static void waitForCourse(final ClientGameTestContext context, final life.shizune.mistinn.hardship.Hardship hardship) {
 		context.waitFor(mc -> mc.player != null, 1000);
 		context.waitTicks(20);
 		waitLesson(context, TrainingLesson.ARRIVAL);
 		server(context, player -> {
 			check(WorldMode.of(player.level().getServer()) == WorldMode.TRAINING, "the third card created a training save");
+			check(life.shizune.mistinn.hardship.Hardship.of(player.level().getServer()) == hardship, "the save is as hard as chosen: " + hardship.id);
 			check(player.level().dimension().equals(TrainingGround.KEY), "the owner arrived at the course");
 			check(player.gameMode() == GameType.SURVIVAL, "the course starts in survival");
 		});

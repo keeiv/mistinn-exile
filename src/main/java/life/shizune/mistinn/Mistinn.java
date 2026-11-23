@@ -62,6 +62,7 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.registry.MistinnEntities.init();
 		MistinnWorld.init();
 		life.shizune.mistinn.story.WorldMode.init();
+		life.shizune.mistinn.hardship.Hardship.init();
 		life.shizune.mistinn.story.StoryService.init();
 		TrainingService.init();
 		life.shizune.mistinn.station.StationTalk.init();
@@ -82,6 +83,10 @@ public class Mistinn implements ModInitializer {
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
 			if (!alive) {
 				BellService.queueRespawn(newPlayer);
+				// a Rust Anchor world sends the fallen back weak and hungry; the station's course does not
+				if (life.shizune.mistinn.hardship.Hardship.rustAnchorAfield(oldPlayer) && BodyService.applies(newPlayer)) {
+					life.shizune.mistinn.hardship.RustAnchorDeath.respawned(newPlayer);
+				}
 			}
 			GridService.applyWeight(newPlayer);
 			life.shizune.mistinn.medical.TreatmentService.reset(newPlayer);
@@ -94,6 +99,9 @@ public class Mistinn implements ModInitializer {
 			GridService.showWorn(player, GridService.get(player));
 			// part penalties are transient attribute modifiers: put them back on every join
 			BodyService.applyPenalties(player, BodyService.get(player));
+			if (life.shizune.mistinn.hardship.Hardship.rustAnchor(player)) {
+				life.shizune.mistinn.hardship.RustAnchorDeath.joined(player);
+			}
 			// every hunter arrives with the guide, once
 			if (!player.getAttachedOrElse(MistinnAttachments.GUIDE_GIVEN, false)) {
 				player.setAttached(MistinnAttachments.GUIDE_GIVEN, true);

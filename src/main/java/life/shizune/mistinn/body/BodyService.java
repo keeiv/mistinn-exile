@@ -3,6 +3,7 @@ package life.shizune.mistinn.body;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.enemy.ExecutionService;
 import life.shizune.mistinn.grid.GridRules;
+import life.shizune.mistinn.hardship.Hardship;
 import life.shizune.mistinn.medical.TreatmentService;
 import life.shizune.mistinn.mixin.LivingEntityInvoker;
 import life.shizune.mistinn.registry.MistinnAttachments;
@@ -262,6 +263,8 @@ public final class BodyService {
 		if (!execution && ExecutionService.begins(player, source)) {
 			return;
 		}
+		// the world's hardship: softer blows when easy, harder ones at Rust Anchor
+		damage *= Hardship.of(player).damageTaken;
 		player.causeFoodExhaustion(source.getFoodExhaustion());
 		// a heavy blow breaks off whatever the hunter was treating or mending
 		TreatmentService.hurt(player, damage);
@@ -439,7 +442,9 @@ public final class BodyService {
 	// ── Every tick ────────────────────────────────────────────────
 
 	public static void tick(final MinecraftServer server) {
-		boolean regenTick = server.getTickCount() % REGEN_INTERVAL == 0;
+		// the world's hardship sets how often a part regains a point
+		int interval = Math.max(1, Math.round(REGEN_INTERVAL * Hardship.of(server).recovery));
+		boolean regenTick = server.getTickCount() % interval == 0;
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 			if (!applies(player) || player.isDeadOrDying()) {
 				continue;

@@ -56,7 +56,9 @@ public enum WorldMode {
 	public static void init() {
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			ServerLevel overworld = server.overworld();
-			if (!overworld.hasAttached(ATTACHMENT)) {
+			boolean fresh = !overworld.hasAttached(ATTACHMENT);
+			life.shizune.mistinn.hardship.Hardship.settle(server, fresh);
+			if (fresh) {
 				WorldMode chosen = server.getLevel(TrainingGround.KEY) == null ? pending : TRAINING;
 				overworld.setAttached(ATTACHMENT, chosen == null ? FREE : chosen);
 				Mistinn.LOGGER.info("New world, mode {}", overworld.getAttachedOrElse(ATTACHMENT, FREE).id);

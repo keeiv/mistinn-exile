@@ -125,19 +125,20 @@ public final class WoundService {
 		}
 		java.util.List<Component> news = new java.util.ArrayList<>();
 		boolean broke = false;
+		float hardship = life.shizune.mistinn.hardship.Hardship.of(player).woundChance;
 		for (BodyPart part : reached) {
 			if (body.destroyed(part)) {
 				continue;
 			}
 			Wounds.Wound wound = wounds.get(part);
 			// constitution makes both rarer
-			if (blow && !wound.bleeding() && random.nextFloat() < life.shizune.mistinn.skill.SkillService.woundChance(player, Math.min(0.55F, (each - BLEED_FROM) / 40.0F))) {
+			if (blow && !wound.bleeding() && random.nextFloat() < hardship * life.shizune.mistinn.skill.SkillService.woundChance(player, Math.min(0.55F, (each - BLEED_FROM) / 40.0F))) {
 				wound = wound.bleeding(true);
 				news.add(Component.translatable("message.mistinn.wound.bleeding", partName(part)));
 			}
 			boolean limb = part.isArm() || part.isLeg();
 			float breakChance = crush ? (each - BREAK_FROM) / 30.0F : (each - 30.0F) / 60.0F;
-			if (limb && !wound.fractured() && random.nextFloat() < life.shizune.mistinn.skill.SkillService.woundChance(player, Math.min(0.7F, breakChance))) {
+			if (limb && !wound.fractured() && random.nextFloat() < hardship * life.shizune.mistinn.skill.SkillService.woundChance(player, Math.min(0.7F, breakChance))) {
 				wound = wound.fractured(true);
 				news.add(Component.translatable("message.mistinn.wound.fracture", partName(part)));
 				broke = true;
@@ -174,6 +175,7 @@ public final class WoundService {
 			long now = player.level().getGameTime();
 			Body body = BodyService.get(player);
 			Body hurt = body;
+			float bleed = BLEED_PER_SECOND * life.shizune.mistinn.hardship.Hardship.of(player).bleeding;
 			for (BodyPart part : BodyPart.values()) {
 				Wounds.Wound wound = wounds.get(part);
 				if (body.destroyed(part)) {
@@ -186,7 +188,7 @@ public final class WoundService {
 				if (wound.tied() && now - wound.tourniquet() > TOURNIQUET_SAFE) {
 					hurt = hurt.with(part, hurt.get(part) - NECROSIS_PER_SECOND);
 				} else if (wound.bleeding() && !wound.tied()) {
-					hurt = hurt.with(part, hurt.get(part) - BLEED_PER_SECOND);
+					hurt = hurt.with(part, hurt.get(part) - bleed);
 				}
 				if (wound.splint() > 0L && !wound.splinted(now)) {
 					// the splint has worked loose: the bone is felt again
