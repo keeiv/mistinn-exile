@@ -10,6 +10,7 @@ import life.shizune.mistinn.keeper.RustWheel;
 import life.shizune.mistinn.keeper.WheelMoves;
 import life.shizune.mistinn.registry.MistinnBlocks;
 import life.shizune.mistinn.registry.MistinnItems;
+import life.shizune.mistinn.registry.MistinnSounds;
 import life.shizune.mistinn.world.Builder;
 import life.shizune.mistinn.world.SaltWorks;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
@@ -43,6 +44,7 @@ public class MistinnRustWheelTest implements FabricClientGameTest {
 			return;
 		}
 		movesKeepFaith();
+		soundsAreItsOwn(context);
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			world.getConnection().waitForChunksRender();
 			world.getServer().runCommand("difficulty normal");
@@ -69,6 +71,31 @@ public class MistinnRustWheelTest implements FabricClientGameTest {
 	}
 
 	// ── The move set ──────────────────────────────────────────────
+
+	/** Every sound the wheel makes is its own recording, not one of the game's borrowed. */
+	private static void soundsAreItsOwn(final ClientGameTestContext context) {
+		java.util.List<net.minecraft.sounds.SoundEvent> events = java.util.List.of(MistinnSounds.RUST_WHEEL_SPIN, MistinnSounds.RUST_WHEEL_SCREECH,
+			MistinnSounds.RUST_WHEEL_TILT, MistinnSounds.RUST_WHEEL_CREAK, MistinnSounds.RUST_WHEEL_CHAIN, MistinnSounds.RUST_WHEEL_GRIND,
+			MistinnSounds.RUST_WHEEL_CRASH, MistinnSounds.RUST_WHEEL_CLANG, MistinnSounds.RUST_WHEEL_HURT, MistinnSounds.RUST_WHEEL_DEATH,
+			MistinnSounds.RUST_WHEEL_AMBIENT, MistinnSounds.RUST_WHEEL_BREAK);
+		String borrowed = context.computeOnClient(mc -> {
+			RandomSource random = RandomSource.create(3L);
+			for (net.minecraft.sounds.SoundEvent event : events) {
+				var weighed = mc.getSoundManager().getSoundEvent(event.location());
+				if (weighed == null) {
+					return event.location() + " has no sounds";
+				}
+				for (int i = 0; i < 8; i++) {
+					net.minecraft.resources.Identifier location = weighed.getSound(random).getLocation();
+					if (!location.getNamespace().equals("mistinn") || !location.getPath().startsWith("entity/rust_wheel/")) {
+						return event.location() + " plays " + location;
+					}
+				}
+			}
+			return null;
+		});
+		check(borrowed == null, "every sound of the wheel is its own: " + borrowed);
+	}
 
 	private static void movesKeepFaith() {
 		int feints = 0;

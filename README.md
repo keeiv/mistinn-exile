@@ -635,7 +635,7 @@ docs/          設計文件
 ## 接下來
 
 1. **故事模式的後續章節**：鏽神的鹽塊要不要送上去，之後是霧宿與結局。
-2. **鏽輪的後續**：專屬掉落與專門做的音效。設計見 [docs/phase4-design.md](docs/phase4-design.md)。
+2. **鏽輪的後續**：專屬掉落。設計見 [docs/phase4-design.md](docs/phase4-design.md)。
 3. **之後**：多人合作。
 
 ## 參與貢獻
