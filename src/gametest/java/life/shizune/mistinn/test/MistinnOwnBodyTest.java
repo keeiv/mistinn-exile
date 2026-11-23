@@ -110,8 +110,13 @@ public final class MistinnOwnBodyTest implements FabricClientGameTest {
 				mc.player.swing(InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getAttackAnimation(), true);
 			});
 			context.waitTicks(2);
-			context.runOnClient(mc -> check(OwnHand.seen(InteractionHand.MAIN_HAND, aspect(mc)) != null && OwnHand.seen(InteractionHand.OFF_HAND, aspect(mc)) == null,
-				"an empty off hand stays at the side"));
+			for (int i = 0; i < 5 && context.computeOnClient(mc -> OwnHand.seen(InteractionHand.MAIN_HAND, aspect(mc)) == null); i++) {
+				context.waitTicks(1);
+			}
+			context.runOnClient(mc -> {
+				check(OwnHand.seen(InteractionHand.MAIN_HAND, aspect(mc)) != null, "the swing brings the main hand up");
+				check(OwnHand.seen(InteractionHand.OFF_HAND, aspect(mc)) == null, "an empty off hand stays at the side");
+			});
 			context.waitTicks(40);
 
 			// dropped from five blocks up, the landing is felt

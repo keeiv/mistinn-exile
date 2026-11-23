@@ -28,17 +28,18 @@ import org.jspecify.annotations.Nullable;
  * (through swings, rolls and falls too), and sit just outside a chestplate (which stands one
  * pixel off the body). The backpack bounces with the stride. Each tier has its own shape:
  * the backpack grows and gains pockets, a bedroll and a frame; the rig goes from a bandolier and
- * a work belt to a harness with a row of magazine pouches.
+ * a work belt through chest rigs with straps over the shoulders and round the sides, each with
+ * its own pouches, to a full vest and a rig of bones. Each rig is built after its inventory
+ * icon, on a 64x64 sheet of its own.
  */
 public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 	public static final ModelLayerLocation LAYER = new ModelLayerLocation(Mistinn.id("gear"), "main");
+	public static final ModelLayerLocation RIG_LAYER = new ModelLayerLocation(Mistinn.id("gear"), "rig");
 	/** Which backpack and rig a player wears, by tier index; absent when none. */
 	public static final RenderStateDataKey<Integer> BACKPACK = RenderStateDataKey.create(() -> "mistinn:backpack");
 	public static final RenderStateDataKey<Integer> RIG = RenderStateDataKey.create(() -> "mistinn:rig");
 
 	private static final int TIERS = Tier.values().length;
-	/** Rig harness by tier from II: top of the pouch panel, its height, pouch count, pouch height. */
-	private static final int[][] HARNESS = {{5, 5, 3, 3}, {4, 6, 3, 3}, {4, 6, 3, 4}, {4, 6, 4, 3}, {4, 6, 4, 3}};
 
 	private final GearModel backpack;
 	private final GearModel rig;
@@ -46,21 +47,38 @@ public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 	public GearLayer(final RenderLayerParent<AvatarRenderState, PlayerModel> parent, final EntityRendererProvider.Context context) {
 		super(parent);
 		this.backpack = new GearModel(context.bakeLayer(LAYER), "backpack_", BACKPACK);
-		this.rig = new GearModel(context.bakeLayer(LAYER), "rig_", RIG);
+		this.rig = new GearModel(context.bakeLayer(RIG_LAYER), "rig_", RIG);
 	}
 
 	/**
-	 * One mesh holds every tier of both: each model shows only its own kind, and only the tier
-	 * the player wears. Texture layout per tier is the vanilla box layout on a 64x32 sheet.
+	 * Every tier of backpack in one mesh: the model shows only the tier the player wears. Texture
+	 * layout per tier is the vanilla box layout on a 64x32 sheet.
 	 */
 	public static LayerDefinition definition() {
 		MeshDefinition mesh = HumanoidModel.createMesh(CubeDeformation.NONE, 0.0F);
 		PartDefinition body = mesh.getRoot().addOrReplaceChild("body", CubeListBuilder.create(), PartPose.ZERO);
 		for (int t = 0; t < TIERS; t++) {
 			body.addOrReplaceChild("backpack_" + t, backpack(t), PartPose.ZERO);
-			addRig(body, t);
 		}
 		return LayerDefinition.create(mesh, 64, 32);
+	}
+
+	/**
+	 * Every tier of chest rig in one mesh, each on a 64x64 sheet of its own in the vanilla box
+	 * layout. A rig sits outside a chestplate: over the shoulders above its top, round the sides
+	 * outside its flanks, its pouches in front of it.
+	 */
+	public static LayerDefinition rigDefinition() {
+		MeshDefinition mesh = HumanoidModel.createMesh(CubeDeformation.NONE, 0.0F);
+		PartDefinition body = mesh.getRoot().addOrReplaceChild("body", CubeListBuilder.create(), PartPose.ZERO);
+		rig0(body.addOrReplaceChild("rig_0", CubeListBuilder.create(), PartPose.ZERO));
+		rig1(body.addOrReplaceChild("rig_1", CubeListBuilder.create(), PartPose.ZERO));
+		rig2(body.addOrReplaceChild("rig_2", CubeListBuilder.create(), PartPose.ZERO));
+		rig3(body.addOrReplaceChild("rig_3", CubeListBuilder.create(), PartPose.ZERO));
+		rig4(body.addOrReplaceChild("rig_4", CubeListBuilder.create(), PartPose.ZERO));
+		rig5(body.addOrReplaceChild("rig_5", CubeListBuilder.create(), PartPose.ZERO));
+		rig6(body.addOrReplaceChild("rig_6", CubeListBuilder.create(), PartPose.ZERO));
+		return LayerDefinition.create(mesh, 64, 64);
 	}
 
 	private static CubeListBuilder backpack(final int tier) {
@@ -92,53 +110,262 @@ public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 		return cubes;
 	}
 
-	private static void addRig(final PartDefinition body, final int tier) {
-		if (tier == 0) {
-			// 彈帶: one belt of cartridges slung from shoulder to hip, crossing front and back
-			PartDefinition sling = body.addOrReplaceChild("rig_0", CubeListBuilder.create(), PartPose.ZERO);
-			CubeListBuilder belt = CubeListBuilder.create().texOffs(0, 0).addBox(-1.0F, -8.0F, -0.5F, 2, 16, 1);
-			sling.addOrReplaceChild("front", belt, PartPose.offsetAndRotation(0.0F, 6.0F, -3.4F, 0.0F, 0.0F, 0.75F));
-			sling.addOrReplaceChild("back", belt, PartPose.offsetAndRotation(0.0F, 6.0F, 3.4F, 0.0F, 0.0F, -0.75F));
-			return;
-		}
-		CubeListBuilder cubes = CubeListBuilder.create();
-		if (tier == 1) {
-			// 腰掛: a belt round the waist with two pouches in front
-			cubes.texOffs(0, 0).addBox(-4.5F, 9.0F, -3.0F, 9, 2, 6);
-			cubes.texOffs(0, 16).addBox(-3.5F, 7.5F, -4.0F, 3, 3, 1);
-			cubes.texOffs(0, 16).addBox(0.5F, 7.5F, -4.0F, 3, 3, 1);
-		} else if (tier == 3) {
-			// The square pouches sit low on the chest, clear of the armour's anchor.
-			shoulderStraps(cubes, 6);
-			cubes.texOffs(0, 0).addBox(-4.0F, 6.0F, -4.0F, 8, 4, 1);
-			cubes.texOffs(40, 0).addBox(-4.0F, 6.5F, -5.0F, 2, 3, 1);
-			cubes.texOffs(40, 0).addBox(2.0F, 6.5F, -5.0F, 2, 3, 1);
-			cubes.texOffs(48, 0).addBox(-2.0F, 8.0F, -5.0F, 4, 2, 1);
-		} else if (tier == 6) {
-			// Bone pouches on the sides leave the breastbone visible.
-			shoulderStraps(cubes, 6);
-			cubes.texOffs(0, 0).addBox(-4.0F, 5.0F, -5.0F, 3, 5, 2);
-			cubes.texOffs(10, 0).addBox(1.0F, 6.0F, -5.0F, 3, 4, 2);
-			cubes.texOffs(40, 0).addBox(-3.0F, 9.0F, -3.8F, 6, 1, 1);
-		} else {
-			int[] h = HARNESS[tier - 2];
-			int top = h[0];
-			cubes.texOffs(0, 0).addBox(-4.0F, top, -4.0F, 8, h[1], 1);
-			shoulderStraps(cubes, top);
-			float step = 8.0F / h[2];
-			for (int p = 0; p < h[2]; p++) {
-				cubes.texOffs(40, 0).addBox(-4.0F + p * step + (step - 2.0F) / 2.0F, top + 1.0F, -5.0F, 2, h[3], 1);
-			}
-		}
-		body.addOrReplaceChild("rig_" + tier, cubes, PartPose.ZERO);
+	/** 鏽皮彈帶: an old leather bandolier from the left shoulder to the right hip, crossing front and back, cartridges in loops either side of its buckle, and two small pouches sewn on at the hip. */
+	private static void rig0(final PartDefinition rig) {
+		rig.addOrReplaceChild("front", CubeListBuilder.create()
+			// belt
+			.texOffs(0, 0).addBox(-1.0F, -8.0F, -0.5F, 2.0F, 16.0F, 1.0F)
+			// shell 0
+			.texOffs(37, 0).addBox(-0.5F, -7.5F, -1.5F, 1.0F, 1.0F, 1.0F)
+			// shell 1
+			.texOffs(42, 0).addBox(-0.5F, -5.5F, -1.5F, 1.0F, 1.0F, 1.0F)
+			// shell 2
+			.texOffs(47, 0).addBox(-0.5F, -3.5F, -1.5F, 1.0F, 1.0F, 1.0F)
+			// shell 3
+			.texOffs(52, 0).addBox(-0.5F, -1.5F, -1.5F, 1.0F, 1.0F, 1.0F)
+			// buckle
+			.texOffs(14, 0).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 2.0F, 1.0F)
+			// shell 4
+			.texOffs(57, 0).addBox(-0.5F, 2.5F, -1.5F, 1.0F, 1.0F, 1.0F)
+			// shell 5
+			.texOffs(0, 18).addBox(-0.5F, 4.5F, -1.5F, 1.0F, 1.0F, 1.0F)
+			// shell 6
+			.texOffs(5, 18).addBox(-0.5F, 6.5F, -1.5F, 1.0F, 1.0F, 1.0F),
+			PartPose.offsetAndRotation(0.0F, 6.0F, -3.6F, 0.0F, 0.0F, 0.78F));
+		rig.addOrReplaceChild("back", CubeListBuilder.create()
+			// belt
+			.texOffs(7, 0).addBox(-1.0F, -8.0F, -0.5F, 2.0F, 16.0F, 1.0F),
+			PartPose.offsetAndRotation(0.0F, 6.0F, 3.6F, 0.0F, 0.0F, -0.78F));
+		rig.addOrReplaceChild("hip", CubeListBuilder.create()
+			// pouch a
+			.texOffs(23, 0).addBox(-4.5F, 9.0F, -4.6F, 2.0F, 2.0F, 1.0F)
+			// pouch b
+			.texOffs(30, 0).addBox(-2.3F, 10.0F, -4.4F, 2.0F, 2.0F, 1.0F),
+			PartPose.ZERO);
 	}
 
-	private static void shoulderStraps(final CubeListBuilder cubes, final int frontLength) {
-		for (float x : new float[] {-3.0F, 2.0F}) {
-			cubes.texOffs(20, 0).addBox(x, 0.0F, -4.0F, 1, frontLength, 1);
-			cubes.texOffs(0, 16).addBox(x, -1.0F, -4.0F, 1, 1, 8);
-			cubes.texOffs(28, 0).addBox(x, 0.0F, 3.0F, 1, 9, 1);
-		}
+	/** 碼頭工腰掛: a canvas belt round the waist with four pouches open at the top, two in front and one on each hip, and a hook. */
+	private static void rig1(final PartDefinition rig) {
+		rig.addOrReplaceChild("cubes", CubeListBuilder.create()
+			// belt
+			.texOffs(0, 0).addBox(-5.5F, 9.0F, -4.0F, 11.0F, 2.0F, 8.0F)
+			// pouch fr
+			.texOffs(0, 11).addBox(-4.0F, 7.5F, -6.0F, 3.0F, 3.0F, 2.0F)
+			// pouch fl
+			.texOffs(11, 11).addBox(1.0F, 7.5F, -6.0F, 3.0F, 3.0F, 2.0F)
+			// pouch sr
+			.texOffs(39, 0).addBox(-7.5F, 8.5F, -2.0F, 2.0F, 3.0F, 3.0F)
+			// pouch sl
+			.texOffs(50, 0).addBox(5.5F, 8.5F, -2.0F, 2.0F, 3.0F, 3.0F)
+			// hook
+			.texOffs(22, 11).addBox(5.6F, 11.0F, 2.0F, 1.0F, 2.0F, 1.0F),
+			PartPose.ZERO);
+	}
+
+	/** 巡潮胸掛: shoulder straps crossing on the back, a panel of three upright magazine pouches with the signal lamp's square pouch above them, and straps round the sides. */
+	private static void rig2(final PartDefinition rig) {
+		rig.addOrReplaceChild("cubes", CubeListBuilder.create()
+			// back cross
+			.texOffs(43, 20).addBox(-2.0F, 3.0F, 3.0F, 4.0F, 3.0F, 1.0F)
+			// back strap down
+			.texOffs(27, 20).addBox(-0.5F, 6.0F, 3.0F, 1.0F, 4.0F, 1.0F)
+			// panel
+			.texOffs(39, 10).addBox(-4.0F, 5.0F, -4.0F, 8.0F, 5.0F, 1.0F)
+			// mag r
+			.texOffs(0, 20).addBox(-3.5F, 6.0F, -5.5F, 2.0F, 4.0F, 1.5F)
+			// mag m
+			.texOffs(9, 20).addBox(-1.0F, 6.0F, -5.5F, 2.0F, 4.0F, 1.5F)
+			// mag l
+			.texOffs(18, 20).addBox(1.5F, 6.0F, -5.5F, 2.0F, 4.0F, 1.5F)
+			// lamp
+			.texOffs(32, 20).addBox(-1.5F, 3.0F, -6.0F, 3.0F, 3.0F, 2.0F)
+			// side r
+			.texOffs(38, 0).addBox(-6.0F, 8.0F, -4.0F, 1.0F, 1.0F, 8.0F)
+			// side l
+			.texOffs(0, 10).addBox(5.0F, 8.0F, -4.0F, 1.0F, 1.0F, 8.0F)
+			// side back
+			.texOffs(0, 27).addBox(-5.0F, 8.0F, 3.0F, 10.0F, 1.0F, 1.0F),
+			PartPose.ZERO);
+		rig.addOrReplaceChild("over", CubeListBuilder.create()
+			// strap front r
+			.texOffs(19, 10).addBox(-3.0F, -1.0F, -4.0F, 1.0F, 6.0F, 1.0F)
+			// strap over r
+			.texOffs(0, 0).addBox(-3.0F, -2.0F, -4.0F, 1.0F, 1.0F, 8.0F)
+			// strap front l
+			.texOffs(24, 10).addBox(2.0F, -1.0F, -4.0F, 1.0F, 6.0F, 1.0F)
+			// strap over l
+			.texOffs(19, 0).addBox(2.0F, -2.0F, -4.0F, 1.0F, 1.0F, 8.0F)
+			// strap back r
+			.texOffs(29, 10).addBox(-3.0F, -1.0F, 3.0F, 1.0F, 5.0F, 1.0F)
+			// strap back l
+			.texOffs(34, 10).addBox(2.0F, -1.0F, 3.0F, 1.0F, 5.0F, 1.0F),
+			PartPose.ZERO);
+	}
+
+	/** 錨衛胸掛: H-shaped straps, two square pouches high on the chest, a row of four slim pouches below and a pouch on the belt. */
+	private static void rig3(final PartDefinition rig) {
+		rig.addOrReplaceChild("cubes", CubeListBuilder.create()
+			// back cross
+			.texOffs(30, 20).addBox(-2.0F, 3.0F, 3.0F, 4.0F, 3.0F, 1.0F)
+			// back strap down
+			.texOffs(39, 10).addBox(-0.5F, 6.0F, 3.0F, 1.0F, 4.0F, 1.0F)
+			// bar
+			.texOffs(18, 26).addBox(-3.0F, 4.0F, -4.0F, 6.0F, 1.0F, 1.0F)
+			// square r
+			.texOffs(44, 10).addBox(-4.0F, 2.0F, -5.5F, 3.0F, 3.0F, 1.5F)
+			// square l
+			.texOffs(0, 20).addBox(1.0F, 2.0F, -5.5F, 3.0F, 3.0F, 1.5F)
+			// panel
+			.texOffs(11, 20).addBox(-4.0F, 6.0F, -4.0F, 8.0F, 4.0F, 1.0F)
+			// slim 0
+			.texOffs(41, 20).addBox(-3.75F, 6.5F, -5.0F, 1.5F, 3.0F, 1.0F)
+			// slim 1
+			.texOffs(48, 20).addBox(-1.75F, 6.5F, -5.0F, 1.5F, 3.0F, 1.0F)
+			// slim 2
+			.texOffs(55, 20).addBox(0.25F, 6.5F, -5.0F, 1.5F, 3.0F, 1.0F)
+			// slim 3
+			.texOffs(0, 26).addBox(2.25F, 6.5F, -5.0F, 1.5F, 3.0F, 1.0F)
+			// belt pouch
+			.texOffs(7, 26).addBox(-1.5F, 10.0F, -4.5F, 3.0F, 2.0F, 1.5F)
+			// side r
+			.texOffs(38, 0).addBox(-6.0F, 9.0F, -4.0F, 1.0F, 1.0F, 8.0F)
+			// side l
+			.texOffs(0, 10).addBox(5.0F, 9.0F, -4.0F, 1.0F, 1.0F, 8.0F)
+			// side back
+			.texOffs(33, 26).addBox(-5.0F, 9.0F, 3.0F, 10.0F, 1.0F, 1.0F),
+			PartPose.ZERO);
+		rig.addOrReplaceChild("over", CubeListBuilder.create()
+			// strap front r
+			.texOffs(19, 10).addBox(-3.0F, -1.0F, -4.0F, 1.0F, 6.0F, 1.0F)
+			// strap over r
+			.texOffs(0, 0).addBox(-3.0F, -2.0F, -4.0F, 1.0F, 1.0F, 8.0F)
+			// strap front l
+			.texOffs(24, 10).addBox(2.0F, -1.0F, -4.0F, 1.0F, 6.0F, 1.0F)
+			// strap over l
+			.texOffs(19, 0).addBox(2.0F, -2.0F, -4.0F, 1.0F, 1.0F, 8.0F)
+			// strap back r
+			.texOffs(29, 10).addBox(-3.0F, -1.0F, 3.0F, 1.0F, 5.0F, 1.0F)
+			// strap back l
+			.texOffs(34, 10).addBox(2.0F, -1.0F, 3.0F, 1.0F, 5.0F, 1.0F),
+			PartPose.ZERO);
+	}
+
+	/** 霧行胸掛: a wide flat document pouch across the top and four long upright pouches under it. */
+	private static void rig4(final PartDefinition rig) {
+		rig.addOrReplaceChild("cubes", CubeListBuilder.create()
+			// back cross
+			.texOffs(34, 20).addBox(-2.0F, 3.0F, 3.0F, 4.0F, 3.0F, 1.0F)
+			// back strap down
+			.texOffs(29, 20).addBox(-0.5F, 6.0F, 3.0F, 1.0F, 4.0F, 1.0F)
+			// panel
+			.texOffs(19, 10).addBox(-4.0F, 4.0F, -4.0F, 8.0F, 6.0F, 1.0F)
+			// admin
+			.texOffs(45, 20).addBox(-3.0F, 3.0F, -5.5F, 6.0F, 2.0F, 1.5F)
+			// long 0
+			.texOffs(38, 10).addBox(-3.75F, 5.0F, -5.5F, 1.5F, 5.0F, 1.5F)
+			// long 1
+			.texOffs(47, 10).addBox(-1.75F, 5.0F, -5.5F, 1.5F, 5.0F, 1.5F)
+			// long 2
+			.texOffs(56, 10).addBox(0.25F, 5.0F, -5.5F, 1.5F, 5.0F, 1.5F)
+			// long 3
+			.texOffs(0, 20).addBox(2.25F, 5.0F, -5.5F, 1.5F, 5.0F, 1.5F)
+			// side r
+			.texOffs(38, 0).addBox(-6.0F, 9.0F, -4.0F, 1.0F, 1.0F, 8.0F)
+			// side l
+			.texOffs(0, 10).addBox(5.0F, 9.0F, -4.0F, 1.0F, 1.0F, 8.0F)
+			// side back
+			.texOffs(0, 28).addBox(-5.0F, 9.0F, 3.0F, 10.0F, 1.0F, 1.0F),
+			PartPose.ZERO);
+		rig.addOrReplaceChild("over", CubeListBuilder.create()
+			// strap front r
+			.texOffs(9, 20).addBox(-3.0F, -1.0F, -4.0F, 1.0F, 5.0F, 1.0F)
+			// strap over r
+			.texOffs(0, 0).addBox(-3.0F, -2.0F, -4.0F, 1.0F, 1.0F, 8.0F)
+			// strap front l
+			.texOffs(14, 20).addBox(2.0F, -1.0F, -4.0F, 1.0F, 5.0F, 1.0F)
+			// strap over l
+			.texOffs(19, 0).addBox(2.0F, -2.0F, -4.0F, 1.0F, 1.0F, 8.0F)
+			// strap back r
+			.texOffs(19, 20).addBox(-3.0F, -1.0F, 3.0F, 1.0F, 5.0F, 1.0F)
+			// strap back l
+			.texOffs(24, 20).addBox(2.0F, -1.0F, 3.0F, 1.0F, 5.0F, 1.0F),
+			PartPose.ZERO);
+	}
+
+	/** 鐘守戰術背心: a vest over the front and back with shoulder pieces, four magazine pouches each with a small bell on its flap, a pouch on each side and a belt. */
+	private static void rig5(final PartDefinition rig) {
+		rig.addOrReplaceChild("cubes", CubeListBuilder.create()
+			// vest front
+			.texOffs(0, 0).addBox(-4.5F, 0.0F, -4.0F, 9.0F, 11.0F, 1.0F)
+			// vest back
+			.texOffs(21, 0).addBox(-4.5F, 0.0F, 3.0F, 9.0F, 11.0F, 1.0F)
+			// mag 0
+			.texOffs(21, 24).addBox(-4.0F, 4.0F, -5.5F, 2.0F, 4.0F, 1.5F)
+			// mag 1
+			.texOffs(30, 24).addBox(-2.0F, 4.0F, -5.5F, 2.0F, 4.0F, 1.5F)
+			// mag 2
+			.texOffs(39, 24).addBox(0.0F, 4.0F, -5.5F, 2.0F, 4.0F, 1.5F)
+			// mag 3
+			.texOffs(48, 24).addBox(2.0F, 4.0F, -5.5F, 2.0F, 4.0F, 1.5F)
+			// bell 0
+			.texOffs(22, 34).addBox(-3.5F, 3.5F, -6.0F, 1.0F, 1.0F, 1.0F)
+			// bell 1
+			.texOffs(27, 34).addBox(-1.5F, 3.5F, -6.0F, 1.0F, 1.0F, 1.0F)
+			// bell 2
+			.texOffs(32, 34).addBox(0.5F, 3.5F, -6.0F, 1.0F, 1.0F, 1.0F)
+			// bell 3
+			.texOffs(37, 34).addBox(2.5F, 3.5F, -6.0F, 1.0F, 1.0F, 1.0F)
+			// side pouch r
+			.texOffs(0, 34).addBox(-6.5F, 5.0F, -2.5F, 1.5F, 3.0F, 3.0F)
+			// side pouch l
+			.texOffs(11, 34).addBox(5.0F, 5.0F, -2.5F, 1.5F, 3.0F, 3.0F)
+			// belt
+			.texOffs(0, 13).addBox(-5.5F, 10.0F, -4.0F, 11.0F, 1.5F, 8.0F),
+			PartPose.ZERO);
+		rig.addOrReplaceChild("over", CubeListBuilder.create()
+			// shoulder r
+			.texOffs(39, 13).addBox(-4.5F, -2.0F, -4.0F, 2.0F, 1.0F, 8.0F)
+			// shoulder l
+			.texOffs(0, 24).addBox(2.5F, -2.0F, -4.0F, 2.0F, 1.0F, 8.0F),
+			PartPose.ZERO);
+	}
+
+	/** 鏽神骸掛: bones from the shoulders, ribs across the chest, a breastbone, a spine with its vertebrae down the back and one small pouch. */
+	private static void rig6(final PartDefinition rig) {
+		rig.addOrReplaceChild("cubes", CubeListBuilder.create()
+			// rib 0
+			.texOffs(16, 14).addBox(-4.0F, 4.0F, -5.0F, 8.0F, 1.0F, 1.5F)
+			// rib 1
+			.texOffs(37, 14).addBox(-3.5F, 5.6F, -5.0F, 7.0F, 1.0F, 1.5F)
+			// rib 2
+			.texOffs(0, 23).addBox(-4.0F, 7.2F, -5.0F, 8.0F, 1.0F, 1.5F)
+			// rib 3
+			.texOffs(21, 23).addBox(-3.5F, 8.8F, -5.0F, 7.0F, 1.0F, 1.5F)
+			// sternum
+			.texOffs(0, 14).addBox(-0.5F, 3.5F, -5.5F, 1.0F, 6.5F, 1.0F)
+			// spine
+			.texOffs(0, 0).addBox(-0.5F, -1.0F, 3.0F, 1.0F, 12.0F, 1.0F)
+			// vertebra 0
+			.texOffs(40, 23).addBox(-1.0F, 1.0F, 3.5F, 2.0F, 1.0F, 1.0F)
+			// vertebra 1
+			.texOffs(47, 23).addBox(-1.0F, 3.5F, 3.5F, 2.0F, 1.0F, 1.0F)
+			// vertebra 2
+			.texOffs(54, 23).addBox(-1.0F, 6.0F, 3.5F, 2.0F, 1.0F, 1.0F)
+			// vertebra 3
+			.texOffs(0, 27).addBox(-1.0F, 8.5F, 3.5F, 2.0F, 1.0F, 1.0F)
+			// pouch bone
+			.texOffs(5, 14).addBox(-4.5F, 9.5F, -4.5F, 3.0F, 2.0F, 1.5F),
+			PartPose.ZERO);
+		rig.addOrReplaceChild("over", CubeListBuilder.create()
+			// collar r
+			.texOffs(5, 0).addBox(-3.5F, -2.0F, -4.0F, 1.5F, 1.0F, 8.0F)
+			// collar l
+			.texOffs(26, 0).addBox(2.0F, -2.0F, -4.0F, 1.5F, 1.0F, 8.0F)
+			// hang r
+			.texOffs(47, 0).addBox(-3.5F, -1.0F, -4.5F, 1.5F, 7.0F, 1.0F)
+			// hang l
+			.texOffs(54, 0).addBox(2.0F, -1.0F, -4.5F, 1.5F, 7.0F, 1.0F),
+			PartPose.ZERO);
 	}
 
 	@Override
@@ -166,16 +393,16 @@ public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 	 */
 	private static final class GearModel extends HumanoidModel<AvatarRenderState> {
 		private final ModelPart[] own = new ModelPart[TIERS];
-		private final ModelPart[] other = new ModelPart[TIERS];
+		/** What of each tier runs up over the shoulders; null for one that has nothing there. */
+		private final @Nullable ModelPart[] over = new ModelPart[TIERS];
 		private final RenderStateDataKey<Integer> key;
 
 		GearModel(final ModelPart root, final String kind, final RenderStateDataKey<Integer> key) {
 			super(root);
 			this.key = key;
-			String otherKind = kind.equals("rig_") ? "backpack_" : "rig_";
 			for (int t = 0; t < TIERS; t++) {
 				this.own[t] = this.body.getChild(kind + t);
-				this.other[t] = this.body.getChild(otherKind + t);
+				this.over[t] = this.own[t].hasChild("over") ? this.own[t].getChild("over") : null;
 			}
 		}
 
@@ -185,7 +412,11 @@ public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 			Integer tier = state.getData(this.key);
 			for (int t = 0; t < TIERS; t++) {
 				this.own[t].visible = tier != null && tier == t;
-				this.other[t].visible = false;
+				ModelPart over = this.over[t];
+				if (over != null) {
+					// through the wearer's own eyes what runs up over the shoulders is right under the eye: it is left out
+					over.visible = !Boolean.TRUE.equals(state.getData(life.shizune.mistinn.client.view.OwnBody.KEY));
+				}
 			}
 			if (this.key == BACKPACK && tier != null && tier >= 0 && tier < TIERS) {
 				// 晃動: the pack is thrown up off the back with each footfall and lands again; it
