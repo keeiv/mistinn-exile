@@ -15,7 +15,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.RandomState;
 
 /**
- * 霧鐘台的探測: how often world generation finds a place for a fog-bell station, against a lighthouse. Over a wide
+ * 霧鐘台與鹽坊的探測: how often world generation finds a place for a fog-bell station and for a salt works, against a lighthouse. Over a wide
  * square of chunks it reads the terrain the generator would make (without building a single chunk) and counts the
  * chunks whose random spot passes each feature's own checks, then what the rarity leaves of them. A measurement, not a
  * check: runs only with -Dmistinn.reefprobe=true (build.gradle: -PreefProbe) and writes its numbers to the log.
@@ -51,6 +51,7 @@ public final class MistinnReefProbeTest implements FabricClientGameTest {
 				long ocean = 0;
 				long reef = 0;
 				long lighthouse = 0;
+				long works = 0;
 				for (int cx = cx0 - HALF; cx <= cx0 + HALF; cx++) {
 					for (int cz = cz0 - HALF; cz <= cz0 + HALF; cz++) {
 						chunks++;
@@ -77,6 +78,22 @@ public final class MistinnReefProbeTest implements FabricClientGameTest {
 								reef++;
 							}
 						}
+						// the salt works' own checks, roughly: inland (no sea, river or beach), dry ground above the sea, not the
+						// desert's sand, and level to three blocks out to twelve, measured as the feature does on the surface
+						boolean inland = !biome.is(net.minecraft.tags.BiomeTags.IS_OCEAN) && !biome.is(net.minecraft.tags.BiomeTags.IS_RIVER)
+							&& !biome.is(net.minecraft.tags.BiomeTags.IS_BEACH) && !biome.is(Biomes.DESERT);
+						int surface = surface(generator, state, level, x, z);
+						if (inland && surface == floor && surface >= sea) {
+							boolean level12 = true;
+							for (int[] c : new int[][] {{-12, -12}, {12, -12}, {-12, 12}, {12, 12}, {0, -12}, {0, 12}, {-12, 0}, {12, 0}}) {
+								if (Math.abs(surface(generator, state, level, x + c[0], z + c[1]) - surface) > 3) {
+									level12 = false;
+								}
+							}
+							if (level12) {
+								works++;
+							}
+						}
 						// the lighthouse's own checks, roughly: dry beach at or above the sea, roughly level out to six blocks
 						if (isBeach && floor >= sea - 1) {
 							boolean level6 = true;
@@ -93,6 +110,13 @@ public final class MistinnReefProbeTest implements FabricClientGameTest {
 				}
 				System.out.printf("[reefprobe] seed " + seed + ": chunks %d, beach %d, shallow-sea biomes %d; bell-tower spots %d (%.2f per 1000 chunks), lighthouse spots %d (%.2f per 1000)%n",
 					chunks, beach, ocean, reef, 1000.0 * reef / chunks, lighthouse, 1000.0 * lighthouse / chunks);
+				double area = chunks * 256.0;
+				System.out.printf("[reefprobe] seed " + seed + ": salt-works spots %d (%.2f per 1000 chunks)%n", works, 1000.0 * works / chunks);
+				for (int rarity : new int[] {18000, 1400}) {
+					double expected = works / (double) rarity;
+					System.out.printf("[reefprobe] seed " + seed + ", salt works at rarity %d: about %.2f in this square, one every %.0f blocks; lighthouses at 700: %.2f, one every %.0f blocks%n",
+						rarity, expected, Math.sqrt(area / Math.max(expected, 1.0E-6)), lighthouse / 700.0, Math.sqrt(area / Math.max(lighthouse / 700.0, 1.0E-6)));
+				}
 				for (int rarity : new int[] {900, 600, 400, 300, 200}) {
 					System.out.printf("[reefprobe] seed " + seed + ", rarity %d: about %.2f bell towers in this square (%d chunks); lighthouses at 700: %.2f%n",
 						rarity, reef / (double) rarity, chunks, lighthouse / 700.0);
@@ -109,6 +133,11 @@ public final class MistinnReefProbeTest implements FabricClientGameTest {
 			}
 		}
 		return false;
+	}
+
+	/** The top of what the generator would make at (x, z), the surface of water included. */
+	private static int surface(final ChunkGenerator generator, final RandomState state, final ServerLevel level, final int x, final int z) {
+		return generator.getBaseHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, level, state) - 1;
 	}
 
 	/** The top solid block the generator would make at (x, z), water ignored. */
