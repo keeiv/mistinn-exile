@@ -63,6 +63,7 @@ public class MistinnRustWheelTest implements FabricClientGameTest {
 			photographed(context, world, centre);
 			frontAndBack(world, centre);
 			momentumShowsOnItsBar(context, world, centre);
+			keepsHuntersOutOfItsYoke(context, world, centre);
 			runIntoAPillar(context, world, centre);
 			runsOverAHunter(context, world, centre);
 			turnsSlowlyAndLashesItsBack(context, world, centre);
@@ -221,6 +222,41 @@ public class MistinnRustWheelTest implements FabricClientGameTest {
 			RustWheel wheel = wheel(server, centre);
 			wheel.crash(server.overworld());
 			check(wheel.barName().getString().equals(name), "and go when it crashes: " + wheel.barName().getString());
+		});
+	}
+
+	/**
+	 * The yoke and the man chained over it stand out behind its rim, past where its body ends: a hunter who steps in under
+	 * them is put back out behind the man, where the view is clear of him, and a blow still reaches its back from there.
+	 */
+	private static void keepsHuntersOutOfItsYoke(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos centre) {
+		world.getServer().runOnServer(server -> {
+			RustWheel wheel = wheel(server, centre);
+			wheel.teleportTo(centre.getX() + 0.5, centre.getY(), centre.getZ() + 0.5);
+			wheel.setDeltaMovement(Vec3.ZERO);
+			face(wheel, 0.0F);
+			// a hunter it does not hunt (in creative), so the wheel keeps still and only the yoke moves them
+			player(server).setGameMode(GameType.CREATIVE);
+			// under the man: its back is to the north
+			player(server).teleportTo(server.overworld(), centre.getX() + 0.5, centre.getY(), centre.getZ() + 0.5 - 1.8, Set.of(), 0.0F, 10.0F, true);
+		});
+		context.waitTicks(10);
+		world.getServer().runOnServer(server -> {
+			RustWheel wheel = wheel(server, centre);
+			double behind = wheel.position().subtract(player(server).position()).horizontalDistance();
+			check(behind >= RustWheel.YOKE_BACK, "a hunter under its yoke is put back out behind the man: " + behind);
+			check(behind <= 3.5, "still in reach of its back: " + behind);
+		});
+		context.takeScreenshot("wheel-01-back-close");
+		// beside it, past its rim, nothing moves them
+		world.getServer().runOnServer(server -> player(server).teleportTo(server.overworld(), centre.getX() + 2.5, centre.getY(), centre.getZ() + 0.5 - 1.8,
+			Set.of(), 0.0F, 10.0F, true));
+		context.waitTicks(10);
+		world.getServer().runOnServer(server -> {
+			double x = player(server).getX() - (centre.getX() + 0.5);
+			check(Math.abs(x - 2.0) < 0.3, "one off to its side is left where they stand: " + x);
+			player(server).setGameMode(GameType.SURVIVAL);
+			player(server).getAbilities().invulnerable = true;
 		});
 	}
 

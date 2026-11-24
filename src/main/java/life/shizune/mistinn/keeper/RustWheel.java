@@ -59,6 +59,9 @@ public class RustWheel extends Keeper {
 	public static final float BACK = 1.5F;
 	/** The cosine of the half-angle of its front and of its back (60 degrees either side). */
 	private static final double ARC = 0.5;
+	/** How far behind its middle the yoke and the man reach, and how far either side of its middle they spread. */
+	public static final double YOKE_BACK = 2.5;
+	public static final double YOKE_SIDE = 0.9;
 	/** The most momentum it builds. */
 	public static final int MAX_MOMENTUM = 3;
 	/** Ticks a hunter may stand at its back before the chain comes. */
@@ -395,6 +398,38 @@ public class RustWheel extends Keeper {
 			} else if (move != null && "stuck".equals(move.id())) {
 				// jammed against the stone, still spinning
 				this.turned += 0.45F;
+			}
+		} else if (this.isAlive()) {
+			this.keepOutOfTheYoke();
+		}
+	}
+
+	/**
+	 * The yoke and the man chained over it stand out behind the rim, past where its body ends: a hunter who steps in under
+	 * them is eased back out behind the man, as if he were solid, so a hunter striking its back never stands inside him.
+	 */
+	private void keepOutOfTheYoke() {
+		Vec3 facing = Vec3.directionFromRotation(0.0F, this.getYRot());
+		Vec3 side = new Vec3(-facing.z, 0.0, facing.x);
+		for (Player player : this.level().getEntitiesOfClass(Player.class, this.getBoundingBox().inflate(YOKE_BACK + 0.5, 1.0, YOKE_BACK + 0.5))) {
+			if (!player.isAlive() || player.isSpectator()) {
+				continue;
+			}
+			Vec3 at = player.position().subtract(this.position());
+			double behind = -(at.x * facing.x + at.z * facing.z);
+			double across = at.x * side.x + at.z * side.z;
+			double clear = YOKE_BACK + player.getBbWidth() / 2.0;
+			if (behind <= 0.0 || behind >= clear || Math.abs(across) >= YOKE_SIDE + player.getBbWidth() / 2.0 || Math.abs(at.y) > 2.5) {
+				continue;
+			}
+			// straight back out from under him at a walk, no further than he reaches: the way back is set, not added to,
+			// so it does not build up over the ticks it takes
+			double out = Math.min(0.3, (clear - behind) * 0.5);
+			Vec3 v = player.getDeltaMovement();
+			double along = v.x * facing.x + v.z * facing.z;
+			if (along > -out) {
+				player.setDeltaMovement(v.x - facing.x * (out + along), v.y, v.z - facing.z * (out + along));
+				player.syncVelocity = true;
 			}
 		}
 	}
