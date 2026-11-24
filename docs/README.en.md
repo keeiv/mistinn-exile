@@ -388,6 +388,10 @@ The Sunken Bell is a drowned bell-ringer, his head and shoulders sealed in a cra
 
 ## The salt works and the Rust Wheel
 
+| | |
+| --- | --- |
+| ![A salt works by a lake on inland plains at dusk: the Rust Wheel in the middle of its walled yard, the boiling house, salt pans and the golden bell's shrine outside](images/salt-works.jpg) | ![The low sun across the yard: the Rust Wheel at an angle in the middle, a man bent over the yoke behind its axle](images/rust-wheel.jpg) |
+
 Inland on level ground, rarer than the lighthouses, stand dead **salt works**: a round yard walled in stone, four stone pillars in it and a dry channel round its edge; outside the gate a golden bell, the boiling house with what stores are left, and the salt pans gone to crust. In the middle of the yard waits the third keeper, **the Rust Wheel**.
 
 The Rust Wheel is the great brine wheel itself, still turning: an iron-shod rim with rivets and plates, rotten buckets between the spokes, and a yoke back from the axle with a man chained across it, bent over, his feet dragging. It fights with the same brain as the other keepers, one that plans ahead and learns your habits.
