@@ -132,7 +132,15 @@ public final class HeavyService {
 
 	/** 鐘舌: how far the ring of its full heavy blow carries, breaking off every windup it reaches. */
 	public static final double CLAPPER_RING = 6.0;
+	/** 鏽輪緣: how many ticks its full heavy blow rolls the hunter on, how fast, and how far either side of the path it runs over. */
+	public static final int RIM_TICKS = 7;
+	public static final double RIM_SPEED = 0.9;
+	public static final double RIM_PATH = 1.3;
+	/** The share of the blow each one run over takes, and how long a hunter who rolls into a wall is dazed. */
+	public static final double RIM_SHARE = 0.6;
+	public static final int RIM_DAZE = 40;
 	private static final List<Strike> PENDING = new ArrayList<>();
+	private static final List<Roll> ROLLS = new ArrayList<>();
 
 	/** The client's word on whether the hunter is mid-roll or mid-slide, for its own prediction. */
 	public static BooleanSupplier clientBusy = () -> false;
@@ -283,6 +291,7 @@ public final class HeavyService {
 
 	/** Lands the blows whose contact has come. */
 	public static void tick(final MinecraftServer server) {
+		rolls(server);
 		if (PENDING.isEmpty()) {
 			return;
 		}
@@ -359,10 +368,108 @@ public final class HeavyService {
 		if (full && strike.special() == SpecialWeapon.BELL_CLAPPER) {
 			ringBack(player, level);
 		}
+		if (full && strike.special() == SpecialWeapon.RUST_RIM) {
+			Set<Integer> struckAlready = new HashSet<>();
+			for (LivingEntity target : hit) {
+				struckAlready.add(target.getId());
+			}
+			ROLLS.add(new Roll(player.getUUID(), flatLook(player), amount * RIM_SHARE, shape, struckAlready, player.position()));
+			level.playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.RUST_WHEEL_SPIN, SoundSource.PLAYERS, 0.9F, 1.4F);
+		}
 		if (strike.special() == SpecialWeapon.TIDE_MAUL) {
 			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BELL_BLOCK, SoundSource.PLAYERS, 2.0F, 0.5F);
 			level.sendParticles(ParticleTypes.SONIC_BOOM, player.getX(), player.getY() + 0.2, player.getZ(), 1, 0.0, 0.0, 0.0, 0.0);
 		}
+	}
+
+	/**
+	 * A hunter rolling on behind the rim: which way, how hard it runs over, what it already struck, how long yet, and
+	 * where the roll has got to. The roll keeps its own place: the server hears where the hunter is a tick or two late.
+	 */
+	private static final class Roll {
+		final UUID player;
+		final Vec3 dir;
+		final double damage;
+		final Shape shape;
+		final Set<Integer> struck;
+		int left = RIM_TICKS;
+		Vec3 at;
+
+		Roll(final UUID player, final Vec3 dir, final double damage, final Shape shape, final Set<Integer> struck, final Vec3 at) {
+			this.player = player;
+			this.dir = dir;
+			this.damage = damage;
+			this.shape = shape;
+			this.struck = struck;
+			this.at = at;
+		}
+	}
+
+	/**
+	 * 鏽輪緣: each hunter still rolling is carried on along the way they faced; everything on the path is run over, once,
+	 * and thrown aside. A wall ahead (one a step will not climb) stops the roll and dazes the hunter.
+	 */
+	private static void rolls(final MinecraftServer server) {
+		for (Iterator<Roll> it = ROLLS.iterator(); it.hasNext();) {
+			Roll roll = it.next();
+			ServerPlayer player = server.getPlayerList().getPlayer(roll.player);
+			if (player == null || player.isDeadOrDying()) {
+				it.remove();
+				continue;
+			}
+			if (roll.left-- <= 0) {
+				// the roll is spent: it stops where it got to, not coasting on
+				player.setDeltaMovement(0.0, player.getDeltaMovement().y, 0.0);
+				player.syncVelocity = true;
+				it.remove();
+				continue;
+			}
+			ServerLevel level = player.level();
+			Vec3 step = roll.dir.scale(RIM_SPEED);
+			AABB here = player.getBoundingBox().move(roll.at.subtract(player.position()));
+			AABB ahead = here.move(step).deflate(0.05, 0.0, 0.05).move(0.0, 0.01, 0.0);
+			if (!level.noCollision(player, ahead) && !level.noCollision(player, ahead.move(0.0, player.maxUpStep(), 0.0))) {
+				crash(player, level);
+				it.remove();
+				continue;
+			}
+			player.setDeltaMovement(step.x, player.getDeltaMovement().y, step.z);
+			player.syncVelocity = true;
+			Vec3 from = flat(roll.at);
+			Vec3 to = from.add(step);
+			roll.at = roll.at.add(step);
+			Vec3 side = new Vec3(-roll.dir.z, 0.0, roll.dir.x);
+			for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, here.expandTowards(step).inflate(RIM_PATH + 0.5, 1.0, RIM_PATH + 0.5),
+				e -> attackable(player, e) && !roll.struck.contains(e.getId()))) {
+				if (alongPath(from, to, flat(target.position())) - target.getBbWidth() / 2.0 > RIM_PATH) {
+					continue;
+				}
+				roll.struck.add(target.getId());
+				if (blow(player, target, roll.damage, roll.shape, false, SpecialWeapon.RUST_RIM)) {
+					// run over and thrown to the side it was on, as the wheel does
+					double away = Math.signum(side.dot(flat(target.position()).subtract(from)));
+					target.setDeltaMovement(side.scale((away == 0.0 ? 1.0 : away) * 0.6).add(0.0, 0.3, 0.0));
+					target.syncVelocity = true;
+				}
+			}
+		}
+	}
+
+	/** The distance from {@code at} to the segment {@code from}-{@code to}. */
+	private static double alongPath(final Vec3 from, final Vec3 to, final Vec3 at) {
+		Vec3 line = to.subtract(from);
+		double t = line.lengthSqr() < 1.0E-6 ? 0.0 : Mth.clamp(at.subtract(from).dot(line) / line.lengthSqr(), 0.0, 1.0);
+		return at.distanceTo(from.add(line.scale(t)));
+	}
+
+	/** The roll runs into a wall: the hunter stops dead, rattled, as the wheel is when it jams. */
+	private static void crash(final ServerPlayer player, final ServerLevel level) {
+		player.setDeltaMovement(0.0, player.getDeltaMovement().y, 0.0);
+		player.syncVelocity = true;
+		player.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.SLOWNESS, RIM_DAZE, 1));
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.RUST_WHEEL_CRASH, SoundSource.PLAYERS, 0.7F, 1.4F);
+		Vec3 at = player.position().add(flatLook(player).scale(0.6));
+		level.sendParticles(ParticleTypes.CRIT, at.x, at.y + 1.0, at.z, 12, 0.3, 0.4, 0.3, 0.2);
 	}
 
 	/** 鐘舌: the clapper rings out all round the hunter, and every creature it reaches breaks off the blow it was winding up. */
@@ -556,11 +663,13 @@ public final class HeavyService {
 
 	private static void forget(final UUID player) {
 		PENDING.removeIf(strike -> strike.player().equals(player));
+		ROLLS.removeIf(roll -> roll.player.equals(player));
 	}
 
 	/** Drops every blow still on its way (when the server stops; also a test hook). */
 	public static void forgetAll() {
 		PENDING.clear();
+		ROLLS.clear();
 	}
 
 	/** Tells the watchers of a hunter that a heavy blow was let go, so they draw it. */

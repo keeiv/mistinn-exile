@@ -423,6 +423,7 @@ public class RustWheel extends Keeper {
 	protected void dropCustomDeathLoot(final ServerLevel level, final DamageSource source, final boolean killedByPlayer) {
 		super.dropCustomDeathLoot(level, source, killedByPlayer);
 		this.spawnAtLocation(level, new ItemStack(MistinnItems.RUST_GOD_SALT));
+		this.spawnAtLocation(level, new ItemStack(MistinnItems.RUST_RIM));
 		for (ServerPlayer near : level.getPlayers(p -> p.isAlive() && p.distanceTo(this) <= BAR_RANGE)) {
 			life.shizune.mistinn.achievement.AchievementService.grant(near, life.shizune.mistinn.achievement.AchievementService.RUST_WHEEL);
 		}

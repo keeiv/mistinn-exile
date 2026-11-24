@@ -75,7 +75,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Crafting | Every medical item, repair kit, piece of gear and weapon can be crafted or smithed. Permanent golden bells are found in the world. Keepers drop the Rust God's salt block, an ingredient in tier VI gear. |
 | One-time bells | Fragile bells cast from gold ore (ore or raw gold) and an iron chain. Each rings once and breaks after calling its first hunter back. A bell that has already rung drops nothing when broken. |
 | Minimap | Built in, north up; shows your heading, your bell and where you fell, pinned to the edge when off the map. |
-| Weapons | Six branches (blade, greatsword, spear, dagger, hammer, scythe) in five materials (wood, stone, iron, diamond, netherite), so there is something to fight with from day one; four named weapons: Anchor Blade, Sunken Bell Greatsword, Mistwalker Spear and Salt Fang; and four special weapons that only answer a hunter who has earned them: the Snuffer's Hook, the Mist-Lantern Staff, the Tide-Bell Maul and the Bell Clapper. Each has vanilla-style art and a held model, its own swing and hit sounds, and its own first- and third-person swing. |
+| Weapons | Six branches (blade, greatsword, spear, dagger, hammer, scythe) in five materials (wood, stone, iron, diamond, netherite), so there is something to fight with from day one; four named weapons: Anchor Blade, Sunken Bell Greatsword, Mistwalker Spear and Salt Fang; and five special weapons that only answer a hunter who has earned them: the Snuffer's Hook, the Mist-Lantern Staff, the Tide-Bell Maul, the Bell Clapper and the Rust Rim. Each has vanilla-style art and a held model, its own swing and hit sounds, and its own first- and third-person swing. |
 | Swings | Every blow has a wind-up, a strike, an overshoot and a recovery, and leaves a cut of vanilla-style pixel light where it lands, turned to the blow: the blade's diagonal, the greatsword's chop, the spear's line, the dagger's two crossing cuts, the hammer's sweep, the scythe's rising reap. Hold use to charge a **heavy blow** that hits everything in its reach. Third person twists and steps into it. In first person the view swings with the blow and jolts on a hit. |
 | Vanilla monsters | Their voices are built from CC0 recordings, lower and more savage; their movement and poses are remade for each rig. They stalk low once they have a hunter, and every melee blow has a windup you can see and hear, and roll away from. A hunter whose legs are both destroyed is executed: see [Vanilla monsters and executions](#vanilla-monsters-and-executions). |
 | Stamina and rolls | Swings, sprints and rolls cost stamina. The legs determine how far a roll goes and the arms shape its motion. Badly injured legs can force a dive, whose landing strains the upper body. |
@@ -134,6 +134,7 @@ Four special weapons only answer a hunter who meets their requirements. Short of
 | Mist-Lantern Staff | Spear (6 damage) | Intellect 4 | The lantern bursts ahead: everything within 3.5 blocks is hurt and set alight, for (6 + intellect) × (1 + the charge) | `..L` / `.#.` / `#..` (L soul lantern) |
 | Tide-Bell Maul | Hammer (13 damage) | Strength 5, constitution 3 | The bell tolls: everything within 4.5 blocks all around is thrown up | `IBI` / `.#.` / `.#.` (I iron block, B bell) |
 | Bell Clapper | Hammer (11 damage) | The Sunken Bell brought down, strength 4 | Rung back: a full blow rings out all round and breaks off every windup within 6 blocks, struck or not | Dropped by the Sunken Bell |
+| Rust Rim | Greatsword (12 damage) | The Rust Wheel brought down, constitution 4 | Rolling on: a full blow rolls you on some six blocks, running over everything in the path (six tenths of the blow each) and throwing it aside; a wall stops you, dazed for two seconds | Dropped by the Rust Wheel |
 
 ## Playing
 
@@ -398,7 +399,7 @@ The Rust Wheel is the great brine wheel itself, still turning: an iron-shod rim 
 - **Close in**: a rim sweep, a hop and slam (the shock runs along the floor; jump or roll), and a back-roll when a run overshoots. Stay at its back too long and the man lashes out with his chain.
 - Below half health the man tears a chain loose and plates fall from the rim: its front takes 55% now; its runs turn toward you once halfway, its slams and crashes spill brine that slows you, and it runs a lap round the edge of the yard before cutting in.
 - Once you are in the yard, the mist closes the gate behind you until it falls.
-- It drops the **Rust God's salt block**, 4000 salt, and a 30% chance of a piece of tier IV–V gear.
+- It drops the **Rust God's salt block**, the special weapon **Rust Rim**, 4000 salt, and a 30% chance of a piece of tier IV–V gear.
 
 ## Stats and skills
 
@@ -527,8 +528,7 @@ Textures and models are original work by MoriTeahouse. Sound effects combine edi
 ## What comes next
 
 1. **The rest of the story**: whether the Rust God's salt goes up, then the Mist Inn and the endings.
-2. **More of the Rust Wheel**: its own spoils ([design, in Chinese](phase4-design.md)).
-3. **Later**: co-op.
+2. **Later**: co-op.
 
 ## Contributing
 

@@ -27,6 +27,7 @@ public final class MistinnTab {
 				output.accept(MistinnItems.LANTERN_STAFF);
 				output.accept(MistinnItems.TIDE_MAUL);
 				output.accept(MistinnItems.BELL_CLAPPER);
+				output.accept(MistinnItems.RUST_RIM);
 				for (WeaponMaterial material : WeaponMaterial.values()) {
 					for (WeaponStyle style : WeaponStyle.values()) {
 						output.accept(MistinnItems.WEAPONS.get(style).get(material));
