@@ -25,6 +25,8 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 [Playing](#playing) ·
 [Phase 2 design](phase2-design.md) (Chinese) ·
 [Phase 3 design](phase3-design.md) (Chinese) ·
+[Phase 4 design](phase4-design.md) (Chinese) ·
+[Phase 5 design](phase5-design.md) (Chinese) ·
 [Contributing](CONTRIBUTING.en.md)
 
 </div>
@@ -531,7 +533,7 @@ Textures and models are original work by MoriTeahouse. Sound effects combine edi
 
 ## What comes next
 
-1. **The rest of the story**: whether the Rust God's salt goes up, then the Mist Inn and the endings.
+1. **Chapter 5 and the endings**: whether the Rust God's salt goes up; sending it is the ending *The Anchor*, keeping it the ending *Mist Inn* ([design, in Chinese](phase5-design.md)).
 2. **Later**: co-op.
 
 ## Contributing
