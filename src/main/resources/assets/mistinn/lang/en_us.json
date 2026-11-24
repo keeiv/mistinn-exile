@@ -1261,6 +1261,8 @@
   "subtitles.mistinn.entity.sunken_bell.ring": "A great bell tolls",
   "entity.mistinn.rust_wheel": "Rust Wheel",
   "entity.mistinn.rust_wheel.momentum": "%s  Momentum %s",
+  "entity.mistinn.sunken_bell.mist": "%s  Mist %s",
+  "entity.mistinn.snuffer.lamps": "%s  Lamps %s",
   "message.mistinn.rust_wheel.stagger_blows": "The blows bite into the axle. The Rust Wheel lurches!",
   "message.mistinn.rust_wheel.stagger_stuck": "Jammed and struck hard, the Rust Wheel keels over!",
   "message.mistinn.rust_wheel.broken": "The man tears a chain loose; plates fall from the rim.",

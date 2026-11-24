@@ -354,6 +354,28 @@ public abstract class Keeper extends Monster {
 		return this.bar.getName();
 	}
 
+	/** What its health bar last showed beside its name, so it is sent again only when it changes. */
+	private @Nullable String shownKey;
+	private int shownFilled = -1;
+	private int shownOf = -1;
+
+	/**
+	 * Shows a count on its health bar after its name, a mark each of {@code of}, the first {@code filled} full ("◆◆◇"),
+	 * through the language key {@code key} (name, marks); or its name alone when {@code key} is null. The thing a hunter
+	 * fights by (the wheel's momentum, the bell's mist, the lamps lit in the dark) read off at a glance.
+	 */
+	protected void showOnBar(final @Nullable String key, final int filled, final int of) {
+		if (java.util.Objects.equals(key, this.shownKey) && filled == this.shownFilled && of == this.shownOf) {
+			return;
+		}
+		this.shownKey = key;
+		this.shownFilled = filled;
+		this.shownOf = of;
+		Component name = this.getType().getDescription();
+		this.bar.setName(key == null ? name
+			: Component.translatable(key, name, "◆".repeat(Math.max(0, filled)) + "◇".repeat(Math.max(0, of - filled))));
+	}
+
 	/** The hunters who see its health bar. */
 	protected List<ServerPlayer> watchers() {
 		return List.copyOf(this.bar.getPlayers());

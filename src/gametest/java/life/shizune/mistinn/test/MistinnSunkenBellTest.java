@@ -272,10 +272,14 @@ public final class MistinnSunkenBellTest implements FabricClientGameTest {
 		world.getServer().runOnServer(server -> {
 			clear(server, stage);
 			bell(server, stage).setLayers(2);
+			String bar = bell(server, stage).barName().getString();
+			check(bar.contains("◆◆◇◇"), "its mist shows on its health bar, a mark a layer: " + bar);
 		});
 		context.waitTicks(SunkenBell.FADE_WHOLE + 10);
 		world.getServer().runOnServer(server -> {
 			check(bell(server, stage).layers() == 1, "fifteen quiet seconds and a layer thins: " + bell(server, stage).layers());
+			String bar = bell(server, stage).barName().getString();
+			check(bar.contains("◆◇◇◇"), "and the bar with it: " + bar);
 			clear(server, stage);
 		});
 	}

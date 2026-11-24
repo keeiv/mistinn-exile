@@ -138,6 +138,8 @@ public class Snuffer extends Keeper {
 		}
 		List<BlockPos> lamps = this.lamps(level);
 		long lit = lamps.stream().filter(pos -> level.getBlockState(pos).getValue(LampStandBlock.LIT)).count();
+		// in the dark, the lamps it has to be beaten by
+		this.showOnBar(lamps.isEmpty() ? null : "entity.mistinn.snuffer.lamps", (int) lit, lamps.size());
 		if (this.staggered <= 0 && lamps.size() >= 4 && lit == lamps.size()) {
 			this.stagger(level, "message.mistinn.snuffer.stagger");
 		}

@@ -367,7 +367,7 @@ Rust Anchor says the coasts at the world's edge are lined with dead lighthouses,
 | Hook | The hook is drawn back and the chain snaps taut | Drags you in, then strikes your face; only a mask helps |
 
 - 300 health, 8 armour, and a boss health bar.
-- Below half health every lamp in the room goes out and you are in darkness. Right-click the four lamp stands to light them; with all four lit it staggers for five seconds and takes half again as much damage, then snuffs them out one by one.
+- Below half health every lamp in the room goes out and you are in darkness. Right-click the four lamp stands to light them; with all four lit it staggers for five seconds and takes half again as much damage, then snuffs them out one by one. In the dark, the ◆ marks on its health bar are the lamps lit.
 - It drops **the Rust God's salt block**, 3000 salt, and a 30% chance of one piece of tier III–IV gear.
 - In the lamp room, or within 32 blocks once it is wounded, the keeper's fight music plays. Below half health, a low bell marks the blackout and leads into the dark track. The music stops when the fight is over.
 
@@ -379,7 +379,7 @@ The Sunken Bell is a drowned bell-ringer, his head and shoulders sealed in a cra
 
 - 360 health and 10 armour; he cannot be pushed, and has a boss bar.
 - **Toll**: he strikes his own bell with the clapper and a ring rolls out along the floor. Standing on the floor where it passes takes a blow to the head; jump it or roll through it. The bell hums before a toll.
-- **Mist layers**: each toll thickens the mist of his room by a layer, and how far you see shrinks from 16 blocks down to 4.5, the map with it; a layer thins after fifteen quiet seconds. At the fourth layer he gives the **deep toll**: three tolls, each ring further than the last.
+- **Mist layers**: each toll thickens the mist of his room by a layer, and how far you see shrinks from 16 blocks down to 4.5, the map with it; a layer thins after fifteen quiet seconds. At the fourth layer he gives the **deep toll**: three tolls, each ring further than the last. The ◆ marks on his health bar are the layers of mist.
 - **Ringing it back**: a fully charged heavy blow rings his own bell at him and thins the mist a layer; three in a row throw him off balance for five seconds, taking half again as much damage, and thin the mist by two more.
 - Below half health the bell cracks: his tolls come double and the mist is slower to thin, and he leaps to bring the bell down over you: shut in under it you can neither see nor move, and he tolls with you inside. Roll out before he lands.
 - Once you are up in the belfry, the mist closes the stair behind you until he falls.

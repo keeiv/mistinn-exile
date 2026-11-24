@@ -144,9 +144,7 @@ public class RustWheel extends Keeper {
 	/** Its momentum, shown on its health bar a mark a layer, so a hunter can read how hard the next run will come. */
 	private void setMomentum(final int momentum) {
 		this.entityData.set(DATA_MOMENTUM, (byte) momentum);
-		Component name = this.getType().getDescription();
-		this.bar.setName(momentum <= 0 ? name
-			: Component.translatable("entity.mistinn.rust_wheel.momentum", name, "◆".repeat(momentum) + "◇".repeat(MAX_MOMENTUM - momentum)));
+		this.showOnBar(momentum <= 0 ? null : "entity.mistinn.rust_wheel.momentum", momentum, MAX_MOMENTUM);
 	}
 
 	/** The middle of its yard. */
