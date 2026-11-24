@@ -51,6 +51,8 @@ public class MistinnTitleScreen extends TitleScreen {
 	private @Nullable SimpleSoundInstance shoreBell;
 	private int mouseX;
 	private int mouseY;
+	/** How far the wordmark and the menu move up so the menu's last entry stays clear of the icons below it. */
+	private int lift;
 
 	public MistinnTitleScreen() {
 		super(false, new NoLogo());
@@ -73,21 +75,27 @@ public class MistinnTitleScreen extends TitleScreen {
 
 	@Override
 	protected void init() {
-		if (this.shoreBell == null) {
+		// again after coming back from another screen, which stopped it
+		if (this.shoreBell == null || !this.minecraft.getSoundManager().isActive(this.shoreBell)) {
 			this.shoreBell = SimpleSoundInstance.forMusic(MistinnSounds.MUSIC_SHORE);
 			this.minecraft.getSoundManager().play(this.shoreBell);
 		}
 		this.menu.clear();
 		int x = Math.max(24, this.width / 14);
-		int y = this.height / 2 - 6;
 		int w = 150;
 		int step = 22;
+		int entries = FabricLoader.getInstance().isModLoaded("modmenu") ? 6 : 5;
+		// on a short screen the whole block moves up, so the last entry clears the language and accessibility icons
+		this.lift = Math.max(0, this.height / 2 - 6 + (entries - 1) * step + 20 - (this.height - 40));
+		int y = this.height / 2 - 6 - this.lift;
 		this.add(new MenuButton(x, y, w, Component.translatable("menu.singleplayer"), () -> this.minecraft.gui.setScreen(new SelectWorldScreen(this))));
 		MenuButton multiplayer = this.add(new MenuButton(x, y += step, w, Component.translatable("menu.multiplayer"), () -> {
 			Screen screen = this.minecraft.options.skipMultiplayerWarning ? new JoinMultiplayerScreen(this) : new SafetyScreen(this);
 			this.minecraft.gui.setScreen(screen);
 		}));
 		multiplayer.active = this.minecraft.allowsMultiplayer();
+		this.add(new MenuButton(x, y += step, w, Component.translatable("menu.mistinn.world_map"),
+			() -> this.minecraft.gui.setScreen(new life.shizune.mistinn.client.worldmap.WorldMapScreen(this))));
 		if (FabricLoader.getInstance().isModLoaded("modmenu")) {
 			this.add(new MenuButton(x, y += step, w, Component.translatable("menu.mistinn.mods"), this::openModMenu));
 		}
@@ -146,7 +154,7 @@ public class MistinnTitleScreen extends TitleScreen {
 		float markScale = Math.min(230, this.width / 3) / (float) WORDMARK_ZH_W;
 		int markW = Math.round(textureWidth * markScale);
 		int markH = Math.round(WORDMARK_H * markScale);
-		int markY = this.height / 2 - 26 - markH - 14;
+		int markY = this.height / 2 - 26 - markH - 14 - this.lift;
 		g.blit(RenderPipelines.GUI_TEXTURED, english ? WORDMARK_EN : WORDMARK_ZH, x - 4, markY, 0.0F, 0.0F, markW, markH, textureWidth, WORDMARK_H, textureWidth, WORDMARK_H);
 		int taglineWidth = Math.min(this.width - x - 8, Math.max(190, this.width / 2 - x));
 		float elapsed = (System.nanoTime() - this.opened) / 1.0E9F;

@@ -35,6 +35,8 @@ public class StoryCardScreen extends Screen {
 		super(Component.translatable(card.title().isEmpty() ? card.line(0) : card.title()));
 		this.card = card;
 		this.image = Mistinn.id(card.image());
+		// the world map on the title screen opens the places this card has led to
+		life.shizune.mistinn.client.worldmap.SeenStory.saw(card.id());
 	}
 
 	private String lineText() {
