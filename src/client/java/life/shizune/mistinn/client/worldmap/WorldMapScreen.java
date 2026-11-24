@@ -347,6 +347,10 @@ public class WorldMapScreen extends Screen {
 	}
 
 	private WorldMap.@Nullable Place placeUnder(final double mx, final double my) {
+		// the title band lies over the map: what is under it is neither pointed at nor clicked
+		if (my < 36) {
+			return null;
+		}
 		WorldMap.Place best = null;
 		double bestDistance = 64.0;
 		for (WorldMap.Place place : WorldMap.PLACES) {
@@ -616,7 +620,11 @@ public class WorldMapScreen extends Screen {
 		Component chip = shown && place.kind() == WorldMap.Kind.STOP ? chip(place.chapter()) : null;
 		int chipW = chip == null ? 0 : this.font.width(chip) + 5;
 		int w = chipW + this.font.width(name);
-		int[][] spots = {{x + 8, y - 4}, {x - 8 - w, y - 4}, {x - w / 2, y + 8}, {x - w / 2, y - 17}};
+		// beside the marker first; then beside the middle of the drawing, for a marker under the title
+		int cy = Math.round(this.sy((place.y0() + place.y1()) / 2.0F));
+		int right = Math.round(this.sx(place.x1()));
+		int left = Math.round(this.sx(place.x0()));
+		int[][] spots = {{x + 8, y - 4}, {x - 8 - w, y - 4}, {x - w / 2, y + 8}, {x - w / 2, y - 17}, {right + 4, cy - 4}, {left - 4 - w, cy - 4}};
 		int[] chosen = null;
 		for (int[] at : spots) {
 			if (this.free(at[0] - 1, at[1] - 1, at[0] + w + 1, at[1] + 10)) {
@@ -626,7 +634,7 @@ public class WorldMapScreen extends Screen {
 		}
 		// the name under the pointer or of the open stop is always shown, over others if it must
 		if (chosen == null && (hot || open)) {
-			chosen = spots[0][0] + w < this.width - 2 ? spots[0] : spots[1];
+			chosen = spots[4][0] + w < this.width - 2 ? spots[4] : spots[5];
 		}
 		if (chosen != null) {
 			int lx = chosen[0];

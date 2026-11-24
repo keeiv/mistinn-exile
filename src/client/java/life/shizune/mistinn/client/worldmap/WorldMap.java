@@ -24,6 +24,7 @@ public final class WorldMap {
 	/** Where the water ends and the sky over the coast begins. */
 	public static final float UNDERSIDE = 600.0F;
 
+	/** What a place on the map is. */
 	public enum Kind {
 		/** A place the story leads to. */
 		STOP,
