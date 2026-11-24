@@ -66,6 +66,10 @@ public class MistinnHardshipTest implements FabricClientGameTest {
 		if (Boolean.getBoolean("mistinn.photo") || Boolean.getBoolean("mistinn.animsheet") || Boolean.getBoolean("mistinn.medreel")) {
 			return;
 		}
+		// story and training ask how hard; free exploration, picked on its own, is normal (after a course it keeps the course's)
+		check(life.shizune.mistinn.client.title.ModeSelectScreen.asksHardship(life.shizune.mistinn.story.WorldMode.STORY)
+			&& life.shizune.mistinn.client.title.ModeSelectScreen.asksHardship(life.shizune.mistinn.story.WorldMode.TRAINING)
+			&& !life.shizune.mistinn.client.title.ModeSelectScreen.asksHardship(life.shizune.mistinn.story.WorldMode.FREE), "only story and training ask");
 		// the hardship screen as it opens after the story card: normal lit, the cards as tall as their text
 		context.setScreen(() -> new life.shizune.mistinn.client.title.HardshipScreen(new net.minecraft.client.gui.screens.TitleScreen(),
 			life.shizune.mistinn.story.WorldMode.STORY, hardship -> { }));

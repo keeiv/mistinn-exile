@@ -157,7 +157,7 @@ Story worlds remember whether the keeper has fallen and the salt block has been 
 
 ## Difficulty and Rust Anchor
 
-Story and Hunter Training ask how hard the world will be when you create it. Normal is the default; Free exploration does not ask and is always Normal. The choice is kept with the world and carries over from training into Story or Free exploration.
+Story and Hunter Training ask how hard the world will be when you create it; Normal is the default. Free exploration created on its own does not ask and is always Normal; boarding the drop pod after Hunter Training, for Story or Free exploration, keeps the difficulty chosen for the course (it is kept with the world).
 
 | | Easy | Normal | Rust Anchor |
 | --- | --- | --- | --- |

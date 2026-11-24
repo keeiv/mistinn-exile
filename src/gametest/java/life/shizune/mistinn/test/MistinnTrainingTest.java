@@ -126,6 +126,14 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 			server(context, player -> player.setAttached(TrainingService.LESSON, TrainingLesson.BOARD));
 			board(context);
 			deploy(context, WorldMode.FREE);
+			// free exploration has no choice of its own: after the course it keeps the one made for the course
+			server(context, player -> {
+				check(life.shizune.mistinn.hardship.Hardship.of(player.level().getServer()) == life.shizune.mistinn.hardship.Hardship.RUST_ANCHOR,
+					"free exploration after a Rust Anchor course stays Rust Anchor");
+				check(life.shizune.mistinn.hardship.Hardship.rustAnchorAfield(player), "and its rules hold out in the world");
+			});
+			check(context.computeOnClient(mc -> mc.player.getAttached(life.shizune.mistinn.hardship.Hardship.SEEN)) == life.shizune.mistinn.hardship.Hardship.RUST_ANCHOR,
+				"the hunter's client knows it too");
 		} finally {
 			closeWorld(context);
 		}
