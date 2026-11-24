@@ -25,6 +25,8 @@
 [開始遊玩](#開始遊玩) ·
 [第二階段設計](docs/phase2-design.md) ·
 [第三階段設計](docs/phase3-design.md) ·
+[第四階段設計](docs/phase4-design.md) ·
+[第五階段設計](docs/phase5-design.md) ·
 [貢獻指南](CONTRIBUTING.md)
 
 </div>
@@ -639,7 +641,7 @@ docs/          設計文件
 
 ## 接下來
 
-1. **故事模式的後續章節**：鏽神的鹽塊要不要送上去，之後是霧宿與結局。
+1. **故事模式的第五章與結局**：鏽神的鹽塊要不要送上去；送是結局「錨」，不送是結局「霧宿」。設計見 [docs/phase5-design.md](docs/phase5-design.md)。
 2. **之後**：多人合作。
 
 ## 參與貢獻
