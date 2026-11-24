@@ -63,6 +63,8 @@ public class RustWheel extends Keeper {
 	public static final int MAX_MOMENTUM = 3;
 	/** Ticks a hunter may stand at its back before the chain comes. */
 	public static final int LASH_AFTER = 16;
+	/** Ticks the chain rests after a lash: the wheel has its turn to come round before it can lash again. */
+	public static final int LASH_REST = 60;
 	/** How fast it turns when it is not rolling, degrees a tick: a heavy wheel comes round slowly, and that is the way to its back. */
 	public static final float TURN = 2.5F;
 	/** How long a pool of brine lies, and how far it spreads. */
@@ -75,6 +77,8 @@ public class RustWheel extends Keeper {
 	private boolean broken;
 	/** Ticks a hunter has kept to its back. */
 	private int behindTicks;
+	/** Ticks until the chain may come again. */
+	private int lashRest;
 	/** Whether the last blow taken came from behind: a full heavy blow from there counts twice toward its balance. */
 	private boolean lastFromBehind;
 	private final List<Brine> brine = new ArrayList<>();
@@ -267,8 +271,13 @@ public class RustWheel extends Keeper {
 		this.brineTick(level);
 		// a hunter who keeps to its back too long gets the chain
 		this.behindTicks = this.backHunter(level) == null ? 0 : this.behindTicks + 1;
-		if (this.behindTicks >= LASH_AFTER && this.mayLash() && this.staggered <= 0 && !this.isDeadOrDying()) {
+		if (this.lashRest > 0) {
+			this.lashRest--;
+		}
+		if (this.behindTicks >= LASH_AFTER && this.lashRest <= 0 && this.mayLash() && this.staggered <= 0 && !this.isDeadOrDying()) {
 			this.behindTicks = 0;
+			// the lash, then a rest: it cannot turn while it lashes, and would lash a hunter still at its back for ever
+			this.lashRest = WheelMoves.CHAIN_LASH.length() + LASH_REST;
 			this.perform("chain_lash");
 		}
 	}
