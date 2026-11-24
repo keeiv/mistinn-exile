@@ -283,6 +283,43 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 				shot(context, "snuffer-dark", true);
 			}
 
+			if (wants("saltworks")) {
+				// ── 鹽坊 inland on level ground at dusk, the low sun behind the view ──
+				world.getServer().runCommand("difficulty normal");
+				world.getServer().runCommand("time set 12250");
+				// nothing comes out of the mist to stand in the frame
+				world.getServer().runCommand("gamerule spawn_mobs false");
+				BlockPos floor = build(world, flatSpot(world, find(world, spawn, Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS)), life.shizune.mistinn.world.SaltWorks::build);
+				BlockPos middle = floor.above();
+				// from well outside the wheel's yard, so it does not stir
+				frame(context, world, floor.offset(-28, 14, 26), floor.offset(0, 2, 3), true);
+				shot(context, "salt-works", true);
+				// ── the Rust Wheel in its yard, from behind and half aside: its rim at an angle, the man over its yoke ──
+				// The view watches as a spectator, whom no keeper hunts: a hunter in the yard while the view settles is
+				// rammed and lashed out of place. Nothing else walks into the frame: only the wheel and the dead stay.
+				world.getServer().runOnServer(server -> {
+					player(server).setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
+					for (var mob : server.overworld().getEntitiesOfClass(net.minecraft.world.entity.Mob.class, new net.minecraft.world.phys.AABB(middle).inflate(64),
+						m -> !(m instanceof life.shizune.mistinn.keeper.RustWheel) && !(m instanceof life.shizune.mistinn.shore.SaltCorpse))) {
+						mob.discard();
+					}
+				});
+				frame(context, world, middle.offset(-4, 2, 4), middle.offset(0, 1, 0), false);
+				// set back in the middle of its yard, turned east: the man at its back faces the low sun
+				world.getServer().runOnServer(server -> {
+					life.shizune.mistinn.keeper.RustWheel wheel = server.overworld().getEntitiesOfClass(life.shizune.mistinn.keeper.RustWheel.class,
+						new net.minecraft.world.phys.AABB(middle).inflate(20)).getFirst();
+					wheel.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
+					wheel.snapTo(middle.getX() + 0.5, middle.getY(), middle.getZ() + 0.5, -100.0F, 0.0F);
+					wheel.setYBodyRot(-100.0F);
+					wheel.setYHeadRot(-100.0F);
+				});
+				context.waitTicks(10);
+				shot(context, "rust-wheel", true);
+				world.getServer().runOnServer(server -> player(server).setGameMode(net.minecraft.world.level.GameType.SURVIVAL));
+				world.getServer().runCommand("gamerule spawn_mobs true");
+			}
+
 			if (wants("death")) {
 				// the keeper scenes leave it at normal; shot on its own, the blows need it too
 				world.getServer().runCommand("difficulty normal");
@@ -542,6 +579,41 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 
 	private static Snuffer keeper(final MinecraftServer server, final BlockPos room) {
 		return server.overworld().getEntitiesOfClass(Snuffer.class, new net.minecraft.world.phys.AABB(room).inflate(12)).getFirst();
+	}
+
+	/**
+	 * Near {@code near}, ground level enough for a building as wide as the salt works: every point out to fourteen blocks
+	 * (and the boiling house's side, further south) within one block of the middle. The nearest such, or {@code near}.
+	 */
+	private static BlockPos flatSpot(final TestSingleplayerContext world, final BlockPos near) {
+		return world.getServer().computeOnServer(server -> {
+			ServerLevel level = server.overworld();
+			BlockPos best = near;
+			double bestDistance = Double.MAX_VALUE;
+			for (int dx = -96; dx <= 96; dx += 16) {
+				for (int dz = -96; dz <= 96; dz += 16) {
+					int x = near.getX() + dx;
+					int z = near.getZ() + dz;
+					level.getChunk(x >> 4, z >> 4);
+					int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+					boolean flat = y > level.getSeaLevel() && level.getBlockState(new BlockPos(x, y - 1, z)).getFluidState().isEmpty();
+					for (int[] c : new int[][] {{-14, -14}, {14, -14}, {-14, 14}, {14, 14}, {0, -14}, {0, 24}, {-14, 0}, {14, 0}, {7, 22}, {-7, 22}}) {
+						int cx = x + c[0];
+						int cz = z + c[1];
+						level.getChunk(cx >> 4, cz >> 4);
+						if (Math.abs(level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, cx, cz) - y) > 1) {
+							flat = false;
+						}
+					}
+					double distance = dx * dx + dz * dz;
+					if (flat && distance < bestDistance) {
+						best = new BlockPos(x, y, z);
+						bestDistance = distance;
+					}
+				}
+			}
+			return best;
+		});
 	}
 
 	/** The nearest place of one of the biomes, at least a little way from spawn. */
