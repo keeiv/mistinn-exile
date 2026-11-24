@@ -56,11 +56,19 @@ public enum StoryStep {
 	YARD("yard", 4),
 	/** Stop the Rust Wheel. */
 	RUST_WHEEL("rust_wheel", 4),
-	/** The end of what is written so far. */
-	WAIT("wait", 4);
+	/** The end of chapter 4 before chapter 5 was written: a hunter left here goes on to chapter 5. */
+	WAIT("wait", 4),
+
+	// ── 第五章「錨」 ──────────────────────────────────────────────────
+	/** At a radio, Rust Anchor asks for the salt; another voice cuts in and asks for it not to go. */
+	CALL("call", 5),
+	/** Send it up from a radio, or throw it into the Mist Inn's fire: the first done ends the story of this world. */
+	CHOOSE("choose", 5),
+	/** The story of this world has ended; the world goes on. */
+	ENDED("ended", 5);
 
 	/** How many chapters have a title so far. */
-	public static final int CHAPTERS = 5;
+	public static final int CHAPTERS = 6;
 
 	/** The salt cairns of the road, in order. */
 	public static final java.util.List<StoryStep> CAIRNS = java.util.List.of(CAIRN_1, CAIRN_2, CAIRN_3);

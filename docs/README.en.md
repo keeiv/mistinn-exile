@@ -83,7 +83,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Stamina and rolls | Swings, sprints and rolls cost stamina. The legs determine how far a roll goes and the arms shape its motion. Badly injured legs can force a dive, whose landing strains the upper body. |
 | Title screen | An original misty shore with a dead lighthouse: drifting fog, glinting water and a last ember in the lamp room. |
 | Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: eleven pages on the world, the mission and the rules, the stats, the skill tree and the achievements. |
-| Achievements | Seventeen of them, from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer, the Sunken Bell and the Rust Wheel. The game's toast shows at the top right and some salt is paid; all are kept on the mod's own tab of the advancements screen. See [Achievements](#achievements). |
+| Achievements | Nineteen of them, from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer, the Sunken Bell and the Rust Wheel, and the story's two endings. The game's toast shows at the top right and some salt is paid; all are kept on the mod's own tab of the advancements screen. See [Achievements](#achievements). |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V; each with its own durability, protection, capacity, layout and a two-line story. |
@@ -186,7 +186,7 @@ Story and Hunter Training ask how hard the world will be when you create it; Nor
 
 ## Story mode
 
-When creating a new world from the world list, choose **Story**, **Free exploration**, or **Hunter Training**. Free exploration has no mission and otherwise plays the same. Story mode has the prologue, *The Drop*, chapter 1, *Lights Out*, chapter 2, *The Salt Road*, chapter 3, *The Sunken Bell*, and chapter 4, *The Salt Works*, so far.
+When creating a new world from the world list, choose **Story**, **Free exploration**, or **Hunter Training**. Free exploration has no mission and otherwise plays the same. Story mode has the prologue, *The Drop*, chapter 1, *Lights Out*, chapter 2, *The Salt Road*, chapter 3, *The Sunken Bell*, chapter 4, *The Salt Works*, and chapter 5, *The Anchor*, whose ending is yours to choose.
 
 Hunter Training creates a save with standard survival settings and sends you to Rust Anchor Station, a base built over the sea round a giant anchor standing slanted in the water. You wake in the barracks. The docks, the market and mess, the forge, the drill yard, the infirmary, the workshop, the archive, the bell tower and memorial wall, the radio room and the lamp hall spread over three decks, quieter the higher you go, with the drop crane alone at the top by the fog. Fifteen staff keep their posts: right-click them to talk and ask questions, and they call out as you pass; dock hands carry cargo up and down the quay, and Helm speaks over the station speakers now and then; near the forge you hear the hammer, and on the quay barrels, chains and water against the boats. Fall into the sea and you are fished out onto the nearest deck. At the end of the course the whole station gathers on the drop platform to see your bunkmate, number 3411, go down first. Then walk into the drop pod and press the console button to take your seat, and choose where to deploy in the same save: the station bell rings three times, with every ring there are fewer people on the deck, and the screen goes dark. Practice salt and gear stay at the range.
 
@@ -199,6 +199,7 @@ Hunter Training creates a save with standard survival settings and sends you to 
 - **Scenes**: when the Snuffer or the Sunken Bell falls, or the Rust Wheel stops, black bars close in and the view leaves you to circle it while it says its last words; `Esc` skips.
 - **The salt road**: after chapter 1, the first night you are out under the sky a bell sounds three times through the fog. The story builds a fog-bell station out the other way from the lighthouse, with three salt cairns on the way; under each lies an earlier hunter's tag with the last words they left.
 - **The answer**: after you ring the fog-bell station's bell, Rust Anchor lowers a supply pod onto the way inland, and its radio sends you on to a salt works. The pod and the salt works are built the first time the story gets there, so a hunter whose old save waits for word from Rust Anchor picks up chapter 4 on entering the world.
+- **Two endings**: once the Rust Wheel stops, go back to a drop station's radio. Helm asks for the Rust God's salt; number 3401 cuts in and asks you to keep it and bring it to an inn in the mist, the Mist Inn. Right-click the radio with the salt to send it up in the pod: the ending *The Anchor*. Throw it into the Mist Inn's fire: the ending *Mist Inn*. Whichever comes first is how the world ends, the same for everyone in it; the world goes on afterwards. The Mist Inn is built the first time the story reaches chapter 5.
 - **Mission journal** (`K`): the objectives so far and every call you have heard.
 
 | Chapter | Objectives |
@@ -208,6 +209,7 @@ Hunter Training creates a save with standard survival settings and sends you to 
 | Chapter 2: The Salt Road | Listen for the bell at night → find the three salt cairns → go to the fog-bell station |
 | Chapter 3: The Sunken Bell | Rest at the fog-bell station's golden bell → climb to the belfry → bring down the Sunken Bell → ring the station's bell |
 | Chapter 4: The Salt Works | Find the pod that came down → go to the salt works → rest at the bell by its gate → walk into the wheel's yard → stop the Rust Wheel |
+| Chapter 5: The Anchor | Hear from Rust Anchor → send the salt, or keep it (the ending *The Anchor* or *Mist Inn*) |
 
 ## World and structures
 
@@ -450,6 +452,8 @@ Achievements are the game's own **advancements**: press `L` and the mod has a ta
 | Snuffer Slain | The Snuffer falls with you near | 1000 |
 | Sunken Bell Silenced | The Sunken Bell falls with you near | 1200 |
 | Rust Wheel Stopped | The Rust Wheel stops with you near | 1500 |
+| The Anchor | Send the Rust God's salt up | 2000 |
+| Mist Inn | Throw the Rust God's salt into the Mist Inn's fire | 2000 |
 | Steady Hands | Save a destroyed part with a surgery kit | 150 |
 | The Bell | Rest at a golden bell | 50 |
 | Gathered Back | Take your residue back from your gravestone | 100 |
@@ -533,7 +537,7 @@ Textures and models are original work by MoriTeahouse. Sound effects combine edi
 
 ## What comes next
 
-1. **Chapter 5 and the endings**: whether the Rust God's salt goes up; sending it is the ending *The Anchor*, keeping it the ending *Mist Inn* ([design, in Chinese](phase5-design.md)).
+1. **The people of the Mist Inn**: number 3401 and the other hunters who never went home, to talk to ([design, in Chinese](phase5-design.md)).
 2. **Later**: co-op.
 
 ## Contributing

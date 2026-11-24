@@ -66,7 +66,7 @@ public class RadioBlock extends Block {
 			}
 			return InteractionResult.SUCCESS;
 		}
-		if (StoryService.radioMended(hunter)) {
+		if (StoryService.radioMended(hunter) || StoryService.radioCall(hunter)) {
 			return InteractionResult.SUCCESS;
 		}
 		if (stack.is(MistinnItems.RUST_GOD_SALT)

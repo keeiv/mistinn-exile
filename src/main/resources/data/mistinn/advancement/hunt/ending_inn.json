@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/rust_wheel",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.ending_inn.desc"
+		},
+		"icon": {
+			"id": "minecraft:soul_campfire"
+		},
+		"title": {
+			"translate": "achievement.mistinn.ending_inn"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

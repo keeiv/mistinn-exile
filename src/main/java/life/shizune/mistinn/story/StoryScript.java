@@ -52,9 +52,17 @@ public final class StoryScript {
 	public static final Card SALT_WORKS = new Card("salt_works", 3, "story.mistinn.chapter.4");
 	/** Chapter 4 ends: the wheel stopped, and far off the anchor's chain. */
 	public static final Card STOPPED = new Card("stopped", 4, "");
+	/** Chapter 5 opens after the call: the salt in hand, the station waiting, and one warm light in the fog. */
+	public static final Card THE_CALL = new Card("the_call", 3, "story.mistinn.chapter.5");
+	/** The ending The Anchor: the salt went up, and another pod is going down. */
+	public static final Card ANCHOR = new Card("anchor", 4, "");
+	/** The ending Mist Inn: no pod comes down again, and the inn's lamp stays lit. */
+	public static final Card INN = new Card("inn", 4, "");
 
-	private static final Map<String, Card> CARDS = Map.of(DROP.id(), DROP, LIGHTHOUSE.id(), LIGHTHOUSE, UNANSWERED.id(), UNANSWERED,
-		SALT_ROAD.id(), SALT_ROAD, BELL_STATION.id(), BELL_STATION, ANSWER.id(), ANSWER, SALT_WORKS.id(), SALT_WORKS, STOPPED.id(), STOPPED);
+	private static final Map<String, Card> CARDS = Map.ofEntries(Map.entry(DROP.id(), DROP), Map.entry(LIGHTHOUSE.id(), LIGHTHOUSE),
+		Map.entry(UNANSWERED.id(), UNANSWERED), Map.entry(SALT_ROAD.id(), SALT_ROAD), Map.entry(BELL_STATION.id(), BELL_STATION),
+		Map.entry(ANSWER.id(), ANSWER), Map.entry(SALT_WORKS.id(), SALT_WORKS), Map.entry(STOPPED.id(), STOPPED), Map.entry(THE_CALL.id(), THE_CALL),
+		Map.entry(ANCHOR.id(), ANCHOR), Map.entry(INN.id(), INN));
 
 	// ── Sequences ────────────────────────────────────────────────────
 	/** Helm's first call over the mended radio. */
@@ -75,23 +83,32 @@ public final class StoryScript {
 	public static final String SUPPLY_CALL = "supply_call";
 	/** What the man at the wheel says when it stops. */
 	public static final String RUST_WHEEL_END = "rust_wheel_end";
+	/** Chapter 5 at a radio: Helm asks for the salt, and tag 3401 cuts in. */
+	public static final String STATION_CALL = "station_call";
+	/** The salt sent up: Helm's thanks. */
+	public static final String ANCHOR_END = "anchor_end";
+	/** The salt thrown into the Mist Inn's fire, and that night. */
+	public static final String INN_END = "inn_end";
 
 	/** The tag sequences, in the order of the cairns they lie under. */
 	public static final List<String> TAGS = List.of(TAG_1, TAG_2, TAG_3);
 	/** The numbers on those tags, in the same order. */
 	public static final List<Integer> TAG_NUMBERS = List.of(3388, 3401, 3409);
 
-	private static final Map<String, List<String>> SPEAKERS = Map.of(
-		FIRST_CALL, List.of(HELM, HELM, HELM, HELM, HELM, HELM, HELM, HELM, HELM),
-		SNUFFER_END, List.of(SNUFFER, SNUFFER, SNUFFER, SNUFFER),
-		NO_ANSWER, List.of(NARRATION, NARRATION, NARRATION),
-		NIGHT_TOLL, List.of(NARRATION, NARRATION, NARRATION),
-		TAG_1, List.of(TAG_3388),
-		TAG_2, List.of(TAG_3401, TAG_3401),
-		TAG_3, List.of(TAG_3409, TAG_3409),
-		SUNKEN_BELL_END, List.of(SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL),
-		SUPPLY_CALL, List.of(NARRATION, NARRATION, HELM, HELM, HELM, HELM, HELM, HELM, HELM),
-		RUST_WHEEL_END, List.of(RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL)
+	private static final Map<String, List<String>> SPEAKERS = Map.ofEntries(
+		Map.entry(FIRST_CALL, List.of(HELM, HELM, HELM, HELM, HELM, HELM, HELM, HELM, HELM)),
+		Map.entry(SNUFFER_END, List.of(SNUFFER, SNUFFER, SNUFFER, SNUFFER)),
+		Map.entry(NO_ANSWER, List.of(NARRATION, NARRATION, NARRATION)),
+		Map.entry(NIGHT_TOLL, List.of(NARRATION, NARRATION, NARRATION)),
+		Map.entry(TAG_1, List.of(TAG_3388)),
+		Map.entry(TAG_2, List.of(TAG_3401, TAG_3401)),
+		Map.entry(TAG_3, List.of(TAG_3409, TAG_3409)),
+		Map.entry(SUNKEN_BELL_END, List.of(SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL)),
+		Map.entry(SUPPLY_CALL, List.of(NARRATION, NARRATION, HELM, HELM, HELM, HELM, HELM, HELM, HELM)),
+		Map.entry(RUST_WHEEL_END, List.of(RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL)),
+		Map.entry(STATION_CALL, List.of(HELM, HELM, HELM, NARRATION, TAG_3401, TAG_3401, TAG_3401, TAG_3401, HELM)),
+		Map.entry(ANCHOR_END, List.of(NARRATION, HELM, HELM, NARRATION)),
+		Map.entry(INN_END, List.of(NARRATION, TAG_3401, NARRATION, NARRATION))
 	);
 
 	private StoryScript() {
@@ -112,6 +129,7 @@ public final class StoryScript {
 
 	/** Every sequence, in the order the story reaches them: for the journal. */
 	public static List<String> sequences() {
-		return List.of(FIRST_CALL, SNUFFER_END, NO_ANSWER, NIGHT_TOLL, TAG_1, TAG_2, TAG_3, SUNKEN_BELL_END, SUPPLY_CALL, RUST_WHEEL_END);
+		return List.of(FIRST_CALL, SNUFFER_END, NO_ANSWER, NIGHT_TOLL, TAG_1, TAG_2, TAG_3, SUNKEN_BELL_END, SUPPLY_CALL, RUST_WHEEL_END, STATION_CALL,
+			ANCHOR_END, INN_END);
 	}
 }

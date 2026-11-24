@@ -12,6 +12,7 @@ import life.shizune.mistinn.registry.MistinnSounds;
 import life.shizune.mistinn.world.BellTower;
 import life.shizune.mistinn.salt.SaltService;
 import life.shizune.mistinn.world.Builder;
+import life.shizune.mistinn.world.MistInn;
 import life.shizune.mistinn.world.SaltWorks;
 import life.shizune.mistinn.world.Structures;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
@@ -75,6 +76,16 @@ public final class StoryService {
 		.persistent(StoryWorks.CODEC)
 		.buildAndRegister(Mistinn.id("story_works"));
 
+	/** The Mist Inn of chapter 5, kept on the overworld once built. */
+	public static final AttachmentType<StoryInn> INN = AttachmentRegistry.<StoryInn>builder()
+		.persistent(StoryInn.CODEC)
+		.buildAndRegister(Mistinn.id("story_inn"));
+
+	/** How the story of this world ended, once it has: the same for every hunter in it. */
+	private static final AttachmentType<StoryEnding> ENDING = AttachmentRegistry.<StoryEnding>builder()
+		.persistent(StoryEnding.CODEC)
+		.buildAndRegister(Mistinn.id("story_ending"));
+
 	/** The last shared objective completed in the story world. */
 	private static final AttachmentType<StoryStep> CHAPTER_PROGRESS = AttachmentRegistry.<StoryStep>builder()
 		.persistent(Codec.STRING.xmap(StoryStep::byId, step -> step.id))
@@ -95,6 +106,8 @@ public final class StoryService {
 	private static final int WORKS_INLAND = 260;
 	/** Where along the way from the fog-bell station to the salt works, as a share of it, the answering pod comes down. */
 	private static final double POD_AT = 0.35;
+	/** Where along the way from the salt works to the fog-bell station, as a share of it, the Mist Inn stands. */
+	private static final double INN_AT = 0.3;
 	/** How far from the drop station the fog-bell station of the story is first looked for, on the far side from the lighthouse. */
 	private static final int ROAD_LENGTH = 360;
 	/** The fog-bell station stands at least this far from the lighthouse. */
@@ -167,7 +180,10 @@ public final class StoryService {
 			if (level.isClientSide() || !(player instanceof ServerPlayer hunter) || hand != InteractionHand.MAIN_HAND) {
 				return InteractionResult.PASS;
 			}
-			return ring(hunter, hit.getBlockPos()) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+			if (ring(hunter, hit.getBlockPos()) || burn(hunter, hit.getBlockPos(), hunter.getItemInHand(hand))) {
+				return InteractionResult.SUCCESS;
+			}
+			return InteractionResult.PASS;
 		});
 	}
 
@@ -203,6 +219,10 @@ public final class StoryService {
 			complete(server, StoryStep.DELIVER);
 			ensureWorks(server);
 			advance(player, StoryStep.POD);
+		} else if (progress.step() == StoryStep.WAIT) {
+			// waiting at the end of chapter 4 since before chapter 5 was written: the station is to be heard from now
+			ensureInn(server);
+			advance(player, StoryStep.CALL);
 		} else if (progress.step().ordinal() > StoryStep.DELIVER.ordinal()) {
 			complete(server, StoryStep.DELIVER);
 		} else if (progress.step() == StoryStep.DELIVER) {
@@ -343,8 +363,18 @@ public final class StoryService {
 			case RUST_WHEEL -> {
 				// it stopped for someone else while this hunter was elsewhere
 				if (completed(server, StoryStep.RUST_WHEEL)) {
-					advance(player, StoryStep.WAIT);
+					ensureInn(server);
+					advance(player, StoryStep.CALL);
 					ServerPlayNetworking.send(player, new CardPayload(StoryScript.STOPPED.id()));
+				}
+			}
+			case CHOOSE -> {
+				// another hunter chose for this world while this one was elsewhere: the same ending, the card alone
+				StoryEnding ending = ending(server);
+				if (ending != null) {
+					advance(player, StoryStep.ENDED);
+					life.shizune.mistinn.achievement.AchievementService.grant(player, achievement(ending));
+					ServerPlayNetworking.send(player, new CardPayload(card(ending).id()));
 				}
 			}
 			default -> {
@@ -374,7 +404,7 @@ public final class StoryService {
 		}
 		return switch (step) {
 			case STATION -> Optional.of(places.station());
-			case RADIO, DELIVER -> Optional.of(places.radio());
+			case RADIO, DELIVER, CALL -> Optional.of(places.radio());
 			case LIGHTHOUSE, BELL -> Optional.of(places.lighthouse());
 			case LAMP_ROOM, SNUFFER -> Optional.of(places.lampRoom());
 			default -> roadTarget(server, step);
@@ -406,6 +436,7 @@ public final class StoryService {
 			case POD -> Optional.of(works.pod());
 			case SALT_WORKS, YARD, RUST_WHEEL -> Optional.of(works.works());
 			case WORKS_BELL -> Optional.of(works.works().offset(SaltWorks.BELL));
+			case CHOOSE -> inn(server) == null ? Optional.empty() : Optional.of(inn(server).inn());
 			default -> Optional.empty();
 		};
 	}
@@ -436,6 +467,9 @@ public final class StoryService {
 	public static boolean deliver(final ServerPlayer player) {
 		StoryProgress progress = get(player);
 		MinecraftServer server = player.level().getServer();
+		if (active(server) && progress != null && progress.step() == StoryStep.CHOOSE) {
+			return end(player, StoryEnding.ANCHOR);
+		}
 		if (!active(server) || progress == null || progress.step() != StoryStep.DELIVER) {
 			return false;
 		}
@@ -723,7 +757,8 @@ public final class StoryService {
 			int step = progress.step().ordinal();
 			// a hunter who went straight in (or found another salt works) still counts
 			if (step >= StoryStep.SALT_WORKS.ordinal() && step <= StoryStep.RUST_WHEEL.ordinal()) {
-				advance(player, StoryStep.WAIT);
+				ensureInn(level.getServer());
+				advance(player, StoryStep.CALL);
 				play(player, StoryScript.RUST_WHEEL_END, wheel.getId(), StoryScript.STOPPED.id());
 			}
 		}
@@ -823,6 +858,147 @@ public final class StoryService {
 				int x = floor.getX() + dx;
 				int z = floor.getZ() + dz;
 				if (level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z) != level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	// ── Chapter 5: the anchor ─────────────────────────────────────────
+
+	private static @Nullable StoryInn inn(final MinecraftServer server) {
+		return server.overworld().getAttached(INN);
+	}
+
+	/** How the story of this world ended, or null while it has not. */
+	public static @Nullable StoryEnding ending(final MinecraftServer server) {
+		return server.overworld().getAttached(ENDING);
+	}
+
+	/**
+	 * At a radio in chapter 5: Rust Anchor asks for the salt, and the hunter whose tag lay under the second cairn cuts in
+	 * and asks for it not to go. Returns whether the call was this.
+	 */
+	public static boolean radioCall(final ServerPlayer player) {
+		StoryProgress progress = get(player);
+		MinecraftServer server = player.level().getServer();
+		if (!active(server) || progress == null || progress.step() != StoryStep.CALL) {
+			return false;
+		}
+		ensureInn(server);
+		advance(player, StoryStep.CHOOSE);
+		play(player, StoryScript.STATION_CALL, -1, StoryScript.THE_CALL.id());
+		return true;
+	}
+
+	/**
+	 * The Rust God's salt thrown into the Mist Inn's fire. Returns whether the story took it; the salt is spent here when
+	 * it does.
+	 */
+	public static boolean burn(final ServerPlayer player, final BlockPos pos, final ItemStack stack) {
+		MinecraftServer server = player.level().getServer();
+		StoryProgress progress = get(player);
+		StoryInn inn = server == null ? null : inn(server);
+		if (!active(server) || progress == null || progress.step() != StoryStep.CHOOSE || inn == null || !pos.equals(inn.hearth())
+			|| !stack.is(MistinnItems.RUST_GOD_SALT) || player.level() != server.overworld() || ending(server) != null) {
+			return false;
+		}
+		stack.consume(1, player);
+		return end(player, StoryEnding.INN);
+	}
+
+	/** The story of this world ends, the way {@code ending} goes, for the hunter who chose it. */
+	private static boolean end(final ServerPlayer player, final StoryEnding ending) {
+		MinecraftServer server = player.level().getServer();
+		if (ending(server) != null) {
+			return false;
+		}
+		ServerLevel level = server.overworld();
+		level.setAttached(ENDING, ending);
+		advance(player, StoryStep.ENDED);
+		life.shizune.mistinn.achievement.AchievementService.grant(player, achievement(ending));
+		if (ending == StoryEnding.INN) {
+			// the fire takes the salt and burns blue, white smoke off it
+			StoryInn inn = inn(server);
+			level.setBlockAndUpdate(inn.hearth(), net.minecraft.world.level.block.Blocks.SOUL_CAMPFIRE.defaultBlockState());
+			level.playSound(null, inn.hearth(), SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS, 1.0F, 0.6F);
+			level.sendParticles(net.minecraft.core.particles.ParticleTypes.CLOUD, inn.hearth().getX() + 0.5, inn.hearth().getY() + 0.8, inn.hearth().getZ() + 0.5,
+				30, 0.2, 0.3, 0.2, 0.02);
+			play(player, StoryScript.INN_END, -1, StoryScript.INN.id());
+			// that night, far beyond the fog and high up, the anchor's chain groans a long time, and parts
+			Vec3 far = player.position().add(0.0, 40.0, 64.0);
+			for (int groan = 0; groan < 4; groan++) {
+				later(120 + groan * 22, () -> level.playSound(null, far.x, far.y, far.z, SoundEvents.CHAIN_PLACE, SoundSource.AMBIENT, 4.0F, 0.4F));
+			}
+			later(220, () -> level.playSound(null, far.x, far.y, far.z, SoundEvents.CHAIN_BREAK, SoundSource.AMBIENT, 4.0F, 0.3F));
+		} else {
+			play(player, StoryScript.ANCHOR_END, -1, StoryScript.ANCHOR.id());
+			// far off over the fog, the station's bell, three times: another pod is going down
+			Vec3 far = player.position().add(0.0, 30.0, -48.0);
+			for (int toll = 0; toll < 3; toll++) {
+				later(150 + toll * 34, () -> level.playSound(null, far.x, far.y, far.z, SoundEvents.BELL_BLOCK, SoundSource.AMBIENT, 3.0F, DROP_BELL_PITCH));
+			}
+		}
+		return true;
+	}
+
+	private static String achievement(final StoryEnding ending) {
+		return ending == StoryEnding.INN ? life.shizune.mistinn.achievement.AchievementService.ENDING_INN
+			: life.shizune.mistinn.achievement.AchievementService.ENDING_ANCHOR;
+	}
+
+	private static StoryScript.Card card(final StoryEnding ending) {
+		return ending == StoryEnding.INN ? StoryScript.INN : StoryScript.ANCHOR;
+	}
+
+	/**
+	 * The Mist Inn, built the first time a story world reaches chapter 5: on level, dry ground a third of the way from the
+	 * salt works toward the fog-bell station. Returns null outside a story world or before the salt works stand.
+	 */
+	public static @Nullable StoryInn ensureInn(final MinecraftServer server) {
+		ServerLevel level = server.overworld();
+		StoryInn built = level.getAttached(INN);
+		StoryWorks works = works(server);
+		StoryRoad road = road(server);
+		if (built != null || works == null || road == null || !active(server)) {
+			return built;
+		}
+		RandomSource random = RandomSource.create(level.getSeed() ^ 0x496E6E4CL);
+		BlockPos from = works.works();
+		BlockPos to = road.bellStation();
+		int x = (int) Math.round(from.getX() + (to.getX() - from.getX()) * INN_AT);
+		int z = (int) Math.round(from.getZ() + (to.getZ() - from.getZ()) * INN_AT);
+		BlockPos site = findInnGround(level, x, z, from);
+		BlockPos hearth = MistInn.build(new Builder(level, site, random));
+		StoryInn inn = new StoryInn(site.offset(MistInn.DOOR), hearth);
+		level.setAttached(INN, inn);
+		Mistinn.LOGGER.info("Story Mist Inn: {}", site);
+		return inn;
+	}
+
+	/** Level, dry ground for the inn near (x, z): the first found out to forty blocks, else what is there. */
+	private static BlockPos findInnGround(final ServerLevel level, final int x, final int z, final BlockPos home) {
+		for (int ring = 0; ring < 3; ring++) {
+			int radius = ring * 20;
+			int around = ring == 0 ? 1 : 8;
+			for (int i = 0; i < around; i++) {
+				double a = i * Math.PI * 2.0 / around;
+				BlockPos floor = ground(level, x + (int) Math.round(Math.cos(a) * radius), z + (int) Math.round(Math.sin(a) * radius));
+				if (dryLand(level, floor) && even(level, floor, 7, 2)) {
+					return floor;
+				}
+			}
+		}
+		return dryGround(level, x, z, home);
+	}
+
+	/** Whether the ground out to {@code reach} round {@code floor} is within {@code slope} blocks of it. */
+	private static boolean even(final ServerLevel level, final BlockPos floor, final int reach, final int slope) {
+		for (int dx = -reach; dx <= reach; dx += reach) {
+			for (int dz = -reach; dz <= reach; dz += reach) {
+				int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, floor.getX() + dx, floor.getZ() + dz) - 1;
+				if (Math.abs(y - floor.getY()) > slope) {
 					return false;
 				}
 			}
