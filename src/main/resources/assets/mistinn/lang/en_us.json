@@ -1260,6 +1260,7 @@
   "message.mistinn.sunken_bell.stagger_blows": "Its own bell rings in its ears: the Sunken Bell reels!",
   "subtitles.mistinn.entity.sunken_bell.ring": "A great bell tolls",
   "entity.mistinn.rust_wheel": "Rust Wheel",
+  "entity.mistinn.rust_wheel.momentum": "%s  Momentum %s",
   "message.mistinn.rust_wheel.stagger_blows": "The blows bite into the axle. The Rust Wheel lurches!",
   "message.mistinn.rust_wheel.stagger_stuck": "Jammed and struck hard, the Rust Wheel keels over!",
   "message.mistinn.rust_wheel.broken": "The man tears a chain loose; plates fall from the rim.",
