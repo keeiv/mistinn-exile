@@ -128,6 +128,7 @@ public class SunkenBell extends Keeper {
 	public void setLayers(final int layers) {
 		this.entityData.set(DATA_LAYERS, (byte) Mth.clamp(layers, 0, MAX_LAYERS));
 		this.fade = this.cracked ? FADE_CRACKED : FADE_WHOLE;
+		this.showOnBar(this.layers() <= 0 ? null : "entity.mistinn.sunken_bell.mist", this.layers(), MAX_LAYERS);
 	}
 
 	/** A toll: the mist thickens by a layer. */

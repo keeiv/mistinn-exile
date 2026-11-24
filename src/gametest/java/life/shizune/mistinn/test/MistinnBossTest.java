@@ -1015,6 +1015,8 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		world.getServer().runOnServer(server -> {
 			Snuffer keeper = keeper(server, stage);
 			check(keeper.dark(), "below half, the room has gone dark");
+			String bar = keeper.barName().getString();
+			check(bar.contains("◇◇◇◇"), "in the dark its health bar shows its lamps, none lit: " + bar);
 			// off to one side of its room: the far lamps are more than twelve blocks from where it stands
 			keeper.teleportTo(stage.getX() + 6.5, stage.getY(), stage.getZ() + 6.5);
 			for (BlockPos lamp : lamps) {
@@ -1024,6 +1026,8 @@ public final class MistinnBossTest implements FabricClientGameTest {
 		context.waitTicks(3);
 		world.getServer().runOnServer(server -> {
 			check(keeper(server, stage).staggered(), "four lit lamps stagger it, wherever in its room it stands");
+			String bar = keeper(server, stage).barName().getString();
+			check(bar.contains("◆◆◆◆"), "and its bar shows all four lit: " + bar);
 			for (BlockPos lamp : lamps) {
 				server.overworld().setBlockAndUpdate(lamp, Blocks.AIR.defaultBlockState());
 			}
