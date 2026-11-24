@@ -138,7 +138,15 @@ public class RustWheel extends Keeper {
 
 	/** A run finished without hitting anything: a layer more momentum. */
 	public void gainMomentum() {
-		this.entityData.set(DATA_MOMENTUM, (byte) Math.min(MAX_MOMENTUM, this.momentum() + 1));
+		this.setMomentum(Math.min(MAX_MOMENTUM, this.momentum() + 1));
+	}
+
+	/** Its momentum, shown on its health bar a mark a layer, so a hunter can read how hard the next run will come. */
+	private void setMomentum(final int momentum) {
+		this.entityData.set(DATA_MOMENTUM, (byte) momentum);
+		Component name = this.getType().getDescription();
+		this.bar.setName(momentum <= 0 ? name
+			: Component.translatable("entity.mistinn.rust_wheel.momentum", name, "◆".repeat(momentum) + "◇".repeat(MAX_MOMENTUM - momentum)));
 	}
 
 	/** The middle of its yard. */
@@ -226,7 +234,7 @@ public class RustWheel extends Keeper {
 
 	/** It ran into stone: the run ends, its momentum with it, and it is stuck there. */
 	public void crash(final ServerLevel level) {
-		this.entityData.set(DATA_MOMENTUM, (byte) 0);
+		this.setMomentum(0);
 		level.playSound(null, this.blockPosition(), MistinnSounds.RUST_WHEEL_CRASH, SoundSource.HOSTILE, 2.0F, 1.0F);
 		level.playSound(null, this.blockPosition(), SoundEvents.CHAIN_BREAK, SoundSource.HOSTILE, 1.4F, 0.7F);
 		level.sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY() + 1.2, this.getZ(), 1, 0.0, 0.0, 0.0, 0.0);

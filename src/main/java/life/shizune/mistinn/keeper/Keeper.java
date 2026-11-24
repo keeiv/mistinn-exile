@@ -349,6 +349,11 @@ public abstract class Keeper extends Monster {
 
 	// ── Health bar ────────────────────────────────────────────────
 
+	/** What its health bar reads now. */
+	public Component barName() {
+		return this.bar.getName();
+	}
+
 	/** The hunters who see its health bar. */
 	protected List<ServerPlayer> watchers() {
 		return List.copyOf(this.bar.getPlayers());

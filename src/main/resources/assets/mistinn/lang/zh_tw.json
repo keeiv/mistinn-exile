@@ -1260,6 +1260,7 @@
   "message.mistinn.sunken_bell.stagger_blows": "它自己的鐘在耳邊炸響，沉鐘站不穩了！",
   "subtitles.mistinn.entity.sunken_bell.ring": "鐘聲響徹",
   "entity.mistinn.rust_wheel": "鏽輪",
+  "entity.mistinn.rust_wheel.momentum": "%s　勢 %s",
   "message.mistinn.rust_wheel.stagger_blows": "重擊打進輪軸，鏽輪歪了！",
   "message.mistinn.rust_wheel.stagger_stuck": "卡住的鏽輪挨了一記重擊，整座輪子歪倒了！",
   "message.mistinn.rust_wheel.broken": "那個人掙斷了一條鍊子，輪緣的鐵片掉了下來。",

@@ -62,6 +62,7 @@ public class MistinnRustWheelTest implements FabricClientGameTest {
 			theYardStands(world, centre);
 			photographed(context, world, centre);
 			frontAndBack(world, centre);
+			momentumShowsOnItsBar(context, world, centre);
 			runIntoAPillar(context, world, centre);
 			runsOverAHunter(context, world, centre);
 			turnsSlowlyAndLashesItsBack(context, world, centre);
@@ -202,6 +203,26 @@ public class MistinnRustWheelTest implements FabricClientGameTest {
 	}
 
 	// ── Stuck ─────────────────────────────────────────────────────
+
+	/** Its momentum shows on its health bar, a mark a layer; a crash takes it off again. */
+	private static void momentumShowsOnItsBar(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos centre) {
+		String name = world.getServer().computeOnServer(server -> wheel(server, centre).getType().getDescription().getString());
+		world.getServer().runOnServer(server -> {
+			RustWheel wheel = wheel(server, centre);
+			check(wheel.barName().getString().equals(name), "with no momentum its bar shows only its name: " + wheel.barName().getString());
+			wheel.gainMomentum();
+			wheel.gainMomentum();
+			String two = wheel.barName().getString();
+			check(two.startsWith(name) && two.contains("◆◆◇"), "two layers of momentum show on its bar: " + two);
+		});
+		context.waitTicks(5);
+		context.takeScreenshot("wheel-momentum");
+		world.getServer().runOnServer(server -> {
+			RustWheel wheel = wheel(server, centre);
+			wheel.crash(server.overworld());
+			check(wheel.barName().getString().equals(name), "and go when it crashes: " + wheel.barName().getString());
+		});
+	}
 
 	/** Run at a hunter with a pillar between them, it runs into the pillar and is stuck; a heavy blow then staggers it at once. */
 	private static void runIntoAPillar(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos centre) {
