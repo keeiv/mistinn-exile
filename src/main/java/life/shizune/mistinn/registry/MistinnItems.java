@@ -66,6 +66,7 @@ public final class MistinnItems {
 	public static final Item LANTERN_STAFF = special(SpecialWeapon.LANTERN_STAFF, WeaponStyle.THRUST, 5.0, 1.5, 700, MistinnSounds.MIST_SPEAR_SWING, MistinnSounds.MIST_SPEAR_HIT);
 	public static final Item TIDE_MAUL = special(SpecialWeapon.TIDE_MAUL, WeaponStyle.SMASH, 12.0, 0.3, 1400, MistinnSounds.HAMMER_SWING, MistinnSounds.BELL_GREATSWORD_HIT);
 	public static final Item BELL_CLAPPER = special(SpecialWeapon.BELL_CLAPPER, WeaponStyle.SMASH, 10.0, 0.5, 1200, MistinnSounds.HAMMER_SWING, MistinnSounds.BELL_GREATSWORD_HIT);
+	public static final Item RUST_RIM = special(SpecialWeapon.RUST_RIM, WeaponStyle.CLEAVE, 11.0, 0.5, 1300, MistinnSounds.BELL_GREATSWORD_SWING, MistinnSounds.HIT_IRON);
 
 	/** Rust Anchor Station's food, one item each. */
 	public static final Map<life.shizune.mistinn.food.StationFood, Item> FOODS = stationFoods();

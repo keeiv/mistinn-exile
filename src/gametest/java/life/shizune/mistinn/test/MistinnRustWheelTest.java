@@ -31,7 +31,7 @@ import net.minecraft.world.phys.Vec3;
  * 鏽輪 and its salt works: the yard is built with its pillars, bell and stores; its iron front turns most of a blow aside
  * and its back takes more; a run into a pillar leaves it stuck, and a full heavy blow then staggers it at once; it turns
  * slowly, and a hunter who keeps to its back gets the chain; below half it breaks loose, its front softens, and its slam
- * spills brine that slows; it falls and leaves the Rust God's salt.
+ * spills brine that slows; it falls and leaves the Rust God's salt and a length of its rim.
  */
 public class MistinnRustWheelTest implements FabricClientGameTest {
 	@Override
@@ -361,6 +361,9 @@ public class MistinnRustWheelTest implements FabricClientGameTest {
 			boolean salt = server.overworld().getEntitiesOfClass(ItemEntity.class, new AABB(centre).inflate(16.0)).stream()
 				.anyMatch(item -> item.getItem().is(MistinnItems.RUST_GOD_SALT));
 			check(salt, "it leaves the Rust God's salt");
+			boolean rim = server.overworld().getEntitiesOfClass(ItemEntity.class, new AABB(centre).inflate(16.0)).stream()
+				.anyMatch(item -> item.getItem().is(MistinnItems.RUST_RIM));
+			check(rim, "and a length of its rim");
 		});
 	}
 

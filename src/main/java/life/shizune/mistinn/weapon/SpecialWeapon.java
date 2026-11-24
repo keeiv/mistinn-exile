@@ -33,7 +33,9 @@ public enum SpecialWeapon {
 	/** 潮鐘巨鎚: its heavy blow tolls the bell, striking all around. */
 	TIDE_MAUL("tide_maul", List.of(Requirement.stat(Stat.STRENGTH, 5), Requirement.stat(Stat.CONSTITUTION, 3))),
 	/** 鐘舌: the Sunken Bell's own clapper. Its full heavy blow rings out all round and breaks off every windup it reaches. */
-	BELL_CLAPPER("bell_clapper", List.of(Requirement.achievement(AchievementService.SUNKEN_BELL), Requirement.stat(Stat.STRENGTH, 4)));
+	BELL_CLAPPER("bell_clapper", List.of(Requirement.achievement(AchievementService.SUNKEN_BELL), Requirement.stat(Stat.STRENGTH, 4))),
+	/** 鏽輪緣: a length of the Rust Wheel's rim. Its full heavy blow rolls the hunter on, over everything in the path. */
+	RUST_RIM("rust_rim", List.of(Requirement.achievement(AchievementService.RUST_WHEEL), Requirement.stat(Stat.CONSTITUTION, 4)));
 
 	/** What the weapon asks of its bearer: a stat at or above a value, or an achievement. */
 	public record Requirement(@Nullable Stat stat, int value, @Nullable String achievement) {

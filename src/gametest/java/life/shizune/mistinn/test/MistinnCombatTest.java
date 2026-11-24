@@ -87,6 +87,7 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 			lanternBursts(context, world, arena);
 			maulTollsAllAround(context, world, arena);
 			clapperBreaksEveryWindup(context, world, arena);
+			rimRollsThrough(context, world, arena);
 			refusedChargeLeavesTheOtherHand(context, world, arena);
 			killGoesToTheBlowsWeapon(context, world, arena);
 			slideMissPaysNothing(context, world, arena);
@@ -116,6 +117,11 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 		check(SpecialWeapon.TIDE_MAUL.requirements.size() == 2 && SpecialWeapon.SNUFFER_HOOK.requirements.getFirst().achievement() != null,
 			"the maul asks for two stats, the hook for the Snuffer first");
 		check(AchievementService.SUNKEN_BELL.equals(SpecialWeapon.BELL_CLAPPER.requirements.getFirst().achievement()), "the clapper asks for the Sunken Bell first");
+		check(AchievementService.RUST_WHEEL.equals(SpecialWeapon.RUST_RIM.requirements.getFirst().achievement())
+			&& SpecialWeapon.RUST_RIM.requirements.get(1).stat() == life.shizune.mistinn.skill.Stat.CONSTITUTION, "the rim asks for the Rust Wheel first, then constitution");
+		for (SpecialWeapon special : SpecialWeapon.values()) {
+			check(net.minecraft.locale.Language.getInstance().has("tooltip.mistinn.special." + special.id), special.id + " says what its heavy blow does");
+		}
 	}
 
 	// ── The animation sandbox ─────────────────────────────────────
@@ -646,6 +652,60 @@ public final class MistinnCombatTest implements FabricClientGameTest {
 			check(!WindupService.winding((net.minecraft.world.entity.Mob) mob(server, behind)), "a full one breaks off the windup of one behind, never struck");
 			check(!WindupService.winding((net.minecraft.world.entity.Mob) mob(server, aside)), "and of one off to the side");
 			check(WindupService.winding((net.minecraft.world.entity.Mob) mob(server, far)), "but not past six blocks");
+		});
+	}
+
+	/**
+	 * 鏽輪緣: a full heavy blow carries the hunter on in a roll, and everything in the path takes it, past the blade's
+	 * own reach; nothing beside the path does. A partial one stays where it is. A wall ahead stops the roll short and
+	 * leaves the hunter dazed.
+	 */
+	private static void rimRollsThrough(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		stand(context, world, arena, MistinnItems.RUST_RIM, skills(0, 4, 0));
+		world.getServer().runOnServer(server -> AchievementService.grant(player(server), AchievementService.RUST_WHEEL));
+		int near = husk(world, arena, 0.0, 2.0);
+		// past the cleave's reach and its impact, which carry some six blocks
+		int mid = husk(world, arena, 0.0, 6.8);
+		int far = husk(world, arena, 0.5, 7.4);
+		int beside = husk(world, arena, 3.6, 4.0);
+		world.getServer().runOnServer(server -> check(SpecialWeapon.RUST_RIM.fits(player(server)), "the Rust Wheel down and constitution 4: the rim answers"));
+		double start = world.getServer().computeOnServer(server -> player(server).getZ());
+		heavyLanded(context, world, 0.6F);
+		context.waitTicks(HeavyService.RIM_TICKS + 6);
+		double partial = world.getServer().computeOnServer(server -> player(server).getZ()) - start;
+		check(partial < 0.5, "a partial charge does not roll: " + partial);
+		check(lost(world, mid) == 0.0F, "and does not reach past the blade: " + lost(world, mid));
+		world.getServer().runOnServer(server -> player(server).setAttached(MistinnAttachments.STAMINA, StaminaService.max(player(server))));
+		heavyLanded(context, world, 1.0F);
+		context.waitTicks(HeavyService.RIM_TICKS + 6);
+		double rolled = world.getServer().computeOnServer(server -> player(server).getZ()) - start;
+		check(rolled >= 5.0, "a full one rolls the hunter on: " + rolled);
+		check(lost(world, near) > 0.0F, "the blow lands on the one in reach: " + lost(world, near));
+		check(lost(world, mid) > 0.0F && lost(world, far) > 0.0F, "and the roll runs over the ones in the path past it: " + lost(world, mid) + ", " + lost(world, far));
+		check(lost(world, beside) == 0.0F, "but not one beside the path: " + lost(world, beside));
+		check(world.getServer().computeOnServer(server -> !player(server).hasEffect(net.minecraft.world.effect.MobEffects.SLOWNESS)), "an open path leaves the hunter steady");
+
+		// a wall two blocks ahead
+		stand(context, world, arena, MistinnItems.RUST_RIM, skills(0, 4, 0));
+		world.getServer().runOnServer(server -> {
+			for (int x = -2; x <= 2; x++) {
+				for (int y = 0; y <= 2; y++) {
+					server.overworld().setBlockAndUpdate(arena.offset(x, y, 3), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
+				}
+			}
+		});
+		heavyLanded(context, world, 1.0F);
+		context.waitTicks(HeavyService.RIM_TICKS + 6);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			check(player.getZ() < arena.getZ() + 3.0 - 0.25, "the wall stops the roll short: " + player.getZ());
+			check(player.hasEffect(net.minecraft.world.effect.MobEffects.SLOWNESS), "and the hunter who ran into it is dazed");
+			for (int x = -2; x <= 2; x++) {
+				for (int y = 0; y <= 2; y++) {
+					server.overworld().setBlockAndUpdate(arena.offset(x, y, 3), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+				}
+			}
+			player.removeEffect(net.minecraft.world.effect.MobEffects.SLOWNESS);
 		});
 	}
 
