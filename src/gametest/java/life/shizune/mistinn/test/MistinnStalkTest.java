@@ -120,6 +120,20 @@ public final class MistinnStalkTest implements FabricClientGameTest {
 		});
 	}
 
+	/**
+	 * Waits, up to {@code ticks}, for the creature to come at least {@code by} blocks nearer than {@code from}, and
+	 * returns how near it is then. A machine under load moves mobs in fewer steps; a fixed wait read that as standing still.
+	 */
+	private static double closes(final ClientGameTestContext context, final TestSingleplayerContext world, final int id, final double from,
+		final double by, final int ticks) {
+		double now = distance(world, id);
+		for (int waited = 0; waited < ticks && from - now <= by; waited += 5) {
+			context.waitTicks(5);
+			now = distance(world, id);
+		}
+		return now;
+	}
+
 	private static double distance(final TestSingleplayerContext world, final int id) {
 		return world.getServer().computeOnServer(server -> {
 			Mob mob = (Mob) server.overworld().getEntity(id);
@@ -137,8 +151,8 @@ public final class MistinnStalkTest implements FabricClientGameTest {
 		double watched = distance(world, id);
 		check(start - watched < 0.6, "watched, it does not come on: " + start + " -> " + watched);
 		face(context, world, arena, 180.0F);
-		context.waitTicks(40);
-		double away = distance(world, id);
+		// under a hold it would stand for StalkGoal.HOLD ticks: give a slow machine time, never that long
+		double away = closes(context, world, id, watched, 2.0, 55);
 		check(watched - away > 2.0, "the moment the hunter turns away it comes on: " + watched + " -> " + away);
 	}
 
@@ -147,8 +161,7 @@ public final class MistinnStalkTest implements FabricClientGameTest {
 		int id = creature(context, world, arena, EntityTypes.HUSK, 24.0);
 		context.waitTicks(StalkGoal.HOLD + 5);
 		double held = distance(world, id);
-		context.waitTicks(40);
-		double after = distance(world, id);
+		double after = closes(context, world, id, held, 1.0, 80);
 		check(held - after > 1.0, "after a long stare it comes on anyway: " + held + " -> " + after);
 	}
 
@@ -156,8 +169,8 @@ public final class MistinnStalkTest implements FabricClientGameTest {
 		face(context, world, arena, 0.0F);
 		int id = creature(context, world, arena, EntityTypes.HUSK, 10.0);
 		double start = distance(world, id);
-		context.waitTicks(30);
-		double after = distance(world, id);
+		// a stare would hold it for StalkGoal.HOLD ticks: it must come on well before that
+		double after = closes(context, world, id, start, 1.0, 50);
 		check(start - after > 1.0, "within twelve blocks it hunts as it always did, watched or not: " + start + " -> " + after);
 	}
 
@@ -189,6 +202,11 @@ public final class MistinnStalkTest implements FabricClientGameTest {
 			context.waitTicks(1);
 		}
 		double far = spread(world, ids)[1];
+		// long past any stare: on a slow machine the last of them may still be on its way
+		for (int waited = 0; waited < 60 && far >= 8.0; waited += 5) {
+			context.waitTicks(5);
+			far = spread(world, ids)[1];
+		}
 		check(mostAtOnce <= PackService.STRIKERS, "the pack still sends no more than two at once: " + mostAtOnce);
 		check(far < 8.0, "the stare cannot hold them forever: all three close in: " + far);
 	}
