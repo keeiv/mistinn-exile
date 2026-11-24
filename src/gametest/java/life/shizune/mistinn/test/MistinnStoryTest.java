@@ -20,6 +20,8 @@ import life.shizune.mistinn.story.StoryScript;
 import life.shizune.mistinn.story.StoryService;
 import life.shizune.mistinn.story.StoryStep;
 import life.shizune.mistinn.story.StoryWorks;
+import life.shizune.mistinn.story.StoryEnding;
+import life.shizune.mistinn.story.StoryInn;
 import life.shizune.mistinn.story.WorldMode;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -190,6 +192,7 @@ public class MistinnStoryTest implements FabricClientGameTest {
 
 			playRoad(context, world);
 		}
+		playTheAnchorEnding(context);
 	}
 
 	/** Chapter 2, the salt road, and chapter 3, the Sunken Bell, to the end of what is written. */
@@ -372,7 +375,7 @@ public class MistinnStoryTest implements FabricClientGameTest {
 			wheel.kill(server.overworld());
 		});
 		context.waitTicks(10);
-		check(step(world) == StoryStep.WAIT, "with the Rust Wheel stopped, the story waits for what comes next");
+		check(step(world) == StoryStep.CALL, "with the Rust Wheel stopped, the station is to be heard from");
 		context.waitTicks(60);
 		check(context.computeOnClient(mc -> StoryClient.line() != null), "its last words play as subtitles");
 		viewIsClear(context, "the Rust Wheel");
@@ -389,6 +392,129 @@ public class MistinnStoryTest implements FabricClientGameTest {
 		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 10), "the journal heard every sequence of the four chapters");
 		context.takeScreenshot("story-journal-chapter-4");
 		context.runOnClient(mc -> mc.gui.setScreen(null));
+
+		playChapterFive(context, world);
+	}
+
+	/**
+	 * Chapter 5: at the radio the station asks for the salt and another voice asks it not to; the salt thrown into the
+	 * Mist Inn's hearth ends the story of this world, Mist Inn. After it the station takes no salt.
+	 */
+	private static void playChapterFive(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		world.getServer().runOnServer(server -> {
+			StoryInn inn = server.overworld().getAttached(StoryService.INN);
+			check(inn != null, "the Mist Inn was built when the wheel stopped");
+			check(server.overworld().getBlockState(inn.hearth()).is(net.minecraft.world.level.block.Blocks.CAMPFIRE), "its hearth burns: "
+				+ server.overworld().getBlockState(inn.hearth()));
+			check(StoryService.get(player(server)).target().filter(places(server).radio()::equals).isPresent(), "the minimap points at the drop station's radio");
+		});
+		// ── The call ────────────────────────────────────────────────
+		useRadio(world, ItemStack.EMPTY);
+		check(step(world) == StoryStep.CHOOSE, "at the radio the station asks for the salt, and another voice asks it not to");
+		context.waitTicks(40);
+		check(context.computeOnClient(mc -> StoryClient.line() != null), "the call plays as subtitles");
+		context.takeScreenshot("story-call");
+		world.getServer().runOnServer(server -> {
+			check(StoryService.get(player(server)).heard().contains(StoryScript.STATION_CALL), "and is kept for the journal");
+			StoryInn inn = server.overworld().getAttached(StoryService.INN);
+			check(StoryService.get(player(server)).target().filter(inn.inn()::equals).isPresent(), "the minimap points at the Mist Inn");
+		});
+		context.runOnClient(mc -> StoryClient.skip());
+		context.waitFor(mc -> mc.gui.screen() instanceof StoryCardScreen, 200);
+		context.waitTicks(60);
+		context.takeScreenshot("story-card-the-call");
+		context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+		context.waitFor(mc -> mc.gui.screen() == null, 100);
+
+		// ── The Mist Inn: the salt into its fire ─────────────────────
+		world.getServer().runOnServer(server -> {
+			StoryInn inn = server.overworld().getAttached(StoryService.INN);
+			// off to the south of its door, looking back at it
+			stand(server, inn.inn().offset(5, 0, 12), 160.0F);
+		});
+		world.getConnection().waitForChunksRender();
+		context.waitTicks(30);
+		context.takeScreenshot("story-inn");
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			StoryInn inn = server.overworld().getAttached(StoryService.INN);
+			ItemStack salt = new ItemStack(MistinnItems.RUST_GOD_SALT);
+			player.setItemInHand(InteractionHand.MAIN_HAND, salt);
+			player.gameMode.useItemOn(player, server.overworld(), salt, InteractionHand.MAIN_HAND,
+				new BlockHitResult(Vec3.atCenterOf(inn.hearth()), Direction.UP, inn.hearth(), false));
+		});
+		check(step(world) == StoryStep.ENDED, "thrown into the Mist Inn's fire, the salt ends the story");
+		world.getServer().runOnServer(server -> {
+			StoryInn inn = server.overworld().getAttached(StoryService.INN);
+			check(StoryService.ending(server) == StoryEnding.INN, "the ending is Mist Inn");
+			check(server.overworld().getBlockState(inn.hearth()).is(net.minecraft.world.level.block.Blocks.SOUL_CAMPFIRE), "the fire burns blue");
+			check(player(server).getMainHandItem().isEmpty(), "the salt is gone into it");
+			check(life.shizune.mistinn.achievement.AchievementService.has(player(server), life.shizune.mistinn.achievement.AchievementService.ENDING_INN),
+				"and the ending is an achievement");
+		});
+		context.waitTicks(40);
+		check(context.computeOnClient(mc -> StoryClient.line() != null), "the man from tag 3401 speaks, and the night goes on");
+		context.runOnClient(mc -> StoryClient.skip());
+		context.waitFor(mc -> mc.gui.screen() instanceof StoryCardScreen, 400);
+		context.waitTicks(80);
+		context.takeScreenshot("story-card-inn");
+		context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+		context.waitFor(mc -> mc.gui.screen() == null, 100);
+		// the other way is shut now
+		useRadio(world, new ItemStack(MistinnItems.RUST_GOD_SALT));
+		check(world.getServer().computeOnServer(server -> player(server).getMainHandItem().is(MistinnItems.RUST_GOD_SALT)), "after the ending the station takes no salt");
+		context.runOnClient(mc -> mc.gui.setScreen(new JournalScreen()));
+		context.waitTicks(5);
+		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 12), "the journal heard every sequence, the ending's too");
+		context.takeScreenshot("story-journal-chapter-5");
+		context.runOnClient(mc -> mc.gui.setScreen(null));
+	}
+
+	/** The other ending, in a world of its own: chapter 5 reached at once, and the salt sent up from the drop station's radio. */
+	private static void playTheAnchorEnding(final ClientGameTestContext context) {
+		WorldMode.choose(WorldMode.STORY);
+		try (TestSingleplayerContext world = context.worldBuilder().create()) {
+			world.getConnection().waitForChunksRender();
+			world.getServer().runCommand("time set noon");
+			// the opening card first, out of the way
+			context.waitFor(mc -> mc.gui.screen() instanceof StoryCardScreen, 400);
+			context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+			context.waitFor(mc -> mc.gui.screen() == null, 100);
+			world.getServer().runOnServer(server -> {
+				player(server).getAbilities().invulnerable = true;
+				check(StoryService.ensureRoad(server) != null && StoryService.ensureWorks(server) != null && StoryService.ensureInn(server) != null,
+					"the later places can be built at once");
+				StoryService.advance(player(server), StoryStep.CHOOSE);
+				// the radio mended long ago, as it would be by now
+				BlockPos radio = places(server).radio();
+				server.overworld().setBlockAndUpdate(radio, server.overworld().getBlockState(radio).setValue(life.shizune.mistinn.story.RadioBlock.LIT, true));
+			});
+			useRadio(world, new ItemStack(MistinnItems.RUST_GOD_SALT));
+			check(step(world) == StoryStep.ENDED, "sent up from the radio, the salt ends the story");
+			world.getServer().runOnServer(server -> {
+				check(StoryService.ending(server) == StoryEnding.ANCHOR, "the ending is The Anchor");
+				check(player(server).getMainHandItem().isEmpty(), "the salt went up in the pod");
+				check(life.shizune.mistinn.achievement.AchievementService.has(player(server), life.shizune.mistinn.achievement.AchievementService.ENDING_ANCHOR),
+					"and the ending is an achievement");
+			});
+			context.waitTicks(40);
+			check(context.computeOnClient(mc -> StoryClient.line() != null), "Helm thanks the hunter");
+			context.runOnClient(mc -> StoryClient.skip());
+			context.waitFor(mc -> mc.gui.screen() instanceof StoryCardScreen, 400);
+			context.waitTicks(80);
+			context.takeScreenshot("story-card-anchor");
+			context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+			context.waitFor(mc -> mc.gui.screen() == null, 100);
+			// the Mist Inn's fire takes nothing now
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				StoryInn inn = server.overworld().getAttached(StoryService.INN);
+				ItemStack salt = new ItemStack(MistinnItems.RUST_GOD_SALT);
+				player.setItemInHand(InteractionHand.MAIN_HAND, salt);
+				check(!StoryService.burn(player, inn.hearth(), salt), "after the ending the Mist Inn's fire takes no salt");
+				check(server.overworld().getBlockState(inn.hearth()).is(net.minecraft.world.level.block.Blocks.CAMPFIRE), "and stays as it was");
+			});
+		}
 	}
 
 	/** Nothing stands between a scene's view and what it watches: no wall, and not the hunter. */
@@ -419,6 +545,13 @@ public class MistinnStoryTest implements FabricClientGameTest {
 		level.getChunk(at.getX() >> 4, at.getZ() >> 4);
 		int y = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, at.getX(), at.getZ());
 		player(server).teleportTo(level, at.getX() + 0.5, y, at.getZ() + 0.5, Set.of(), 0.0F, 10.0F, true);
+	}
+
+	/** Puts the hunter on the ground at (x, z) of {@code at}, looking along {@code yaw}, a little up. */
+	private static void stand(final MinecraftServer server, final BlockPos at, final float yaw) {
+		stand(server, at);
+		ServerPlayer player = player(server);
+		player.teleportTo(server.overworld(), player.getX(), player.getY(), player.getZ(), Set.of(), yaw, -5.0F, true);
 	}
 
 	private static void clickThroughCard(final ClientGameTestContext context) {
