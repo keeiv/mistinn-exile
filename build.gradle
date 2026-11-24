@@ -206,6 +206,16 @@ publishing {
 	}
 }
 
+// Rust Wheel reel (-PwheelReel): a minute of the Rust Wheel against a hunter played by key presses, frame by frame,
+// for the gameplay video (best with -PphotoMode for the shaders).
+if (project.hasProperty("wheelReel")) {
+	loom.runs.configureEach {
+		if (name == "clientGameTest") {
+			vmArg "-Dmistinn.wheelreel=true"
+		}
+	}
+}
+
 // Reef probe (-PreefProbe): how often world generation finds a place for a fog-bell station, against a lighthouse; numbers in the log.
 if (project.hasProperty("reefProbe")) {
 	loom.runs.configureEach {
