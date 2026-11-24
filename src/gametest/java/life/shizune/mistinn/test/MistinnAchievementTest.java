@@ -315,6 +315,16 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		check(has(world, Achievement.RUST_WHEEL), "so is the Rust Wheel stopping near");
 		int gainedWheel = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeWheel;
 		check(gainedWheel == Achievement.RUST_WHEEL.reward && gainedWheel == 1500, "and pays 1500: " + gainedWheel);
+		// the story's endings are reached only in a story world (MistinnStoryTest plays both): here they are granted as the story grants them
+		int beforeEndings = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
+		world.getServer().runOnServer(server -> {
+			AchievementService.grant(player(server), AchievementService.ENDING_ANCHOR);
+			AchievementService.grant(player(server), AchievementService.ENDING_INN);
+		});
+		context.waitTicks(5);
+		check(has(world, Achievement.ENDING_ANCHOR) && has(world, Achievement.ENDING_INN), "each ending of the story is remembered");
+		int gainedEndings = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeEndings;
+		check(gainedEndings == Achievement.ENDING_ANCHOR.reward + Achievement.ENDING_INN.reward && gainedEndings == 4000, "and each pays 2000: " + gainedEndings);
 		world.getServer().runOnServer(server -> {
 			ServerPlayer player = player(server);
 			player.removeAttached(MistinnAttachments.WOUNDS);
