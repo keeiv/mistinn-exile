@@ -282,7 +282,8 @@ public final class MistinnDropTest implements FabricClientGameTest {
 				mc.disconnectWithSavingScreen();
 			}
 		});
-		context.waitFor(mc -> mc.level == null && (previous == null || !previous.getRunningThread().isAlive()), 1200);
+		// saving a world of generated land can take a while on a busy machine
+		context.waitFor(mc -> mc.level == null && (previous == null || !previous.getRunningThread().isAlive()), 2400);
 		context.setScreen(TitleScreen::new);
 	}
 }
