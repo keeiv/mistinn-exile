@@ -317,6 +317,24 @@ public class MistinnRustWheelTest implements FabricClientGameTest {
 			return BodyService.get(player(server)).total();
 		});
 		check(after < before, "and the chain lands: " + before + " -> " + after);
+		// a hunter who stays at its back is not lashed again at once: the chain rests, and the wheel has its turn
+		int again = -1;
+		for (int i = 0; i < RustWheel.LASH_REST - 10 && again < 0; i += 2) {
+			int waited = i;
+			again = world.getServer().computeOnServer(server -> {
+				RustWheel wheel = wheel(server, centre);
+				BossMove move = wheel.currentMove();
+				if (move != null && "chain_lash".equals(move.id())) {
+					return waited;
+				}
+				// kept right at its back, however it turns
+				Vec3 back = wheel.position().subtract(Vec3.directionFromRotation(0.0F, wheel.getYRot()).scale(3.0));
+				player(server).teleportTo(server.overworld(), back.x, back.y, back.z, Set.of(), 0.0F, 0.0F, true);
+				return -1;
+			});
+			context.waitTicks(2);
+		}
+		check(again < 0, "the chain rests after a lash, even with the hunter still at its back: lashed again after " + again + " ticks");
 	}
 
 	// ── Broken ────────────────────────────────────────────────────
