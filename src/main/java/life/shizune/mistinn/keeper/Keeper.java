@@ -55,6 +55,8 @@ public abstract class Keeper extends Monster {
 	private static final EntityDataAccessor<Integer> DATA_MOVE_TICKS = SynchedEntityData.defineId(Keeper.class, EntityDataSerializers.INT);
 	/** Whether the move's clock stands still (in the air, waiting to land): the client holds the pose. */
 	private static final EntityDataAccessor<Boolean> DATA_MOVE_HELD = SynchedEntityData.defineId(Keeper.class, EntityDataSerializers.BOOLEAN);
+	/** Steps of the move per tick, for the client to play the clip at the speed the move runs. */
+	private static final EntityDataAccessor<Float> DATA_MOVE_RATE = SynchedEntityData.defineId(Keeper.class, EntityDataSerializers.FLOAT);
 
 	private final MoveSet set;
 	protected final ServerBossEvent bar;
@@ -71,6 +73,8 @@ public abstract class Keeper extends Monster {
 	/** Full heavy blows taken in a row, and how long until it has its feet under it again. */
 	private int poise;
 	private int poiseTimer;
+	/** How fiercely it fights: as made, or Rust Anchor's (read from its world every tick). */
+	private life.shizune.mistinn.hardship.Ferocity ferocity = life.shizune.mistinn.hardship.Ferocity.MADE;
 
 	protected Keeper(final EntityType<? extends Keeper> type, final Level level, final MoveSet set, final BossEvent.BossBarColor color) {
 		super(type, level);
@@ -120,6 +124,7 @@ public abstract class Keeper extends Monster {
 		builder.define(DATA_MOVE, (byte) 0);
 		builder.define(DATA_MOVE_TICKS, 0);
 		builder.define(DATA_MOVE_HELD, false);
+		builder.define(DATA_MOVE_RATE, 1.0F);
 	}
 
 	/** Its room is where it first stood, and stays there through a save: a keeper reloaded mid-fight is still in its own room. */
@@ -165,18 +170,29 @@ public abstract class Keeper extends Monster {
 		return this.entityData.get(DATA_MOVE_HELD);
 	}
 
+	/** Steps of the current move per tick (1 as made; 0 while it stands still). */
+	public float moveRate() {
+		return this.entityData.get(DATA_MOVE_RATE);
+	}
+
+	/** How fiercely it fights now, from its world's hardship. */
+	public life.shizune.mistinn.hardship.Ferocity ferocity() {
+		return this.ferocity;
+	}
+
 	protected void syncMove() {
 		BossMove move = this.runner.current();
 		this.entityData.set(DATA_MOVE, (byte) (move == null ? 0 : this.set.index(move.id()) + 1));
 		this.entityData.set(DATA_MOVE_TICKS, this.runner.ticks());
 		this.entityData.set(DATA_MOVE_HELD, this.runner.held());
+		this.entityData.set(DATA_MOVE_RATE, this.runner.rate());
 	}
 
 	public boolean staggered() {
 		return this.staggered > 0;
 	}
 
-	/** How many full heavy blows it has taken in a row, toward {@link #POISE_BREAK}. */
+	/** How many full heavy blows it has taken in a row, toward {@link #POISE_BREAK} (four in a Rust Anchor world). */
 	public int poise() {
 		return this.poise;
 	}
@@ -196,7 +212,7 @@ public abstract class Keeper extends Monster {
 		}
 		this.poise++;
 		this.poiseTimer = POISE_WINDOW;
-		if (this.poise >= POISE_BREAK) {
+		if (this.poise >= this.ferocity.poise()) {
 			this.poise = 0;
 			this.poiseTimer = 0;
 			this.stagger(level, "message.mistinn." + this.key() + ".stagger_blows");
@@ -210,6 +226,10 @@ public abstract class Keeper extends Monster {
 	@Override
 	protected void customServerAiStep(final ServerLevel level) {
 		super.customServerAiStep(level);
+		// a Rust Anchor keeper sees sooner, thinks more often, holds longer and runs its moves faster
+		this.ferocity = life.shizune.mistinn.hardship.Ferocity.of(level);
+		this.runner.tempo(this.ferocity.tell(), this.ferocity.swing(), this.ferocity.recover());
+		this.brain.temper(this.ferocity, this.runner);
 		this.bar.setProgress(this.getHealth() / this.getMaxHealth());
 		this.updateBarViewers(level);
 		MistWall.tick(this, level);
@@ -261,13 +281,13 @@ public abstract class Keeper extends Monster {
 		this.getLookControl().setLookAt(target, 30.0F, 30.0F);
 		if (this.walking > 0) {
 			this.walking--;
-			this.getNavigation().moveTo(target, 1.0);
+			this.getNavigation().moveTo(target, this.ferocity.pursuit());
 			return;
 		}
 		BossBrain.Decision decision = this.brain.decide(level, this, this.runner, this.phase());
 		if (decision == null || decision.move() == Planner.WALK) {
 			this.walking = decision == null ? 5 : decision.move().length();
-			this.getNavigation().moveTo(target, 1.0);
+			this.getNavigation().moveTo(target, this.ferocity.pursuit());
 			return;
 		}
 		this.perform(decision.move().id(), decision.delay());

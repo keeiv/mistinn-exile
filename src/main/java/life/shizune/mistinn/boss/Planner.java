@@ -34,6 +34,8 @@ public final class Planner {
 	private static final int ROLL_BUSY = 18;
 	/** How long a blow may be held at the end of its tell, waiting out an early roll. */
 	public static final int DELAY = 8;
+	/** The longer hold a merciless boss may also choose, to catch a hunter who waited out the first. */
+	public static final int LONG_DELAY = 14;
 	/** How fast the boss closes in when it only walks, blocks per tick. */
 	private static final double WALK_SPEED = 0.25;
 	private static final int WALK_TICKS = 10;
@@ -139,7 +141,8 @@ public final class Planner {
 	}
 
 	private final MoveSet set;
-	private final Weights weights;
+	private Weights weights;
+	private boolean longHold;
 	private final int beam;
 	private final int branch;
 	private final RandomSource random;
@@ -155,6 +158,12 @@ public final class Planner {
 
 	public Planner(final MoveSet set, final RandomSource random) {
 		this(set, Weights.DEFAULT, 6, 12, random);
+	}
+
+	/** What this boss values, and whether it may hold a blow for {@link #LONG_DELAY} as well as {@link #DELAY}. */
+	public void temper(final Weights values, final boolean holdLonger) {
+		this.weights = values;
+		this.longHold = holdLonger;
 	}
 
 	/** Tells the planner which move was actually begun, so it can avoid becoming predictable. */
@@ -218,6 +227,9 @@ public final class Planner {
 			add(mine, this.step(now, node, move, 0));
 			if (delayable(move)) {
 				add(mine, this.step(now, node, move, DELAY));
+				if (this.longHold) {
+					add(mine, this.step(now, node, move, LONG_DELAY));
+				}
 			}
 		}
 		if (!inMove) {

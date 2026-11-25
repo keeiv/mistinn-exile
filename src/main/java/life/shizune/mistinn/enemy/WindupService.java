@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.body.BodyService;
+import life.shizune.mistinn.hardship.Ferocity;
 import life.shizune.mistinn.mixin.MobAttackBoxInvoker;
 import life.shizune.mistinn.registry.VanillaCreatureSounds;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
@@ -26,10 +27,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Ravager;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Creatures hold a melee blow back for a readable windup, then lunge as they release it. The blow is
  * decided here on the server: it lands only if the hunter is still within reach when it is released.
+ * In a Rust Anchor world ({@link Ferocity}) the windup is shorter, some windups are feints (the
+ * creature stops short and strikes from a quick second windup) and some blows are held a little past
+ * the end of the windup, to catch a hunter who dodged on the beat.
  */
 public final class WindupService {
 	/** Ticks the released state stays visible to clients for the follow-through pose. */
@@ -58,9 +63,21 @@ public final class WindupService {
 		.syncWith(Windup.STREAM_CODEC, AttachmentSyncPredicate.all())
 		.buildAndRegister(Mistinn.id("windup"));
 
+	/** What a windup turns out to be. */
+	public enum Kind {
+		/** Released at the end of its windup. */
+		PLAIN,
+		/** Stops at the end, then a quick second windup carries the real blow. */
+		FEINT,
+		/** Held a few ticks past the end of its windup. */
+		HELD
+	}
+
 	private static final Set<Mob> ACTIVE = Collections.newSetFromMap(new WeakHashMap<>());
 	private static final Map<Mob, Double> START_DISTANCE = new WeakHashMap<>();
+	private static final Set<Mob> FEINTING = Collections.newSetFromMap(new WeakHashMap<>());
 	private static boolean releasing;
+	private static @Nullable Kind forced;
 
 	private WindupService() {
 	}
@@ -91,14 +108,53 @@ public final class WindupService {
 			|| ExecutionService.holdsMob(mob)) {
 			return false;
 		}
-		mob.setAttached(WINDUP, new Windup(level.getGameTime(), rig.windupTicks(), hunter.getId(), false));
+		Ferocity ferocity = Ferocity.of(level);
+		int length = ferocity.windupTicks(rig.windupTicks());
+		Kind kind = kind(mob, ferocity);
+		if (kind == Kind.FEINT) {
+			// a feint shows the whole tell as made, so it reads as the real thing
+			length = rig.windupTicks();
+			FEINTING.add(mob);
+		} else if (kind == Kind.HELD) {
+			length += 3 + mob.getRandom().nextInt(5);
+		}
+		mob.setAttached(WINDUP, new Windup(level.getGameTime(), length, hunter.getId(), false));
 		START_DISTANCE.put(mob, flatDistance(mob, hunter));
 		ACTIVE.add(mob);
+		cry(level, mob);
+		return true;
+	}
+
+	private static Kind kind(final Mob mob, final Ferocity ferocity) {
+		Kind kind = forced;
+		if (kind != null) {
+			return kind;
+		}
+		if (ferocity.feint() <= 0.0F && ferocity.hold() <= 0.0F) {
+			return Kind.PLAIN;
+		}
+		float roll = mob.getRandom().nextFloat();
+		if (roll < ferocity.feint()) {
+			return Kind.FEINT;
+		}
+		return roll < ferocity.feint() + ferocity.hold() ? Kind.HELD : Kind.PLAIN;
+	}
+
+	/** Test hook: every windup from now on is of this kind (null: as the world's ferocity rolls it). */
+	public static void force(final @Nullable Kind kind) {
+		forced = kind;
+	}
+
+	/** Whether this creature's windup is a feint that has not turned into its real blow yet. */
+	public static boolean feinting(final Mob mob) {
+		return FEINTING.contains(mob);
+	}
+
+	private static void cry(final ServerLevel level, final Mob mob) {
 		SoundEvent cry = VanillaCreatureSounds.windup(mob.getType());
 		if (cry != null) {
 			level.playSound(null, mob.getX(), mob.getY(), mob.getZ(), cry, SoundSource.HOSTILE, 1.0F, 0.9F + mob.getRandom().nextFloat() * 0.2F);
 		}
-		return true;
 	}
 
 	/** True while the creature is still winding up (not yet released). */
@@ -163,7 +219,16 @@ public final class WindupService {
 				continue;
 			}
 			if (elapsed >= windup.length()) {
-				release(level, mob, hunter, windup);
+				if (FEINTING.remove(mob)) {
+					// it stops short; the real blow comes from a quick second windup
+					EnemyRig rig = EnemyRig.of(mob.getType());
+					int quick = Ferocity.of(level).afterFeintTicks(rig == null ? windup.length() : rig.windupTicks());
+					mob.setAttached(WINDUP, new Windup(level.getGameTime(), quick, windup.target(), false));
+					START_DISTANCE.put(mob, flatDistance(mob, hunter));
+					cry(level, mob);
+				} else {
+					release(level, mob, hunter, windup);
+				}
 			}
 		}
 	}
@@ -176,7 +241,7 @@ public final class WindupService {
 
 	private static void release(final ServerLevel level, final Mob mob, final ServerPlayer hunter, final Windup windup) {
 		EnemyRig rig = EnemyRig.of(mob.getType());
-		double retreat = Mth.clamp(flatDistance(mob, hunter) - START_DISTANCE.getOrDefault(mob, 0.0), 0.0, CHASE_CAP);
+		double retreat = Mth.clamp(flatDistance(mob, hunter) - START_DISTANCE.getOrDefault(mob, 0.0), 0.0, CHASE_CAP * Ferocity.of(level).chase());
 		double reach = (rig == null ? 0.0 : rig.lunge()) + retreat;
 		Vec3 toward = hunter.position().subtract(mob.position()).multiply(1.0, 0.0, 1.0);
 		Vec3 direction = toward.lengthSqr() < 1.0E-6 ? Vec3.directionFromRotation(0.0F, mob.getYRot()) : toward.normalize();
@@ -204,6 +269,7 @@ public final class WindupService {
 	private static void clear(final Mob mob) {
 		mob.removeAttached(WINDUP);
 		START_DISTANCE.remove(mob);
+		FEINTING.remove(mob);
 	}
 
 	private static double flatDistance(final Entity a, final Entity b) {

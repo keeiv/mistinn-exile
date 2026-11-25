@@ -32,7 +32,7 @@ public class RustWheelRenderer extends MobRenderer<RustWheel, RustWheelRenderSta
 		state.turned = entity.turned(partialTicks);
 		var move = entity.currentMove();
 		state.move = move == null ? null : move.id();
-		state.moveTicks = entity.moveTicks() + (entity.moveHeld() ? 0.0F : partialTicks);
+		state.moveTicks = entity.moveTicks() + (entity.moveHeld() ? 0.0F : partialTicks * entity.moveRate());
 		state.moveWindup = move == null ? 0 : move.windup();
 		state.stuck = move != null && "stuck".equals(move.id());
 		state.broken = entity.broken();

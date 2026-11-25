@@ -45,7 +45,7 @@ public class SnufferRenderer extends HumanoidMobRenderer<Snuffer, SnufferRenderS
 		state.move = move == null ? null : move.id();
 		state.moveLength = move == null ? 0 : move.length();
 		// a held move (in the air, waiting to land) keeps its pose instead of creeping on between ticks
-		state.moveTicks = entity.moveTicks() + (entity.moveHeld() ? 0.0F : partialTicks);
+		state.moveTicks = entity.moveTicks() + (entity.moveHeld() ? 0.0F : partialTicks * entity.moveRate());
 		// standing with nothing to do, it now and then tilts its lantern, shifts its weight or heaves a breath
 		boolean still = move == null && state.walkAnimationSpeed < 0.05F;
 		state.idle = still ? SnufferModel.idle(entity.getId(), state.ageInTicks) : null;

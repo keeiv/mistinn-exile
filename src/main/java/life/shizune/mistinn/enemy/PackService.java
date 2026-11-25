@@ -76,8 +76,13 @@ public final class PackService {
 	 * The rest share the places left on the ring, each taking the free place nearest to it.
 	 */
 	public static List<Order> assign(final List<Member> members, final double facing) {
+		return assign(members, facing, STRIKERS);
+	}
+
+	/** {@link #assign(List, double)} with {@code at} strikers at once instead of {@link #STRIKERS}. */
+	public static List<Order> assign(final List<Member> members, final double facing, final int at) {
 		List<Order> orders = new ArrayList<>();
-		if (members.size() <= STRIKERS) {
+		if (members.size() <= at) {
 			for (Member member : members) {
 				orders.add(new Order(member.id(), true, member.angle()));
 			}
@@ -90,14 +95,14 @@ public final class PackService {
 			}
 		}
 		for (Member member : members) {
-			if (strikers.size() < STRIKERS && member.striking() && !member.spent()) {
+			if (strikers.size() < at && member.striking() && !member.spent()) {
 				strikers.add(member.id());
 			}
 		}
 		List<Member> waiting = new ArrayList<>(members.stream().filter(m -> !strikers.contains(m.id()) && !(m.striking() && m.spent())).toList());
 		waiting.sort(Comparator.comparingDouble((Member m) -> -behind(m.angle(), facing)).thenComparingDouble(Member::distance));
 		for (Member member : waiting) {
-			if (strikers.size() >= STRIKERS) {
+			if (strikers.size() >= at) {
 				break;
 			}
 			strikers.add(member.id());
@@ -188,7 +193,8 @@ public final class PackService {
 				boolean spent = striking && (released || now - role.since() > TURN) && !WindupService.winding(mob);
 				members.add(new Member(mob.getId(), angle(at, mob.position()), mob.position().distanceTo(at), WindupService.winding(mob), striking, spent));
 			}
-			for (Order order : assign(members, facing(hunter.getYRot()))) {
+			int strikers = life.shizune.mistinn.hardship.Ferocity.of(server).strikers();
+			for (Order order : assign(members, facing(hunter.getYRot()), strikers)) {
 				for (Mob mob : pack) {
 					if (mob.getId() == order.id()) {
 						Role was = ROLES.get(mob);
