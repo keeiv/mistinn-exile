@@ -180,9 +180,12 @@ public final class MistinnFerocityTest implements FabricClientGameTest {
 			check(keeper.brain().sight() == 1 && keeper.ferocity().poise() == 4, "a Rust Anchor keeper sees at once and takes four heavy blows to rock");
 			keeper.perform(MOVE);
 		});
-		context.waitTick();
-		float rate = world.getServer().computeOnServer(server -> ((Snuffer) server.overworld().getEntity(id[0])).moveRate());
-		check(rate == 1.5F, "the client is told to play the tell at its speed: " + rate);
+		Set<Float> rates = new HashSet<>();
+		for (int tick = 0; tick < 6; tick++) {
+			context.waitTick();
+			rates.add(world.getServer().computeOnServer(server -> ((Snuffer) server.overworld().getEntity(id[0])).moveRate()));
+		}
+		check(rates.equals(Set.of(1.0F, 2.0F)), "the client is told each tick how many steps the tell takes next, one and two by turns: " + rates);
 		context.waitTicks(80);
 		world.getServer().runOnServer(server -> server.overworld().setAttached(Hardship.WORLD, Hardship.NORMAL));
 		context.waitTicks(2);

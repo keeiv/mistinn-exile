@@ -54,13 +54,16 @@ public final class MoveRunner {
 		this.recoverRate = Math.max(1.0F, recover);
 	}
 
-	/** Steps of the current move per tick at the point it has reached (0 while it stands still, 1 with no move), for the client to play it at. */
+	/**
+	 * Steps the current move takes on the next tick (0 while it stands still, 1 with no move), for the client to play the
+	 * clip at: at a rate of 1.5 the move really takes one step, then two, and the client follows each.
+	 */
 	public float rate() {
 		BossMove move = this.current;
 		if (move == null) {
 			return 1.0F;
 		}
-		return this.held ? 0.0F : this.rateAt(move, this.ticks);
+		return this.held ? 0.0F : Math.max(1, (int) (this.carry + this.rateAt(move, this.ticks)));
 	}
 
 	private float rateAt(final BossMove move, final int tick) {

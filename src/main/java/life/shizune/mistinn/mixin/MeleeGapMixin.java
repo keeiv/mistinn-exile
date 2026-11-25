@@ -3,6 +3,7 @@ package life.shizune.mistinn.mixin;
 import life.shizune.mistinn.hardship.Ferocity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.monster.Enemy;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,9 +30,14 @@ public abstract class MeleeGapMixin {
 	@Shadow
 	private long lastCanUseCheck;
 
+	/** Only the hostile: a tamed wolf or an iron golem fights as it always did. */
+	private float mistinn$scale() {
+		return this.mob instanceof Enemy ? Ferocity.of(this.mob.level()).attackGap() : 1.0F;
+	}
+
 	@Inject(method = "canUse", at = @At("HEAD"))
 	private void mistinn$lookAgainSooner(final CallbackInfoReturnable<Boolean> cir) {
-		float scale = Ferocity.of(this.mob.level()).attackGap();
+		float scale = this.mistinn$scale();
 		if (scale < 1.0F) {
 			long now = this.mob.level().getGameTime();
 			if (now - this.lastCanUseCheck >= Ferocity.gap(20, scale)) {
@@ -43,11 +49,11 @@ public abstract class MeleeGapMixin {
 
 	@Inject(method = "resetAttackCooldown", at = @At("RETURN"))
 	private void mistinn$soonerAgain(final CallbackInfo ci) {
-		this.ticksUntilNextAttack = Ferocity.gap(this.ticksUntilNextAttack, Ferocity.of(this.mob.level()).attackGap());
+		this.ticksUntilNextAttack = Ferocity.gap(this.ticksUntilNextAttack, this.mistinn$scale());
 	}
 
 	@Inject(method = "getAttackInterval", at = @At("RETURN"), cancellable = true)
 	private void mistinn$sooner(final CallbackInfoReturnable<Integer> cir) {
-		cir.setReturnValue(Ferocity.gap(cir.getReturnValueI(), Ferocity.of(this.mob.level()).attackGap()));
+		cir.setReturnValue(Ferocity.gap(cir.getReturnValueI(), this.mistinn$scale()));
 	}
 }
