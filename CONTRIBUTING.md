@@ -64,6 +64,12 @@ cd mistinn-exile
 
 新功能請在測試裡加上可觀察的檢查（例如物品放進了哪一格、死亡後保留了什麼），而不是只截圖。
 
+好友連機平常用直連測：房間測試會從本機以訪客身分登入，檢查邀請碼與房間鑰匙。要連同真正的中繼站一起測（需要網路），加上 `-PliveRelay`，測試會裝上 e4mc，讓訪客從外面經過中繼站登入：
+
+```powershell
+.\build.ps1 runClientGameTest -PonlyTest=MistinnRoomTest -PliveRelay
+```
+
 README 與官網的照片用拍攝模式在遊戲裡擺好再拍：
 
 ```powershell

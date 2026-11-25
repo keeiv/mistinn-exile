@@ -1,17 +1,21 @@
 package life.shizune.mistinn.client.multiplayer;
 
-import io.netty.util.AttributeKey;
+import org.jspecify.annotations.Nullable;
 
-/** Carries the room's account policy from its TCP listener to the guest login. */
+/** A single-player world opened to friends as a room, with the key its invites carry. */
 public interface RoomHosting {
-	AttributeKey<Boolean> VERIFIED_GUEST = AttributeKey.valueOf("mistinn:verified_guest");
-
+	/** Opens the room on {@code port}; false when the port could not be taken. */
 	boolean mistinn$publishRoom(int port);
 
-	boolean mistinn$isPublishingRoom();
+	/** The open room's key, or null while the room is closed. */
+	byte @Nullable [] mistinn$roomKey();
 
-	/** A login that knows whether it came in through a room. */
+	/** A login that knows whether it is a guest coming in from outside this computer. */
 	interface Login {
-		boolean mistinn$requiresVerifiedGuest();
+		/** Whether this login reached the host's world from outside: over TCP or through the relay. */
+		boolean mistinn$isGuest();
+
+		/** The name the player asked to log in with. */
+		String mistinn$requestedName();
 	}
 }

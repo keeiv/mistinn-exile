@@ -10,7 +10,7 @@ plugins {
 def photoMode = project.hasProperty("photoMode")
 
 repositories {
-	if (photoMode) {
+	if (photoMode || project.hasProperty("liveRelay")) {
 		exclusiveContent {
 			forRepository { maven { url = "https://api.modrinth.com/maven" } }
 			filter { includeGroup "maven.modrinth" }
@@ -154,6 +154,12 @@ dependencies {
 	if (photoMode) {
 		runtimeOnly "maven.modrinth:sodium:mc26.3-0.9.2-fabric"
 		runtimeOnly "maven.modrinth:iris:1.11.7+26.3-fabric"
+	}
+
+	// Live relay (-PliveRelay): the room test opens its room through the real e4mc relay (as the
+	// launcher installs it) and logs guests in from outside through it. Needs the internet.
+	if (project.hasProperty("liveRelay")) {
+		runtimeOnly "maven.modrinth:e4mc:6.2.3-fabric-modern"
 	}
 }
 

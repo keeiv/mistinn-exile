@@ -152,9 +152,13 @@ Existing Bell Salve stacks turn into the same amount of raw gold when the save i
 
 ### Playing with friends
 
-The host enters a Story or Free exploration world, presses Esc, and chooses **World & Multiplayer → Open Room**. Enter a host IP or hostname your friends can reach, then copy the connection address. Guests use the same Mistinn version and paste the address in **Multiplayer → Direct Connection**. The host can close the room from the same screen, and the world stays on their computer.
+The host enters a Story or Free exploration world, presses Esc, and chooses **World & Multiplayer → Open Room**. An invite code starting with `MIST-` appears; **Copy Invite** puts it on the clipboard to send to friends. Friends paste it into **Join a Friend** in the Mistinn Launcher and go straight into the room, or use **Multiplayer → Join with Invite** in game. The host can close the room from the same screen, and the world stays on their computer.
 
-Friends on different networks can connect over a reachable public address or a shared private virtual network. For a public IPv4 connection, forward the chosen TCP port (default `25565`) to the host computer and allow it through the firewall. A shared private virtual network also works when the host's ISP uses CGNAT. Guests need a verified Minecraft account to join the room. [Minecraft Java multiplayer help](https://help.minecraft.net/hc/en-us/articles/32899741198989)
+- **No router setup**: the room is opened to the internet through the public relay of [e4mc](https://modrinth.com/mod/e4mc) (MIT licence), which the Mistinn Launcher installs. The relay is run by e4mc's author, and the game's connection passes through it.
+- **Offline accounts can join**: only people with the invite get in. Each time the room opens it gets a new invite, and old ones stop working once it closes. A guest whose name is already in the room is turned away.
+- **Same version**: everyone needs the same Mistinn version; the join screen says so when they differ.
+- **Skins**: the skin set in the launcher is shown to everyone in the room.
+- **When the relay cannot be reached**: the screen switches to a direct connection. Enter an address your friends can reach (a public IP, hostname or virtual LAN address). For a public IPv4 connection, forward the TCP port (default `25565`) to the host computer and allow it through the firewall. [Minecraft Java multiplayer help](https://help.minecraft.net/hc/en-us/articles/32899741198989)
 
 Story worlds remember whether the keeper has fallen and the salt block has been turned in. Friends who join later can continue their own objectives when they reach those steps.
 

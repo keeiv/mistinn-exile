@@ -155,6 +155,8 @@ public class Mistinn implements ModInitializer {
 			return InteractionResult.PASS;
 		});
 
+		life.shizune.mistinn.skin.SkinSync.register();
+
 		LOGGER.info("Mistinn: Exile loaded");
 	}
 

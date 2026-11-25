@@ -40,6 +40,9 @@ public class MistinnClient implements ClientModInitializer {
 				}
 			});
 		HostRoomScreen.register();
+		life.shizune.mistinn.client.multiplayer.RoomGate.register();
+		life.shizune.mistinn.client.multiplayer.Invites.load();
+		life.shizune.mistinn.client.skin.SyncedSkins.register();
 		KeyMapping zoom = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.minimap_zoom", InputConstants.KEY_M, CATEGORY)
 		);
