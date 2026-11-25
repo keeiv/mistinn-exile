@@ -62,6 +62,12 @@ Use `build.ps1` from OneDrive or non-ASCII paths; elsewhere `./gradlew build` wo
 
 The client game test opens a real game window, plays weapon swings, resting and respawning at a bell, death and residue, the grid inventory and tiers, and saves screenshots to `build/run/clientGameTest/screenshots`. Every check must pass; when you change what is on screen, look at the screenshots. New features add observable checks (which cell an item landed in, what survived death), not only screenshots.
 
+Playing with friends is normally tested over a direct connection: the room test logs guests in from this computer and checks the invite and the room key. To test it through the real relay as well (needs the internet), add `-PliveRelay`; the test then installs e4mc and logs guests in from outside through the relay:
+
+```powershell
+.\build.ps1 runClientGameTest -PonlyTest=MistinnRoomTest -PliveRelay
+```
+
 Photos for the README and the website are staged in the game with photo mode:
 
 ```powershell
