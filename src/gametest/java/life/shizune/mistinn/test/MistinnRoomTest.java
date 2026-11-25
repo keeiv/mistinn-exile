@@ -48,6 +48,18 @@ public final class MistinnRoomTest implements FabricClientGameTest {
 		checkAddresses();
 		checkInvites();
 		Invites.clear();
+		// screenshots in Traditional Chinese, as players see the room
+		if (!context.computeOnClient(mc -> mc.options.languageCode.equals("zh_tw"))) {
+			boolean[] reloaded = {false};
+			context.runOnClient(mc -> {
+				mc.options.languageCode = "zh_tw";
+				mc.getLanguageManager().setSelected("zh_tw");
+				mc.reloadResourcePacks().thenRun(() -> reloaded[0] = true);
+			});
+			context.waitFor(mc -> reloaded[0], 1200);
+			// the loading overlay fades out first, taking clicks meanwhile
+			context.waitTicks(40);
+		}
 		InetAddress loopback = InetAddress.getLoopbackAddress();
 		int port;
 		try (ServerSocket listener = new ServerSocket(0, 1, loopback)) {

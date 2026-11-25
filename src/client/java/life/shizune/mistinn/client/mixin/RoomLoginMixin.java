@@ -1,12 +1,9 @@
 package life.shizune.mistinn.client.mixin;
 
 import com.mojang.authlib.GameProfile;
-import life.shizune.mistinn.client.multiplayer.RoomGate;
 import life.shizune.mistinn.client.multiplayer.RoomHosting;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.network.Connection;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 import org.jspecify.annotations.Nullable;
@@ -14,14 +11,12 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * A room's guest logs in with the name they chose, Microsoft account or not: the room key checked
- * by {@link RoomGate} keeps strangers out instead. A guest never gets the host's profile, and a
- * name already in the world is turned away.
+ * by the room's gate keeps strangers out instead. A guest never gets the host's profile, and the
+ * gate turns away a name already in the world.
  */
 @Mixin(ServerLoginPacketListenerImpl.class)
 public abstract class RoomLoginMixin implements RoomHosting.Login {
@@ -36,9 +31,6 @@ public abstract class RoomLoginMixin implements RoomHosting.Login {
 	@Shadow
 	private String requestedUsername;
 
-	@Shadow
-	public abstract void disconnect(Component reason);
-
 	@Override
 	public boolean mistinn$isGuest() {
 		return this.server instanceof IntegratedServer && !this.connection.isMemoryConnection();
@@ -49,19 +41,12 @@ public abstract class RoomLoginMixin implements RoomHosting.Login {
 		return this.requestedUsername == null ? "" : this.requestedUsername;
 	}
 
-	@Inject(method = "handleHello", at = @At("HEAD"), cancellable = true)
-	private void mistinn$oneOfEachName(final ServerboundHelloPacket packet, final CallbackInfo ci) {
-		if (!mistinn$isGuest()) {
-			return;
-		}
-		String name = packet.name();
+	@Override
+	public boolean mistinn$nameTaken() {
+		String name = mistinn$requestedName();
 		GameProfile host = this.server.getSingleplayerProfile();
-		boolean taken = host != null && host.name().equalsIgnoreCase(name)
+		return host != null && host.name().equalsIgnoreCase(name)
 			|| this.server.getPlayerList().getPlayers().stream().anyMatch(p -> p.getGameProfile().name().equalsIgnoreCase(name));
-		if (taken) {
-			disconnect(RoomGate.reason("same_name", name));
-			ci.cancel();
-		}
 	}
 
 	@Redirect(method = "handleHello", at = @At(value = "INVOKE",

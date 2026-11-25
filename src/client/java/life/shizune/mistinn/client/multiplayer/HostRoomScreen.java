@@ -30,7 +30,7 @@ public final class HostRoomScreen extends Screen {
 	private static final int GOLD = 0xFFE8AF69;
 	private static final int PAPER = 0xFFECE3D2;
 	private static final int ASH = 0xFFB8B0A0;
-	private static final int PANEL_HEIGHT = 206;
+	private static final int PANEL_HEIGHT = 218;
 	private static String host = "";
 	private static int port = Invite.DEFAULT_PORT;
 	private final Screen previous;

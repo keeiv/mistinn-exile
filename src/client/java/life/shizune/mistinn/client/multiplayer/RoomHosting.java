@@ -17,5 +17,8 @@ public interface RoomHosting {
 
 		/** The name the player asked to log in with. */
 		String mistinn$requestedName();
+
+		/** Whether that name is the host's or already in the world (asked on the server thread). */
+		boolean mistinn$nameTaken();
 	}
 }
