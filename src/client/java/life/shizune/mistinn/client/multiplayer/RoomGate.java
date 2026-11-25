@@ -35,6 +35,11 @@ public final class RoomGate {
 			if (!((RoomHosting.Login) handler).mistinn$isGuest()) {
 				return;
 			}
+			RoomHosting.Login login = (RoomHosting.Login) handler;
+			if (login.mistinn$nameTaken()) {
+				handler.disconnect(reason("same_name", login.mistinn$requestedName()));
+				return;
+			}
 			if (key(server) == null) {
 				handler.disconnect(reason("closed"));
 				return;

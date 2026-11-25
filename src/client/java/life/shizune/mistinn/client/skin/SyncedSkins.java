@@ -77,6 +77,10 @@ public final class SyncedSkins {
 	}
 
 	private static void apply(final Minecraft mc, final SkinSync.Skin skin) {
+		if (!SkinSync.valid(skin.png())) {
+			// a host could send anything: check the header before decoding a single pixel
+			return;
+		}
 		NativeImage image;
 		try {
 			image = NativeImage.read(skin.png());
