@@ -6,7 +6,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * What a boss has seen of one hunter, the last few seconds of it. It sees them {@link #DELAY} ticks late,
- * as a person would: nothing newer than that is ever handed out.
+ * as a person would (a merciless world's boss sooner, {@link #sight}): nothing newer than that is ever handed out.
  */
 public final class PlayerTrace {
 	/** Ticks between something happening and the boss seeing it. */
@@ -14,8 +14,18 @@ public final class PlayerTrace {
 	private static final int SIZE = 64;
 
 	private final Observation[] ring = new Observation[SIZE];
+	private int delay = DELAY;
 	private int next;
 	private int count;
+
+	/** How late, in ticks, this boss sees the hunter. */
+	public void sight(final int ticks) {
+		this.delay = Math.max(0, ticks);
+	}
+
+	public int sight() {
+		return this.delay;
+	}
 
 	public void record(final Observation observation) {
 		this.ring[this.next] = observation;
@@ -27,7 +37,7 @@ public final class PlayerTrace {
 	public @Nullable Observation seen(final long now) {
 		for (int i = 1; i <= this.count; i++) {
 			Observation o = this.ring[Math.floorMod(this.next - i, SIZE)];
-			if (o.time() <= now - DELAY) {
+			if (o.time() <= now - this.delay) {
 				return o;
 			}
 		}
@@ -37,7 +47,7 @@ public final class PlayerTrace {
 	/** What the boss can see of the last {@code ticks} ticks, oldest first. */
 	public List<Observation> history(final long now, final int ticks) {
 		List<Observation> out = new ArrayList<>();
-		long newest = now - DELAY;
+		long newest = now - this.delay;
 		for (int i = this.count; i >= 1; i--) {
 			Observation o = this.ring[Math.floorMod(this.next - i, SIZE)];
 			if (o.time() <= newest && o.time() > newest - ticks) {

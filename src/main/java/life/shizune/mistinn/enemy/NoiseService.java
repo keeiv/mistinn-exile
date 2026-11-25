@@ -82,10 +82,12 @@ public final class NoiseService {
 
 	/** How far this noise carries from this hunter now. */
 	public static double radius(final ServerPlayer hunter, final Noise noise) {
+		// a Rust Anchor shore listens harder
+		double ears = life.shizune.mistinn.hardship.Ferocity.of(hunter.level()).hearing();
 		if (noise == Noise.BLOOD) {
-			return noise.radius + SCENT_PER_DEAD_PART * BodyService.get(hunter).destroyedCount();
+			return (noise.radius + SCENT_PER_DEAD_PART * BodyService.get(hunter).destroyedCount()) * ears;
 		}
-		return noise.muffled && hunter.isShiftKeyDown() ? noise.radius / 2.0 : noise.radius;
+		return (noise.muffled && hunter.isShiftKeyDown() ? noise.radius / 2.0 : noise.radius) * ears;
 	}
 
 	/** The hunter made this noise where they stand. */

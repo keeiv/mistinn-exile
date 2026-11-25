@@ -21,7 +21,9 @@ import org.jspecify.annotations.Nullable;
  * Runs one move at a time along its timeline: the tell's sound at the start and what is seen through the
  * windup, the strikes at their ticks, the body carried by the move's motion (stopped by whatever it runs
  * into), and the script for anything else. A script may hold the clock (waiting in the air for a landing)
- * or skip ahead. A boss that dies stops at once.
+ * or skip ahead. A boss that dies stops at once. A boss may run a move faster than it was made ({@link #tempo}):
+ * then some ticks take two steps of the move, each step whole (its script, its blows, its motion), so nothing is
+ * skipped, only sooner.
  */
 public final class MoveRunner {
 	private @Nullable BossMove current;
@@ -35,6 +37,41 @@ public final class MoveRunner {
 	/** The room the body may not be carried out of (null: anywhere). */
 	private @Nullable Vec3 leashCentre;
 	private double leashRadius;
+	/** Steps of the move per tick through the tell, the blows and the recovery. */
+	private float tellRate = 1.0F;
+	private float swingRate = 1.0F;
+	private float recoverRate = 1.0F;
+	/** The part of a step carried over to the next tick. */
+	private float carry;
+
+	/**
+	 * How fast this boss runs its moves: steps per tick through the tell, the blows and the recovery (1 each: as
+	 * made). A reaction (a stagger) always runs as made.
+	 */
+	public void tempo(final float tell, final float swing, final float recover) {
+		this.tellRate = Math.max(1.0F, tell);
+		this.swingRate = Math.max(1.0F, swing);
+		this.recoverRate = Math.max(1.0F, recover);
+	}
+
+	/** Steps of the current move per tick at the point it has reached (0 while it stands still, 1 with no move), for the client to play it at. */
+	public float rate() {
+		BossMove move = this.current;
+		if (move == null) {
+			return 1.0F;
+		}
+		return this.held ? 0.0F : this.rateAt(move, this.ticks);
+	}
+
+	private float rateAt(final BossMove move, final int tick) {
+		if (move.kind() == BossMove.Kind.REACTION) {
+			return 1.0F;
+		}
+		if (tick < move.windup()) {
+			return this.tellRate;
+		}
+		return tick < move.windup() + move.active() ? this.swingRate : this.recoverRate;
+	}
 
 	/** Begins a move from its first tick; whatever ran before is dropped. */
 	public void start(final Mob boss, final BossMove move) {
@@ -42,6 +79,7 @@ public final class MoveRunner {
 		this.ticks = 0;
 		this.held = false;
 		this.delayLeft = 0;
+		this.carry = 0.0F;
 		this.facing = boss.getYRot();
 		this.notes.clear();
 		this.struck.clear();
@@ -82,9 +120,27 @@ public final class MoveRunner {
 		if (move == null) {
 			return;
 		}
+		this.carry += this.rateAt(move, this.ticks);
+		int steps = Math.max(1, (int) this.carry);
+		this.carry -= steps;
+		for (int i = 0; i < steps; i++) {
+			if (!this.step(level, boss, target)) {
+				// a held clock does not save up steps for later
+				this.carry = Math.min(this.carry, 0.0F);
+				return;
+			}
+		}
+	}
+
+	/** One step of the move: false when nothing more may run this tick (held, ended, replaced, or the boss died). */
+	private boolean step(final ServerLevel level, final Mob boss, final @Nullable LivingEntity target) {
+		BossMove move = this.current;
+		if (move == null) {
+			return false;
+		}
 		if (!boss.isAlive()) {
 			this.stop();
-			return;
+			return false;
 		}
 		if (this.ticks < move.windup() && move.tellEffect() != null) {
 			move.tellEffect().tick(level, boss, target, this.ticks);
@@ -93,31 +149,54 @@ public final class MoveRunner {
 			// the pose held at the end of the tell; nothing lands and nothing moves until the delay runs out
 			this.delayLeft--;
 			this.held = true;
-			return;
+			return false;
 		}
 		this.held = false;
 		if (move.script() != null) {
 			move.script().tick(new Context(level, boss, target));
 		}
 		if (this.current != move) {
-			return;
+			return false;
 		}
 		for (BossMove.Strike strike : move.strikes()) {
 			if (strike.tick() == this.ticks) {
 				this.blow(level, boss, strike);
 			}
 		}
-		if (!this.held) {
-			Vec3 step = move.motion().at(this.ticks + 1).subtract(move.motion().at(this.ticks));
-			if (step.lengthSqr() > 1.0E-8) {
-				// moved as a body moves: a wall stops it, and so does the edge of its room
-				boss.move(MoverType.SELF, this.leashed(boss.position(), this.world(step)));
+		if (this.held) {
+			// a script may have jumped the clock to the end and held it there
+			if (this.ticks >= move.length()) {
+				this.stop();
 			}
-			this.ticks++;
+			return false;
 		}
+		Vec3 step = move.motion().at(this.ticks + 1).subtract(move.motion().at(this.ticks));
+		if (step.lengthSqr() > 1.0E-8) {
+			// moved as a body moves: a wall stops it, and so does the edge of its room
+			boss.move(MoverType.SELF, this.leashed(boss.position(), this.world(step)));
+		}
+		this.ticks++;
 		if (this.ticks >= move.length()) {
 			this.stop();
+			return false;
 		}
+		return true;
+	}
+
+	/** Ticks a move takes at this boss's tempo, from its start to the end of its recovery (without any held blow). */
+	public int realLength(final BossMove move) {
+		return this.realTicks(move, move.length());
+	}
+
+	/** Ticks this boss takes to reach a tick of a move, at its tempo. */
+	public int realTicks(final BossMove move, final int tick) {
+		if (move.kind() == BossMove.Kind.REACTION) {
+			return tick;
+		}
+		int tell = Math.min(tick, move.windup());
+		int swing = Math.min(Math.max(0, tick - move.windup()), move.active());
+		int recover = Math.max(0, tick - move.windup() - move.active());
+		return Math.round(tell / this.tellRate + swing / this.swingRate + recover / this.recoverRate);
 	}
 
 	public void stop() {
@@ -125,6 +204,7 @@ public final class MoveRunner {
 		this.ticks = 0;
 		this.held = false;
 		this.delayLeft = 0;
+		this.carry = 0.0F;
 		this.notes.clear();
 	}
 

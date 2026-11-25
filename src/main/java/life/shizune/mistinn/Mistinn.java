@@ -156,6 +156,7 @@ public class Mistinn implements ModInitializer {
 		});
 
 		life.shizune.mistinn.skin.SkinSync.register();
+		life.shizune.mistinn.hardship.Ferocity.register();
 
 		LOGGER.info("Mistinn: Exile loaded");
 	}

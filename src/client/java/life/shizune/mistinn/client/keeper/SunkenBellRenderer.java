@@ -28,7 +28,7 @@ public class SunkenBellRenderer extends HumanoidMobRenderer<SunkenBell, SunkenBe
 		var move = entity.currentMove();
 		state.move = move == null ? null : move.id();
 		state.moveLength = move == null ? 0 : move.length();
-		state.moveTicks = entity.moveTicks() + (entity.moveHeld() ? 0.0F : partialTicks);
+		state.moveTicks = entity.moveTicks() + (entity.moveHeld() ? 0.0F : partialTicks * entity.moveRate());
 		boolean still = move == null && state.walkAnimationSpeed < 0.05F;
 		state.idle = still ? SunkenBellModel.idle(entity.getId(), state.ageInTicks) : null;
 		state.idleTicks = SunkenBellModel.idleTicks(state.ageInTicks);

@@ -68,7 +68,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Residue and gravestones | When you fall, all the salt you carry becomes residue, and everything else you carry (gear, hotbar, pockets, chest rig and backpack; not the safe box) goes into the same gravestone instead of onto the ground; right-click it to take it all back. Fall again first and the old residue fades: the salt is lost and the things spill where the stone stood. |
 | Death scene | Killed by a creature, every other creature vanishes; the hunter drops to one knee, topples onto one side and turns to smoke. Other deaths are a plain fall. Then the mission ends: the cause, a line from Rust Anchor, and the choice to return or to rest. |
 | Story mode | A prologue and three chapters with objectives, radio calls, tags left by the hunters before you, pixel-art story cards and in-world scenes, with a mission journal on `K`. Later chapters are still being made. |
-| Difficulty | Story and training worlds choose Easy, Normal or Rust Anchor. Rust Anchor feeds you only the station's twenty foods, makes weapons from outside hit soft and break fast, can cost you a limb, and wears your gear down and takes four tenths of your salt when you fall; the safe box is 3x3. See [Difficulty and Rust Anchor](#difficulty-and-rust-anchor). |
+| Difficulty | Story and training worlds choose Easy, Normal or Rust Anchor. Rust Anchor feeds you only the station's twenty foods, makes weapons from outside hit soft and break fast, can cost you a limb, wears your gear down and takes four tenths of your salt when you fall, and sets creatures and keepers on you without mercy (shorter tells, blows twice as often, feints); the safe box is 3x3. See [Difficulty and Rust Anchor](#difficulty-and-rust-anchor). |
 | Hunter Training | An optional course for a new singleplayer world. Follow the instructor's radio, the glowing arrows and Rust Anchor's staff (report to Steelyard, the quartermaster, first; right-click staff to talk) through equipment, heavy blows, sprinting, rolling and sliding, reading a monster's windup, crossing the listening pen without a sound, medicine, crafting, the guide and your stats, the bell and residue, radio repair, and a keeper rehearsal (the lent slide, practice stat points and achievements earned in training are taken back when you leave), all at Rust Anchor Station, a base built over the sea round a giant anchor. Board the drop pod to choose Story or Free exploration. |
 | Golden bells | Ring one to set your respawn point. Each bell has its own one-hour cooldown in real time, shared by everyone. The border world has no such metal, so they cannot be crafted. |
 | Body parts | Hearts are replaced by six parts (head, torso, both arms, both legs), 80 health each (up to 120 with constitution); three destroyed parts kill. Each part is protected only by the gear that covers it, and a destroyed one has lasting effects. |
@@ -187,6 +187,16 @@ Story and Hunter Training ask how hard the world will be when you create it; Nor
   - Without your working arm you cannot dig or strike; a lost hand holds nothing, and two-handed things cannot be used.
 - **When you fall**: the gear you carried loses six tenths of its durability (never below one point), four tenths of your salt is lost, and you wake with half your health and 10 hunger.
 - **Safe box**: grows to 3x3.
+- **Creatures without mercy**:
+  - Windups are about half as long (a zombie's 7 ticks become 4).
+  - About three in ten are feints: the creature stops halfway, then strikes from a very short second windup. About one in four is held a few ticks longer, to catch a hunter who rolled on the beat.
+  - Melee blows come twice as often, every half second; skeletons shoot nearly twice as fast.
+  - Three of a pack go in at once instead of two, your noises carry half as far again, and hostile creatures run 15% faster and follow you further.
+- **Keepers without mercy**:
+  - Their tells run half as fast again, their recoveries nearly twice as fast, and their blows faster too.
+  - They see what you do almost at once and think again on the move twice as often.
+  - They feint and hold their blows more, with a longer hold besides.
+  - It takes four heavy blows in a row to rock one, and they come after you faster.
 - On the training ground, lost limbs and the heavier death do not apply.
 
 ## Story mode

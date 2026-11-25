@@ -28,8 +28,6 @@ public final class BossBrain {
 	public static final int FIGHT_END = 600;
 	/** The most a decision may think for; it averages far less. */
 	private static final long BUDGET = 3_000_000L;
-	/** How often a movement is reconsidered. */
-	private static final int REPLAN_MOVING = 5;
 	/** How long a blow taken is held against the hunter who dealt it, when choosing whom to go after. */
 	private static final int GRUDGE = 60;
 	/** Flat speed past which a hunter is taken to be rolling or diving, blocks per tick. */
@@ -77,6 +75,8 @@ public final class BossBrain {
 
 	private final MoveSet set;
 	private final Planner planner;
+	private life.shizune.mistinn.hardship.Ferocity ferocity = life.shizune.mistinn.hardship.Ferocity.MADE;
+	private @Nullable MoveRunner timing;
 	private final Map<UUID, Hunter> hunters = new HashMap<>();
 	private final Map<String, Long> readyAt = new HashMap<>();
 	private @Nullable UUID target;
@@ -90,6 +90,39 @@ public final class BossBrain {
 	public BossBrain(final MoveSet set, final Planner planner) {
 		this.set = set;
 		this.planner = planner;
+	}
+
+	/**
+	 * How fiercely this boss fights ({@link life.shizune.mistinn.hardship.Ferocity}): how late it sees, how often
+	 * it thinks on the move, what it values and how long it may hold a blow; {@code timing} is the runner whose tempo
+	 * its moves run at, so what it learns from a tell is timed as the tell really runs.
+	 */
+	public void temper(final life.shizune.mistinn.hardship.Ferocity fierce, final MoveRunner timing) {
+		this.timing = timing;
+		if (fierce == this.ferocity) {
+			return;
+		}
+		this.ferocity = fierce;
+		this.planner.temper(fierce.weights(), fierce.longHold());
+		for (Hunter hunter : this.hunters.values()) {
+			hunter.trace.sight(fierce.sight());
+		}
+	}
+
+	/** How late this boss sees its hunters, in ticks. */
+	public int sight() {
+		return this.ferocity.sight();
+	}
+
+	private Hunter newHunter() {
+		Hunter hunter = new Hunter();
+		hunter.trace.sight(this.ferocity.sight());
+		return hunter;
+	}
+
+	/** Ticks a move takes as it really runs (at the runner's tempo). */
+	private int real(final BossMove move, final int tick) {
+		return this.timing == null ? tick : this.timing.realTicks(move, tick);
 	}
 
 	/** Whether a player counts as a hunter: alive, not watching, and under the body rules (not creative). */
@@ -120,7 +153,7 @@ public final class BossBrain {
 		LivingEntity struck = boss.getLastHurtByMob();
 		boolean fresh = boss.tickCount - boss.getLastHurtByMobTimestamp() < GRUDGE;
 		for (ServerPlayer player : present) {
-			Hunter hunter = this.hunters.computeIfAbsent(player.getUUID(), id -> new Hunter());
+			Hunter hunter = this.hunters.computeIfAbsent(player.getUUID(), id -> this.newHunter());
 			this.see(player.getUUID(), Observation.of(player, now, hunter.latest), boss.position(), now);
 			if (fresh && struck == player) {
 				hunter.struckUs = now;
@@ -131,7 +164,7 @@ public final class BossBrain {
 
 	/** One sighting of a hunter: kept for prediction, and read against the tell being watched. */
 	public void see(final UUID id, final Observation observation, final Vec3 boss, final long now) {
-		Hunter hunter = this.hunters.computeIfAbsent(id, key -> new Hunter());
+		Hunter hunter = this.hunters.computeIfAbsent(id, key -> this.newHunter());
 		hunter.trace.record(observation);
 		hunter.latest = observation;
 		this.read(id, hunter, observation);
@@ -232,10 +265,11 @@ public final class BossBrain {
 	 * attack, and a tell it shows is watched against the hunter it was aimed at.
 	 */
 	public void started(final BossMove move, final int delay, final @Nullable UUID aimedAt, final Vec3 boss, final long now) {
-		this.readyAt.put(move.id(), now + move.length() + delay + move.cooldown());
+		int length = this.real(move, move.length());
+		this.readyAt.put(move.id(), now + length + delay + move.cooldown());
 		if (move.kind() == BossMove.Kind.SIGNAL && move.signals() != null) {
 			this.signal = move.signals();
-			this.signalUntil = now + move.length() + Planner.SIGNAL_TICKS;
+			this.signalUntil = now + length + Planner.SIGNAL_TICKS;
 		} else if (!move.strikes().isEmpty() && this.signal != null && move.in(this.signal)) {
 			this.signal = null;
 		}
@@ -244,8 +278,10 @@ public final class BossBrain {
 		}
 		boolean tells = move.kind() == BossMove.Kind.ATTACK || move.kind() == BossMove.Kind.FEINT || !move.strikes().isEmpty();
 		if (tells && aimedAt != null) {
-			long strike = now + move.windup() + delay;
-			this.watch = new Watch(this.planner.family(move), aimedAt, boss, strike, strike + move.active(), now + move.length() + delay);
+			int tell = this.real(move, move.windup());
+			long strike = now + tell + delay;
+			int swing = this.real(move, move.windup() + move.active()) - tell;
+			this.watch = new Watch(this.planner.family(move), aimedAt, boss, strike, strike + swing, now + length + delay);
 		}
 	}
 
@@ -260,7 +296,8 @@ public final class BossBrain {
 		long now = level.getGameTime();
 		BossMove current = runner.current();
 		if (current != null) {
-			boolean chain = runner.inChainWindow() || current.kind() == BossMove.Kind.MOVEMENT && runner.ticks() % REPLAN_MOVING == 0;
+			int replan = Math.max(1, this.ferocity.replan());
+			boolean chain = runner.inChainWindow() || current.kind() == BossMove.Kind.MOVEMENT && runner.ticks() % replan == 0;
 			if (!chain || this.set.followUps(current, runner.ticks()).isEmpty()) {
 				return null;
 			}
