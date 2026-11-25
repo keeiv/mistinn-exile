@@ -25,6 +25,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.Ravager;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -109,6 +110,7 @@ public final class WindupService {
 			return false;
 		}
 		Ferocity ferocity = Ferocity.of(level);
+		shortenBrainCooldown(mob, ferocity);
 		int length = ferocity.windupTicks(rig.windupTicks());
 		Kind kind = kind(mob, ferocity);
 		if (kind == Kind.FEINT) {
@@ -138,6 +140,20 @@ public final class WindupService {
 			return Kind.FEINT;
 		}
 		return roll < ferocity.feint() + ferocity.hold() ? Kind.HELD : Kind.PLAIN;
+	}
+
+	/**
+	 * Creatures run by a brain (piglins, hoglins, wardens) set their own wait between blows as they swing, not through
+	 * the melee goal: it is cut here, as the blow they began is taken over.
+	 */
+	private static void shortenBrainCooldown(final Mob mob, final Ferocity ferocity) {
+		var brain = mob.getBrain();
+		if (ferocity.attackGap() < 1.0F && brain.hasMemoryValue(MemoryModuleType.ATTACK_COOLING_DOWN)) {
+			long left = brain.getTimeUntilExpiry(MemoryModuleType.ATTACK_COOLING_DOWN);
+			if (left > 0) {
+				brain.setMemoryWithExpiry(MemoryModuleType.ATTACK_COOLING_DOWN, true, Ferocity.gap((int) left, ferocity.attackGap()));
+			}
+		}
 	}
 
 	/** Test hook: every windup from now on is of this kind (null: as the world's ferocity rolls it). */

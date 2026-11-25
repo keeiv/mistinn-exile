@@ -76,10 +76,17 @@ public record Ferocity(float windup, float feint, float hold, float attackGap, f
 		return of(Hardship.of(server));
 	}
 
-	/** The ferocity of the world a level belongs to; a client's level fights as made (the server decides). */
+	/**
+	 * The ferocity of the world a level belongs to. A client's level fights as made (the server decides), and so does
+	 * the station's training ground: the course teaches how creatures and keepers fight, as {@link Hardship#rustAnchorAfield}
+	 * keeps the harshest rules for the field.
+	 */
 	public static Ferocity of(final Level level) {
 		MinecraftServer server = level.getServer();
-		return level.isClientSide() || server == null ? MADE : of(server);
+		if (level.isClientSide() || server == null || level.dimension().equals(life.shizune.mistinn.training.TrainingGround.KEY)) {
+			return MADE;
+		}
+		return of(server);
 	}
 
 	/** A creature's windup in ticks, from the windup its kind was made with: never shorter than two. */

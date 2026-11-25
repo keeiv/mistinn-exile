@@ -193,7 +193,7 @@ public final class PackService {
 				boolean spent = striking && (released || now - role.since() > TURN) && !WindupService.winding(mob);
 				members.add(new Member(mob.getId(), angle(at, mob.position()), mob.position().distanceTo(at), WindupService.winding(mob), striking, spent));
 			}
-			int strikers = life.shizune.mistinn.hardship.Ferocity.of(server).strikers();
+			int strikers = life.shizune.mistinn.hardship.Ferocity.of(hunter.level()).strikers();
 			for (Order order : assign(members, facing(hunter.getYRot()), strikers)) {
 				for (Mob mob : pack) {
 					if (mob.getId() == order.id()) {
