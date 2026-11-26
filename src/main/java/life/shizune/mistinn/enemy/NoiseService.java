@@ -87,7 +87,8 @@ public final class NoiseService {
 		if (noise == Noise.BLOOD) {
 			return (noise.radius + SCENT_PER_DEAD_PART * BodyService.get(hunter).destroyedCount()) * ears;
 		}
-		return (noise.muffled && hunter.isShiftKeyDown() ? noise.radius / 2.0 : noise.radius) * ears;
+		// what the hunter wears rattles or keeps quiet
+		return (noise.muffled && hunter.isShiftKeyDown() ? noise.radius / 2.0 : noise.radius) * ears * life.shizune.mistinn.gear.GearBurden.noise(hunter);
 	}
 
 	/** The hunter made this noise where they stand. */

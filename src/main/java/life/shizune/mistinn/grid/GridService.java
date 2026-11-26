@@ -771,17 +771,20 @@ public final class GridService {
 		set(player, inv.onlySafe());
 	}
 
-	/** The worn backpack slows the hunter by its weight. */
+	/** The worn backpack (and a heavy rig) slow the hunter by their weight. */
 	public static void applyWeight(final ServerPlayer player) {
 		AttributeInstance speed = player.getAttribute(Attributes.MOVEMENT_SPEED);
 		if (speed == null) {
 			return;
 		}
-		Gear.Backpack pack = GridInventory.backpackOf(get(player).backpack());
-		if (pack == null || pack.speedPenalty() <= 0.0) {
+		GridInventory inv = get(player);
+		Gear.Backpack pack = GridInventory.backpackOf(inv.backpack());
+		Gear.ChestRig rig = GridInventory.rigOf(inv.rig());
+		double weight = (pack == null ? 0.0 : pack.speedPenalty()) + (rig == null ? 0.0 : rig.speedPenalty());
+		if (weight <= 0.0) {
 			speed.removeModifier(WEIGHT_ID);
 		} else {
-			speed.addOrUpdateTransientModifier(new AttributeModifier(WEIGHT_ID, -pack.speedPenalty(), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+			speed.addOrUpdateTransientModifier(new AttributeModifier(WEIGHT_ID, -weight, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 		}
 	}
 }

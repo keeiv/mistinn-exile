@@ -120,6 +120,26 @@
               "max": 4
             }
           }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_light_n",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_heavy_n",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_light_n",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_heavy_n",
+          "weight": 2
         }
       ]
     }

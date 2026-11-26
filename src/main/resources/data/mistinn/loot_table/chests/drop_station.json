@@ -177,6 +177,56 @@
           "type": "minecraft:item",
           "name": "mistinn:ore_bell",
           "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_light_1",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_heavy_1",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_light_1",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_heavy_1",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_light_2",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_heavy_2",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_light_1",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_heavy_1",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_light_2",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_heavy_2",
+          "weight": 1
         }
       ]
     }
