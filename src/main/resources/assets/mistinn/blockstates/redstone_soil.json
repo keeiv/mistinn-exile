@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "mistinn:block/redstone_soil"
+    },
+    "age=1": {
+      "model": "mistinn:block/redstone_soil"
+    },
+    "age=2": {
+      "model": "mistinn:block/redstone_soil"
+    },
+    "age=3": {
+      "model": "mistinn:block/redstone_soil_ripe"
+    }
+  }
+}

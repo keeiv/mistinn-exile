@@ -44,6 +44,8 @@ public final class MistinnTab {
 				MistinnItems.ARMOR_REPAIR_KITS.forEach(output::accept);
 				MistinnItems.HELMET_REPAIR_KITS.forEach(output::accept);
 				output.accept(MistinnItems.LAMP_STAND);
+				output.accept(MistinnItems.MARKER_BEACON);
+				output.accept(MistinnItems.REDSTONE_SOIL);
 				output.accept(MistinnItems.SALT);
 				output.accept(MistinnItems.RUST_GOD_SALT);
 				output.accept(MistinnItems.LAMP_OIL);

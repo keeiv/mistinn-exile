@@ -45,6 +45,7 @@ public class MistinnClient implements ClientModInitializer {
 		life.shizune.mistinn.client.skin.SyncedSkins.register();
 		life.shizune.mistinn.client.team.TeamClient.register();
 		life.shizune.mistinn.client.team.RescueClient.register(CATEGORY);
+		life.shizune.mistinn.client.team.MarkerClient.register();
 		KeyMapping zoom = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.minimap_zoom", InputConstants.KEY_M, CATEGORY)
 		);
@@ -88,6 +89,8 @@ public class MistinnClient implements ClientModInitializer {
 			return net.minecraft.world.InteractionResult.PASS;
 		});
 
+		// the team's beacons over the places they mark, under the minimap and the rest
+		HudElementRegistry.addLast(Mistinn.id("markers"), new life.shizune.mistinn.client.team.MarkerClient());
 		HudElementRegistry.addLast(Mistinn.id("minimap"), new MinimapHud());
 		HudElementRegistry.addLast(Mistinn.id("story"), new life.shizune.mistinn.client.story.StoryHud());
 		HudElementRegistry.addLast(Mistinn.id("training"), TrainingClient::draw);

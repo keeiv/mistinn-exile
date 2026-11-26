@@ -81,6 +81,31 @@ public final class MistinnBlocks {
 			.pushReaction(PushReaction.IMMOVEABLE)
 	);
 
+	/** 標記信標: a lamp on a stake, planted to mark a place for the team. */
+	public static final Block MARKER_BEACON = register(
+		"marker_beacon",
+		life.shizune.mistinn.team.MarkerBeaconBlock::new,
+		BlockBehaviour.Properties.of()
+			.mapColor(MapColor.METAL)
+			.strength(0.5F, 3.0F)
+			.sound(SoundType.LANTERN)
+			.lightLevel(state -> 10)
+			.noOcclusion()
+			.pushReaction(PushReaction.POPPED)
+	);
+
+	/** 紅石息壤: earth that breeds redstone, ripening by itself. */
+	public static final Block REDSTONE_SOIL = register(
+		"redstone_soil",
+		life.shizune.mistinn.block.RedstoneSoilBlock::new,
+		BlockBehaviour.Properties.of()
+			.mapColor(MapColor.COLOR_RED)
+			.strength(0.6F)
+			.sound(SoundType.ROOTED_DIRT)
+			.randomTicks()
+			.lightLevel(state -> state.getValue(life.shizune.mistinn.block.RedstoneSoilBlock.AGE) == life.shizune.mistinn.block.RedstoneSoilBlock.RIPE ? 7 : 0)
+	);
+
 	private MistinnBlocks() {
 	}
 

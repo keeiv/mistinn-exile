@@ -101,6 +101,14 @@ public final class MinimapHud implements HudElement {
 			g.text(font, line, x + size - font.width(line), textY + 12, TEXT, true);
 		}
 
+		// the team's beacons, each in its colour, pinned to the edge when far
+		for (life.shizune.mistinn.team.MarkerService.Marker marker : life.shizune.mistinn.client.team.MarkerClient.markers()) {
+			if (marker.dimension().equals(player.level().dimension().identifier())) {
+				int[] at = place(marker.pos().getX() + 0.5 - originX, marker.pos().getZ() + 0.5 - originZ, scale, cx, cy, size);
+				life.shizune.mistinn.client.team.MarkerClient.diamond(g, at[0], at[1], 0xFF000000 | marker.colour());
+			}
+		}
+
 		// the other hunters, each in their own colour, pinned to the edge when far
 		net.minecraft.resources.Identifier here = player.level().dimension().identifier();
 		for (life.shizune.mistinn.team.TeamPayload.Member member : life.shizune.mistinn.client.team.TeamClient.members()) {

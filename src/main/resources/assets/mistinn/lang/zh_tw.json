@@ -8,6 +8,8 @@
   "item.mistinn.salt_fang": "鹽牙",
   "block.mistinn.golden_bell": "金鐘",
   "block.mistinn.ore_bell": "一次性金鐘",
+  "block.mistinn.marker_beacon": "標記信標",
+  "block.mistinn.redstone_soil": "紅石息壤",
   "block.mistinn.gravestone": "追獵者的墓碑",
   "key.category.mistinn.keys": "霧宿：追放",
   "key.mistinn.minimap_zoom": "小地圖縮放",
@@ -987,6 +989,9 @@
   "notice.mistinn.downed.1": "有隊友還站著時，致命的一擊會讓你倒地而不是死亡：不能移動、攻擊或用東西，怪物不再追你；一分鐘內沒人救就會失血而死，倒地時每挨一下少十秒。",
   "notice.mistinn.downed.2": "隊友靠近按住 F 原地救援，或按 H 拖著你走，都要十秒；救起來時每個部位至少回到四分之一。",
   "notice.mistinn.downed.3": "只有你一個人、大家都倒下、被處決的最後一擊、掉進虛空，照樣直接死亡。倒地時離線，下次進來還是倒地。",
+  "notice.mistinn.beacons.title": "霧宿更新：信標與紅石息壤",
+  "notice.mistinn.beacons.1": "標記信標：火把、鐵錠、木棒直排合成。插在地上，全隊的小地圖和畫面上都看得到；用鐵砧取名，拿染料右鍵換顏色。",
+  "notice.mistinn.beacons.2": "紅石息壤：四塊泥土、骨粉、鐵粒合成。放著會自己長出紅石，熟了空手右鍵收成。",
   "subtitles.mistinn.entity.zombie.windup": "殭屍低吼撲來",
   "subtitles.mistinn.entity.zombie_villager.windup": "殭屍村民低吼撲來",
   "subtitles.mistinn.entity.giant.windup": "巨人咆哮撲來",
@@ -1504,5 +1509,11 @@
   "voice.mistinn.note.change": "會跟著這位獵人保存。按 Esc 維持原樣。",
   "key.mistinn.voice": "更改聲音",
   "advancement.mistinn.root": "霧宿：追放",
-  "advancement.mistinn.root.desc": "追獵者在禁區裡留下的事蹟"
+  "advancement.mistinn.root.desc": "追獵者在禁區裡留下的事蹟",
+  "item.mistinn.marker_beacon.usage": "插在地上標記一個地方，全隊的小地圖和畫面上都看得到。",
+  "item.mistinn.marker_beacon.lore.1": "用鐵砧取名就是它的名字，拿染料右鍵換顏色。",
+  "item.mistinn.redstone_soil.usage": "會自己長出紅石的土。放著幾分鐘，紅色顆粒冒出來就熟了。",
+  "item.mistinn.redstone_soil.lore.1": "熟了空手右鍵收成二到三個紅石，之後再重新長。",
+  "hud.mistinn.marker.distance": "%s　%s 格",
+  "hud.mistinn.marker.unnamed": "信標"
 }
