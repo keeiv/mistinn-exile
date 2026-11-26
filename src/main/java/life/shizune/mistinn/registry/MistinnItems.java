@@ -93,7 +93,7 @@ public final class MistinnItems {
 	public static final Item HUNTER_TAG = register("hunter_tag", Item::new, new Item.Properties().stacksTo(1));
 
 	/** Pages of the guide's text (item.mistinn.hunter_guide.page.N), read as spreads in its screen. */
-	public static final int GUIDE_PAGES = 46;
+	public static final int GUIDE_PAGES = 47;
 	public static final Item HUNTER_GUIDE = register("hunter_guide", life.shizune.mistinn.story.HunterGuideItem::new, new Item.Properties().stacksTo(1));
 
 	public static final Item GOLDEN_BELL = block("golden_bell", MistinnBlocks.GOLDEN_BELL, new Item.Properties().rarity(Rarity.RARE));
@@ -156,6 +156,8 @@ public final class MistinnItems {
 		new Item.Properties().durability(64).rarity(Rarity.UNCOMMON));
 	/** 裂晶: a shard of the sky rift's crystal, from its clusters and its creatures. */
 	public static final Item RIFT_SHARD = register("rift_shard", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
+	public static final Item RIFT_BEACON = register("rift_beacon", life.shizune.mistinn.rift.RiftBeaconItem::new,
+		new Item.Properties().stacksTo(4).rarity(Rarity.RARE));
 
 	/** 護甲維修包 / 頭盔維修包 for tiers III to VI, indexed by {@code tier.ordinal() - 3}. */
 	public static final List<Item> ARMOR_REPAIR_KITS = repairKits("armor_repair_kit", EquipmentSlot.CHEST);
