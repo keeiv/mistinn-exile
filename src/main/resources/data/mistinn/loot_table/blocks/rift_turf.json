@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:item",
+              "condition": "minecraft:tool/can_silk_touch",
+              "name": "mistinn:rift_turf"
+            },
+            {
+              "type": "minecraft:item",
+              "condition": {
+                "type": "minecraft:survives_explosion"
+              },
+              "name": "mistinn:rift_soil"
+            }
+          ]
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "mistinn:blocks/rift_turf"
+}

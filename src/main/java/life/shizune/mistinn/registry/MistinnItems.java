@@ -93,7 +93,7 @@ public final class MistinnItems {
 	public static final Item HUNTER_TAG = register("hunter_tag", Item::new, new Item.Properties().stacksTo(1));
 
 	/** Pages of the guide's text (item.mistinn.hunter_guide.page.N), read as spreads in its screen. */
-	public static final int GUIDE_PAGES = 33;
+	public static final int GUIDE_PAGES = 34;
 	public static final Item HUNTER_GUIDE = register("hunter_guide", life.shizune.mistinn.story.HunterGuideItem::new, new Item.Properties().stacksTo(1));
 
 	public static final Item GOLDEN_BELL = block("golden_bell", MistinnBlocks.GOLDEN_BELL, new Item.Properties().rarity(Rarity.RARE));
@@ -102,6 +102,18 @@ public final class MistinnItems {
 	public static final Item MARKER_BEACON = block("marker_beacon", MistinnBlocks.MARKER_BEACON, new Item.Properties().stacksTo(16));
 	public static final Item REDSTONE_SOIL = block("redstone_soil", MistinnBlocks.REDSTONE_SOIL, new Item.Properties());
 	public static final Item GRASS_REDSTONE_SOIL = block("grass_redstone_soil", MistinnBlocks.GRASS_REDSTONE_SOIL, new Item.Properties());
+	public static final Item RIFT_TURF = block("rift_turf", MistinnBlocks.RIFT_TURF, new Item.Properties());
+	public static final Item RIFT_SOIL = block("rift_soil", MistinnBlocks.RIFT_SOIL, new Item.Properties());
+	public static final Item SCORCHED_STONE = block("scorched_stone", MistinnBlocks.SCORCHED_STONE, new Item.Properties());
+	public static final Item CRIMSON_MOSS = block("crimson_moss", MistinnBlocks.CRIMSON_MOSS, new Item.Properties());
+	public static final Item CRIMSON_MOSS_CARPET = block("crimson_moss_carpet", MistinnBlocks.CRIMSON_MOSS_CARPET, new Item.Properties());
+	public static final Item BLOOD_THORN = block("blood_thorn", MistinnBlocks.BLOOD_THORN, new Item.Properties());
+	public static final Item RIFT_CRYSTAL_BUD = block("rift_crystal_bud", MistinnBlocks.RIFT_CRYSTAL_BUD, new Item.Properties());
+	public static final Item RIFT_CRYSTAL_CLUSTER = block("rift_crystal_cluster", MistinnBlocks.RIFT_CRYSTAL_CLUSTER, new Item.Properties());
+	public static final Item RIFT_CRYSTAL_BLOCK = block("rift_crystal_block", MistinnBlocks.RIFT_CRYSTAL_BLOCK, new Item.Properties());
+	public static final Item CHARRED_LOG = block("charred_log", MistinnBlocks.CHARRED_LOG, new Item.Properties());
+	/** 裂晶: a shard of the sky rift's crystal, from its clusters and its creatures. */
+	public static final Item RIFT_SHARD = register("rift_shard", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
 
 	/** 護甲維修包 / 頭盔維修包 for tiers III to VI, indexed by {@code tier.ordinal() - 3}. */
 	public static final List<Item> ARMOR_REPAIR_KITS = repairKits("armor_repair_kit", EquipmentSlot.CHEST);

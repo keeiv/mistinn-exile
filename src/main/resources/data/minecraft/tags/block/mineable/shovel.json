@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "mistinn:redstone_soil",
-    "mistinn:grass_redstone_soil"
+    "mistinn:grass_redstone_soil",
+    "mistinn:rift_turf",
+    "mistinn:rift_soil"
   ]
 }

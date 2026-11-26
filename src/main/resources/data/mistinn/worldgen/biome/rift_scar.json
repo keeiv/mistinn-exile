@@ -1,0 +1,73 @@
+{
+  "has_precipitation": false,
+  "temperature": 1.4,
+  "downfall": 0.0,
+  "effects": {
+    "water_color": "#8a1416",
+    "grass_color": "#8a3a28",
+    "foliage_color": "#7a2e22",
+    "dry_foliage_color": "#7a2e22"
+  },
+  "attributes": {
+    "minecraft:visual/sky_color": "#d4583a",
+    "minecraft:visual/fog_color": "#b0503a",
+    "minecraft:visual/cloud_color": "#cce8907a",
+    "minecraft:visual/water_fog_color": "#4a080a",
+    "minecraft:visual/water_fog_end_distance": {
+      "argument": 0.45,
+      "modifier": "multiply"
+    },
+    "minecraft:visual/ambient_particles": {
+      "argument": [
+        {
+          "particle": {
+            "type": "minecraft:white_ash"
+          },
+          "probability": 0.018
+        },
+        {
+          "particle": {
+            "type": "minecraft:crimson_spore"
+          },
+          "probability": 0.008
+        }
+      ],
+      "modifier": "append"
+    },
+    "minecraft:audio/ambient_sounds": {
+      "loop": "minecraft:ambient.crimson_forest.loop",
+      "additions": {
+        "sound": "minecraft:ambient.basalt_deltas.additions",
+        "tick_chance": 0.006
+      },
+      "mood": {
+        "block_search_extent": 8,
+        "offset": 2.0,
+        "sound": "minecraft:ambient.crimson_forest.mood",
+        "tick_delay": 6000
+      }
+    },
+    "minecraft:gameplay/monsters_burn": false,
+    "minecraft:gameplay/natural_mob_spawns": {
+      "argument": {
+        "spawn_costs": {},
+        "spawns_by_category": {
+          "monster": [
+            {
+              "type": "mistinn:rift_walker",
+              "count": {
+                "type": "minecraft:uniform",
+                "min_inclusive": 1,
+                "max_inclusive": 2
+              },
+              "weight": 100
+            }
+          ]
+        }
+      },
+      "modifier": "overlay"
+    }
+  },
+  "carvers": [],
+  "features": []
+}

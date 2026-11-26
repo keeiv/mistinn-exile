@@ -70,6 +70,21 @@ public final class MistinnEntities {
 		.eyeHeight(1.62F)
 		.clientTrackingRange(10));
 
+	/** 裂隙行者: a husk held together by a sky rift's light. */
+	public static final EntityType<life.shizune.mistinn.rift.RiftWalker> RIFT_WALKER = register("rift_walker",
+		EntityType.Builder.<life.shizune.mistinn.rift.RiftWalker>of(life.shizune.mistinn.rift.RiftWalker::new, MobCategory.MONSTER)
+		.sized(0.6F, 2.1F)
+		.eyeHeight(1.9F)
+		.clientTrackingRange(10));
+
+	/** 裂隙使者: what comes down last out of a sky rift. */
+	public static final EntityType<life.shizune.mistinn.rift.RiftHerald> RIFT_HERALD = register("rift_herald",
+		EntityType.Builder.<life.shizune.mistinn.rift.RiftHerald>of(life.shizune.mistinn.rift.RiftHerald::new, MobCategory.MONSTER)
+		.sized(0.8F, 2.6F)
+		.eyeHeight(2.3F)
+		.clientTrackingRange(12)
+		.fireImmune());
+
 	/** A salt bomb, a flare or a bell lure in flight. */
 	public static final EntityType<life.shizune.mistinn.tool.ThrownTool> THROWN_TOOL = register("thrown_tool",
 		EntityType.Builder.<life.shizune.mistinn.tool.ThrownTool>of(life.shizune.mistinn.tool.ThrownTool::new, MobCategory.MISC)
@@ -109,5 +124,10 @@ public final class MistinnEntities {
 		FabricDefaultAttributeRegistry.register(LAMP_THRALL, LampThrall.createAttributes());
 		FabricDefaultAttributeRegistry.register(MIST_SHADE, MistShade.createAttributes());
 		FabricDefaultAttributeRegistry.register(PIRATE, life.shizune.mistinn.naval.Pirate.createAttributes());
+		FabricDefaultAttributeRegistry.register(RIFT_WALKER, life.shizune.mistinn.rift.RiftWalker.createAttributes());
+		FabricDefaultAttributeRegistry.register(RIFT_HERALD, life.shizune.mistinn.rift.RiftHerald.createAttributes());
+		// rift walkers come of themselves where a rift has scarred the ground, in the dark like any monster
+		life.shizune.mistinn.mixin.SpawnPlacementsInvoker.mistinn$register(RIFT_WALKER, net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+			net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, net.minecraft.world.entity.monster.Monster::checkMonsterSpawnRules);
 	}
 }

@@ -47,6 +47,17 @@ public final class MistinnTab {
 				output.accept(MistinnItems.MARKER_BEACON);
 				output.accept(MistinnItems.REDSTONE_SOIL);
 				output.accept(MistinnItems.GRASS_REDSTONE_SOIL);
+				output.accept(MistinnItems.RIFT_TURF);
+				output.accept(MistinnItems.RIFT_SOIL);
+				output.accept(MistinnItems.SCORCHED_STONE);
+				output.accept(MistinnItems.CRIMSON_MOSS);
+				output.accept(MistinnItems.CRIMSON_MOSS_CARPET);
+				output.accept(MistinnItems.BLOOD_THORN);
+				output.accept(MistinnItems.RIFT_CRYSTAL_BUD);
+				output.accept(MistinnItems.RIFT_CRYSTAL_CLUSTER);
+				output.accept(MistinnItems.RIFT_CRYSTAL_BLOCK);
+				output.accept(MistinnItems.CHARRED_LOG);
+				output.accept(MistinnItems.RIFT_SHARD);
 				output.accept(MistinnItems.SALT);
 				output.accept(MistinnItems.RUST_GOD_SALT);
 				output.accept(MistinnItems.LAMP_OIL);

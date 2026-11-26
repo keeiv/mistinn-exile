@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "mistinn:block/rift_crystal_cluster"
+  }
+}

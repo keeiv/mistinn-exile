@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/tide",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.rift_sealed.desc"
+		},
+		"icon": {
+			"id": "mistinn:rift_shard"
+		},
+		"title": {
+			"translate": "achievement.mistinn.rift_sealed"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}
