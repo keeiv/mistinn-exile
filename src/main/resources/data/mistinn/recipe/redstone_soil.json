@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "minecraft:dirt",
+    "minecraft:dirt",
+    "minecraft:dirt",
+    "minecraft:dirt",
+    "minecraft:bone_meal",
+    "minecraft:iron_nugget"
+  ],
+  "result": {
+    "id": "mistinn:redstone_soil",
+    "count": 2
+  }
+}

@@ -8,6 +8,8 @@
   "item.mistinn.salt_fang": "Salt Fang",
   "block.mistinn.golden_bell": "Golden Bell",
   "block.mistinn.ore_bell": "One-Time Golden Bell",
+  "block.mistinn.marker_beacon": "Marker Beacon",
+  "block.mistinn.redstone_soil": "Redstone Soil",
   "block.mistinn.gravestone": "Hunter's Gravestone",
   "key.category.mistinn.keys": "Mistinn: Exile",
   "key.mistinn.minimap_zoom": "Minimap zoom",
@@ -987,6 +989,9 @@
   "notice.mistinn.downed.1": "While a teammate is still standing, a killing blow puts you down instead: you cannot move, fight or use anything, and creatures leave you be. Without help you bleed out in a minute, and every hit you take on the ground costs ten seconds of it.",
   "notice.mistinn.downed.2": "A teammate holds F beside you to bring you back where you lie, or presses H to drag you along; either takes ten seconds, and every part comes back to at least a quarter.",
   "notice.mistinn.downed.3": "Alone, with everyone down, at a finisher's last blow or in the void you still die outright. Log out while down and you are still down when you come back.",
+  "notice.mistinn.beacons.title": "Mistinn update: beacons and redstone soil",
+  "notice.mistinn.beacons.1": "Marker beacon: a torch, an iron ingot and a stick in a column. Plant it and the whole team sees it on the minimap and in the view; name it at an anvil, right-click it with a dye to recolour it.",
+  "notice.mistinn.beacons.2": "Redstone soil: four dirt, a bone meal and an iron nugget. Left alone it breeds redstone; right-click it ripe with an empty hand to gather it.",
   "subtitles.mistinn.entity.zombie.windup": "Zombie lunges",
   "subtitles.mistinn.entity.zombie_villager.windup": "Zombie Villager lunges",
   "subtitles.mistinn.entity.giant.windup": "Giant bellows",
@@ -1504,5 +1509,11 @@
   "voice.mistinn.note.change": "Kept with this hunter. Press Esc to leave it as it is.",
   "key.mistinn.voice": "Change Voice",
   "advancement.mistinn.root": "Mistinn: Exile",
-  "advancement.mistinn.root.desc": "What a hunter has done in the forbidden zone"
+  "advancement.mistinn.root.desc": "What a hunter has done in the forbidden zone",
+  "item.mistinn.marker_beacon.usage": "Plant it to mark a place: the whole team sees it on the minimap and in the view.",
+  "item.mistinn.marker_beacon.lore.1": "Name it at an anvil; right-click it with a dye to change its colour.",
+  "item.mistinn.redstone_soil.usage": "Earth that breeds redstone. Leave it a few minutes; it is ripe when red grains push up through it.",
+  "item.mistinn.redstone_soil.lore.1": "Right-click it ripe with an empty hand for two or three redstone; then it grows again.",
+  "hud.mistinn.marker.distance": "%s  %s m",
+  "hud.mistinn.marker.unnamed": "Beacon"
 }
