@@ -5,12 +5,16 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -40,6 +44,15 @@ import org.jspecify.annotations.Nullable;
  * that the rift strikes a moment later.
  */
 public class RiftHerald extends Monster implements RiftTouched {
+	private static final EntityDataAccessor<Byte> DATA_CAST = SynchedEntityData.defineId(RiftHerald.class, EntityDataSerializers.BYTE);
+
+	/** What it is doing with its hands, for the eye: nothing, dragging a hunter in, or calling the rift down. */
+	public enum Cast {
+		NONE, DRAG, MARK
+	}
+
+	/** How long a cast shows. */
+	public static final int CAST_SHOWN = 24;
 	/** How long between drags and between strikes, and how long a mark burns before the strike. */
 	public static final int DRAG_EVERY = 160;
 	public static final int STRIKE_EVERY = 220;
@@ -56,6 +69,9 @@ public class RiftHerald extends Monster implements RiftTouched {
 	/** Where the rift will strike, and when. */
 	private final List<Vec3> marks = new ArrayList<>();
 	private int marksLand;
+	private int casting;
+	private float castO;
+	private float castAmount;
 
 	public RiftHerald(final EntityType<? extends RiftHerald> type, final Level level) {
 		super(type, level);
@@ -72,6 +88,36 @@ public class RiftHerald extends Monster implements RiftTouched {
 			.add(Attributes.FOLLOW_RANGE, 48.0)
 			.add(Attributes.ARMOR, 8.0)
 			.add(Attributes.KNOCKBACK_RESISTANCE, 0.8);
+	}
+
+	@Override
+	protected void defineSynchedData(final SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(DATA_CAST, (byte) 0);
+	}
+
+	public Cast cast() {
+		return Cast.values()[Math.floorMod(this.entityData.get(DATA_CAST), Cast.values().length)];
+	}
+
+	private void cast(final Cast what) {
+		this.entityData.set(DATA_CAST, (byte) what.ordinal());
+		this.casting = what == Cast.NONE ? 0 : CAST_SHOWN;
+	}
+
+	/** How far into a cast its pose is, 0 to 1. */
+	public float casting(final float partial) {
+		return Mth.lerp(partial, this.castO, this.castAmount);
+	}
+
+	@Override
+	public void tick() {
+		super.tick();
+		this.castO = this.castAmount;
+		this.castAmount = Mth.approach(this.castAmount, this.cast() != Cast.NONE ? 1.0F : 0.0F, 0.18F);
+		if (!this.level().isClientSide() && this.casting > 0 && --this.casting == 0) {
+			this.cast(Cast.NONE);
+		}
 	}
 
 	@Override
@@ -116,6 +162,7 @@ public class RiftHerald extends Monster implements RiftTouched {
 
 	/** Hauls a hunter who keeps their distance in towards it along a streak of light. */
 	private void dragIn(final ServerLevel level, final LivingEntity target) {
+		this.cast(Cast.DRAG);
 		Vec3 pull = this.position().subtract(target.position()).normalize();
 		target.setDeltaMovement(pull.x * 1.15, 0.38, pull.z * 1.15);
 		target.needsSync = true;
@@ -131,6 +178,7 @@ public class RiftHerald extends Monster implements RiftTouched {
 
 	/** Three rings of red light on the ground round its quarry: under them, and on either side. */
 	private void mark(final ServerLevel level, final LivingEntity target) {
+		this.cast(Cast.MARK);
 		this.marks.clear();
 		this.marks.add(ground(level, target.position()));
 		for (int i = 0; i < 2; i++) {

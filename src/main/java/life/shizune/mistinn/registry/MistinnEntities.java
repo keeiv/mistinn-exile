@@ -73,15 +73,15 @@ public final class MistinnEntities {
 	/** 裂隙行者: a husk held together by a sky rift's light. */
 	public static final EntityType<life.shizune.mistinn.rift.RiftWalker> RIFT_WALKER = register("rift_walker",
 		EntityType.Builder.<life.shizune.mistinn.rift.RiftWalker>of(life.shizune.mistinn.rift.RiftWalker::new, MobCategory.MONSTER)
-		.sized(0.6F, 2.1F)
-		.eyeHeight(1.9F)
+		.sized(0.7F, 2.3F)
+		.eyeHeight(2.0F)
 		.clientTrackingRange(10));
 
 	/** 裂隙使者: what comes down last out of a sky rift. */
 	public static final EntityType<life.shizune.mistinn.rift.RiftHerald> RIFT_HERALD = register("rift_herald",
 		EntityType.Builder.<life.shizune.mistinn.rift.RiftHerald>of(life.shizune.mistinn.rift.RiftHerald::new, MobCategory.MONSTER)
-		.sized(0.8F, 2.6F)
-		.eyeHeight(2.3F)
+		.sized(0.9F, 2.75F)
+		.eyeHeight(2.5F)
 		.clientTrackingRange(12)
 		.fireImmune());
 
