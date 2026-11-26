@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "X": "minecraft:netherite_ingot",
+    "P": "mistinn:rust_god_salt",
+    "S": "minecraft:string",
+    "B": "minecraft:leather",
+    "C": "minecraft:chest"
+  },
+  "pattern": [
+    "SPS",
+    "BCB",
+    "BXB"
+  ],
+  "result": {
+    "id": "mistinn:backpack_heavy_6"
+  }
+}

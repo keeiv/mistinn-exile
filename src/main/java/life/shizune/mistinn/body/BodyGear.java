@@ -14,7 +14,9 @@ public final class BodyGear {
 	/** Armour the worn mask gives the face; nothing else protects it. */
 	public static float faceArmor(final ServerPlayer player) {
 		Gear.Mask mask = GridInventory.maskOf(GridService.get(player).mask());
-		return mask == null ? 0.0F : mask.armor();
+		// a heavy helmet's visor adds to the mask
+		int visor = life.shizune.mistinn.gear.GearBurden.face(player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD));
+		return (mask == null ? 0.0F : mask.armor()) + visor;
 	}
 
 	/** A hit on the face wears the mask down like any armour piece; a broken mask is gone. */

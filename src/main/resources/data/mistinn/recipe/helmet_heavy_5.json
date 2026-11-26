@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "X": "minecraft:netherite_ingot",
+    "P": "minecraft:leather",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "XXX",
+    "XPX",
+    "I I"
+  ],
+  "result": {
+    "id": "mistinn:helmet_heavy_5"
+  }
+}

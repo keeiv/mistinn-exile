@@ -35,19 +35,22 @@ import org.jspecify.annotations.Nullable;
 public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 	public static final ModelLayerLocation LAYER = new ModelLayerLocation(Mistinn.id("gear"), "main");
 	public static final ModelLayerLocation RIG_LAYER = new ModelLayerLocation(Mistinn.id("gear"), "rig");
-	/** Which backpack and rig a player wears, by tier index; absent when none. */
+	/** Which backpack and rig a player wears, by its index in Gear's lists; absent when none. */
 	public static final RenderStateDataKey<Integer> BACKPACK = RenderStateDataKey.create(() -> "mistinn:backpack");
 	public static final RenderStateDataKey<Integer> RIG = RenderStateDataKey.create(() -> "mistinn:rig");
 
+	/** The standard issue's shapes, one per tier; the lines' come after them, from {@link GearLines}. */
 	private static final int TIERS = Tier.values().length;
+	private static final int BACKPACKS = life.shizune.mistinn.gear.Gear.BACKPACKS.size();
+	private static final int RIGS = life.shizune.mistinn.gear.Gear.RIGS.size();
 
 	private final GearModel backpack;
 	private final GearModel rig;
 
 	public GearLayer(final RenderLayerParent<AvatarRenderState, PlayerModel> parent, final EntityRendererProvider.Context context) {
 		super(parent);
-		this.backpack = new GearModel(context.bakeLayer(LAYER), "backpack_", BACKPACK);
-		this.rig = new GearModel(context.bakeLayer(RIG_LAYER), "rig_", RIG);
+		this.backpack = new GearModel(context.bakeLayer(LAYER), "backpack_", BACKPACK, BACKPACKS);
+		this.rig = new GearModel(context.bakeLayer(RIG_LAYER), "rig_", RIG, RIGS);
 	}
 
 	/**
@@ -57,8 +60,8 @@ public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 	public static LayerDefinition definition() {
 		MeshDefinition mesh = HumanoidModel.createMesh(CubeDeformation.NONE, 0.0F);
 		PartDefinition body = mesh.getRoot().addOrReplaceChild("body", CubeListBuilder.create(), PartPose.ZERO);
-		for (int t = 0; t < TIERS; t++) {
-			body.addOrReplaceChild("backpack_" + t, backpack(t), PartPose.ZERO);
+		for (int t = 0; t < BACKPACKS; t++) {
+			body.addOrReplaceChild("backpack_" + t, t < TIERS ? backpack(t) : GearLines.backpack(t - TIERS), PartPose.ZERO);
 		}
 		return LayerDefinition.create(mesh, 64, 32);
 	}
@@ -78,6 +81,9 @@ public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 		rig4(body.addOrReplaceChild("rig_4", CubeListBuilder.create(), PartPose.ZERO));
 		rig5(body.addOrReplaceChild("rig_5", CubeListBuilder.create(), PartPose.ZERO));
 		rig6(body.addOrReplaceChild("rig_6", CubeListBuilder.create(), PartPose.ZERO));
+		for (int t = TIERS; t < RIGS; t++) {
+			body.addOrReplaceChild("rig_" + t, GearLines.rig(t - TIERS), PartPose.ZERO);
+		}
 		return LayerDefinition.create(mesh, 64, 64);
 	}
 
@@ -370,21 +376,22 @@ public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 
 	@Override
 	public void submit(final PoseStack poseStack, final SubmitNodeCollector collector, final int light, final AvatarRenderState state, final float yRot, final float xRot) {
-		Identifier pack = texture("backpack_", state.getData(BACKPACK));
+		Identifier pack = texture(life.shizune.mistinn.registry.MistinnItems.BACKPACKS, state.getData(BACKPACK));
 		if (pack != null) {
 			coloredCutoutModelCopyLayerRender(this.backpack, pack, poseStack, collector, light, state, -1, 2);
 		}
-		Identifier rig = texture("rig_", state.getData(RIG));
+		Identifier rig = texture(life.shizune.mistinn.registry.MistinnItems.RIGS, state.getData(RIG));
 		if (rig != null) {
 			coloredCutoutModelCopyLayerRender(this.rig, rig, poseStack, collector, light, state, -1, 2);
 		}
 	}
 
-	private static @Nullable Identifier texture(final String kind, final @Nullable Integer tier) {
-		if (tier == null || tier < 0 || tier >= TIERS) {
+	/** The worn sheet of the piece at that index: named for its item, as {@code backpack_3} or {@code backpack_heavy_3}. */
+	private static @Nullable Identifier texture(final java.util.List<net.minecraft.world.item.Item> items, final @Nullable Integer index) {
+		if (index == null || index < 0 || index >= items.size()) {
 			return null;
 		}
-		return Mistinn.id("textures/entity/gear/" + kind + Tier.values()[tier].id() + ".png");
+		return Mistinn.id("textures/entity/gear/" + net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(items.get(index)).getPath() + ".png");
 	}
 
 	/**
@@ -392,15 +399,17 @@ public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 	 * the render state, so which tier shows is decided here rather than when submitting.
 	 */
 	private static final class GearModel extends HumanoidModel<AvatarRenderState> {
-		private final ModelPart[] own = new ModelPart[TIERS];
-		/** What of each tier runs up over the shoulders; null for one that has nothing there. */
-		private final @Nullable ModelPart[] over = new ModelPart[TIERS];
+		private final ModelPart[] own;
+		/** What of each piece runs up over the shoulders; null for one that has nothing there. */
+		private final @Nullable ModelPart[] over;
 		private final RenderStateDataKey<Integer> key;
 
-		GearModel(final ModelPart root, final String kind, final RenderStateDataKey<Integer> key) {
+		GearModel(final ModelPart root, final String kind, final RenderStateDataKey<Integer> key, final int count) {
 			super(root);
 			this.key = key;
-			for (int t = 0; t < TIERS; t++) {
+			this.own = new ModelPart[count];
+			this.over = new ModelPart[count];
+			for (int t = 0; t < count; t++) {
 				this.own[t] = this.body.getChild(kind + t);
 				this.over[t] = this.own[t].hasChild("over") ? this.own[t].getChild("over") : null;
 			}
@@ -410,7 +419,7 @@ public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 		public void setupAnim(final AvatarRenderState state) {
 			super.setupAnim(state);
 			Integer tier = state.getData(this.key);
-			for (int t = 0; t < TIERS; t++) {
+			for (int t = 0; t < this.own.length; t++) {
 				this.own[t].visible = tier != null && tier == t;
 				ModelPart over = this.over[t];
 				if (over != null) {
@@ -418,7 +427,7 @@ public class GearLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 					over.visible = !Boolean.TRUE.equals(state.getData(life.shizune.mistinn.client.view.OwnBody.KEY));
 				}
 			}
-			if (this.key == BACKPACK && tier != null && tier >= 0 && tier < TIERS) {
+			if (this.key == BACKPACK && tier != null && tier >= 0 && tier < this.own.length) {
 				// 晃動: the pack is thrown up off the back with each footfall and lands again; it
 				// only ever swings away from the back, never into it
 				float speed = Math.min(state.walkAnimationSpeed, 1.0F);

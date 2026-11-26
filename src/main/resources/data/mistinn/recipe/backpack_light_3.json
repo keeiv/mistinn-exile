@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "X": "minecraft:emerald",
+    "P": "minecraft:leather",
+    "S": "minecraft:string",
+    "L": "minecraft:leather"
+  },
+  "pattern": [
+    "SPS",
+    "LXL"
+  ],
+  "result": {
+    "id": "mistinn:backpack_light_3"
+  }
+}

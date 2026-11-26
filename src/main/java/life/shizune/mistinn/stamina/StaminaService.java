@@ -118,6 +118,8 @@ public final class StaminaService {
 				Body body = BodyService.get(player);
 				// a destroyed torso breathes badly
 				float rate = body.destroyed(BodyPart.TORSO) ? REGEN * 0.6F : REGEN;
+				// light gear lets the hunter breathe, heavy gear sits on the chest
+				rate *= life.shizune.mistinn.gear.GearBurden.stamina(player);
 				set(player, get(player) + rate);
 			}
 		}

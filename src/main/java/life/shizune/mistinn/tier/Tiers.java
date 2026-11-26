@@ -43,11 +43,18 @@ public final class Tiers {
 		FIXED.put(MistinnItems.LAMP_OIL, Tier.II);
 		FIXED.put(MistinnItems.RUST_GOD_SALT, Tier.VI);
 		MistinnItems.WEAPONS.values().forEach(byMaterial -> byMaterial.forEach((material, item) -> FIXED.put(item, material.tier)));
+		// every line's helmets, body armour, packs and rigs, each at its own tier
+		for (int i = 0; i < MistinnItems.HELMETS.size(); i++) {
+			FIXED.put(MistinnItems.HELMETS.get(i), life.shizune.mistinn.gear.Gear.HELMETS.get(i).tier());
+			FIXED.put(MistinnItems.ARMORS.get(i), life.shizune.mistinn.gear.Gear.ARMORS.get(i).tier());
+		}
+		for (int i = 0; i < MistinnItems.BACKPACKS.size(); i++) {
+			FIXED.put(MistinnItems.BACKPACKS.get(i), life.shizune.mistinn.gear.Gear.BACKPACKS.get(i).tier());
+		}
+		for (int i = 0; i < MistinnItems.RIGS.size(); i++) {
+			FIXED.put(MistinnItems.RIGS.get(i), life.shizune.mistinn.gear.Gear.RIGS.get(i).tier());
+		}
 		for (Tier tier : Tier.values()) {
-			FIXED.put(MistinnItems.HELMETS.get(tier.ordinal()), tier);
-			FIXED.put(MistinnItems.ARMORS.get(tier.ordinal()), tier);
-			FIXED.put(MistinnItems.BACKPACKS.get(tier.ordinal()), tier);
-			FIXED.put(MistinnItems.RIGS.get(tier.ordinal()), tier);
 			FIXED.put(MistinnItems.MASKS.get(tier.ordinal()), tier);
 			if (tier.ordinal() < MistinnItems.LEGGINGS.size()) {
 				FIXED.put(MistinnItems.LEGGINGS.get(tier.ordinal()), tier);

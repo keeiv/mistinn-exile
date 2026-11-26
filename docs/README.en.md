@@ -92,7 +92,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Achievements | Twenty-seven of them (one hidden), from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer, the Sunken Bell and the Rust Wheel, taking a pirate ship, holding the shore, bringing down an elite of three affixes, and the story's two endings. The game's toast shows at the top right and some salt is paid; all are kept on the mod's own tab of the advancements screen. See [Achievements](#achievements). |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
-| Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V; each with its own durability, protection, capacity, layout and a two-line story. |
+| Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V, and two more lines beside them, light (helmet, armour, pack) and heavy (helmet, armour, rig, pack): see [Light and heavy lines](#light-and-heavy-lines); each with its own durability, protection, capacity, layout and a two-line story. |
 | Grid inventory | Four pockets, the chest rig's and backpack's grids, and a safe box kept through death. Every item takes a footprint by kind and can be rotated. Packs, rigs and some medical supplies have sprites drawn for their footprints. Packs and rigs also show on the body; each of the seven rigs is built after its own icon: a bandolier with its row of cartridges, the dockworker's canvas belt, the tide patrol's upright pouches and signal-lamp pouch, the anchor guard's brass-snapped square pouches, the mist walker's long pouches and document pouch, the bell keepers' full vest with a small bell on every pouch flap, and the rust god's ribs, all worn over a chestplate; looking down through your own eyes, the straps over the shoulders stay out of the way. Survival and adventure use the mod's own inventory screen and seal off the 27 vanilla slots. |
 | Fog-shore lighthouses | Dead lighthouses on the coast; the lamp room at the top is held by the first keeper, **the Snuffer**, whose every move strikes a set part of the body. The fight has its own music, which turns more frantic in its dark half. |
 | Fog-bell stations | Bell towers on reefs in the shallows off the misty shore, held by the second keeper, **the Sunken Bell**. Each toll of its bell rolls a ring out along the floor and thickens the mist by a layer; a fully charged heavy blow rings its own bell and thins the mist again. See [The fog-bell station and the Sunken Bell](#the-fog-bell-station-and-the-sunken-bell). |
@@ -560,6 +560,26 @@ Achievements are the game's own **advancements**: press `L` and the mod has a ta
 | VI | Red | Rust God's Skull | Rust God's Face | Rust God's Scales | — | — | Rust God's Harness | Rust God's Reliquary |
 
 Helmets last 70–640, masks 50–480, body armour 110–940, leggings 90–610, boots 60–430; higher tiers protect more and armour and leggings get heavier. A helmet only covers the crown and a mask the face; body armour covers the torso, leggings and boots the legs, and nothing covers the arms. Vanilla items follow their material (iron I, gold II, emerald III, diamond IV, netherite V) or vanilla rarity. Salt repairs gear at an anvil.
+
+### Light and heavy lines
+
+Beside each tier's standard issue there are two lines. Light gear stops less and holds less, but never slows you, is quieter and lets stamina come back faster; heavy gear stops more and holds more, but is slower, louder and hard on the breath. The tooltip lists what each piece costs.
+
+| Tier | Light (helmet, armour, pack) | Heavy (helmet, armour, rig, pack) |
+| --- | --- | --- |
+| N | Scavenger: Scavenger's Cloth Cap, Scavenger's Padded Coat, Scavenger's Hip Pouch (4 cells) | Scrap: Scrap Bucket Helm, Scrap Plate, Scrap Tool Harness (6 cells), Scrap Frame (11 cells, 1% slower) |
+| I | Fisher: Fisher's Oilskin Hat, Fisher's Oilskin Coat, Fisher's Sling Bag (8 cells) | Stevedore: Stevedore's Iron Helm, Stevedore's Heavy Leathers, Stevedore's Tool Vest (12 cells), Stevedore's Great Sack (17 cells, 2% slower) |
+| II | Tide Scout: Tide Scout Light Helm, Tide Scout Leathers, Tide Scout Daypack (11 cells) | Breakwater: Breakwater Heavy Helm, Breakwater Heavy Armour, Breakwater Ammo Vest (16 cells), Breakwater Supply Pack (26 cells, 2% slower) |
+| III | Anchor Scout: Anchor Scout Helm, Anchor Scout Jack, Anchor Assault Pack (16 cells) | Anchor Breacher: Anchor Breacher Helm, Anchor Breacher Plate, Anchor Assault Vest (20 cells), Anchor Siege Pack (36 cells, 3% slower) |
+| IV | Mistveil: Mistveil Hood, Mistveil Quilted Armour, Mistveil Light Pack (19 cells) | Mistwall: Mistwall Full Helm, Mistwall Plate, Mistwall Ammo Vest (24 cells), Mistwall Expedition Pack (42 cells, 3% slower) |
+| V | Bell Herald: Bell Herald Helm, Bell Herald Coat, Bell Herald's Satchel (24 cells) | Belltower: Belltower Great Helm, Belltower Heavy Mail, Belltower Heavy Vest (32 cells), Belltower Carrying Frame (53 cells, 4% slower) |
+| VI | Rustfeather: Rustfeather Crown, Rustfeather Mantle, Rustfeather Pouch (26 cells) | Rust Coffin: Rust Coffin Skull, Rust Coffin Armour, Rust Coffin Harness (34 cells), The Rust Coffin (56 cells, 5% slower) |
+
+- Light helmets: seven tenths the durability, 1 less armour; noise -5%, stamina recovery +4%. Heavy helmets: 1.4 times the durability, 1 more armour and toughness, a visor from II up (+1 face armour, on top of the mask); movement -1%, swing -3%, noise +5%, stamina recovery -4%.
+- Light body armour: three quarters the durability, 2 less armour, no slowing; noise -10%, stamina recovery +8%. Heavy: 1.4 times the durability, 2 more armour, 1.5 more toughness, 0.1 more knockback resistance and 3% slower again; swing -6%, noise +15%, stamina recovery -12%.
+- Light packs: about three fifths the room, a small footprint, no slowing; noise -5%, stamina recovery +3%. Heavy packs: about half as much room again, wide rather than tall, 1% to 5% slower; noise +8%, stamina recovery -8%. Heavy rigs: about 1.4 times the room, 0.5% to 2% slower; noise +5%, stamina recovery -3%.
+- Noise multiplies how far every action carries (never below half); stamina recovery multiplies how fast it comes back (never below two fifths); the helmet, armour, rig and pack add up.
+- All are crafted from their tier's material (the light line with string and wool, the heavy with iron or a chest) and turn up in structure chests as often as the standard issue.
 
 ## Grid inventory
 

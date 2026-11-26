@@ -121,11 +121,14 @@ public final class MistinnItems {
 	public static final Item SPLINT = register("splint", life.shizune.mistinn.medical.SplintItem::new, new Item.Properties()
 		.stacksTo(4));
 
-	/** Helmets, body armour and backpacks, one of each per tier, indexed by {@link Tier#ordinal()}. */
+	/**
+	 * Helmets, body armour and backpacks in the order of their lists in {@link Gear}: each tier's
+	 * standard issue by {@link Tier#ordinal()}, then the light line and the heavy line, N to VI.
+	 */
 	public static final List<Item> HELMETS = Gear.HELMETS.stream().map(MistinnItems::helmet).toList();
 	public static final List<Item> ARMORS = Gear.ARMORS.stream().map(MistinnItems::bodyArmor).toList();
 	public static final List<Item> BACKPACKS = Gear.BACKPACKS.stream().map(MistinnItems::backpack).toList();
-	/** Chest rigs and masks, one per tier, indexed by {@link Tier#ordinal()}. */
+	/** Chest rigs as {@link Gear#RIGS} has them (the standard issue by tier, then the heavy vests); masks, one per tier. */
 	public static final List<Item> RIGS = Gear.RIGS.stream().map(MistinnItems::rig).toList();
 	public static final List<Item> MASKS = Gear.MASKS.stream().map(MistinnItems::mask).toList();
 	/** Leggings and boots for tiers N to V, indexed by {@link Tier#ordinal()}. */
@@ -136,7 +139,17 @@ public final class MistinnItems {
 	}
 
 	private static ResourceKey<EquipmentAsset> asset(final Tier tier) {
-		return ResourceKey.create(EquipmentAssets.ROOT_ID, Mistinn.id("hunter_" + tier.id()));
+		return asset(Gear.Line.STANDARD, tier);
+	}
+
+	/** The worn look a line's helmet and body armour share in a tier: {@code hunter_3}, {@code hunter_heavy_3}. */
+	private static ResourceKey<EquipmentAsset> asset(final Gear.Line line, final Tier tier) {
+		return ResourceKey.create(EquipmentAssets.ROOT_ID, Mistinn.id(line.item("hunter", tier)));
+	}
+
+	/** The attribute modifiers' id for a piece: the standard issue keeps the ones it always had. */
+	private static Identifier modifierId(final String kind, final Gear.Line line, final Tier tier) {
+		return Mistinn.id(line == Gear.Line.STANDARD ? kind + "." + tier.id() : kind + "." + line.id + "." + tier.id());
 	}
 
 	private static List<Item> repairKits(final String name, final EquipmentSlot slot) {
@@ -150,21 +163,28 @@ public final class MistinnItems {
 	}
 
 	private static Item helmet(final Gear.Helmet gear) {
-		Identifier id = Mistinn.id("helmet." + gear.tier().id());
-		ItemAttributeModifiers attributes = ItemAttributeModifiers.builder()
+		Identifier id = modifierId("helmet", gear.line(), gear.tier());
+		ItemAttributeModifiers.Builder attributes = ItemAttributeModifiers.builder()
 			.add(Attributes.ARMOR, new AttributeModifier(id, gear.armor(), AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.HEAD)
-			.add(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(id, gear.toughness(), AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.HEAD)
-			.build();
-		return register("helmet_" + gear.tier().id(), Item::new, new Item.Properties()
+			.add(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(id, gear.toughness(), AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.HEAD);
+		if (gear.speedPenalty() > 0.0) {
+			attributes.add(Attributes.MOVEMENT_SPEED, new AttributeModifier(id, -gear.speedPenalty(), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), EquipmentSlotGroup.HEAD);
+		}
+		if (gear.burden().swing() > 0.0F) {
+			attributes.add(Attributes.ATTACK_SPEED, new AttributeModifier(id, -gear.burden().swing(), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), EquipmentSlotGroup.HEAD);
+		}
+		Holder<SoundEvent> sound = gear.line() == Gear.Line.LIGHT ? MistinnSounds.EQUIP_CLOTH : gear.line() == Gear.Line.HEAVY ? MistinnSounds.EQUIP_HELMET
+			: helmetSound(gear.tier());
+		return register(gear.line().item("helmet", gear.tier()), Item::new, new Item.Properties()
 			.durability(gear.durability())
-			.attributes(attributes)
-			.component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.HEAD).setEquipSound(helmetSound(gear.tier())).setAsset(asset(gear.tier())).build())
+			.attributes(attributes.build())
+			.component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.HEAD).setEquipSound(sound).setAsset(asset(gear.line(), gear.tier())).build())
 			.repairable(REPAIRS_GEAR)
 			.enchantable(10));
 	}
 
 	private static Item bodyArmor(final Gear.BodyArmor gear) {
-		Identifier id = Mistinn.id("armor." + gear.tier().id());
+		Identifier id = modifierId("armor", gear.line(), gear.tier());
 		ItemAttributeModifiers.Builder attributes = ItemAttributeModifiers.builder()
 			.add(Attributes.ARMOR, new AttributeModifier(id, gear.armor(), AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.CHEST)
 			.add(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(id, gear.toughness(), AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.CHEST);
@@ -174,10 +194,15 @@ public final class MistinnItems {
 		if (gear.speedPenalty() > 0.0) {
 			attributes.add(Attributes.MOVEMENT_SPEED, new AttributeModifier(id, -gear.speedPenalty(), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), EquipmentSlotGroup.CHEST);
 		}
-		return register("armor_" + gear.tier().id(), Item::new, new Item.Properties()
+		if (gear.burden().swing() > 0.0F) {
+			attributes.add(Attributes.ATTACK_SPEED, new AttributeModifier(id, -gear.burden().swing(), AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), EquipmentSlotGroup.CHEST);
+		}
+		Holder<SoundEvent> sound = gear.line() == Gear.Line.LIGHT ? MistinnSounds.EQUIP_CLOTH : gear.line() == Gear.Line.HEAVY ? MistinnSounds.EQUIP_PLATE
+			: equipSound(gear.tier());
+		return register(gear.line().item("armor", gear.tier()), Item::new, new Item.Properties()
 			.durability(gear.durability())
 			.attributes(attributes.build())
-			.component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.CHEST).setEquipSound(equipSound(gear.tier())).setAsset(asset(gear.tier())).build())
+			.component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.CHEST).setEquipSound(sound).setAsset(asset(gear.line(), gear.tier())).build())
 			.repairable(REPAIRS_GEAR)
 			.enchantable(10));
 	}
@@ -193,11 +218,11 @@ public final class MistinnItems {
 	}
 
 	private static Item backpack(final Gear.Backpack gear) {
-		return register("backpack_" + gear.tier().id(), Item::new, new Item.Properties().stacksTo(1));
+		return register(gear.line().item("backpack", gear.tier()), Item::new, new Item.Properties().stacksTo(1));
 	}
 
 	private static Item rig(final Gear.ChestRig gear) {
-		return register("rig_" + gear.tier().id(), Item::new, new Item.Properties().stacksTo(1));
+		return register(gear.line().item("rig", gear.tier()), Item::new, new Item.Properties().stacksTo(1));
 	}
 
 	/** Masks are worn in the grid's mask slot, not a vanilla one: no equippable component. */
