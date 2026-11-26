@@ -61,6 +61,15 @@
                 "max_inclusive": 2
               },
               "weight": 100
+            },
+            {
+              "type": "mistinn:rift_hound",
+              "count": {
+                "type": "minecraft:uniform",
+                "min_inclusive": 2,
+                "max_inclusive": 3
+              },
+              "weight": 60
             }
           ]
         }

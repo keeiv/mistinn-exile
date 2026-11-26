@@ -179,6 +179,14 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.rift.RiftWalkerRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.RIFT_HERALD,
 			life.shizune.mistinn.client.rift.RiftHeraldRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.rift.RiftHoundModel.LAYER,
+			life.shizune.mistinn.client.rift.RiftHoundModel::createBodyLayer);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.RIFT_HOUND,
+			life.shizune.mistinn.client.rift.RiftHoundRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.terra.CrystalLizardModel.LAYER,
+			life.shizune.mistinn.client.terra.CrystalLizardModel::createBodyLayer);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.CRYSTAL_LIZARD,
+			life.shizune.mistinn.client.terra.CrystalLizardRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.PIRATE,
 			life.shizune.mistinn.client.naval.PirateRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.THROWN_TOOL,
