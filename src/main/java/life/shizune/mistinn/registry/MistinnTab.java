@@ -17,7 +17,7 @@ public final class MistinnTab {
 		Mistinn.id("main"),
 		FabricCreativeModeTab.builder()
 			.title(Component.translatable("itemGroup.mistinn"))
-			.icon(() -> new ItemStack(MistinnItems.GOLDEN_BELL))
+			.icon(() -> new ItemStack(MistinnItems.CRYSTAL_CORE))
 			.displayItems((parameters, output) -> {
 				output.accept(MistinnItems.ANCHOR_BLADE);
 				output.accept(MistinnItems.BELL_GREATSWORD);
