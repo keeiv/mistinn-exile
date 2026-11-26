@@ -111,6 +111,8 @@ public class MistinnClient implements ClientModInitializer {
 		LevelExtractionEvents.END_EXTRACTION.register(SwordQi::extract);
 		LevelRenderEvents.COLLECT_SUBMITS.register(TrainingGuide::submit);
 		LevelRenderEvents.COLLECT_SUBMITS.register(SwordQi::submit);
+		LevelExtractionEvents.END_EXTRACTION.register(life.shizune.mistinn.client.rift.RiftSky::extract);
+		LevelRenderEvents.COLLECT_SUBMITS.register(life.shizune.mistinn.client.rift.RiftSky::submit);
 		// "正在使用 …" and its progress bar above the hotbar
 		HudElementRegistry.addLast(Mistinn.id("treatment"), new life.shizune.mistinn.client.medical.TreatmentHud());
 		// 倒地: the downed hunter's minute, and the rescuer's prompt and bar
@@ -158,6 +160,10 @@ public class MistinnClient implements ClientModInitializer {
 		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.shore.MistShadeModel.LAYER,
 			life.shizune.mistinn.client.shore.MistShadeModel::definition);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.MIST_SHADE, life.shizune.mistinn.client.shore.MistShadeRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.RIFT_WALKER,
+			life.shizune.mistinn.client.rift.RiftWalkerRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.RIFT_HERALD,
+			life.shizune.mistinn.client.rift.RiftHeraldRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.PIRATE,
 			life.shizune.mistinn.client.naval.PirateRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.THROWN_TOOL,

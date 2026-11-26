@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mistinn:block/rift_soil_top",
+    "side": "mistinn:block/rift_soil_side",
+    "bottom": "mistinn:block/rift_soil",
+    "particle": "mistinn:block/rift_soil"
+  }
+}

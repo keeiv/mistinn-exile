@@ -2,7 +2,42 @@
 	"required": true,
 	"package": "life.shizune.mistinn.mixin",
 	"compatibilityLevel": "JAVA_25",
-	"mixins": ["CaveSpiderSoundMixin", "FoodDataMixin", "GiantSoundMixin", "HoglinWindupMixin", "InventoryMixin", "ItemCodecMixin", "LivingEntityHealMixin", "LivingEntityInvoker", "MobAttackBoxInvoker", "MobExecutionMixin", "MobTargetsAccessor", "MobWindupMixin", "PlayerBodyMixin", "PlayerDodgeMixin", "PlayerEatMixin", "PlayerHungerMixin", "PlayerResidueMixin", "PlayerVoiceMixin", "PunchSoundMixin", "SeizedBlowMixin", "SkeletonShotSoundMixin", "SlotAccessor", "SlotMixin", "ItemWearMixin", "PlayerCrawlMixin", "MeleeGapMixin", "SkeletonGapMixin", "PlayerListCapMixin", "MobEliteMixin"],
-	"injectors": { "defaultRequire": 1 },
-	"overwrites": { "requireAnnotations": true }
+	"mixins": [
+		"CaveSpiderSoundMixin",
+		"FoodDataMixin",
+		"GiantSoundMixin",
+		"HoglinWindupMixin",
+		"InventoryMixin",
+		"ItemCodecMixin",
+		"ItemWearMixin",
+		"LivingEntityHealMixin",
+		"LivingEntityInvoker",
+		"MeleeGapMixin",
+		"MobAttackBoxInvoker",
+		"MobEliteMixin",
+		"MobExecutionMixin",
+		"MobTargetsAccessor",
+		"MobWindupMixin",
+		"PlayerBodyMixin",
+		"PlayerCrawlMixin",
+		"PlayerDodgeMixin",
+		"PlayerEatMixin",
+		"PlayerHungerMixin",
+		"PlayerListCapMixin",
+		"PlayerResidueMixin",
+		"PlayerVoiceMixin",
+		"PunchSoundMixin",
+		"SeizedBlowMixin",
+		"SkeletonGapMixin",
+		"SkeletonShotSoundMixin",
+		"SlotAccessor",
+		"SlotMixin",
+		"SpawnPlacementsInvoker"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
 }
