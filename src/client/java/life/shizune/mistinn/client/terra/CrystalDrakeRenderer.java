@@ -55,6 +55,13 @@ public class CrystalDrakeRenderer<T extends CrystalDrake> extends MobRenderer<T,
 		state.aloft = entity.aloft(partialTicks);
 		state.swoop = entity.swoop(partialTicks);
 		state.bite = entity.bite(partialTicks);
+		if (entity instanceof life.shizune.mistinn.terra.CrystalElder elder) {
+			state.move = elder.move();
+			state.moveAge = elder.moveAge(partialTicks);
+		} else {
+			state.move = life.shizune.mistinn.terra.CrystalElder.Move.NONE;
+			state.moveAge = 0.0F;
+		}
 		// pitched along its flight: nose down into a dive, up as it climbs
 		double rise = entity.getDeltaMovement().y;
 		double across = entity.getDeltaMovement().horizontalDistance();

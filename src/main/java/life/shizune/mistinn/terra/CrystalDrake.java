@@ -130,7 +130,7 @@ public class CrystalDrake extends Monster {
 		return this.mode;
 	}
 
-	private void setMode(final Mode next) {
+	protected void setMode(final Mode next) {
 		this.mode = next;
 		this.entityData.set(DATA_SWOOP, next == Mode.SWOOP);
 		boolean up = next != Mode.REST;
@@ -151,6 +151,10 @@ public class CrystalDrake extends Monster {
 		}
 		this.alone = target == null ? this.alone + 1 : 0;
 		this.timer--;
+		if (this.grounded(level, target)) {
+			this.abilities(level, target);
+			return;
+		}
 		switch (this.mode) {
 			case CIRCLE -> {
 				Vec3 anchor = target != null ? target.position().add(0.0, this.over(), 0.0) : Vec3.atCenterOf(this.home).add(0.0, this.over() + 5.0, 0.0);
@@ -211,6 +215,14 @@ public class CrystalDrake extends Monster {
 		return 10.0;
 	}
 
+	/**
+	 * Whether it is about something of its own this moment instead of circling and diving (and
+	 * has seen to its own moving): never, for a drake.
+	 */
+	protected boolean grounded(final ServerLevel level, final @Nullable LivingEntity target) {
+		return false;
+	}
+
 	/** Whatever else it does each moment, beside flying and diving: nothing, for a drake. */
 	protected void abilities(final ServerLevel level, final @Nullable LivingEntity target) {
 	}
@@ -218,6 +230,15 @@ public class CrystalDrake extends Monster {
 	/** The home it circles and comes back to rest at. */
 	public void home(final BlockPos at) {
 		this.home = at;
+	}
+
+	protected @Nullable BlockPos home() {
+		return this.home;
+	}
+
+	/** Sets where it is flying to. */
+	protected void aim(final Vec3 at) {
+		this.aim = at;
 	}
 
 	/** Pulls up out of a dive and goes back to circling, a while before the next. */
@@ -230,7 +251,7 @@ public class CrystalDrake extends Monster {
 	}
 
 	/** Turns its course towards where it is going, as a flyer does, not all at once. */
-	private void steer(final double speed) {
+	protected void steer(final double speed) {
 		Vec3 to = this.aim.subtract(this.position());
 		if (to.lengthSqr() < 0.01) {
 			return;
