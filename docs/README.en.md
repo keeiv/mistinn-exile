@@ -497,7 +497,7 @@ Achievements are the game's own **advancements**: press `L` and the mod has a ta
 | Crouch while running | Slide (once learned) |
 | Hold use with a weapon | Charge; let go for a heavy blow |
 | Use the Hunter's Guide, or `B` | Open the guide: pages, stats, skills and recipes |
-| Hold `R` | Quick-use wheel: food, medicine and repair kits in the pockets and rig, used where they lie; move the mouse to pick, let go to use, and keep walking |
+| Hold `R` | Quick-use wheel: food, medicine and repair kits in the pockets and rig, used where they lie; move the mouse to pick, let go to use, or bring it back to the middle and let go to put it away; keep walking |
 | Hold `F` (by a downed teammate) | Bring them back where they lie, ten seconds |
 | `H` (by a downed teammate) | Drag them along while bringing them back, ten seconds; `H` again lets go |
 | `J` | Toggle the first-person swing view |
@@ -506,7 +506,12 @@ Achievements are the game's own **advancements**: press `L` and the mod has a ta
 | Drag | Move between cells, or between the grid and the hotbar or a chest |
 | `R` while carrying | Rotate |
 | `Q` over an item | Drop it |
-| Shift-click | Grid item to the hotbar; chest item into the grid |
+| Right-click | Take half; while carrying, put one down |
+| Click a different item while carrying | Swap the two |
+| Double-click | Gather the same item from the grid and the hotbar into one stack (not the safe box) |
+| `Q` over an item | Throw one; `Ctrl`+`Q` the whole stack |
+| Number keys, `F` over a cell | Swap with that hotbar slot or the offhand |
+| Shift-click | Grid item: into the open chest, armour onto the body, else to the hotbar; chest item: the hotbar first, then the grid; hotbar item: into the grid, a backpack or rig put on |
 
 ## Tiers and gear
 
@@ -544,7 +549,7 @@ Helmets last 70–640, masks 50–480, body armour 110–940, leggings 90–610,
 | V | 2×2 ×3 + 1×3 ×4 | 24 |
 | VI | 2×3 ×2, 2×2 + 1×3 ×4 | 28 |
 
-Pockets are four 1×1 cells and the safe box is 2×2. Pickups fill the pockets, then the chest rig, then the backpack. On death the pockets, chest rig, backpack and mask go into the gravestone with everything else you carry; the safe box stays. Footprints: gems and ingots 1×1, sticks 1×2, tools and swords 1×3, ore and other blocks 2×2, armour 2×2 or 2×3; the injector, painkillers and tourniquet 1×1, the surgery kit and splint 1×2, and repair kits grow with their tier (armour: III 1×2, IV 1×3, V/VI 2×2; helmet: III/IV 1×2, V 1×3, VI 2×2). A backpack's contents live in the backpack item, so they travel with it. Backpacks and rigs never go into the pockets, a backpack, a rig or the safe box (no bags in bags): wear them, keep them on the hotbar or leave them in a chest; any an old save keeps inside are taken out when you arrive or put a bag on, onto the hotbar or at your feet. The backpack and chest rig you wear show on your body.
+Pockets are four 1×1 cells and the safe box is 2×2. Pickups top up matching stacks first, then go to the hotbar, the pockets, the backpack and the chest rig, in that order. On death the pockets, chest rig, backpack and mask go into the gravestone with everything else you carry; the safe box stays. Footprints: gems and ingots 1×1, sticks 1×2, tools and swords 1×3, ore and other blocks 2×2, armour 2×2 or 2×3; the injector, painkillers and tourniquet 1×1, the surgery kit and splint 1×2, and repair kits grow with their tier (armour: III 1×2, IV 1×3, V/VI 2×2; helmet: III/IV 1×2, V 1×3, VI 2×2). A backpack's contents live in the backpack item, so they travel with it. Backpacks and rigs never go into the pockets, a backpack, a rig or the safe box (no bags in bags): wear them, keep them on the hotbar or leave them in a chest; any an old save keeps inside are taken out when you arrive or put a bag on, onto the hotbar or at your feet. The backpack and chest rig you wear show on your body.
 
 **Sounds**: setting a thing down in the pack or lifting it out sounds like what it is made of: blades and tools knock as metal, armour from tier II clanks, cloth rustles, salt and sand settle in grains, bottles clink, books and papers turn, wood taps. Putting on a backpack, chest rig, mask, helmet or armour has a sound of its own as well: slung on, straps pulled, hook-and-loop torn, buckles shut, a breath through the filter.
 

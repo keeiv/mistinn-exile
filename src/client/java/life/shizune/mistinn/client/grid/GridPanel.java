@@ -18,13 +18,16 @@ import life.shizune.mistinn.tier.Tiers;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -36,8 +39,11 @@ import org.jspecify.annotations.Nullable;
  * backpack and mask are worn in. Drawn beside any container screen, or wherever the hunter
  * inventory screen places it. Each item sits on its tier colour.
  * Click to pick up or put down (the game's own cursor carries the item), or drag: press on an
- * item and release over another cell, a menu slot, or from a menu slot onto the grid. R turns
- * what you carry, Q throws the item under the mouse, shift-click sends it to the hotbar.
+ * item and release over another cell, a menu slot, or from a menu slot onto the grid. The game's
+ * own inventory controls work on the grid as on any slot: right-click takes half or puts one down,
+ * shift-click sends the item where the screen would (into the open chest, onto the body, to the
+ * hotbar), a number key or the offhand key trades it with that slot, Q throws one (with Ctrl the
+ * stack), a double click gathers what matches. R turns what you carry.
  */
 public final class GridPanel {
 	public static final int CELL = 16;
@@ -50,6 +56,7 @@ public final class GridPanel {
 	public static final int LABEL_DIM = 0xFF9A938A;
 	/** The left mouse button as screens see it (26.3 numbers buttons from 1, not as GLFW does). */
 	public static final int LEFT = InputConstants.MOUSE_BUTTON_LEFT;
+	public static final int RIGHT = InputConstants.MOUSE_BUTTON_RIGHT;
 
 	/** Whether the carried item is turned on its side; reset when the cursor is empty. */
 	private static boolean rotated;
@@ -449,14 +456,34 @@ public final class GridPanel {
 		int w = rotated ? size[1] : size[0];
 		int hh = rotated ? size[0] : size[1];
 		boolean ok;
+		int x = box.x() + h.cx() * CELL;
+		int y = box.y() + h.cy() * CELL;
 		if (h.index() >= 0) {
-			ItemStack there = inv.items(h.area()).get(h.index()).stack();
-			ok = ItemStack.isSameItemSameComponents(there, carried) && there.getCount() < there.getMaxStackSize();
+			Placed lying = inv.items(h.area()).get(h.index());
+			ItemStack there = lying.stack();
+			if (ItemStack.isSameItemSameComponents(there, carried)) {
+				ok = there.getCount() < there.getMaxStackSize();
+			} else {
+				// a different item: the two trade places, if the carried one fits where that one lay
+				List<Placed> without = new ArrayList<>(inv.items(h.area()));
+				without.remove(h.index());
+				Placed swapped = GridLogic.spotFor(inv.shape(h.area()), without, carried, rotated,
+					new int[] {lying.section(), lying.x(), lying.y()}, new int[] {h.section(), h.cx(), h.cy()});
+				ok = swapped != null && (swapped.section() == lying.section() && swapped.x() == lying.x() && swapped.y() == lying.y()
+					|| swapped.section() == h.section() && swapped.x() == h.cx() && swapped.y() == h.cy());
+				if (ok) {
+					Box at = boxFor(l, h.area(), swapped.section());
+					if (at != null) {
+						x = at.x() + swapped.x() * CELL;
+						y = at.y() + swapped.y() * CELL;
+						w = swapped.width();
+						hh = swapped.height();
+					}
+				}
+			}
 		} else {
 			ok = GridLogic.canStore(carried) && GridLogic.fits(inv.shape(h.area()), inv.items(h.area()), h.section(), h.cx(), h.cy(), w, hh, -1);
 		}
-		int x = box.x() + h.cx() * CELL;
-		int y = box.y() + h.cy() * CELL;
 		g.fill(x, y, x + w * CELL, y + hh * CELL, ok ? 0x6040C060 : 0x60D04040);
 	}
 
@@ -471,7 +498,7 @@ public final class GridPanel {
 	}
 
 	/** Returns true when the click belonged to the panel. */
-	public static boolean click(final AbstractContainerMenu menu, final double mx, final double my, final int button, final boolean shift) {
+	public static boolean click(final AbstractContainerMenu menu, final double mx, final double my, final int button, final boolean shift, final boolean doubleClick) {
 		if (button == LEFT) {
 			pressX = mx;
 			pressY = my;
@@ -503,12 +530,27 @@ public final class GridPanel {
 			pressedOnPanel = true;
 			pressedAt = h;
 		}
-		if (h == null || button != LEFT) {
+		if (h == null) {
 			return true;
 		}
 		ItemStack carried = menu.getCarried();
-		if (carried.isEmpty() && h.index() >= 0) {
-			send(shift ? GridActionPayload.HOTBAR : GridActionPayload.PICK, h.area(), h.index(), 0, 0);
+		if (button == RIGHT) {
+			if (carried.isEmpty() && h.index() >= 0) {
+				send(GridActionPayload.HALF, h.area(), h.index(), 0, 0);
+			} else if (!carried.isEmpty()) {
+				send(GridActionPayload.ONE, h.area(), h.section(), h.cx(), h.cy());
+			}
+			return true;
+		}
+		if (button != LEFT) {
+			return true;
+		}
+		if (doubleClick && !carried.isEmpty()) {
+			// the first click picked the stack up; the second gathers the rest of its kind
+			send(GridActionPayload.COLLECT, h.area(), 0, 0, 0);
+			pressedAt = null;
+		} else if (carried.isEmpty() && h.index() >= 0) {
+			send(shift ? GridActionPayload.QUICK : GridActionPayload.PICK, h.area(), h.index(), 0, 0);
 		} else if (!carried.isEmpty()) {
 			send(GridActionPayload.PLACE, h.area(), h.section(), h.cx(), h.cy());
 		}
@@ -542,8 +584,12 @@ public final class GridPanel {
 		if (!fromPanel) {
 			// a drag from a menu slot that ends on a grid cell puts the item there
 			boolean moved = !Double.isNaN(pressX) && (Math.abs(mx - pressX) >= 2 || Math.abs(my - pressY) >= 2);
-			if (!overPanel || button != LEFT) {
+			if (!overPanel) {
 				return Release.PASS;
+			}
+			if (button != LEFT) {
+				// a right-click on the panel was the panel's
+				return Release.HANDLED;
 			}
 			if (moved && now != null && !carried.isEmpty()) {
 				send(GridActionPayload.PLACE, now.area(), now.section(), now.cx(), now.cy());
@@ -564,22 +610,50 @@ public final class GridPanel {
 		return overPanel ? Release.HANDLED : Release.TO_SLOT;
 	}
 
-	/** R turns the carried item; Q throws the hovered one. Returns true when handled. */
-	public static boolean key(final AbstractContainerMenu menu, final int key) {
+	/**
+	 * R turns the carried item; over a cell, Q throws one of what lies there (Ctrl: the stack), and a
+	 * hotbar key or the offhand key trades it with that slot. Returns true when handled.
+	 */
+	public static boolean key(final AbstractContainerMenu menu, final KeyEvent event) {
 		if (layout == null || !active()) {
 			return false;
 		}
+		int key = event.key();
 		if (key == InputConstants.KEY_R && !menu.getCarried().isEmpty()) {
 			rotated = !rotated;
 			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(MistinnSounds.GRID_ROTATE, 1.0F, 0.6F));
 			return true;
 		}
 		Hover h = hover;
-		if (key == InputConstants.KEY_Q && h != null && h.index() >= 0 && menu.getCarried().isEmpty()) {
-			send(GridActionPayload.DROP, h.area(), h.index(), 0, 0);
+		if (h == null || !menu.getCarried().isEmpty()) {
+			return false;
+		}
+		Options options = Minecraft.getInstance().options;
+		if (options.keyDrop.matches(event)) {
+			if (h.index() >= 0) {
+				send(GridActionPayload.DROP, h.area(), h.index(), event.hasControlDown() ? 1 : 0, 0);
+			}
+			return true;
+		}
+		int slot = hotbarKey(options, event);
+		if (slot >= 0) {
+			send(GridActionPayload.SWAP, h.area(), h.section(), h.cx(), h.cy(), slot);
 			return true;
 		}
 		return false;
+	}
+
+	/** The hotbar slot (0 to 8, or 40 for the offhand) a key stands for, or -1. */
+	private static int hotbarKey(final Options options, final KeyEvent event) {
+		if (options.keySwapOffhand.matches(event)) {
+			return Inventory.SLOT_OFFHAND;
+		}
+		for (int i = 0; i < options.keyHotbarSlots.length; i++) {
+			if (options.keyHotbarSlots[i].matches(event)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	/** Screen (GUI) position of the centre of a cell, for the client game test; null when not shown. */
@@ -612,6 +686,10 @@ public final class GridPanel {
 	}
 
 	private static void send(final int action, final Area area, final int a, final int b, final int c) {
-		ClientPlayNetworking.send(new GridActionPayload(action, area.ordinal(), a, b, c, rotated));
+		send(action, area, a, b, c, 0);
+	}
+
+	private static void send(final int action, final Area area, final int a, final int b, final int c, final int d) {
+		ClientPlayNetworking.send(new GridActionPayload(action, area.ordinal(), a, b, c, d, rotated));
 	}
 }
