@@ -41,8 +41,16 @@ public abstract class SceneCameraMixin {
 
 	@Inject(method = "update", at = @At("TAIL"))
 	private void mistinn$scene(final DeltaTracker deltaTracker, final CallbackInfo ci) {
-		SceneScreen scene = SceneScreen.current();
 		float partial = deltaTracker.getGameTimeDeltaPartialTick(false);
+		life.shizune.mistinn.client.naval.NavalIntro intro = life.shizune.mistinn.client.naval.NavalIntro.current();
+		if (intro != null) {
+			Vec3 eye = intro.eye(partial);
+			if (eye != null) {
+				this.mistinn$aim(eye, intro.target());
+				return;
+			}
+		}
+		SceneScreen scene = SceneScreen.current();
 		if (scene == null) {
 			ExecutionView.Shot shot = ExecutionView.shot(Minecraft.getInstance(), partial);
 			if (shot != null) {

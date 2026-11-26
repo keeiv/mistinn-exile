@@ -1579,5 +1579,6 @@
   "naval.mistinn.captain.5": "「白鹽」席拉船長",
   "achievement.mistinn.pirate_ship": "霧海奪船",
   "achievement.mistinn.pirate_ship.desc": "奪下一艘海盜船：船長在你附近倒下",
-  "notice.mistinn.pirates": "霧海上有海盜：駛出看不見陸地的遠海，黑帆船可能會來搶你身上的鹽。奪下它，船上的槍就是你的。"
+  "notice.mistinn.pirates": "霧海上有海盜：駛出看不見陸地的遠海，黑帆船可能會來搶你身上的鹽。奪下它，船上的槍就是你的。",
+  "hud.mistinn.naval.raiders": "霧海的劫掠者・%s"
 }

@@ -77,6 +77,14 @@ public final class MistinnEntities {
 		.clientTrackingRange(10)
 		.updateInterval(5));
 
+	/** A pirate ship under sail, drawn whole, coming in out of the fog. */
+	public static final EntityType<life.shizune.mistinn.naval.SailingShip> SAILING_SHIP = register("sailing_ship",
+		EntityType.Builder.<life.shizune.mistinn.naval.SailingShip>of(life.shizune.mistinn.naval.SailingShip::new, MobCategory.MISC)
+		.sized(1.0F, 1.0F)
+		.clientTrackingRange(16)
+		.updateInterval(1)
+		.noSave());
+
 	private MistinnEntities() {
 	}
 

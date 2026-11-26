@@ -303,6 +303,7 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `music/keeper.ogg` | `vsco_ce:cello section (susvib, spic)`; `vsco_ce:timpani`; `kenney_impact:impactBell_heavy_002` | CC0 1.0 sources |
 | `music/keeper_dark.ogg` | `vsco_ce:cello section (susvib, spic, trem)`; `vsco_ce:timpani`; `kenney_impact:impactBell_heavy_002` | CC0 1.0 sources |
 | `music/keeper_turn.ogg` | `vsco_ce:gongscrape_mf`; `kenney_impact:impactBell_heavy_002` | CC0 1.0 sources |
+| `music/naval.ogg` | `synth:war drums, low strings, brass, string pad, cymbals` | project synthesis |
 | `music/shore.ogg` | `vsco_ce:cello section (susvib)`; `kenney_impact:impactBell_heavy_002` | CC0 1.0 sources |
 | `player/dive_1.ogg` | `kenney_rpg:cloth`; `synth:moving-band noise whoosh` | CC0 1.0 sources + project synthesis |
 | `player/dive_2.ogg` | `kenney_rpg:cloth`; `synth:moving-band noise whoosh` | CC0 1.0 sources + project synthesis |

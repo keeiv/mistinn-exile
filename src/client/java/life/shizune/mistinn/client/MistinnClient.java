@@ -158,6 +158,10 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.naval.PirateRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.CANNON_SHOT,
 			context -> new net.minecraft.client.renderer.entity.ThrownItemRenderer<>(context, 1.4F, false));
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SAILING_SHIP,
+			life.shizune.mistinn.client.naval.SailingShipRenderer::new);
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.naval.NavalIntroPayload.TYPE,
+			(payload, context) -> life.shizune.mistinn.client.naval.NavalIntro.begin(payload));
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.naval.NavalFx.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.naval.NavalFxClient.received(payload));
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.training.StationCeremony.DropPayload.TYPE,
@@ -180,6 +184,7 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.medical.TreatmentClient.tick(minecraft);
 			life.shizune.mistinn.client.medical.TreatmentSounds.tick(minecraft);
 			life.shizune.mistinn.client.music.KeeperMusic.tick(minecraft);
+			life.shizune.mistinn.client.naval.NavalClient.tick(minecraft);
 			ExecutionView.tick(minecraft);
 			life.shizune.mistinn.client.death.DeathScene.tick(minecraft);
 			life.shizune.mistinn.client.mist.ShoreMistClient.tick(minecraft);

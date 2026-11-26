@@ -8,7 +8,9 @@ import life.shizune.mistinn.naval.CannonShot;
 import life.shizune.mistinn.naval.FlintlockItem;
 import life.shizune.mistinn.naval.GunShot;
 import life.shizune.mistinn.naval.NavalService;
+import life.shizune.mistinn.client.naval.NavalIntro;
 import life.shizune.mistinn.naval.Pirate;
+import life.shizune.mistinn.naval.SailingShip;
 import life.shizune.mistinn.naval.PirateRole;
 import life.shizune.mistinn.naval.ShipFrame;
 import life.shizune.mistinn.naval.ShipPlan;
@@ -72,6 +74,7 @@ public final class MistinnNavalTest implements FabricClientGameTest {
 			theGunsFireWhileAGunnerLives(context, world);
 			world.getServer().runOnServer(MistinnNavalTest::aShotIsDecidedOnItsLine);
 			theCaptainsFallTakesTheShip(context, world);
+			aShipCutOffUnderSailStillComes(context, world);
 		} finally {
 			NavalService.certain = false;
 			NavalService.seaTime = NavalService.SEA_TIME;
@@ -185,15 +188,43 @@ public final class MistinnNavalTest implements FabricClientGameTest {
 			NavalService.certain = true;
 		});
 		context.waitTicks(80);
+		// the ship is first seen sailing in out of the fog, and its entrance plays
 		world.getServer().runOnServer(server -> {
 			NavalService.certain = false;
-			ServerLevel level = server.overworld();
 			List<NavalService.Ship> ships = NavalService.sea(server).ships();
 			check(ships.size() == 1, "one ship came: " + ships.size());
-			NavalService.Ship ship = ships.getFirst();
-			shipId = ship.id();
+			shipId = ships.getFirst().id();
+			check(ships.getFirst().state() == NavalService.ARRIVING, "it is still sailing in: " + ships.getFirst().state());
+			check(!server.overworld().getEntitiesOfClass(SailingShip.class, ships.getFirst().frame().box().inflate(120.0)).isEmpty(),
+				"under sail, out in the fog");
+			check(server.overworld().getEntitiesOfClass(Pirate.class, ships.getFirst().frame().box().inflate(24.0)).isEmpty(),
+				"no crew before it heaves to");
+		});
+		check(context.computeOnClient(mc -> NavalIntro.current() != null), "the hunter sees its entrance");
+		context.waitTicks(40);
+		context.takeScreenshot("mistinn-pirate-entrance-fog");
+		context.waitTicks(60);
+		context.takeScreenshot("mistinn-pirate-entrance-title");
+		boolean arrived = false;
+		for (int i = 0; i < 80 && !arrived; i++) {
+			context.waitTicks(5);
+			arrived = world.getServer().computeOnServer(server -> NavalService.ship(server, shipId).state() == NavalService.ACTIVE);
+		}
+		check(arrived, "the ship heaves to");
+		check(context.computeOnClient(mc -> NavalIntro.current() == null), "and the entrance is over");
+		boolean warned = false;
+		for (int i = 0; i < 12 && !warned; i++) {
+			warned = world.getServer().computeOnServer(server -> !server.overworld().getEntitiesOfClass(CannonShot.class,
+				NavalService.ship(server, shipId).frame().box().inflate(64.0)).isEmpty());
+			context.waitTicks(2);
+		}
+		check(warned, "a warning shot is fired as it heaves to");
+		world.getServer().runOnServer(server -> {
+			ServerLevel level = server.overworld();
+			NavalService.Ship ship = NavalService.ship(server, shipId);
 			ShipFrame frame = ship.frame();
 			ServerPlayer player = player(server);
+			check(level.getEntitiesOfClass(SailingShip.class, frame.box().inflate(120.0)).isEmpty(), "the ship under sail gave way to the real one");
 			double distance = frame.middle().distanceTo(player.position());
 			check(distance > 25.0 && distance < 60.0, "a stone's throw off: " + distance);
 			check(level.getBlockEntity(frame.world(ShipPlan.CHEST)) instanceof ChestBlockEntity, "the captain's chest is in the cabin");
@@ -302,6 +333,23 @@ public final class MistinnNavalTest implements FabricClientGameTest {
 			var saved = NavalService.Sea.CODEC.encodeStart(JsonOps.INSTANCE, NavalService.sea(server)).getOrThrow();
 			NavalService.Sea back = NavalService.Sea.CODEC.parse(JsonOps.INSTANCE, saved).getOrThrow();
 			check(back.equals(NavalService.sea(server)), "the fog sea's ships are saved as they are");
+		});
+	}
+
+	/** A world closed while a ship sails in: the ship under sail is gone, and the ship is put where it was going. */
+	private static void aShipCutOffUnderSailStillComes(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		int second = world.getServer().computeOnServer(server -> {
+			NavalService.Ship ship = NavalService.encounter(server.overworld(), player(server));
+			check(ship != null && ship.state() == NavalService.ARRIVING, "a second ship comes");
+			server.overworld().getEntitiesOfClass(SailingShip.class, ship.frame().box().inflate(160.0)).forEach(net.minecraft.world.entity.Entity::discard);
+			return ship.id();
+		});
+		context.runOnClient(mc -> mc.gui.setScreen(null));
+		context.waitTicks(10);
+		world.getServer().runOnServer(server -> {
+			NavalService.Ship ship = NavalService.ship(server, second);
+			check(ship.state() == NavalService.ACTIVE && ship.captain().isPresent(), "the ship cut off under sail is where it was going: " + ship.state());
+			check(server.overworld().getBlockState(ship.frame().world(ShipPlan.CHEST)).is(Blocks.CHEST), "blocks and all");
 		});
 	}
 
