@@ -12,19 +12,24 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.commands.FillBiomeCommand;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 
 /**
  * Pirates landing by night: a hunter on the shore after dark is raided by a party rowed in from the
- * sea, boat and all; beating them holds the shore (and a gunshot makes a sharpshooter); at dawn what
- * is left of a party goes back to the sea; a raider from a raid the world forgot does too.
+ * sea, boat and all; a gunshot makes a sharpshooter; at dawn what is left of a party goes back to the
+ * sea, and one only partly beaten holds nothing; one beaten wholly holds the shore; a raider from a
+ * raid the world forgot goes back too; a river bank or a deck is no shore for a landing.
  */
 @SuppressWarnings("UnstableApiUsage")
 public final class MistinnRaidTest implements FabricClientGameTest {
@@ -78,24 +83,29 @@ public final class MistinnRaidTest implements FabricClientGameTest {
 				GunShot.fire(level, player, first.getEyePosition().add(0.0, 0.0, -2.0), first.getBoundingBox().getCenter(), 1000.0F, 0.0, 10.0);
 				check(!first.isAlive(), "a shot brings the first down");
 				check(AchievementService.has(player, AchievementService.SHARPSHOOTER), "a sharpshooter");
-				for (Pirate pirate : party.subList(1, party.size())) {
-					pirate.hurtServer(level, level.damageSources().playerAttack(player), 1000.0F);
-				}
 			});
-			context.waitTicks(40);
-			world.getServer().runOnServer(server -> check(AchievementService.has(player(server), AchievementService.SHORE_HELD), "the shore is held"));
-			// another party, and the sun comes up on it: what is left goes back to the sea
-			world.getServer().runOnServer(server -> {
-				ServerPlayer player = player(server);
-				player.removeAttached(RaidService.NEXT);
-				check(RaidService.land(server.overworld(), player) >= 0, "a second party lands");
-			});
-			context.waitTicks(10);
+			// the sun comes up on the rest: they go back to the sea, and one down of three holds nothing
 			world.getServer().runCommand("time set day");
 			context.waitTicks(40);
 			check(world.getServer().computeOnServer(server -> raiders(server).stream().allMatch(Pirate::fleeing)), "at dawn they give up");
 			context.waitTicks(240);
 			check(world.getServer().computeOnServer(server -> raiders(server).isEmpty()), "and are gone back to the sea");
+			check(world.getServer().computeOnServer(server -> !AchievementService.has(player(server), AchievementService.SHORE_HELD)),
+				"two of three got away: the shore was not held");
+			// another night, another party, and every one of it brought down: the shore is held
+			world.getServer().runCommand("time set midnight");
+			context.waitTicks(5);
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				ServerPlayer player = player(server);
+				player.removeAttached(RaidService.NEXT);
+				check(RaidService.land(level, player) >= 0, "a second party lands");
+				for (Pirate pirate : raiders(server)) {
+					pirate.hurtServer(level, level.damageSources().playerAttack(player), 1000.0F);
+				}
+			});
+			context.waitTicks(40);
+			world.getServer().runOnServer(server -> check(AchievementService.has(player(server), AchievementService.SHORE_HELD), "the shore is held"));
 			// a raider whose raid the world has forgotten (closed mid-raid) goes too
 			world.getServer().runOnServer(server -> {
 				ServerLevel level = server.overworld();
@@ -108,6 +118,35 @@ public final class MistinnRaidTest implements FabricClientGameTest {
 			});
 			context.waitTicks(10);
 			check(world.getServer().computeOnServer(server -> raiders(server).stream().allMatch(Pirate::fleeing)), "a raider from a forgotten raid gives up");
+			// the same shore made a river's, and then the open sea's: no landing either way
+			world.getServer().runCommand("gamerule max_block_modifications 1000000");
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				ServerPlayer player = player(server);
+				player.removeAttached(RaidService.NEXT);
+				check(RaidService.eligible(level, player), "the beach is still a beach");
+				BlockPos at = player.blockPosition();
+				BlockPos from = new BlockPos(at.getX() - 48, level.getSeaLevel() - 8, at.getZ() - 48);
+				BlockPos to = new BlockPos(at.getX() + 48, level.getSeaLevel() + 12, at.getZ() + 48);
+				check(FillBiomeCommand.fill(level, from, to, level.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.RIVER)).left().isPresent(),
+					"the shore made a river's");
+				check(!RaidService.eligible(level, player), "a river bank far from the sea is no shore for pirates");
+				check(FillBiomeCommand.fill(level, from, to, level.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.OCEAN)).left().isPresent(),
+					"and the sea's again");
+				check(RaidService.eligible(level, player), "by the sea it is a shore again");
+				// every dry place in reach made woodwork: a deck or a pier is no shore for a landing
+				for (int dx = -40; dx <= 40; dx++) {
+					for (int dz = -40; dz <= 40; dz++) {
+						int x = at.getX() + dx;
+						int z = at.getZ() + dz;
+						BlockPos top = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z) - 1, z);
+						if (level.getFluidState(top).isEmpty() && !level.getBlockState(top).isAir()) {
+							level.setBlock(top, Blocks.DARK_OAK_PLANKS.defaultBlockState(), 2);
+						}
+					}
+				}
+				check(!RaidService.eligible(level, player), "nor is a deck or a pier");
+			});
 		} finally {
 			RaidService.certain = false;
 		}
