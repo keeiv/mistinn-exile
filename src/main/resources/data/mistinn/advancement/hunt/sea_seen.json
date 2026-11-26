@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/elder_slain",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": true,
+		"description": {
+			"translate": "achievement.mistinn.sea_seen.desc"
+		},
+		"icon": {
+			"id": "minecraft:heart_of_the_sea"
+		},
+		"title": {
+			"translate": "achievement.mistinn.sea_seen"
+		},
+		"frame": "challenge"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

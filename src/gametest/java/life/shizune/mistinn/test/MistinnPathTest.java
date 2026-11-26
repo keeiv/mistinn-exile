@@ -102,6 +102,35 @@ public final class MistinnPathTest implements FabricClientGameTest {
 			check(context.computeOnClient(mc -> mc.player.getAttached(PathService.VIEW).fallen() == 1), "the panel counts the fallen");
 			context.takeScreenshot("path-fallen");
 
+			// the way comes to the sea: out past the highland, on a beach
+			int[] shore = new int[3];
+			world.getServer().runOnServer(server -> {
+				PathService.Line line = PathService.line(server);
+				server.overworld().setAttached(PathService.LINE,
+					new PathService.Line(line.domain(), line.fallen(), line.walker(), PathService.Step.SEA.ordinal(), line.tide()));
+				life.shizune.mistinn.domain.Domain home = life.shizune.mistinn.domain.DomainService.get(server, line.domain());
+				shore[0] = home.centre().getX() + home.radius() + PathService.BEYOND + 60;
+				shore[1] = home.centre().getZ();
+				server.overworld().getChunk(shore[0] >> 4, shore[1] >> 4);
+				shore[2] = server.overworld().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, shore[0], shore[1]);
+			});
+			world.getServer().runCommand("tp @a " + shore[0] + " " + shore[2] + " " + shore[1]);
+			world.getConnection().waitForChunksRender();
+			context.waitTicks(30);
+			check(stage(world) == PathService.Step.SEA, "far out on plain ground is not the sea yet");
+			world.getServer().runCommand("fillbiome " + (shore[0] - 8) + " " + (shore[2] - 2) + " " + (shore[1] - 8) + " "
+				+ (shore[0] + 8) + " " + (shore[2] + 8) + " " + (shore[1] + 8) + " minecraft:beach");
+			context.waitTicks(30);
+			check(stage(world) == PathService.Step.ENDED, "a beach past the highland ends the way: " + stage(world));
+			check(world.getServer().computeOnServer(server -> life.shizune.mistinn.achievement.AchievementService.has(player(server),
+				life.shizune.mistinn.achievement.Achievement.SEA_SEEN)), "and the sea is remembered");
+			context.waitFor(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.path.PathEndScreen end && end.sea(), 300);
+			context.waitTicks(130);
+			context.takeScreenshot("path-sea-end");
+			context.runOnClient(mc -> ((life.shizune.mistinn.client.path.PathEndScreen) mc.gui.screen()).advance());
+			context.waitTicks(2);
+			check(context.computeOnClient(mc -> mc.gui.screen() == null), "the end closes once all of it has come up");
+
 			// eleven down, the last falls: the way is cut
 			world.getServer().runOnServer(server -> {
 				PathService.Line line = PathService.line(server);
@@ -110,7 +139,7 @@ public final class MistinnPathTest implements FabricClientGameTest {
 					eleven.add(i);
 				}
 				server.overworld().setAttached(PathService.LINE,
-					new PathService.Line(line.domain(), List.copyOf(eleven), PathService.PEOPLE - 1, line.step(), line.tide()));
+					new PathService.Line(line.domain(), List.copyOf(eleven), PathService.PEOPLE - 1, PathService.Step.LIGHT.ordinal(), line.tide()));
 			});
 			die(context, world);
 			world.getServer().runOnServer(server -> {
@@ -118,8 +147,9 @@ public final class MistinnPathTest implements FabricClientGameTest {
 				check(line.stage() == PathService.Step.CUT && line.fallen().size() == PathService.PEOPLE, "the twelfth falls and the way is cut: " + line);
 				check(player(server).gameMode() == GameType.SPECTATOR, "the world can only be watched");
 			});
-			context.waitTicks(20);
-			context.takeScreenshot("path-cut");
+			context.waitFor(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.path.PathEndScreen end && !end.sea(), 300);
+			context.waitTicks(250);
+			context.takeScreenshot("path-cut-end");
 		}
 	}
 

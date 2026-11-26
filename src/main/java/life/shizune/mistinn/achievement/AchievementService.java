@@ -73,6 +73,8 @@ public final class AchievementService {
 	/** The story ended: the salt sent up (錨), or thrown into the Mist Inn's fire (霧宿). */
 	public static final String ENDING_ANCHOR = "ending_anchor";
 	public static final String ENDING_INN = "ending_inn";
+	/** The path of longing walked to the sea. */
+	public static final String SEA_SEEN = "sea_seen";
 	/** 鹽商: salt carried at once. */
 	public static final int RICH = 5000;
 	/** 百兵: one mark per weapon branch a creature was brought down with; each is a criterion of that advancement. */

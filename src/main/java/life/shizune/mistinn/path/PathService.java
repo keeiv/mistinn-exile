@@ -27,13 +27,16 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
@@ -137,6 +140,19 @@ public final class PathService {
 		}
 	}
 
+	/** The way's end, for a hunter's screen: seen (the sea) or cut, the fallen in the order they fell, and the one who walked it last. */
+	public record EndPayload(boolean sea, List<Integer> fallen, int walker) implements CustomPacketPayload {
+		public static final Type<EndPayload> TYPE = new Type<>(Mistinn.id("path_end"));
+		public static final StreamCodec<io.netty.buffer.ByteBuf, EndPayload> CODEC = StreamCodec.composite(
+			ByteBufCodecs.BOOL, EndPayload::sea, ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list()), EndPayload::fallen, ByteBufCodecs.VAR_INT, EndPayload::walker,
+			EndPayload::new);
+
+		@Override
+		public Type<? extends CustomPacketPayload> type() {
+			return TYPE;
+		}
+	}
+
 	public static final AttachmentType<Line> LINE = AttachmentRegistry.<Line>builder()
 		.persistent(Line.CODEC)
 		.buildAndRegister(Mistinn.id("path_line"));
@@ -153,6 +169,7 @@ public final class PathService {
 	}
 
 	public static void register() {
+		PayloadTypeRegistry.clientboundPlay().register(EndPayload.TYPE, EndPayload.CODEC);
 		ServerLifecycleEvents.SERVER_STARTED.register(PathService::begin);
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> joined(handler.getPlayer()));
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
@@ -411,6 +428,7 @@ public final class PathService {
 				each.connection.send(new ClientboundSetTitleTextPacket(Component.translatable("path.mistinn.cut")));
 				each.connection.send(new ClientboundSetSubtitleTextPacket(Component.translatable("path.mistinn.cut.sub", lost)));
 				each.sendSystemMessage(roll(cut).withStyle(ChatFormatting.GRAY));
+				ServerPlayNetworking.send(each, new EndPayload(false, cut.fallen(), cut.walker()));
 			}
 			return;
 		}
@@ -439,6 +457,10 @@ public final class PathService {
 			player.sendSystemMessage(roll(line).withStyle(ChatFormatting.GRAY));
 		}
 		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.0F, 0.7F);
+		if (!player.isSpectator()) {
+			AchievementService.grant(player, Achievement.SEA_SEEN);
+		}
+		ServerPlayNetworking.send(player, new EndPayload(true, line.fallen(), line.walker()));
 	}
 
 	/** The names of those who fell on the way, in the order they fell. */
