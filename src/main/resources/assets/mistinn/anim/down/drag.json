@@ -1,0 +1,11 @@
+{
+	"_comment": "拖人: the rescuer bent forward (the crouch) pulling with the left hand reached back and down to the dragged hunter's raised hand, the right (the weapon hand) swinging with the walk. Laid over the walking pose by DragPose.",
+	"keys": [0.0, 1.0],
+	"eases": ["linear"],
+	"limbs": {
+		"left_arm_x": [60, 60],
+		"left_arm_z": [-6, -6],
+		"right_arm_x": [-20, -20],
+		"right_arm_z": [6, 6]
+	}
+}

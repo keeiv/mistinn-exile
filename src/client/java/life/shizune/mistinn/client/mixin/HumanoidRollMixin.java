@@ -30,7 +30,7 @@ public abstract class HumanoidRollMixin {
 			ExecutionView.limbs(execution, model);
 			return;
 		}
-		Float down = state.getData(life.shizune.mistinn.client.team.DownPose.KEY);
+		life.shizune.mistinn.client.team.DownPose.State down = state.getData(life.shizune.mistinn.client.team.DownPose.KEY);
 		if (down != null && state.getData(DeathScene.KEY) == null) {
 			life.shizune.mistinn.client.team.DownPose.limbs(down, model);
 			return;
@@ -47,6 +47,10 @@ public abstract class HumanoidRollMixin {
 				model.head.xRot += shake * 0.5F;
 			}
 			model.head.yRot = clip.has("limbs.head_y") ? model.head.yRot : 0.0F;
+			return;
+		}
+		if (state.getData(life.shizune.mistinn.client.team.DragPose.KEY) != null) {
+			life.shizune.mistinn.client.team.DragPose.limbs(state, model);
 			return;
 		}
 		RollClient.Pose roll = state.getData(RollClient.KEY);
