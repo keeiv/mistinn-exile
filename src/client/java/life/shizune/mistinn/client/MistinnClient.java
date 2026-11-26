@@ -55,8 +55,15 @@ public class MistinnClient implements ClientModInitializer {
 			new KeyMapping("key.mistinn.guide", InputConstants.KEY_B, CATEGORY)
 		);
 		KeyMapping zoom = KeyMappingHelper.registerKeyMapping(
-			new KeyMapping("key.mistinn.minimap_zoom", InputConstants.KEY_M, CATEGORY)
+			new KeyMapping("key.mistinn.minimap_zoom", InputConstants.KEY_N, CATEGORY)
 		);
+		// the hunter's map: the land seen, the homesteads, and the way home
+		KeyMapping map = KeyMappingHelper.registerKeyMapping(
+			new KeyMapping("key.mistinn.map", InputConstants.KEY_M, CATEGORY)
+		);
+		net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents.CHUNK_LOAD.register((level, chunk) ->
+			life.shizune.mistinn.client.worldmap.ExploredMap.arrived(level, chunk.getPos()));
+		ClientTickEvents.END_CLIENT_TICK.register(life.shizune.mistinn.client.worldmap.ExploredMap::tick);
 		KeyMapping roll = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.roll", InputConstants.KEY_LALT, CATEGORY)
 		);
@@ -236,6 +243,11 @@ public class MistinnClient implements ClientModInitializer {
 				if (minecraft.player != null) {
 					minecraft.player.sendOverlayMessage(Component.translatable(life.shizune.mistinn.client.anim.CameraSwing.enabled() ? "message.mistinn.swing_camera.on"
 						: "message.mistinn.swing_camera.off"));
+				}
+			}
+			while (map.consumeClick()) {
+				if (minecraft.level != null && minecraft.gui.screen() == null) {
+					minecraft.gui.setScreen(new life.shizune.mistinn.client.worldmap.ExploredMapScreen());
 				}
 			}
 			while (zoom.consumeClick()) {

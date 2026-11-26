@@ -99,7 +99,7 @@ public final class MinimapTexture {
 		return playerY - 1;
 	}
 
-	private static int colour(final ClientLevel level, final BlockPos pos, final int y, final int northY) {
+	public static int colour(final ClientLevel level, final BlockPos pos, final int y, final int northY) {
 		BlockState state = level.getBlockState(pos);
 		MapColor mapColor = state.getMapColor(level, pos);
 		if (mapColor == MapColor.NONE) {
