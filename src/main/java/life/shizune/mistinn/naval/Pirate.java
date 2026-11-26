@@ -79,6 +79,8 @@ public class Pirate extends Monster implements Voiced {
 	/** Ticks since it went over the side (counting up from minus its wait), or {@link #STAYING}. */
 	private int fleeing = STAYING;
 	private boolean rallied;
+	/** The landing party it came ashore with, or -1. */
+	private int raid = -1;
 
 	public Pirate(final EntityType<? extends Pirate> type, final Level level) {
 		super(type, level);
@@ -138,6 +140,15 @@ public class Pirate extends Monster implements Voiced {
 		return this.post;
 	}
 
+	/** Marks this one as one of a landing party. */
+	public void raid(final int id) {
+		this.raid = id;
+	}
+
+	public int raidId() {
+		return this.raid;
+	}
+
 	public boolean fleeing() {
 		return this.fleeing != STAYING;
 	}
@@ -192,6 +203,11 @@ public class Pirate extends Monster implements Voiced {
 			this.flee(level);
 			return;
 		}
+		if (this.raid >= 0 && !RaidService.known(this.raid)) {
+			// a landing party the world has forgotten (it was closed mid-raid): back to the sea
+			this.abandon(20);
+			return;
+		}
 		if (this.role() == PirateRole.CAPTAIN && !this.rallied && this.getHealth() <= this.getMaxHealth() / 2.0F) {
 			this.rally(level);
 		}
@@ -222,7 +238,8 @@ public class Pirate extends Monster implements Voiced {
 		}
 		if (this.fleeing == 0) {
 			// over the side: away from the middle of the ship, and up over the rail
-			Vec3 away = this.position().subtract(NavalService.middle(this.ship, this.position())).multiply(1.0, 0.0, 1.0);
+			Vec3 from = NavalService.frame(this.ship) != null ? NavalService.middle(this.ship, this.position()) : this.awayFrom(level);
+			Vec3 away = this.position().subtract(from).multiply(1.0, 0.0, 1.0);
 			Vec3 push = away.lengthSqr() < 1.0E-4 ? Vec3.directionFromRotation(0.0F, this.getYRot()) : away.normalize();
 			this.setDeltaMovement(push.x * 0.55, 0.62, push.z * 0.55);
 			this.needsSync = true;
@@ -235,9 +252,18 @@ public class Pirate extends Monster implements Voiced {
 		}
 	}
 
+	/** Off a ship, what it flees from: the nearest hunter. */
+	private Vec3 awayFrom(final ServerLevel level) {
+		Player nearest = level.getNearestPlayer(this, 48.0);
+		return nearest != null ? nearest.position() : this.position().subtract(Vec3.directionFromRotation(0.0F, this.getYRot()));
+	}
+
 	@Override
 	public void die(final DamageSource source) {
 		super.die(source);
+		if (this.raid >= 0 && (source.getEntity() instanceof Player || this.getLastHurtByPlayer() != null)) {
+			RaidService.fell(this.raid);
+		}
 		if (this.level() instanceof ServerLevel level && this.role() == PirateRole.CAPTAIN) {
 			NavalService.captainFell(level, this);
 		}
@@ -299,6 +325,7 @@ public class Pirate extends Monster implements Voiced {
 		output.putInt("ship", this.ship);
 		output.putInt("notoriety", this.notoriety);
 		output.putBoolean("rallied", this.rallied);
+		output.putInt("raid", this.raid);
 		if (this.post != null) {
 			output.putLong("post", this.post.asLong());
 		}
@@ -312,6 +339,7 @@ public class Pirate extends Monster implements Voiced {
 		this.ship = input.getIntOr("ship", -1);
 		this.notoriety = input.getIntOr("notoriety", 0);
 		this.rallied = input.getBooleanOr("rallied", false);
+		this.raid = input.getIntOr("raid", -1);
 		long post = input.getLongOr("post", Long.MIN_VALUE);
 		this.post = post == Long.MIN_VALUE ? null : BlockPos.of(post);
 	}

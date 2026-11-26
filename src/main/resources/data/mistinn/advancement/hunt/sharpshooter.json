@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/first_kill",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.sharpshooter.desc"
+		},
+		"icon": {
+			"id": "mistinn:flintlock"
+		},
+		"title": {
+			"translate": "achievement.mistinn.sharpshooter"
+		},
+		"frame": "task"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

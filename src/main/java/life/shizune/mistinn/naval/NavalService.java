@@ -688,8 +688,12 @@ public final class NavalService {
 			delay += 6 + level.getRandom().nextInt(10);
 		}
 		if (state == TAKEN) {
+			boolean third = sea(server).taken() >= 3;
 			for (ServerPlayer hunter : hunters) {
 				life.shizune.mistinn.achievement.AchievementService.grant(hunter, life.shizune.mistinn.achievement.AchievementService.PIRATE_SHIP);
+				if (third) {
+					life.shizune.mistinn.achievement.AchievementService.grant(hunter, life.shizune.mistinn.achievement.AchievementService.FLEET_BREAKER);
+				}
 				hunter.sendSystemMessage(Component.translatable("message.mistinn.naval.taken", ship.shipName()));
 				level.playSound(null, hunter.getX(), hunter.getY(), hunter.getZ(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 0.8F, 1.0F);
 			}

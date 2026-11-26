@@ -64,7 +64,7 @@ fabricApi {
 	}
 }
 
-// Single test (-PonlyTest=<ClassName>): the client game test runs only that test class.
+// Chosen tests (-PonlyTest=<ClassName>[,<ClassName>...]): the client game test runs only those classes.
 if (project.hasProperty("onlyTest")) {
 	loom.runs.configureEach {
 		if (name == "clientGameTest") {
