@@ -7,6 +7,7 @@ import java.util.WeakHashMap;
 import life.shizune.mistinn.body.BodyPart;
 import life.shizune.mistinn.body.BodyService;
 import life.shizune.mistinn.body.WoundService;
+import life.shizune.mistinn.terra.CrystalLizard;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -75,7 +76,7 @@ public final class NoiseService {
 
 	/** Whether this creature hunts by ear: hostile, not merely provoked, steered by goals, not a boss. */
 	public static boolean listens(final Mob mob) {
-		return mob instanceof Enemy && !(mob instanceof NeutralMob) && mob instanceof PathfinderMob
+		return mob instanceof Enemy && !CrystalLizard.companion(mob) && !(mob instanceof NeutralMob) && mob instanceof PathfinderMob
 			&& !(mob instanceof life.shizune.mistinn.keeper.Keeper) && !(mob instanceof WitherBoss) && !(mob instanceof EnderDragon)
 			&& !mob.getGoalSelector().getAvailableGoals().isEmpty();
 	}

@@ -15,6 +15,7 @@ import life.shizune.mistinn.medical.TreatmentService;
 import life.shizune.mistinn.registry.MistinnSounds;
 import life.shizune.mistinn.stamina.RollService;
 import life.shizune.mistinn.stamina.StaminaService;
+import life.shizune.mistinn.terra.CrystalLizard;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -128,7 +129,7 @@ public final class SlideService {
 		double az = Mth.cos(rad) * 0.6;
 		AABB feet = player.getBoundingBox();
 		AABB reach = new AABB(feet.minX, feet.minY, feet.minZ, feet.maxX, feet.minY + 1.0, feet.maxZ).expandTowards(ax, 0.0, az).inflate(0.25, 0.0, 0.25);
-		for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, reach, e -> e instanceof Enemy && e.isAlive() && e != player)) {
+		for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, reach, e -> e instanceof Enemy && !CrystalLizard.companion(e) && e.isAlive() && e != player)) {
 			if (!slide.struck().add(target.getId())) {
 				continue;
 			}
