@@ -75,6 +75,14 @@
         }
       },
       "modifier": "overlay"
+    },
+    "minecraft:audio/background_music": {
+      "default": {
+        "sound": "mistinn:music.rift_scar",
+        "min_delay": 2400,
+        "max_delay": 9600,
+        "replace_current_music": true
+      }
     }
   },
   "carvers": [],

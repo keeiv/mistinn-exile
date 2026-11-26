@@ -775,6 +775,43 @@
       }
     ]
   },
+  "music.terra": {
+    "sounds": [
+      {
+        "name": "mistinn:music/terra",
+        "stream": true
+      }
+    ]
+  },
+  "music.rift": {
+    "sounds": [
+      {
+        "name": "mistinn:music/rift",
+        "stream": true
+      }
+    ]
+  },
+  "music.rift_scar": {
+    "sounds": [
+      {
+        "name": "mistinn:music/rift_scar",
+        "stream": true
+      }
+    ]
+  },
+  "ambient.terra.loop": {
+    "subtitle": "subtitles.mistinn.ambient.terra.loop",
+    "sounds": [
+      {
+        "name": "mistinn:ambient/terra_loop",
+        "stream": true
+      }
+    ]
+  },
+  "ambient.terra.additions": {
+    "subtitle": "subtitles.mistinn.ambient.terra.additions",
+    "sounds": ["mistinn:ambient/terra_chime_1", "mistinn:ambient/terra_chime_2", "mistinn:ambient/terra_chime_3", "mistinn:ambient/terra_chime_4"]
+  },
   "music.keeper_dark": {
     "sounds": [
       {

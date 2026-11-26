@@ -195,6 +195,13 @@ public final class MistinnSounds {
 	public static final SoundEvent MUSIC_KEEPER_DARK = register("music.keeper_dark");
 	/** The sea fight: drums, low strings and brass, from the ship's first sighting to the last pirate gone. */
 	public static final SoundEvent MUSIC_NAVAL = register("music.naval");
+	/** The ecosystems: the Terra highlands' music, an open sky rift's, and the scar a sealed one leaves. */
+	public static final SoundEvent MUSIC_TERRA = register("music.terra");
+	public static final SoundEvent MUSIC_RIFT = register("music.rift");
+	public static final SoundEvent MUSIC_RIFT_SCAR = register("music.rift_scar");
+	/** The highland air, and crystal touching crystal somewhere near. */
+	public static final SoundEvent AMBIENT_TERRA_LOOP = register("ambient.terra.loop");
+	public static final SoundEvent AMBIENT_TERRA_ADDITIONS = register("ambient.terra.additions");
 
 	private MistinnSounds() {
 	}
