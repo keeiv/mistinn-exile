@@ -120,6 +120,12 @@ public final class MistinnCrystalSquallTest implements FabricClientGameTest {
 						|| e.getItem().is(MistinnItems.LATTICE_CHIP)).isEmpty());
 			}
 			check(fell, "flakes of the lattice come down round the hunter");
+			world.getServer().runOnServer(server -> {
+				life.shizune.mistinn.terra.CrystalDrake drake = life.shizune.mistinn.registry.MistinnEntities.CRYSTAL_DRAKE.spawn(server.overworld(),
+					player(server).blockPosition().offset(6, 10, 0), net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+				check(drake.inSquall(), "the drakes of the highland know the squall is on them");
+				drake.discard();
+			});
 			check(context.computeOnClient(mc -> SquallClient.haze() > 0.5F), "and the haze is thick");
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = player(server);
