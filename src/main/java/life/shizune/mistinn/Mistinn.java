@@ -77,6 +77,7 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.team.DownService.register();
 		life.shizune.mistinn.team.MarkerService.register();
 		life.shizune.mistinn.grid.QuickUse.register();
+		life.shizune.mistinn.medical.StarterKit.register();
 
 		// A fallen hunter leaves their salt as residue; a defeated creature gives salt.
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
@@ -107,6 +108,8 @@ public class Mistinn implements ModInitializer {
 			GridService.applyWeight(player);
 			// the worn mask, backpack and rig tiers are not saved on their own: show them again from the grid
 			GridService.showWorn(player, GridService.get(player));
+			// no bag in a bag: an old save's are taken out
+			GridService.unnest(player);
 			// part penalties are transient attribute modifiers: put them back on every join
 			BodyService.applyPenalties(player, BodyService.get(player));
 			if (life.shizune.mistinn.hardship.Hardship.rustAnchor(player)) {

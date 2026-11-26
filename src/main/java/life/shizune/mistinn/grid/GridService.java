@@ -14,6 +14,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Prediction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -147,6 +148,46 @@ public final class GridService {
 		cue(player, GridSounds.place(carried));
 	}
 
+	/**
+	 * Takes every backpack and chest rig out of the grid: from before bags could not hold bags, an old
+	 * save may still keep one in the pockets, the safe box or a worn bag. They go to the hotbar, or at
+	 * the hunter's feet. Returns how many were taken out.
+	 */
+	public static int unnest(final ServerPlayer player) {
+		GridInventory inv = get(player);
+		List<ItemStack> out = new ArrayList<>();
+		for (Area area : Area.values()) {
+			List<Placed> items = inv.items(area);
+			List<Placed> kept = new ArrayList<>();
+			for (Placed placed : items) {
+				if (GridLogic.canStore(placed.stack())) {
+					kept.add(placed);
+				} else {
+					out.add(placed.stack().copy());
+				}
+			}
+			if (kept.size() != items.size()) {
+				inv = inv.with(area, kept);
+			}
+		}
+		if (out.isEmpty()) {
+			return 0;
+		}
+		set(player, inv);
+		Inventory inventory = player.getInventory();
+		for (ItemStack bag : out) {
+			int free = inventory.getFreeSlot();
+			if (free >= 0) {
+				inventory.setItem(free, bag);
+			} else {
+				player.drop(bag, false, Prediction.SERVER_ONLY);
+			}
+		}
+		player.containerMenu.broadcastChanges();
+		player.sendSystemMessage(Component.translatable("message.mistinn.grid.unnested", out.size()));
+		return out.size();
+	}
+
 	/** Clicking the backpack slot: equip the backpack on the cursor, or take the worn one off. */
 	public static void backpackSlot(final ServerPlayer player) {
 		AbstractContainerMenu menu = player.containerMenu;
@@ -165,6 +206,8 @@ public final class GridService {
 		menu.broadcastChanges();
 		gear(player, MistinnSounds.EQUIP_BACKPACK);
 		applyWeight(player);
+		// a bag from an old save may hold another
+		unnest(player);
 	}
 
 	/** Clicking the rig slot: wear the rig on the cursor, or take the worn one off. */
@@ -184,6 +227,7 @@ public final class GridService {
 		menu.setCarried(worn.copy());
 		menu.broadcastChanges();
 		gear(player, MistinnSounds.EQUIP_RIG);
+		unnest(player);
 	}
 
 	/** Clicking the mask slot: put on the mask on the cursor, or take the worn one off. */

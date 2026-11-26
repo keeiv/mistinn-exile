@@ -263,6 +263,8 @@ public final class ResidueService {
 				player.drop(stack, false, net.minecraft.util.Prediction.SERVER_ONLY);
 			}
 		}
+		// a gravestone from before bags could not hold bags may give one back inside another
+		GridService.unnest(player);
 		player.containerMenu.broadcastChanges();
 		return items.size();
 	}
