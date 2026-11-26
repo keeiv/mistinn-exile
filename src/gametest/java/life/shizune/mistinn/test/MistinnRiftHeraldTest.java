@@ -1,8 +1,10 @@
 package life.shizune.mistinn.test;
 
+import java.util.List;
 import java.util.Set;
 import life.shizune.mistinn.registry.MistinnEntities;
 import life.shizune.mistinn.rift.RiftHerald;
+import life.shizune.mistinn.rift.RiftHound;
 import life.shizune.mistinn.rift.RiftWalker;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -77,6 +79,7 @@ public final class MistinnRiftHeraldTest implements FabricClientGameTest {
 			}
 			check(dragged, "the herald drags the hunter in, and shows it");
 			check(marked, "the herald calls the rift down, and shows it");
+			wrath(context, world, herald[0]);
 
 			// the walker, held still for its picture
 			photo(context, world, walker[0], 2.6, 0.9, "walker");
@@ -103,6 +106,72 @@ public final class MistinnRiftHeraldTest implements FabricClientGameTest {
 		context.waitTicks(6);
 		context.takeScreenshot(TestScreenshotOptions.of(name).disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("rift")));
 		world.getServer().runOnServer(server -> subject.setNoAi(false));
+	}
+
+	/** Below half: a roar that throws the hunter back, a line of strikes out to them, and a step through the rift to come out behind them. */
+	private static void wrath(final ClientGameTestContext context, final TestSingleplayerContext world, final RiftHerald herald) {
+		world.getServer().runOnServer(server -> {
+			ServerLevel level = server.overworld();
+			ServerPlayer player = player(server);
+			// open, level ground round them both
+			BlockPos floor = player.blockPosition().below();
+			for (int x = -20; x <= 20; x++) {
+				for (int z = -20; z <= 20; z++) {
+					for (int y = 0; y <= 6; y++) {
+						level.setBlockAndUpdate(floor.offset(x, y, z), (y == 0 ? net.minecraft.world.level.block.Blocks.STONE
+							: net.minecraft.world.level.block.Blocks.AIR).defaultBlockState());
+					}
+				}
+			}
+			player.teleportTo(level, floor.getX() + 0.5, floor.getY() + 1.0, floor.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
+			herald.teleportTo(floor.getX() + 3.5, floor.getY() + 1.0, floor.getZ() + 0.5);
+			herald.setTarget(player);
+			check(!herald.wrathful(), "not yet in its wrath");
+			herald.setHealth(herald.getMaxHealth() * 0.4F);
+		});
+		context.waitTicks(12);
+		world.getServer().runOnServer(server -> {
+			check(herald.wrathful(), "below half, its wrath comes on it");
+			// the throw reaches the hunter's own client, which moves them
+			check(player(server).distanceTo(herald) > 4.5F, "and the roar throws the hunter back: " + player(server).distanceTo(herald));
+		});
+
+		// a line of strikes out to the hunter, landing one after another
+		boolean lined = false;
+		for (int i = 0; i < 160 && !lined; i++) {
+			context.waitTicks(2);
+			lined = world.getServer().computeOnServer(server -> herald.marks().size() >= RiftHerald.LINE - 1);
+		}
+		check(lined, "in its wrath the rift strikes in a line");
+		world.getServer().runOnServer(server -> {
+			List<Vec3> marks = herald.marks();
+			Vec3 first = marks.getFirst();
+			Vec3 last = marks.getLast();
+			check(first.distanceTo(herald.position()) < last.distanceTo(herald.position()), "running out from its feet");
+		});
+		context.waitTicks(RiftHerald.MARKED + RiftHerald.LINE_GAP * 2 + 2);
+		world.getServer().runOnServer(server -> check(!herald.marks().isEmpty() && herald.marks().size() < RiftHerald.LINE,
+			"ring after ring: " + herald.marks().size()));
+
+		// it steps through the rift and comes out behind the hunter
+		boolean shown = false;
+		boolean behind = false;
+		for (int i = 0; i < 200 && !behind; i++) {
+			context.waitTicks(2);
+			shown |= world.getServer().computeOnServer(server -> herald.way() != null);
+			behind = shown && world.getServer().computeOnServer(server -> herald.way() == null && herald.distanceTo(player(server)) < 6.0F
+				&& RiftHound.flanking(player(server), herald.position()));
+			world.getServer().runOnServer(server -> {
+				// the hunter stands their ground, facing the way they were, out of its reach
+				ServerPlayer player = player(server);
+				if (player.distanceTo(herald) < 4.0F && herald.way() == null) {
+					Vec3 off = player.position().add(0.0, 0.0, -8.0);
+					player.teleportTo(server.overworld(), off.x, player.getY(), off.z, Set.of(), 180.0F, 0.0F, true);
+				}
+			});
+		}
+		check(shown, "the way out is shown before it steps through");
+		check(behind, "and it comes out behind the hunter");
 	}
 
 	private static ServerPlayer player(final MinecraftServer server) {

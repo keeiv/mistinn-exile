@@ -33,6 +33,8 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -42,6 +44,10 @@ import org.jspecify.annotations.Nullable;
  * the rift's crystal. Besides its blows it has two works: it drags a hunter who keeps their
  * distance in towards it, and it marks the ground round its quarry with three rings of red light
  * that the rift strikes a moment later.
+ * <p>
+ * Below half its strength its wrath comes on it: it roars and throws back all near it, the rift
+ * then strikes in a line running out from its feet to its quarry, ring after ring, and now and
+ * then it tears a rift, steps through, and comes out behind its quarry.
  */
 public class RiftHerald extends Monster implements RiftTouched {
 	private static final EntityDataAccessor<Byte> DATA_CAST = SynchedEntityData.defineId(RiftHerald.class, EntityDataSerializers.BYTE);
@@ -61,14 +67,30 @@ public class RiftHerald extends Monster implements RiftTouched {
 	public static final double STRIKE_REACH = 2.5;
 	public static final float STRIKE_DAMAGE = 7.0F;
 	private static final DustParticleOptions MARK = new DustParticleOptions(0xE03A1E, 1.4F);
+	/** Below this share of its strength, its wrath. */
+	public static final float WRATH = 0.5F;
+	/** The roar as its wrath comes on: how far it throws back. */
+	public static final double ROAR_REACH = 6.0;
+	/** The line of strikes: how many rings, how far apart, and how long after each the next. */
+	public static final int LINE = 7;
+	public static final double LINE_STEP = 2.4;
+	public static final int LINE_GAP = 4;
+	/** Stepping through the rift: how often, how long the way out shows first, and how far behind its quarry it comes out. */
+	public static final int BLINK_EVERY = 200;
+	public static final int BLINK_SHOWN = 14;
+	public static final double BEHIND = 3.5;
 
 	private final ServerBossEvent bar = new ServerBossEvent(java.util.UUID.randomUUID(), this.getDisplayName(), BossEvent.BossBarColor.RED,
 		BossEvent.BossBarOverlay.NOTCHED_10);
 	private int drag = DRAG_EVERY / 2;
 	private int strike = STRIKE_EVERY / 2;
-	/** Where the rift will strike, and when. */
+	/** Where the rift will strike, and in how many ticks each. */
 	private final List<Vec3> marks = new ArrayList<>();
-	private int marksLand;
+	private final List<Integer> lands = new ArrayList<>();
+	private boolean wrath;
+	private int blink = BLINK_EVERY / 2;
+	private int stepping;
+	private @Nullable Vec3 way;
 	private int casting;
 	private float castO;
 	private float castAmount;
@@ -145,19 +167,123 @@ public class RiftHerald extends Monster implements RiftTouched {
 				this.drag = 20;
 			}
 		}
+		if (!this.wrath && this.getHealth() < this.getMaxHealth() * WRATH) {
+			this.roar(level);
+		}
 		if (--this.strike <= 0 && target != null && this.marks.isEmpty()) {
-			this.mark(level, target);
+			if (this.wrath) {
+				this.line(level, target);
+			} else {
+				this.mark(level, target);
+			}
 			this.strike = STRIKE_EVERY;
 		}
 		if (!this.marks.isEmpty()) {
-			if (--this.marksLand <= 0) {
-				this.strikeMarks(level);
-			} else if (this.tickCount % 3 == 0) {
-				for (Vec3 at : this.marks) {
-					ring(level, at);
+			this.landMarks(level);
+		}
+		if (this.wrath) {
+			this.stepThrough(level, target);
+		}
+	}
+
+	/** Whether its wrath has come on it. */
+	public boolean wrathful() {
+		return this.wrath;
+	}
+
+	/** Its wrath comes on it: a roar, and everyone near thrown back. */
+	private void roar(final ServerLevel level) {
+		this.wrath = true;
+		this.cast(Cast.MARK);
+		level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.RAVAGER_ROAR, SoundSource.HOSTILE, 3.0F, 0.5F);
+		level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.HOSTILE, 3.0F, 0.4F);
+		level.sendParticles(MARK, this.getX(), this.getY() + 1.4, this.getZ(), 80, ROAR_REACH * 0.4, 0.6, ROAR_REACH * 0.4, 0.0);
+		for (LivingEntity near : level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(ROAR_REACH),
+			e -> e.isAlive() && !(e instanceof RiftTouched) && e.distanceTo(this) <= ROAR_REACH)) {
+			Vec3 away = near.position().subtract(this.position()).multiply(1.0, 0.0, 1.0);
+			Vec3 push = away.lengthSqr() < 1.0E-4 ? new Vec3(1.0, 0.0, 0.0) : away.normalize();
+			near.setDeltaMovement(push.x * 1.4, 0.5, push.z * 1.4);
+			near.syncVelocity = true;
+		}
+	}
+
+	/** In its wrath: the rift strikes in a line from its feet out to its quarry and past, ring after ring. */
+	private void line(final ServerLevel level, final LivingEntity target) {
+		this.cast(Cast.MARK);
+		this.marks.clear();
+		this.lands.clear();
+		Vec3 across = target.position().subtract(this.position()).multiply(1.0, 0.0, 1.0);
+		Vec3 step = (across.lengthSqr() < 1.0E-4 ? this.getLookAngle().multiply(1.0, 0.0, 1.0) : across).normalize().scale(LINE_STEP);
+		for (int i = 1; i <= LINE; i++) {
+			this.marks.add(ground(level, this.position().add(step.scale(i))));
+			this.lands.add(MARKED + i * LINE_GAP);
+		}
+		level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.BEACON_POWER_SELECT, SoundSource.HOSTILE, 1.4F, 0.45F);
+	}
+
+	/** The marks burn, and each strikes in its turn. */
+	private void landMarks(final ServerLevel level) {
+		for (int i = this.marks.size() - 1; i >= 0; i--) {
+			int left = this.lands.get(i) - 1;
+			if (left <= 0) {
+				this.strikeAt(level, this.marks.get(i));
+				this.marks.remove(i);
+				this.lands.remove(i);
+			} else {
+				this.lands.set(i, left);
+				if (this.tickCount % 3 == 0) {
+					ring(level, this.marks.get(i));
 				}
 			}
 		}
+	}
+
+	/**
+	 * In its wrath, now and then: it tears a rift where it will come out, behind its quarry (shown a
+	 * moment first), and steps through it.
+	 */
+	private void stepThrough(final ServerLevel level, final @Nullable LivingEntity target) {
+		if (this.way != null) {
+			Vec3 out = this.way;
+			if (this.tickCount % 2 == 0) {
+				level.sendParticles(ParticleTypes.REVERSE_PORTAL, out.x, out.y + 1.2, out.z, 12, 0.3, 0.8, 0.3, 0.02);
+				level.sendParticles(MARK, out.x, out.y + 1.2, out.z, 6, 0.15, 0.9, 0.15, 0.0);
+			}
+			if (--this.stepping <= 0) {
+				level.sendParticles(ParticleTypes.REVERSE_PORTAL, this.getX(), this.getY() + 1.2, this.getZ(), 40, 0.4, 1.0, 0.4, 0.05);
+				level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.HOSTILE, 1.5F, 0.5F);
+				this.teleportTo(out.x, out.y, out.z);
+				if (target != null) {
+					this.getLookControl().setLookAt(target, 180.0F, 90.0F);
+					float yaw = (float) (Mth.atan2(target.getZ() - out.z, target.getX() - out.x) * Mth.RAD_TO_DEG) - 90.0F;
+					this.setYRot(yaw);
+					this.yBodyRot = yaw;
+					this.yHeadRot = yaw;
+				}
+				level.playSound(null, out.x, out.y, out.z, SoundEvents.ENDERMAN_TELEPORT, SoundSource.HOSTILE, 1.5F, 0.45F);
+				this.way = null;
+				this.blink = BLINK_EVERY;
+			}
+			return;
+		}
+		if (--this.blink <= 0 && target != null && this.distanceTo(target) > 3.0F) {
+			Vec3 look = target.getViewVector(1.0F).multiply(1.0, 0.0, 1.0);
+			Vec3 back = look.lengthSqr() < 1.0E-4 ? new Vec3(0.0, 0.0, 1.0) : look.normalize().scale(-1.0);
+			Vec3 out = ground(level, target.position().add(back.scale(BEHIND)));
+			if (level.noCollision(this, this.getBoundingBox().move(out.subtract(this.position())))) {
+				this.way = out;
+				this.stepping = BLINK_SHOWN;
+				this.cast(Cast.DRAG);
+				level.playSound(null, out.x, out.y, out.z, SoundEvents.PORTAL_TRIGGER, SoundSource.HOSTILE, 0.6F, 1.8F);
+			} else {
+				this.blink = 20;
+			}
+		}
+	}
+
+	/** Where it will come out of the rift, while it shows: for tests. */
+	public @Nullable Vec3 way() {
+		return this.way;
 	}
 
 	/** Hauls a hunter who keeps their distance in towards it along a streak of light. */
@@ -165,7 +291,7 @@ public class RiftHerald extends Monster implements RiftTouched {
 		this.cast(Cast.DRAG);
 		Vec3 pull = this.position().subtract(target.position()).normalize();
 		target.setDeltaMovement(pull.x * 1.15, 0.38, pull.z * 1.15);
-		target.needsSync = true;
+		target.syncVelocity = true;
 		Vec3 from = this.getEyePosition();
 		Vec3 to = target.getEyePosition();
 		for (int i = 0; i <= 16; i++) {
@@ -186,7 +312,10 @@ public class RiftHerald extends Monster implements RiftTouched {
 			double reach = 3.0 + this.random.nextDouble() * 2.5;
 			this.marks.add(ground(level, target.position().add(Math.cos(angle) * reach, 0.0, Math.sin(angle) * reach)));
 		}
-		this.marksLand = MARKED;
+		this.lands.clear();
+		for (int i = 0; i < this.marks.size(); i++) {
+			this.lands.add(MARKED);
+		}
 		level.playSound(null, target.getX(), target.getY(), target.getZ(), SoundEvents.BEACON_POWER_SELECT, SoundSource.HOSTILE, 1.4F, 0.6F);
 	}
 
@@ -202,21 +331,18 @@ public class RiftHerald extends Monster implements RiftTouched {
 		}
 	}
 
-	private void strikeMarks(final ServerLevel level) {
-		for (Vec3 at : this.marks) {
-			LightningBolt bolt = net.minecraft.world.entity.EntityTypes.LIGHTNING_BOLT.create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
-			if (bolt != null) {
-				bolt.snapTo(at);
-				bolt.setVisualOnly(true);
-				level.addFreshEntity(bolt);
-			}
-			level.sendParticles(ParticleTypes.EXPLOSION, at.x, at.y + 0.5, at.z, 1, 0.0, 0.0, 0.0, 0.0);
-			for (LivingEntity hit : level.getEntitiesOfClass(LivingEntity.class, new AABB(at, at).inflate(STRIKE_REACH, 3.0, STRIKE_REACH),
-				e -> e.isAlive() && !(e instanceof RiftTouched) && e.position().distanceTo(at) <= STRIKE_REACH + 0.5)) {
-				hit.hurtServer(level, level.damageSources().indirectMagic(this, this), STRIKE_DAMAGE);
-			}
+	private void strikeAt(final ServerLevel level, final Vec3 at) {
+		LightningBolt bolt = net.minecraft.world.entity.EntityTypes.LIGHTNING_BOLT.create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
+		if (bolt != null) {
+			bolt.snapTo(at);
+			bolt.setVisualOnly(true);
+			level.addFreshEntity(bolt);
 		}
-		this.marks.clear();
+		level.sendParticles(ParticleTypes.EXPLOSION, at.x, at.y + 0.5, at.z, 1, 0.0, 0.0, 0.0, 0.0);
+		for (LivingEntity hit : level.getEntitiesOfClass(LivingEntity.class, new AABB(at, at).inflate(STRIKE_REACH, 3.0, STRIKE_REACH),
+			e -> e.isAlive() && !(e instanceof RiftTouched) && e.position().distanceTo(at) <= STRIKE_REACH + 0.5)) {
+			hit.hurtServer(level, level.damageSources().indirectMagic(this, this), STRIKE_DAMAGE);
+		}
 	}
 
 	/** Where the rift will strike next, for tests. */
@@ -242,6 +368,18 @@ public class RiftHerald extends Monster implements RiftTouched {
 	public void remove(final RemovalReason reason) {
 		this.bar.removeAllPlayers();
 		super.remove(reason);
+	}
+
+	@Override
+	protected void addAdditionalSaveData(final ValueOutput output) {
+		super.addAdditionalSaveData(output);
+		output.putBoolean("wrath", this.wrath);
+	}
+
+	@Override
+	protected void readAdditionalSaveData(final ValueInput input) {
+		super.readAdditionalSaveData(input);
+		this.wrath = input.getBooleanOr("wrath", false);
 	}
 
 	@Override
