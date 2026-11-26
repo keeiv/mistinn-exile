@@ -47,8 +47,9 @@ public final class TreatmentService {
 
 	private static final Identifier SLOW_ID = Mistinn.id("treatment_slow");
 
-	/** 引導中: one use in progress. */
-	private record Channel(Item item, InteractionHand hand, int slot, ItemStack target, Treatment treatment, int ticks, int[] elapsed) {
+	/** 引導中: one use in progress; {@code source} is the grid spot of an item used from the pouch, null for one in hand. */
+	private record Channel(Item item, InteractionHand hand, int slot, ItemStack target, Treatment treatment, int ticks, int[] elapsed,
+		life.shizune.mistinn.grid.QuickUse.@org.jspecify.annotations.Nullable Spot source) {
 	}
 
 	private static final Map<UUID, Channel> CHANNELS = new HashMap<>();
@@ -75,7 +76,26 @@ public final class TreatmentService {
 		int ticks = life.shizune.mistinn.skill.SkillService.treatmentTicks(player, item.ticks(player, stack));
 		Treatment treatment = item.treatment(player, stack);
 		int slot = hand == InteractionHand.MAIN_HAND ? player.getInventory().getSelectedSlot() : -1;
-		CHANNELS.put(player.getUUID(), new Channel(item, hand, slot, item.target(player), treatment, ticks, new int[] {0}));
+		begin(player, new Channel(item, hand, slot, item.target(player), treatment, ticks, new int[] {0}, null));
+	}
+
+	/**
+	 * Begins a use of an item where it lies in the pockets or the rig (the quick-use wheel): the item
+	 * stays there until the use is done, and is spent there.
+	 */
+	public static void startFrom(final ServerPlayer player, final life.shizune.mistinn.grid.QuickUse.Spot spot, final ItemStack stack, final TreatmentItem item) {
+		if (life.shizune.mistinn.team.DownService.isDown(player)) {
+			return;
+		}
+		int ticks = life.shizune.mistinn.skill.SkillService.treatmentTicks(player, item.ticks(player, stack));
+		begin(player, new Channel(item, InteractionHand.MAIN_HAND, -1, item.target(player), item.treatment(player, stack), ticks, new int[] {0}, spot));
+	}
+
+	private static void begin(final ServerPlayer player, final Channel channel) {
+		Treatment treatment = channel.treatment();
+		int ticks = channel.ticks();
+		Item item = channel.item();
+		CHANNELS.put(player.getUUID(), channel);
 		slow(player, treatment.slow);
 		player.setSprinting(false);
 		life.shizune.mistinn.enemy.NoiseService.emit(player, life.shizune.mistinn.enemy.NoiseService.Noise.TREATMENT);
@@ -95,6 +115,7 @@ public final class TreatmentService {
 	public static void hurt(final ServerPlayer player, final float vanillaDamage) {
 		if (vanillaDamage >= FLINCH) {
 			interrupt(player);
+			life.shizune.mistinn.grid.QuickUse.stopEating(player);
 		}
 	}
 
@@ -145,6 +166,10 @@ public final class TreatmentService {
 	}
 
 	private static void tickChannel(final ServerPlayer player, final Channel channel) {
+		if (channel.source() != null) {
+			tickFromPouch(player, channel);
+			return;
+		}
 		ItemStack held = player.getItemInHand(channel.hand());
 		boolean slotMoved = channel.slot() >= 0 && player.getInventory().getSelectedSlot() != channel.slot();
 		if (!player.isAlive() || slotMoved || !held.is(channel.item()) || !((TreatmentItem) channel.item()).stillValid(player, held)) {
@@ -158,6 +183,26 @@ public final class TreatmentService {
 		CHANNELS.remove(player.getUUID());
 		slow(player, 0.0);
 		((TreatmentItem) channel.item()).finish(player, held, channel.hand());
+		life.shizune.mistinn.training.TrainingService.treated(player, channel.treatment());
+		broadcast(player, new TreatmentPayload(player.getId(), -1, 0, 0, RESULT_DONE));
+	}
+
+	/** A use from the pouch: the item must still lie where it did; done, it is spent where it lies. */
+	private static void tickFromPouch(final ServerPlayer player, final Channel channel) {
+		ItemStack lying = life.shizune.mistinn.grid.QuickUse.at(player, channel.source());
+		if (!player.isAlive() || !lying.is(channel.item()) || !((TreatmentItem) channel.item()).stillValid(player, lying)) {
+			interrupt(player);
+			return;
+		}
+		player.setSprinting(false);
+		if (++channel.elapsed()[0] < channel.ticks()) {
+			return;
+		}
+		CHANNELS.remove(player.getUUID());
+		slow(player, 0.0);
+		ItemStack used = lying.copy();
+		((TreatmentItem) channel.item()).finish(player, used, channel.hand());
+		life.shizune.mistinn.grid.QuickUse.put(player, channel.source(), used);
 		life.shizune.mistinn.training.TrainingService.treated(player, channel.treatment());
 		broadcast(player, new TreatmentPayload(player.getId(), -1, 0, 0, RESULT_DONE));
 	}

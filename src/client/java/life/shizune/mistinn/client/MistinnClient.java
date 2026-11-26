@@ -46,6 +46,10 @@ public class MistinnClient implements ClientModInitializer {
 		life.shizune.mistinn.client.team.TeamClient.register();
 		life.shizune.mistinn.client.team.RescueClient.register(CATEGORY);
 		life.shizune.mistinn.client.team.MarkerClient.register();
+		life.shizune.mistinn.client.grid.QuickWheel.register(CATEGORY);
+		KeyMapping guide = KeyMappingHelper.registerKeyMapping(
+			new KeyMapping("key.mistinn.guide", InputConstants.KEY_B, CATEGORY)
+		);
 		KeyMapping zoom = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.minimap_zoom", InputConstants.KEY_M, CATEGORY)
 		);
@@ -92,6 +96,8 @@ public class MistinnClient implements ClientModInitializer {
 		// the team's beacons over the places they mark, under the minimap and the rest
 		HudElementRegistry.addLast(Mistinn.id("markers"), new life.shizune.mistinn.client.team.MarkerClient());
 		HudElementRegistry.addLast(Mistinn.id("minimap"), new MinimapHud());
+		// the quick-use wheel round the crosshair while its key is held
+		HudElementRegistry.addLast(Mistinn.id("quick_wheel"), new life.shizune.mistinn.client.grid.QuickWheel());
 		HudElementRegistry.addLast(Mistinn.id("story"), new life.shizune.mistinn.client.story.StoryHud());
 		HudElementRegistry.addLast(Mistinn.id("training"), TrainingClient::draw);
 		LevelExtractionEvents.END_EXTRACTION.register(TrainingGuide::extract);
@@ -178,6 +184,13 @@ public class MistinnClient implements ClientModInitializer {
 			}
 			life.shizune.mistinn.client.story.StoryClient.tick(minecraft);
 			TrainingClient.tick(minecraft);
+			life.shizune.mistinn.client.grid.QuickWheel.tick(minecraft);
+			while (guide.consumeClick()) {
+				// the guide opens from a key as well as from the book in hand
+				if (minecraft.gui.screen() == null && minecraft.player != null) {
+					minecraft.gui.setScreen(new life.shizune.mistinn.client.guide.HunterGuideScreen());
+				}
+			}
 			while (journal.consumeClick()) {
 				if (minecraft.gui.screen() == null) {
 					minecraft.gui.setScreen(new life.shizune.mistinn.client.story.JournalScreen());
