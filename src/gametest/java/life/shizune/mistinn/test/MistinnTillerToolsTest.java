@@ -104,8 +104,28 @@ public final class MistinnTillerToolsTest implements FabricClientGameTest {
 					fork |= offer.getResult().is(MistinnItems.RESONANCE_FORK);
 				}
 				check(stone && fork, "the tillers sell the whetstone and the fork");
+				// what the others say: their own lines, and what a squall calls for
+				tiller.settle(Tiller.Role.WARDEN, tiller.blockPosition());
+				java.util.Set<String> said = new java.util.HashSet<>();
+				for (int i = 0; i < 200; i++) {
+					said.add(tiller.line(player(server)));
+				}
+				check(said.size() == Tiller.LINES && said.stream().allMatch(k -> k.startsWith("message.mistinn.tiller.warden.")), "a warden has all its lines: " + said);
+				player(server).setAttached(life.shizune.mistinn.terra.Squall.SKY, life.shizune.mistinn.terra.Squall.Stage.RAGING.ordinal());
+				check(tiller.line(player(server)).equals("message.mistinn.tiller.squall"), "and in a squall, calls the hunter in");
+				player(server).removeAttached(life.shizune.mistinn.terra.Squall.SKY);
 				tiller.discard();
 			});
+			check(context.computeOnClient(mc -> {
+				for (String who : new String[] {"tiller", "warden"}) {
+					for (int i = 0; i < Tiller.LINES; i++) {
+						if (!net.minecraft.locale.Language.getInstance().has("message.mistinn.tiller." + who + "." + i)) {
+							return false;
+						}
+					}
+				}
+				return true;
+			}), "every line they may say is written");
 		}
 	}
 

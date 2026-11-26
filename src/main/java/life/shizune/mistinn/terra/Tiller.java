@@ -194,12 +194,28 @@ public class Tiller extends PathfinderMob implements Merchant {
 				this.trading = player;
 				this.openTradingScreen(player, this.getDisplayName(), 1);
 			} else {
-				int line = this.random.nextInt(3);
-				player.sendSystemMessage(Component.translatable("message.mistinn.tiller." + this.role().id.replaceAll("_\\d", "") + "." + line)
-					.withStyle(ChatFormatting.GRAY));
+				player.sendSystemMessage(Component.translatable(this.line(player)).withStyle(ChatFormatting.GRAY));
 			}
 		}
 		return InteractionResult.SUCCESS;
+	}
+
+	/** How many things each of them has to say, besides what the moment calls for. */
+	public static final int LINES = 6;
+
+	/** What one of them says to a hunter: what the moment calls for (a squall over them, a siege at their door), or one of their own. */
+	public String line(final Player player) {
+		String who = this.role().id.replaceAll("_\\d", "");
+		if (player instanceof net.minecraft.server.level.ServerPlayer hunter && Squall.sky(hunter) == Squall.Stage.RAGING) {
+			return "message.mistinn.tiller.squall";
+		}
+		if (this.level().getServer() != null) {
+			life.shizune.mistinn.domain.Domain domain = life.shizune.mistinn.domain.DomainService.at(this.level().getServer(), this.getX(), this.getZ());
+			if (domain != null && Siege.watch(this.level().getServer(), domain.id()).on()) {
+				return "message.mistinn.tiller.siege";
+			}
+		}
+		return "message.mistinn.tiller." + who + "." + this.random.nextInt(LINES);
 	}
 
 	@Override
