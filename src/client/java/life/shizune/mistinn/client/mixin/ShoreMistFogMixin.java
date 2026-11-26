@@ -20,5 +20,6 @@ public abstract class ShoreMistFogMixin {
 		ShoreMistClient.apply(cir.getReturnValue(), camera);
 		life.shizune.mistinn.client.naval.NavalClient.fog(cir.getReturnValue(), deltaTracker.getGameTimeDeltaPartialTick(false));
 		life.shizune.mistinn.client.tide.TideClient.fog(cir.getReturnValue());
+		life.shizune.mistinn.client.terra.SquallClient.fog(cir.getReturnValue());
 	}
 }

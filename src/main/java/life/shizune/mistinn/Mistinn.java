@@ -92,6 +92,7 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.terra.Settlements.register();
 		life.shizune.mistinn.terra.HomesteadTravel.register();
 		life.shizune.mistinn.terra.Elders.register();
+		life.shizune.mistinn.terra.Squall.register();
 
 		// A fallen hunter leaves their salt as residue; a defeated creature gives salt.
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
