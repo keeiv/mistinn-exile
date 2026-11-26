@@ -10,4 +10,6 @@ public class RiftHoundRenderState extends LivingEntityRenderState {
 	public float lunge;
 	/** 0 jaw shut, 1 open to bite. */
 	public float bite;
+	/** 0 at rest, 1 head thrown back in an alpha's howl. */
+	public float howl;
 }

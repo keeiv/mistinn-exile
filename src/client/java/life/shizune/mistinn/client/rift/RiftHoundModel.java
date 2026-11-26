@@ -247,5 +247,20 @@ public class RiftHoundModel extends EntityModel<RiftHoundRenderState> {
 		this.tail1.xRot -= (gallop * 0.35F + lunge * 0.5F) * 1.0F - crouch * 0.2F;
 		this.tail1.yRot += Mth.sin(state.ageInTicks * 0.12F) * 0.12F * free + Mth.cos(pos) * 0.15F * speed * free;
 		this.tail2.yRot += Mth.sin(state.ageInTicks * 0.12F - 0.6F) * 0.14F * free;
+
+		// an alpha's howl: back on its haunches, head thrown back, jaws open to the sky
+		float howl = state.howl;
+		this.body.xRot -= howl * 0.35F;
+		this.body.y += howl * 1.5F;
+		this.hindRight.xRot -= howl * 0.7F;
+		this.hindLeft.xRot -= howl * 0.7F;
+		this.hindRightLower.xRot += howl * 0.9F;
+		this.hindLeftLower.xRot += howl * 0.9F;
+		this.frontRight.xRot += howl * 0.3F;
+		this.frontLeft.xRot += howl * 0.3F;
+		this.neck.xRot -= howl * 0.6F;
+		this.head.xRot -= howl * 0.55F;
+		this.jaw.xRot += howl * 0.55F;
+		this.tail1.xRot += howl * 0.3F;
 	}
 }

@@ -111,6 +111,7 @@ public final class MistinnRiftHoundTest implements FabricClientGameTest {
 			check(widest > 1.5, "each in its own place round the hunter: " + widest);
 			check(lunged, "one crouches and lunges");
 			check(bitten, "and bites");
+			alpha(context, world, pack);
 
 			// the hound, held still for the picture
 			world.getServer().runOnServer(server -> {
@@ -120,7 +121,8 @@ public final class MistinnRiftHoundTest implements FabricClientGameTest {
 					hound.setNoAi(true);
 				}
 				// out on open ground, turned three-quarters towards the camera
-				RiftHound hound = pack.getFirst();
+				RiftHound hound = pack.stream().filter(RiftHound::isAlive).findFirst().orElseThrow();
+				hound.scatterFor(0);
 				ServerLevel level = server.overworld();
 				BlockPos open = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, player.blockPosition().offset(-30, 0, 12));
 				hound.teleportTo(open.getX() + 0.5, open.getY(), open.getZ() + 0.5);
@@ -143,6 +145,71 @@ public final class MistinnRiftHoundTest implements FabricClientGameTest {
 			context.waitTicks(20);
 			context.takeScreenshot(TestScreenshotOptions.of("hound").disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("rift")));
 		}
+	}
+
+	/** One of the pack is made its alpha: bigger and red-named; it howls, two leap at once; brought down, the pack scatters and it leaves shards. */
+	private static void alpha(final ClientGameTestContext context, final TestSingleplayerContext world, final List<RiftHound> pack) {
+		RiftHound[] alpha = new RiftHound[1];
+		world.getServer().runOnServer(server -> {
+			ServerLevel level = server.overworld();
+			ServerPlayer player = player(server);
+			alpha[0] = pack.getFirst();
+			float before = alpha[0].getScale();
+			alpha[0].lead();
+			check(alpha[0].isAlpha() && alpha[0].getScale() > before * 1.3F, "the alpha is bigger: " + alpha[0].getScale());
+			check(alpha[0].getMaxHealth() >= 70.0F && alpha[0].getHealth() >= 70.0F, "and harder to bring down: " + alpha[0].getMaxHealth());
+			check(alpha[0].hasCustomName(), "and named");
+			BlockPos at = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, player.blockPosition().offset(0, 0, -8));
+			RiftHound more = MistinnEntities.RIFT_HOUND.spawn(level, at, EntitySpawnReason.COMMAND);
+			more.setPersistenceRequired();
+			more.setTarget(player);
+			pack.add(more);
+		});
+		boolean howled = false;
+		boolean pincer = false;
+		int since = 1000;
+		for (int i = 0; i < 400 && !pincer; i++) {
+			context.waitTicks(1);
+			boolean howling = world.getServer().computeOnServer(server -> alpha[0].isHowling());
+			if (howling && !howled) {
+				howled = true;
+				since = 0;
+			}
+			since++;
+			int leaping = world.getServer().computeOnServer(server -> (int) pack.stream()
+				.filter(h -> h != alpha[0] && h.isAlive() && (h.isCrouching() || h.isLunging())).count());
+			pincer = howled && since < 40 && leaping >= 2;
+		}
+		check(howled, "the alpha howls its pack on");
+		check(pincer, "and two of the pack leap at once");
+
+		// brought down: the pack scatters, and it leaves rift shards
+		double[] near = new double[1];
+		world.getServer().runOnServer(server -> {
+			ServerLevel level = server.overworld();
+			ServerPlayer player = player(server);
+			near[0] = pack.stream().filter(h -> h != alpha[0] && h.isAlive()).mapToDouble(h -> h.distanceTo(player)).average().orElse(0.0);
+			alpha[0].hurtServer(level, level.damageSources().playerAttack(player), 10000.0F);
+			check(!alpha[0].isAlive(), "the alpha falls");
+		});
+		context.waitTicks(5);
+		world.getServer().runOnServer(server -> {
+			ServerLevel level = server.overworld();
+			for (RiftHound hound : pack) {
+				if (hound != alpha[0] && hound.isAlive()) {
+					check(hound.scattering() && hound.getTarget() == null, "its pack breaks off the hunt");
+				}
+			}
+			int shards = level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new net.minecraft.world.phys.AABB(alpha[0].blockPosition()).inflate(6.0),
+				e -> e.getItem().is(life.shizune.mistinn.registry.MistinnItems.RIFT_SHARD)).stream().mapToInt(e -> e.getItem().getCount()).sum();
+			check(shards >= 2, "the alpha leaves rift shards: " + shards);
+		});
+		context.waitTicks(80);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			double now = pack.stream().filter(h -> h != alpha[0] && h.isAlive()).mapToDouble(h -> h.distanceTo(player)).average().orElse(0.0);
+			check(now > near[0] + 3.0, "and runs: " + near[0] + " -> " + now);
+		});
 	}
 
 	private static ServerPlayer player(final MinecraftServer server) {

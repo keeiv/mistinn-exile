@@ -35,6 +35,7 @@ public class RiftHoundRenderer extends MobRenderer<RiftHound, RiftHoundRenderSta
 		state.crouch = entity.crouch(partialTicks);
 		state.lunge = entity.lunge(partialTicks);
 		state.bite = entity.bite(partialTicks);
+		state.howl = entity.howl(partialTicks);
 	}
 
 	@Override

@@ -808,6 +808,10 @@
       }
     ]
   },
+  "entity.rift_hound.howl": {
+    "subtitle": "subtitles.mistinn.entity.rift_hound.howl",
+    "sounds": ["mistinn:mob/rift_hound/howl_1", "mistinn:mob/rift_hound/howl_2", "mistinn:mob/rift_hound/howl_3"]
+  },
   "ambient.terra.additions": {
     "subtitle": "subtitles.mistinn.ambient.terra.additions",
     "sounds": ["mistinn:ambient/terra_chime_1", "mistinn:ambient/terra_chime_2", "mistinn:ambient/terra_chime_3", "mistinn:ambient/terra_chime_4"]
