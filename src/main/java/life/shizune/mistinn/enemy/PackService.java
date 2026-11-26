@@ -176,7 +176,7 @@ public final class PackService {
 		for (ServerPlayer hunter : server.getPlayerList().getPlayers()) {
 			UUID id = hunter.getUUID();
 			// a downed hunter is left to whoever can finish them: no turns, no holding back
-			if (!BodyService.applies(hunter) || hunter.isDeadOrDying() || ExecutionService.downed(BodyService.get(hunter))) {
+			if (!BodyService.applies(hunter) || hunter.isDeadOrDying() || ExecutionService.downed(BodyService.get(hunter)) || life.shizune.mistinn.team.DownService.isDown(hunter)) {
 				ROLES.entrySet().removeIf(e -> e.getValue().hunter().equals(id));
 				continue;
 			}

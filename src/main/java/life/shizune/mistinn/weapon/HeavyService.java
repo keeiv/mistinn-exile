@@ -202,6 +202,10 @@ public final class HeavyService {
 		if (WeaponStyle.of(stack) == null) {
 			return Refusal.NOT_A_WEAPON;
 		}
+		// a hunter on the ground cannot swing at all
+		if (life.shizune.mistinn.team.DownService.isDown(player)) {
+			return Refusal.BUSY;
+		}
 		SpecialWeapon special = SpecialWeapon.of(stack);
 		if (special != null && !special.fits(player)) {
 			return Refusal.UNFIT;

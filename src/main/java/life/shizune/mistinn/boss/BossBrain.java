@@ -125,9 +125,9 @@ public final class BossBrain {
 		return this.timing == null ? tick : this.timing.realTicks(move, tick);
 	}
 
-	/** Whether a player counts as a hunter: alive, not watching, and under the body rules (not creative). */
+	/** Whether a player counts as a hunter: alive, not watching, under the body rules (not creative), and on their feet. */
 	public static boolean hunts(final Player player) {
-		return player.isAlive() && !player.isSpectator() && BodyService.applies(player);
+		return player.isAlive() && !player.isSpectator() && BodyService.applies(player) && !life.shizune.mistinn.team.DownService.isDown(player);
 	}
 
 	// ── Seeing ────────────────────────────────────────────────────

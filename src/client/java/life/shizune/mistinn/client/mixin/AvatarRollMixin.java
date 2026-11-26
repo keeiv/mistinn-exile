@@ -41,11 +41,18 @@ public abstract class AvatarRollMixin {
 		state.setData(life.shizune.mistinn.client.death.DeathScene.KEY, death);
 		ExecutionView.Pose execution = ExecutionView.sample(entity, partialTicks);
 		state.setData(ExecutionView.KEY, execution);
+		// a downed hunter lies on their side: not the swimmer's crawl their low pose would otherwise draw
+		Float down = death == null && execution == null ? life.shizune.mistinn.client.team.DownPose.sample(entity, partialTicks) : null;
+		state.setData(life.shizune.mistinn.client.team.DownPose.KEY, down);
+		if (down != null) {
+			state.swimAmount = 0.0F;
+			state.isCrouching = false;
+		}
 		if (death != null || execution != null) {
 			state.deathTime = 0.0F;
 			state.hasRedOverlay = false;
 		}
-		state.setData(life.shizune.mistinn.client.view.RunPose.KEY, death == null && execution == null && state.getData(RollClient.KEY) == null
+		state.setData(life.shizune.mistinn.client.view.RunPose.KEY, death == null && execution == null && down == null && state.getData(RollClient.KEY) == null
 			? life.shizune.mistinn.client.view.RunPose.sample(entity) : null);
 		// through their own eyes: nothing worn on the head is drawn, nor what a hand holds up in front of the eye
 		boolean own = OwnBody.inWorldPass() && entity == net.minecraft.client.Minecraft.getInstance().player && OwnBody.active();
@@ -116,6 +123,11 @@ public abstract class AvatarRollMixin {
 		}
 		if (death != null) {
 			mistinn$fall(death, pose);
+			return;
+		}
+		Float down = state.getData(life.shizune.mistinn.client.team.DownPose.KEY);
+		if (down != null) {
+			life.shizune.mistinn.client.team.DownPose.root(down, pose, entityScale);
 			return;
 		}
 		RollClient.Pose roll = state.getData(RollClient.KEY);

@@ -127,9 +127,10 @@ public final class MistinnTeamTest implements FabricClientGameTest {
 			"a hunter new to the world has nothing to unlearn: every notice counts as read");
 		player.removeAttached(UpdateNotice.SEEN);
 		UpdateNotice.joined(player);
-		check(player.getAttached(UpdateNotice.SEEN).equals(List.of("coop")), "one who played before reads the notice once");
+		List<String> every = UpdateNotice.NOTICES.stream().map(UpdateNotice.Notice::id).toList();
+		check(player.getAttached(UpdateNotice.SEEN).equals(every), "one who played before reads every notice once: " + player.getAttached(UpdateNotice.SEEN));
 		UpdateNotice.joined(player);
-		check(player.getAttached(UpdateNotice.SEEN).equals(List.of("coop")), "and not again");
+		check(player.getAttached(UpdateNotice.SEEN).equals(every), "and not again");
 	}
 
 	/** A second hunter for the friendly-fire checks: Fabric's fake player is never hurt at all, this one can be. */

@@ -68,6 +68,9 @@ public final class TreatmentService {
 
 	/** Begins a use; the item has already agreed it can be used. */
 	public static void start(final ServerPlayer player, final InteractionHand hand, final ItemStack stack, final TreatmentItem item) {
+		if (life.shizune.mistinn.team.DownService.isDown(player)) {
+			return;
+		}
 		// intellect shortens every treatment and repair
 		int ticks = life.shizune.mistinn.skill.SkillService.treatmentTicks(player, item.ticks(player, stack));
 		Treatment treatment = item.treatment(player, stack);

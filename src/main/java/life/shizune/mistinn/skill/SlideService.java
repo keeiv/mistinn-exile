@@ -78,7 +78,7 @@ public final class SlideService {
 
 	/** The client asked to slide towards {@code yaw}; returns whether the slide happens. */
 	public static boolean handle(final ServerPlayer player, final float yaw) {
-		if (player.isDeadOrDying() || player.isPassenger() || !able(player) || !Float.isFinite(yaw)) {
+		if (player.isDeadOrDying() || player.isPassenger() || !able(player) || !Float.isFinite(yaw) || life.shizune.mistinn.team.DownService.isDown(player)) {
 			return false;
 		}
 		int now = player.level().getServer().getTickCount();

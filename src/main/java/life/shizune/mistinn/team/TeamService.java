@@ -145,7 +145,7 @@ public final class TeamService {
 				continue;
 			}
 			members.add(new TeamPayload.Member(other.getUUID(), other.getScoreboardName(), colour(other),
-				other.level().dimension().identifier(), other.getX(), other.getZ(), other.getYRot(), false));
+				other.level().dimension().identifier(), other.getX(), other.getZ(), other.getYRot(), DownService.isDown(other)));
 		}
 		return members;
 	}
