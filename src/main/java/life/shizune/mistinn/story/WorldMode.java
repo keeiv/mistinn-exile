@@ -16,7 +16,8 @@ import org.jspecify.annotations.Nullable;
 public enum WorldMode {
 	STORY("story"),
 	FREE("free"),
-	TRAINING("training");
+	TRAINING("training"),
+	PATH("path");
 
 	public final String id;
 
@@ -41,6 +42,7 @@ public enum WorldMode {
 		return switch (id) {
 			case "story" -> STORY;
 			case "training" -> TRAINING;
+			case "path" -> PATH;
 			default -> FREE;
 		};
 	}

@@ -96,6 +96,7 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.terra.Siege.register();
 		life.shizune.mistinn.terra.HomesteadUpgrades.register();
 		life.shizune.mistinn.domain.FindCommands.register();
+		life.shizune.mistinn.path.PathService.register();
 		life.shizune.mistinn.terra.TerraShaper.watchRuins();
 
 		// A fallen hunter leaves their salt as residue; a defeated creature gives salt.

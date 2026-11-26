@@ -78,7 +78,8 @@ public final class RustAnchorFood {
 
 	/** Whether this hunter's food goes damp: Rust Anchor, and not a creative or watching player. */
 	public static boolean applies(final Player player) {
-		return Hardship.rustAnchor(player) && !player.isCreative() && !player.isSpectator();
+		// the crystal tillers eat what their fields grow: their food does not go damp
+		return Hardship.rustAnchor(player) && !player.isCreative() && !player.isSpectator() && !life.shizune.mistinn.path.PathService.walking(player);
 	}
 
 	/** Every tick: whatever ordinary food a hunter holds anywhere goes damp. */
