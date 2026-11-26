@@ -81,6 +81,8 @@ public final class MistinnTab {
 				output.accept(MistinnItems.CRYSTAL_DUST);
 				output.accept(MistinnItems.CRYSTAL_CORE);
 				output.accept(MistinnItems.LATTICE_CHIP);
+				output.accept(MistinnItems.CRYSTAL_WHETSTONE);
+				output.accept(MistinnItems.RESONANCE_FORK);
 				output.accept(MistinnItems.SALT);
 				output.accept(MistinnItems.RUST_GOD_SALT);
 				output.accept(MistinnItems.LAMP_OIL);

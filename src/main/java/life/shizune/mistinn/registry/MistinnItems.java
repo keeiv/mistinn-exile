@@ -150,6 +150,10 @@ public final class MistinnItems {
 	public static final Item CRYSTAL_CORE = register("crystal_core", Item::new, new Item.Properties().rarity(Rarity.RARE));
 	/** 歸途晶片: a wafer of cut crystal in a frame, the valley people's key. */
 	public static final Item LATTICE_CHIP = register("lattice_chip", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
+	public static final Item CRYSTAL_WHETSTONE = register("crystal_whetstone", life.shizune.mistinn.terra.TillerTools.Whetstone::new,
+		new Item.Properties().stacksTo(16));
+	public static final Item RESONANCE_FORK = register("resonance_fork", life.shizune.mistinn.terra.TillerTools.Fork::new,
+		new Item.Properties().durability(64).rarity(Rarity.UNCOMMON));
 	/** 裂晶: a shard of the sky rift's crystal, from its clusters and its creatures. */
 	public static final Item RIFT_SHARD = register("rift_shard", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
 

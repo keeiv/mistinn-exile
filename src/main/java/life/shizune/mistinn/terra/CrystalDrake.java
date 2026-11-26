@@ -347,8 +347,16 @@ public class CrystalDrake extends Monster {
 		return super.hurtServer(level, source, amount * facets(source));
 	}
 
-	/** How its facets take a blow: shots and spear thrusts glance off, greatswords and hammers crack them. */
+	/**
+	 * How its facets take a blow: shots and spear thrusts glance off, greatswords and hammers crack
+	 * them; a blade with an edge of crystal grit is not turned and bites deeper ({@link TillerTools#edge}).
+	 */
 	public static float facets(final DamageSource source) {
+		return TillerTools.edge(source, bare(source));
+	}
+
+	/** How its facets take a blow from a bare blade, shot or fist. */
+	private static float bare(final DamageSource source) {
 		if (source.is(DamageTypeTags.IS_PROJECTILE)) {
 			return GLANCE;
 		}
