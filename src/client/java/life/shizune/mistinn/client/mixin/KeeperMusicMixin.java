@@ -15,6 +15,9 @@ public abstract class KeeperMusicMixin {
 	private void mistinn$keeperFight(final CallbackInfoReturnable<Music> cir) {
 		Music fight = KeeperMusic.current();
 		if (fight == null) {
+			fight = life.shizune.mistinn.client.music.ElderMusic.current();
+		}
+		if (fight == null) {
 			fight = life.shizune.mistinn.client.naval.NavalClient.music();
 		}
 		if (fight != null) {

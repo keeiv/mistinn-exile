@@ -159,7 +159,9 @@ public final class MistinnTerraTest implements FabricClientGameTest {
 			context.waitTicks(140);
 			context.takeScreenshot(TestScreenshotOptions.of("terra-nest").disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("terra")));
 
-			// walking in: the ring's name, and a look at each ring
+			// walking in: the ring's name, and a look at each ring (the crown's elder out of the way: its fight has music of its own)
+			world.getServer().runOnServer(server -> server.overworld().getEntitiesOfClass(life.shizune.mistinn.terra.CrystalElder.class,
+				new net.minecraft.world.phys.AABB(centre[0]).inflate(200.0)).forEach(net.minecraft.world.entity.Entity::discard));
 			look(context, world, centre[0].offset(-6, 0, 30), 90.0F, 8.0F, "terra-terraces");
 			check(context.computeOnClient(mc -> TerraShaper.TERRACES.equals(ZoneTitle.shown())), "walking into the terraces shows their name");
 			check(context.computeOnClient(mc -> mc.getSituationalMusic().sound().value() == life.shizune.mistinn.registry.MistinnSounds.MUSIC_TERRA),
