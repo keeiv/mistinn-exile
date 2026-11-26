@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#mistinn:weapons",
+    "#mistinn:helmets",
+    "#mistinn:body_armor",
+    "#mistinn:leggings",
+    "#mistinn:boots"
+  ]
+}
