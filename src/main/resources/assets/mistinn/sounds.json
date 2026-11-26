@@ -791,6 +791,14 @@
       }
     ]
   },
+  "music.elder": {
+    "sounds": [
+      {
+        "name": "mistinn:music/elder",
+        "stream": true
+      }
+    ]
+  },
   "music.rift_scar": {
     "sounds": [
       {

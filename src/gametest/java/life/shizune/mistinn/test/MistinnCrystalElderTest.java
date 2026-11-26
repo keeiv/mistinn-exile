@@ -94,6 +94,10 @@ public final class MistinnCrystalElderTest implements FabricClientGameTest {
 				server.overworld().getEntitiesOfClass(CrystalDrake.class, new AABB(elder[0].blockPosition()).inflate(40.0),
 					d -> !(d instanceof CrystalElder)).forEach(d -> d.discard());
 			});
+			// wounded, the fight has its own music
+			context.waitTicks(5);
+			check(context.computeOnClient(mc -> mc.getSituationalMusic() == life.shizune.mistinn.client.music.ElderMusic.FIGHT),
+				"fighting the elder, the game plays its fight music");
 			inTheNest(context, world, elder[0]);
 
 			// brought down: cores, remembered, and the crown will grow another
