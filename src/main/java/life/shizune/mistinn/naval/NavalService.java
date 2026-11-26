@@ -21,6 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerBossEvent;
@@ -167,8 +168,7 @@ public final class NavalService {
 		int shown = -1;
 
 		Battle(final Ship ship) {
-			this.bar = new ServerBossEvent(UUID.randomUUID(), Component.empty().append(ship.shipName()).append(" · ").append(ship.captainName()),
-				BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
+			this.bar = new ServerBossEvent(UUID.randomUUID(), barName(ship, 0, 0), BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
 			this.side[0] = FIRST_VOLLEY;
 			this.side[1] = FIRST_VOLLEY;
 		}
@@ -584,9 +584,22 @@ public final class NavalService {
 			return;
 		}
 		battle.shown = standing;
-		String marks = "◆".repeat(standing) + "◇".repeat(Math.max(0, battle.most - standing));
-		battle.bar.setName(Component.empty().append(ship.shipName()).append(" · ").append(ship.captainName()).append("  ")
-			.append(Component.translatable("hud.mistinn.naval.crew", marks)));
+		battle.bar.setName(barName(ship, standing, battle.most));
+	}
+
+	/**
+	 * What a ship's bar reads: the ship and its captain, how hard the hunters' name among the
+	 * pirates has made its crew (★ for each ship taken before it, ☆ up to the most), and the crew
+	 * still standing (◆ for each, ◇ for each lost; nothing until any are counted).
+	 */
+	public static Component barName(final Ship ship, final int standing, final int most) {
+		int notoriety = Mth.clamp(ship.notoriety(), 0, MAX_NOTORIETY);
+		MutableComponent name = Component.empty().append(ship.shipName()).append(" · ").append(ship.captainName()).append("  ")
+			.append(Component.translatable("hud.mistinn.naval.notoriety", "★".repeat(notoriety) + "☆".repeat(MAX_NOTORIETY - notoriety)));
+		if (most > 0) {
+			name.append("  ").append(Component.translatable("hud.mistinn.naval.crew", "◆".repeat(standing) + "◇".repeat(Math.max(0, most - standing))));
+		}
+		return name;
 	}
 
 	/** The broadsides: while a gunner lives, each side's guns fire in turn at a hunter off that side. */
