@@ -110,6 +110,16 @@ public final class MinimapHud implements HudElement {
 			}
 		}
 
+		// the team's marks, blinking in their makers' colours
+		long now = player.level().getGameTime();
+		for (life.shizune.mistinn.client.team.PingClient.Ping ping : life.shizune.mistinn.client.team.PingClient.pings()) {
+			if ((now / 5) % 2 == 0 || life.shizune.mistinn.client.team.PingClient.shown(ping, now) < 1.0F) {
+				net.minecraft.world.phys.Vec3 at = life.shizune.mistinn.client.team.PingClient.where(minecraft, ping, partial);
+				int[] spot = place(at.x - originX, at.z - originZ, scale, cx, cy, size);
+				life.shizune.mistinn.client.team.PingClient.sign(g, spot[0], spot[1], ping.kind(), 0xFF000000 | ping.colour());
+			}
+		}
+
 		// the other hunters, each in their own colour, pinned to the edge when far
 		net.minecraft.resources.Identifier here = player.level().dimension().identifier();
 		for (life.shizune.mistinn.team.TeamPayload.Member member : life.shizune.mistinn.client.team.TeamClient.members()) {

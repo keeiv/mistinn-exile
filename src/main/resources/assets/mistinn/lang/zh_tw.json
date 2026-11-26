@@ -979,6 +979,7 @@
   "notice.mistinn.recipes": "手冊多了「合成」頁籤，每個配方都有圖與說明。",
   "notice.mistinn.controls": "背包格子能用原版的操作了：右鍵拿一半或放一個、Shift 送進箱子、數字鍵和 F 交換、Q 丟一個、雙擊收成一疊；撿到的東西先放快捷欄，再放口袋、背包、胸掛。輪盤移回中間放開 R 就收起。",
   "notice.mistinn.story_shared": "故事改成全隊共用：一人完成目標，全隊一起推進、一起聽到台詞與看到字卡（離得遠的看字幕，字卡等脫離戰鬥再跳出）；晚到的隊友會直接跟上。達成成就時聊天室會公告。",
+  "notice.mistinn.pings": "按 G 在準星指著的地方、怪物或掉落物上打標記，全隊在畫面和小地圖上都看得到，十二秒後消失。",
   "notice.mistinn.bells": "金鐘改成每人各自冷卻；敲鐘會恢復身體並解除負面效果；一次性金鐘每人都能讓它記住一次。",
   "key.mistinn.rescue": "原地救援隊友",
   "key.mistinn.drag": "拖著隊友走",
@@ -1584,5 +1585,10 @@
   "achievement.mistinn.pirate_ship.desc": "奪下一艘海盜船：船長在你附近倒下",
   "notice.mistinn.pirates": "霧海上有海盜：駛出看不見陸地的遠海，黑帆船可能會來搶你身上的鹽。奪下它，船上的槍就是你的。",
   "hud.mistinn.naval.crew": "船員 %s",
-  "hud.mistinn.naval.raiders": "霧海的劫掠者・%s"
+  "hud.mistinn.naval.raiders": "霧海的劫掠者・%s",
+  "key.mistinn.ping": "標記給隊友看",
+  "hud.mistinn.ping.place": "這裡",
+  "hud.mistinn.ping.enemy": "敵人",
+  "hud.mistinn.ping.item": "東西",
+  "hud.mistinn.ping.line": "%1$s %2$sm"
 }

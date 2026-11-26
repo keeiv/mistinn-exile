@@ -50,6 +50,7 @@ public class MistinnClient implements ClientModInitializer {
 		net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry.register(java.util.List.of(net.minecraft.client.color.block.BlockTintSources.grassBlock()),
 			life.shizune.mistinn.registry.MistinnBlocks.GRASS_REDSTONE_SOIL);
 		life.shizune.mistinn.client.grid.QuickWheel.register(CATEGORY);
+		life.shizune.mistinn.client.team.PingClient.register(CATEGORY);
 		KeyMapping guide = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.guide", InputConstants.KEY_B, CATEGORY)
 		);
@@ -98,6 +99,7 @@ public class MistinnClient implements ClientModInitializer {
 
 		// the team's beacons over the places they mark, under the minimap and the rest
 		HudElementRegistry.addLast(Mistinn.id("markers"), new life.shizune.mistinn.client.team.MarkerClient());
+		HudElementRegistry.addLast(Mistinn.id("pings"), new life.shizune.mistinn.client.team.PingClient());
 		HudElementRegistry.addLast(Mistinn.id("minimap"), new MinimapHud());
 		// the quick-use wheel round the crosshair while its key is held
 		HudElementRegistry.addLast(Mistinn.id("quick_wheel"), new life.shizune.mistinn.client.grid.QuickWheel());
@@ -199,6 +201,7 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.story.StoryClient.tick(minecraft);
 			TrainingClient.tick(minecraft);
 			life.shizune.mistinn.client.grid.QuickWheel.tick(minecraft);
+			life.shizune.mistinn.client.team.PingClient.tick(minecraft);
 			while (guide.consumeClick()) {
 				// the guide opens from a key as well as from the book in hand
 				if (minecraft.gui.screen() == null && minecraft.player != null) {
