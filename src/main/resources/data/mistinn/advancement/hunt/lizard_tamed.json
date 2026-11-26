@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/drake_shattered",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": true,
+		"description": {
+			"translate": "achievement.mistinn.lizard_tamed.desc"
+		},
+		"icon": {
+			"id": "mistinn:crystal_dust"
+		},
+		"title": {
+			"translate": "achievement.mistinn.lizard_tamed"
+		},
+		"frame": "task"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

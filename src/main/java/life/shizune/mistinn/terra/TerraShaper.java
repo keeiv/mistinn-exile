@@ -78,6 +78,18 @@ public final class TerraShaper implements DomainService.Shaper {
 	public static final int NEST_SPIRES = 9;
 	private static final double LEAN = 0.16;
 
+	/** A hunter opening a vein ruin's chest for the first time (its loot not yet drawn) has found the ruin's treasure. */
+	public static void watchRuins() {
+		net.fabricmc.fabric.api.event.player.UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+			if (player instanceof net.minecraft.server.level.ServerPlayer hunter
+				&& level.getBlockEntity(hit.getBlockPos()) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chest
+				&& RUIN_LOOT.equals(chest.getLootTable())) {
+				life.shizune.mistinn.achievement.AchievementService.grant(hunter, life.shizune.mistinn.achievement.AchievementService.RUIN_OPENED);
+			}
+			return net.minecraft.world.InteractionResult.PASS;
+		});
+	}
+
 	private static ResourceKey<Biome> key(final String name) {
 		return ResourceKey.create(Registries.BIOME, Mistinn.id(name));
 	}

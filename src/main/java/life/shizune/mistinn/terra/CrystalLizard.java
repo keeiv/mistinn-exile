@@ -483,6 +483,7 @@ public class CrystalLizard extends Monster {
 		level.sendParticles(ParticleTypes.END_ROD, this.getX(), this.getY() + 0.5, this.getZ(), 10, 0.3, 0.3, 0.3, 0.03);
 		level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.NEUTRAL, 1.0F, 1.6F);
 		hunter.sendSystemMessage(Component.translatable("message.mistinn.lizard.tamed").withStyle(ChatFormatting.AQUA));
+		life.shizune.mistinn.achievement.AchievementService.grant(hunter, life.shizune.mistinn.achievement.AchievementService.LIZARD_TAMED);
 	}
 
 	/** It keeps to this spot, lying in wait, or follows again. */
