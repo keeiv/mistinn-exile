@@ -56,6 +56,7 @@ public final class MistinnGridControlsTest implements FabricClientGameTest {
 			world.getServer().runOnServer(MistinnGridControlsTest::aDoubleClickGathers);
 			world.getServer().runOnServer(MistinnGridControlsTest::aChestShiftClickComesToTheHotbarFirst);
 			world.getServer().runOnServer(MistinnGridControlsTest::shiftClickOnABagPutsItOn);
+			world.getServer().runOnServer(MistinnGridControlsTest::sortingLaysItOutAfresh);
 			context.waitTicks(5);
 			keysOnTheHunterScreen(context, world);
 			shiftClickIntoAnOpenChest(context, world);
@@ -189,6 +190,27 @@ public final class MistinnGridControlsTest implements FabricClientGameTest {
 		check(player.getInventory().getItem(3).is(MistinnItems.BACKPACKS.get(1)), "with one worn, the second stays on the hotbar");
 	}
 
+	private static void sortingLaysItOutAfresh(final MinecraftServer server) {
+		ServerPlayer player = reset(server);
+		GridService.set(player, GridService.get(player).with(Area.BACKPACK, List.of(
+			new Placed(0, 0, 0, false, new ItemStack(Items.ARROW, 10)),
+			new Placed(0, 1, 0, false, new ItemStack(Items.IRON_SWORD)),
+			new Placed(0, 2, 0, false, new ItemStack(Items.DIRT, 5)),
+			new Placed(0, 3, 2, false, new ItemStack(Items.ARROW, 20)))));
+		GridService.sort(player, Area.BACKPACK);
+		List<Placed> pack = GridService.get(player).items(Area.BACKPACK);
+		check(pack.size() == 3, "the two arrow stacks are one after sorting: " + pack);
+		check(count(player, Area.BACKPACK, Items.ARROW) == 30 && count(player, Area.BACKPACK, Items.DIRT) == 5
+			&& count(player, Area.BACKPACK, Items.IRON_SWORD) == 1, "and nothing is lost: " + pack);
+		var shape = GridService.get(player).shape(Area.BACKPACK);
+		for (int i = 0; i < pack.size(); i++) {
+			Placed placed = pack.get(i);
+			check(life.shizune.mistinn.grid.GridLogic.fits(shape, pack, placed.section(), placed.x(), placed.y(), placed.width(), placed.height(), i),
+				"every item lies inside the backpack, on no other: " + placed);
+		}
+		check(pack.getFirst().stack().is(Items.DIRT), "the largest is laid first: " + pack.getFirst());
+	}
+
 	/** F, a number key, right-click and Q with the mouse over a pocket on the hunter screen. */
 	private static void keysOnTheHunterScreen(final ClientGameTestContext context, final TestSingleplayerContext world) {
 		world.getServer().runOnServer(server -> {
@@ -222,6 +244,15 @@ public final class MistinnGridControlsTest implements FabricClientGameTest {
 		context.waitTicks(4);
 		world.getServer().runOnServer(server -> check(pocket(player(server), 2).getCount() == 4, "Q over the pocket throws one"));
 		context.takeScreenshot("mistinn-grid-controls");
+		// with something in the backpack and the rig, their sort buttons show
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			GridService.set(player, GridService.get(player).with(Area.BACKPACK, List.of(
+				new Placed(0, 0, 0, false, new ItemStack(Items.ARROW, 10)), new Placed(0, 3, 2, false, new ItemStack(Items.ARROW, 20))))
+				.with(Area.RIG, List.of(new Placed(0, 0, 0, false, new ItemStack(Items.BREAD, 2)))));
+		});
+		context.waitTicks(4);
+		context.takeScreenshot("mistinn-grid-sort-buttons");
 		context.setScreen(() -> null);
 		context.waitTicks(3);
 	}

@@ -259,6 +259,7 @@
   "item.mistinn.boots_5.lore.1": "沉重的金鐵靴，每一步都像鐘擺。",
   "item.mistinn.boots_5.lore.2": "據說鐘守是用腳步聲計時的。",
   "gui.mistinn.rig_slot": "胸掛",
+  "gui.mistinn.rig_short": "胸掛",
   "gui.mistinn.mask_slot": "面罩",
   "gui.mistinn.gear": "裝備",
   "gui.mistinn.helmet_slot": "頭盔",
@@ -1590,5 +1591,7 @@
   "hud.mistinn.ping.place": "這裡",
   "hud.mistinn.ping.enemy": "敵人",
   "hud.mistinn.ping.item": "東西",
-  "hud.mistinn.ping.line": "%1$s %2$sm"
+  "hud.mistinn.ping.line": "%1$s %2$sm",
+  "gui.mistinn.sort": "整理",
+  "gui.mistinn.sort.hint": "同樣的東西疊起來，大的先放；放不回去就不動"
 }
