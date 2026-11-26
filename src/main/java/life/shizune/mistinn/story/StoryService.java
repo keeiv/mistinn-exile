@@ -2,7 +2,13 @@ package life.shizune.mistinn.story;
 
 import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.keeper.RustWheel;
 import life.shizune.mistinn.keeper.Snuffer;
@@ -86,6 +92,11 @@ public final class StoryService {
 		.persistent(StoryEnding.CODEC)
 		.buildAndRegister(Mistinn.id("story_ending"));
 
+	/** How far the team has come: the story is the team's, every hunter on the same objective. */
+	private static final AttachmentType<StoryStep> TEAM_STEP = AttachmentRegistry.<StoryStep>builder()
+		.persistent(Codec.STRING.xmap(StoryStep::byId, step -> step.id))
+		.buildAndRegister(Mistinn.id("story_team_step"));
+
 	/** The last shared objective completed in the story world. */
 	private static final AttachmentType<StoryStep> CHAPTER_PROGRESS = AttachmentRegistry.<StoryStep>builder()
 		.persistent(Codec.STRING.xmap(StoryStep::byId, step -> step.id))
@@ -121,6 +132,14 @@ public final class StoryService {
 	private static final int STATION_MAX = 240;
 	/** Ticks after first joining before the opening card, so the world has drawn. */
 	private static final int OPENING_DELAY = 60;
+	/** A teammate this near sees a scene played where it happened; further off they hear its lines. */
+	private static final double SCENE_REACH = 64.0;
+	/** The hunters of the team: everyone in the world. A seam for tests, whose second hunter is not in the player list. */
+	public static java.util.function.Function<MinecraftServer, List<ServerPlayer>> hunters = server -> server.getPlayerList().getPlayers();
+	/** A card for a teammate who is fighting waits until they are not; at most this long. */
+	private static final int CARD_WAIT = 3600;
+	/** Between one waiting card and the next. */
+	private static final int CARD_GAP = 160;
 
 	private StoryService() {
 	}
@@ -165,7 +184,11 @@ public final class StoryService {
 		ServerPlayerEvents.JOIN.register(StoryService::join);
 		ServerTickEvents.END_SERVER_TICK.register(StoryService::tick);
 		// nothing still to come carries over into another world
-		ServerLifecycleEvents.SERVER_STOPPING.register(server -> LATER.clear());
+		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+			LATER.clear();
+			WAITING.clear();
+			LAST_CARD.clear();
+		});
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
 			if (entity instanceof Snuffer keeper) {
 				keeperDown(keeper);
@@ -228,6 +251,146 @@ public final class StoryService {
 		} else if (progress.step() == StoryStep.DELIVER) {
 			complete(server, StoryStep.SNUFFER);
 		}
+		catchUp(player);
+	}
+
+	/**
+	 * A hunter arrives where the team has gone on without them: they are brought to the team's
+	 * objective. In a world from before the story was shared, the hunter furthest along sets it.
+	 */
+	public static void catchUp(final ServerPlayer player) {
+		MinecraftServer server = player.level().getServer();
+		StoryProgress progress = get(player);
+		if (progress == null) {
+			return;
+		}
+		StoryStep team = server.overworld().getAttached(TEAM_STEP);
+		if (team == null || team.ordinal() <= progress.step().ordinal()) {
+			server.overworld().setAttached(TEAM_STEP, progress.step());
+			// this hunter is the furthest along: whoever is here and behind comes up to them
+			for (ServerPlayer mate : hunters.apply(server)) {
+				if (mate != player && get(mate) != null && get(mate).step().ordinal() < progress.step().ordinal()) {
+					catchUp(mate);
+				}
+			}
+			return;
+		}
+		// an ending reached while they were away comes to them as it came to the others, by the choice's own path
+		StoryStep to = team == StoryStep.ENDED ? StoryStep.CHOOSE : team;
+		if (to.ordinal() <= progress.step().ordinal()) {
+			return;
+		}
+		advance(player, to);
+		player.sendSystemMessage(Component.translatable("message.mistinn.story.caught_up",
+			Component.translatable("story.mistinn.step." + to.id)));
+	}
+
+	/**
+	 * Moves the hunter who did it on to {@code next}, and the rest of the team with them: one
+	 * objective for all. Returns the teammates it moved (those who were behind {@code next}).
+	 */
+	private static List<ServerPlayer> advanceTeam(final ServerPlayer actor, final StoryStep next) {
+		MinecraftServer server = actor.level().getServer();
+		advance(actor, next);
+		StoryStep team = server.overworld().getAttached(TEAM_STEP);
+		if (team == null || team.ordinal() < next.ordinal()) {
+			server.overworld().setAttached(TEAM_STEP, next);
+		}
+		List<ServerPlayer> moved = new ArrayList<>();
+		for (ServerPlayer mate : hunters.apply(server)) {
+			StoryProgress progress = get(mate);
+			if (mate == actor || progress == null || progress.step().ordinal() >= next.ordinal()) {
+				continue;
+			}
+			advance(mate, next);
+			moved.add(mate);
+		}
+		return moved;
+	}
+
+	/** Whether a teammate is near enough to the one who did it to see the scene where it happened. */
+	private static boolean nearby(final ServerPlayer mate, final ServerPlayer actor) {
+		return mate.level() == actor.level() && mate.distanceToSqr(actor) <= SCENE_REACH * SCENE_REACH;
+	}
+
+	/**
+	 * Plays a sequence for the one who did it and for the teammates moved with them: those near see
+	 * it as it is (the scene and the card after it), those far off hear the lines, and their card
+	 * waits until they are out of a fight.
+	 */
+	private static void play(final ServerPlayer actor, final List<ServerPlayer> team, final String sequence, final int focus, final String cardAfter) {
+		play(actor, sequence, focus, cardAfter);
+		for (ServerPlayer mate : team) {
+			if (nearby(mate, actor)) {
+				play(mate, sequence, focus, cardAfter);
+			} else {
+				play(mate, sequence, -1, "");
+				if (!cardAfter.isEmpty()) {
+					cardWhenCalm(mate, cardAfter);
+				}
+			}
+		}
+	}
+
+	/** Shows a card to the one who did it, and to the teammates moved with them (later, for one who is fighting far off). */
+	private static void card(final ServerPlayer actor, final List<ServerPlayer> team, final String card) {
+		ServerPlayNetworking.send(actor, new CardPayload(card));
+		for (ServerPlayer mate : team) {
+			if (nearby(mate, actor)) {
+				ServerPlayNetworking.send(mate, new CardPayload(card));
+			} else {
+				cardWhenCalm(mate, card);
+			}
+		}
+	}
+
+	/** A card waiting for a hunter: which, and since when. */
+	private record Waiting(String card, long since) {
+	}
+
+	private static final Map<UUID, ArrayDeque<Waiting>> WAITING = new HashMap<>();
+	private static final Map<UUID, Long> LAST_CARD = new HashMap<>();
+
+	/** How many cards wait for a hunter, for tests. */
+	public static int waiting(final ServerPlayer player) {
+		ArrayDeque<Waiting> queue = WAITING.get(player.getUUID());
+		return queue == null ? 0 : queue.size();
+	}
+
+	/** Where the team is in the story, or null before anyone has a place in it. */
+	public static @Nullable StoryStep teamStep(final MinecraftServer server) {
+		return server.overworld().getAttached(TEAM_STEP);
+	}
+
+	private static void cardWhenCalm(final ServerPlayer player, final String card) {
+		WAITING.computeIfAbsent(player.getUUID(), id -> new ArrayDeque<>()).add(new Waiting(card, player.level().getGameTime()));
+	}
+
+	/** Cards held back for hunters who were fighting: shown once they are not (or after a long while regardless). */
+	private static void waitingCards(final MinecraftServer server) {
+		long now = server.overworld().getGameTime();
+		for (ServerPlayer player : hunters.apply(server)) {
+			ArrayDeque<Waiting> queue = WAITING.get(player.getUUID());
+			if (queue == null || queue.isEmpty() || now - LAST_CARD.getOrDefault(player.getUUID(), Long.MIN_VALUE / 2) < CARD_GAP) {
+				continue;
+			}
+			Waiting next = queue.peek();
+			if (calm(player) || now - next.since() > CARD_WAIT) {
+				queue.poll();
+				LAST_CARD.put(player.getUUID(), now);
+				ServerPlayNetworking.send(player, new CardPayload(next.card()));
+			}
+		}
+	}
+
+	/** Whether a hunter can be shown a card without it costing them: up, unhurt for a while, nothing after them. */
+	private static boolean calm(final ServerPlayer player) {
+		if (!player.isAlive() || life.shizune.mistinn.team.DownService.isDown(player) || player.hurtTime > 0
+			|| player.tickCount - player.getLastHurtByMobTimestamp() < 100) {
+			return false;
+		}
+		return player.level().getEntitiesOfClass(net.minecraft.world.entity.Mob.class, player.getBoundingBox().inflate(16.0),
+			mob -> mob.isAlive() && mob.getTarget() == player).isEmpty();
 	}
 
 	private static boolean completed(final MinecraftServer server, final StoryStep step) {
@@ -252,6 +415,7 @@ public final class StoryService {
 			return;
 		}
 		later();
+		waitingCards(server);
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 			StoryProgress progress = get(player);
 			if (progress == null) {
@@ -274,22 +438,22 @@ public final class StoryService {
 		switch (progress.step()) {
 			case SALT -> {
 				if (SaltService.get(player) >= StoryStep.SALT_GOAL) {
-					advance(player, StoryStep.STATION);
+					advanceTeam(player, StoryStep.STATION);
 				}
 			}
 			case STATION -> {
 				if (places != null && near(player, places.station(), STATION_REACH)) {
-					advance(player, StoryStep.RADIO);
+					advanceTeam(player, StoryStep.RADIO);
 				}
 			}
 			case LIGHTHOUSE -> {
 				if (places != null && near(player, places.lighthouse(), LIGHTHOUSE_REACH)) {
-					advance(player, StoryStep.BELL);
+					advanceTeam(player, StoryStep.BELL);
 				}
 			}
 			case LAMP_ROOM -> {
 				if (places != null && near(player, places.lampRoom(), LAMP_ROOM_REACH) && player.getY() >= places.lampRoom().getY() - 0.5) {
-					advance(player, StoryStep.SNUFFER);
+					advanceTeam(player, StoryStep.SNUFFER);
 				}
 			}
 			case SNUFFER -> {
@@ -318,14 +482,13 @@ public final class StoryService {
 			case BELL_STATION -> {
 				StoryRoad road = road(server);
 				if (road != null && near(player, road.bellStation(), BELL_STATION_REACH)) {
-					advance(player, StoryStep.BELL_REST);
-					ServerPlayNetworking.send(player, new CardPayload(StoryScript.BELL_STATION.id()));
+					card(player, advanceTeam(player, StoryStep.BELL_REST), StoryScript.BELL_STATION.id());
 				}
 			}
 			case BELFRY -> {
 				StoryRoad road = road(server);
 				if (road != null && near(player, road.belfry(), BELFRY_REACH) && player.getY() >= road.belfry().getY() - 0.5) {
-					advance(player, StoryStep.SUNKEN_BELL);
+					advanceTeam(player, StoryStep.SUNKEN_BELL);
 				}
 			}
 			case SUNKEN_BELL -> {
@@ -344,20 +507,19 @@ public final class StoryService {
 			case POD -> {
 				StoryWorks works = ensureWorks(server);
 				if (works != null && near(player, works.pod(), POD_REACH)) {
-					advance(player, StoryStep.SALT_WORKS);
-					play(player, StoryScript.SUPPLY_CALL, -1, StoryScript.SALT_WORKS.id());
+					play(player, advanceTeam(player, StoryStep.SALT_WORKS), StoryScript.SUPPLY_CALL, -1, StoryScript.SALT_WORKS.id());
 				}
 			}
 			case SALT_WORKS -> {
 				StoryWorks works = works(server);
 				if (works != null && near(player, works.works(), WORKS_REACH)) {
-					advance(player, StoryStep.WORKS_BELL);
+					advanceTeam(player, StoryStep.WORKS_BELL);
 				}
 			}
 			case YARD -> {
 				StoryWorks works = works(server);
 				if (works != null && near(player, works.works(), YARD_REACH) && Math.abs(player.getY() - works.works().getY()) <= 4.0) {
-					advance(player, StoryStep.RUST_WHEEL);
+					advanceTeam(player, StoryStep.RUST_WHEEL);
 				}
 			}
 			case RUST_WHEEL -> {
@@ -458,8 +620,7 @@ public final class StoryService {
 		if (!active(player.level().getServer()) || progress == null || progress.step().ordinal() > StoryStep.RADIO.ordinal()) {
 			return false;
 		}
-		advance(player, StoryStep.LIGHTHOUSE);
-		play(player, StoryScript.FIRST_CALL, -1, StoryScript.LIGHTHOUSE.id());
+		play(player, advanceTeam(player, StoryStep.LIGHTHOUSE), StoryScript.FIRST_CALL, -1, StoryScript.LIGHTHOUSE.id());
 		return true;
 	}
 
@@ -483,19 +644,18 @@ public final class StoryService {
 	private static void finishDelivery(final ServerPlayer player) {
 		// nothing answers; the road is laid out now, for the night the bell is heard
 		ensureRoad(player.level().getServer());
-		advance(player, StoryStep.LISTEN);
-		play(player, StoryScript.NO_ANSWER, -1, StoryScript.UNANSWERED.id());
+		play(player, advanceTeam(player, StoryStep.LISTEN), StoryScript.NO_ANSWER, -1, StoryScript.UNANSWERED.id());
 	}
 
 	/** The hunter rested at a golden bell. */
 	public static void rested(final ServerPlayer player) {
 		StoryProgress progress = get(player);
 		if (progress != null && progress.step() == StoryStep.BELL) {
-			advance(player, StoryStep.LAMP_ROOM);
+			advanceTeam(player, StoryStep.LAMP_ROOM);
 		} else if (progress != null && progress.step() == StoryStep.BELL_REST) {
-			advance(player, StoryStep.BELFRY);
+			advanceTeam(player, StoryStep.BELFRY);
 		} else if (progress != null && progress.step() == StoryStep.WORKS_BELL) {
-			advance(player, StoryStep.YARD);
+			advanceTeam(player, StoryStep.YARD);
 		}
 	}
 
@@ -517,8 +677,7 @@ public final class StoryService {
 			int step = progress.step().ordinal();
 			// a hunter who climbed straight up (or found another lighthouse) still counts
 			if (step >= StoryStep.LIGHTHOUSE.ordinal() && step <= StoryStep.SNUFFER.ordinal()) {
-				advance(player, StoryStep.DELIVER);
-				play(player, StoryScript.SNUFFER_END, keeper.getId(), "");
+				play(player, advanceTeam(player, StoryStep.DELIVER), StoryScript.SNUFFER_END, keeper.getId(), "");
 			}
 		}
 	}
@@ -545,8 +704,7 @@ public final class StoryService {
 		for (int toll = 0; toll < 3; toll++) {
 			later(toll * 34, () -> player.level().playSound(null, from.x, from.y, from.z, SoundEvents.BELL_BLOCK, SoundSource.AMBIENT, 4.0F, DROP_BELL_PITCH));
 		}
-		advance(player, StoryStep.CAIRN_1);
-		play(player, StoryScript.NIGHT_TOLL, -1, StoryScript.SALT_ROAD.id());
+		play(player, advanceTeam(player, StoryStep.CAIRN_1), StoryScript.NIGHT_TOLL, -1, StoryScript.SALT_ROAD.id());
 	}
 
 	/** A cairn of the road: the tag under its stone, what the hunter before wrote, and the next. */
@@ -560,12 +718,16 @@ public final class StoryService {
 			lore.add(Component.translatable(line.key()).withStyle(s -> s.withColor(0x9A968E).withItalic(true)));
 		}
 		tag.set(DataComponents.LORE, new ItemLore(lore));
-		if (!player.getInventory().add(tag)) {
-			player.drop(tag, false, net.minecraft.util.Prediction.SERVER_ONLY);
-		}
 		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.CHAIN_BREAK, SoundSource.PLAYERS, 0.6F, 1.3F);
-		advance(player, cairn + 1 < StoryStep.CAIRNS.size() ? StoryStep.CAIRNS.get(cairn + 1) : StoryStep.BELL_STATION);
-		play(player, sequence, -1, "");
+		List<ServerPlayer> team = advanceTeam(player, cairn + 1 < StoryStep.CAIRNS.size() ? StoryStep.CAIRNS.get(cairn + 1) : StoryStep.BELL_STATION);
+		// every hunter of the team keeps a copy of the tag and what it says
+		for (ServerPlayer hunter : concat(player, team)) {
+			ItemStack copy = tag.copy();
+			if (!hunter.getInventory().add(copy)) {
+				hunter.drop(copy, false, net.minecraft.util.Prediction.SERVER_ONLY);
+			}
+		}
+		play(player, team, sequence, -1, "");
 	}
 
 	/** The Sunken Bell fell: everyone near it who was after it hears its last words, then is told to ring the bell. */
@@ -584,8 +746,7 @@ public final class StoryService {
 			}
 			int step = progress.step().ordinal();
 			if (step >= StoryStep.BELL_STATION.ordinal() && step <= StoryStep.SUNKEN_BELL.ordinal()) {
-				advance(player, StoryStep.RING);
-				play(player, StoryScript.SUNKEN_BELL_END, bell.getId(), "");
+				play(player, advanceTeam(player, StoryStep.RING), StoryScript.SUNKEN_BELL_END, bell.getId(), "");
 			}
 		}
 	}
@@ -616,14 +777,14 @@ public final class StoryService {
 		complete(server, StoryStep.RING);
 		// the answer: a pod, already on its way down inland
 		ensureWorks(server);
-		advance(player, StoryStep.POD);
+		List<ServerPlayer> team = advanceTeam(player, StoryStep.POD);
 		// long after, far out over the fog and high up, three tolls
 		Vec3 away = bell.subtract(Vec3.atCenterOf(road.bellStation())).multiply(1.0, 0.0, 1.0);
 		Vec3 far = player.position().add(away.lengthSqr() < 1.0 ? new Vec3(0.0, 0.0, 48.0) : away.normalize().scale(48.0)).add(0.0, 30.0, 0.0);
 		for (int toll = 0; toll < 3; toll++) {
 			later(90 + toll * 34, () -> level.playSound(null, far.x, far.y, far.z, SoundEvents.BELL_BLOCK, SoundSource.AMBIENT, 3.0F, DROP_BELL_PITCH));
 		}
-		later(90 + 3 * 34 + 30, () -> ServerPlayNetworking.send(player, new CardPayload(StoryScript.ANSWER.id())));
+		later(90 + 3 * 34 + 30, () -> card(player, team, StoryScript.ANSWER.id()));
 		return true;
 	}
 
@@ -758,8 +919,7 @@ public final class StoryService {
 			// a hunter who went straight in (or found another salt works) still counts
 			if (step >= StoryStep.SALT_WORKS.ordinal() && step <= StoryStep.RUST_WHEEL.ordinal()) {
 				ensureInn(level.getServer());
-				advance(player, StoryStep.CALL);
-				play(player, StoryScript.RUST_WHEEL_END, wheel.getId(), StoryScript.STOPPED.id());
+				play(player, advanceTeam(player, StoryStep.CALL), StoryScript.RUST_WHEEL_END, wheel.getId(), StoryScript.STOPPED.id());
 			}
 		}
 	}
@@ -887,8 +1047,7 @@ public final class StoryService {
 			return false;
 		}
 		ensureInn(server);
-		advance(player, StoryStep.CHOOSE);
-		play(player, StoryScript.STATION_CALL, -1, StoryScript.THE_CALL.id());
+		play(player, advanceTeam(player, StoryStep.CHOOSE), StoryScript.STATION_CALL, -1, StoryScript.THE_CALL.id());
 		return true;
 	}
 
@@ -916,8 +1075,10 @@ public final class StoryService {
 		}
 		ServerLevel level = server.overworld();
 		level.setAttached(ENDING, ending);
-		advance(player, StoryStep.ENDED);
-		life.shizune.mistinn.achievement.AchievementService.grant(player, achievement(ending));
+		List<ServerPlayer> team = advanceTeam(player, StoryStep.ENDED);
+		for (ServerPlayer hunter : concat(player, team)) {
+			life.shizune.mistinn.achievement.AchievementService.grant(hunter, achievement(ending));
+		}
 		if (ending == StoryEnding.INN) {
 			// the fire takes the salt and burns blue, white smoke off it
 			StoryInn inn = inn(server);
@@ -925,7 +1086,7 @@ public final class StoryService {
 			level.playSound(null, inn.hearth(), SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS, 1.0F, 0.6F);
 			level.sendParticles(net.minecraft.core.particles.ParticleTypes.CLOUD, inn.hearth().getX() + 0.5, inn.hearth().getY() + 0.8, inn.hearth().getZ() + 0.5,
 				30, 0.2, 0.3, 0.2, 0.02);
-			play(player, StoryScript.INN_END, -1, StoryScript.INN.id());
+			play(player, team, StoryScript.INN_END, -1, StoryScript.INN.id());
 			// that night, far beyond the fog and high up, the anchor's chain groans a long time, and parts
 			Vec3 far = player.position().add(0.0, 40.0, 64.0);
 			for (int groan = 0; groan < 4; groan++) {
@@ -933,7 +1094,7 @@ public final class StoryService {
 			}
 			later(220, () -> level.playSound(null, far.x, far.y, far.z, SoundEvents.CHAIN_BREAK, SoundSource.AMBIENT, 4.0F, 0.3F));
 		} else {
-			play(player, StoryScript.ANCHOR_END, -1, StoryScript.ANCHOR.id());
+			play(player, team, StoryScript.ANCHOR_END, -1, StoryScript.ANCHOR.id());
 			// far off over the fog, the station's bell, three times: another pod is going down
 			Vec3 far = player.position().add(0.0, 30.0, -48.0);
 			for (int toll = 0; toll < 3; toll++) {
@@ -941,6 +1102,13 @@ public final class StoryService {
 			}
 		}
 		return true;
+	}
+
+	private static List<ServerPlayer> concat(final ServerPlayer first, final List<ServerPlayer> rest) {
+		List<ServerPlayer> all = new ArrayList<>();
+		all.add(first);
+		all.addAll(rest);
+		return all;
 	}
 
 	private static String achievement(final StoryEnding ending) {
