@@ -86,6 +86,8 @@ public class HunterGuideScreen extends Screen {
 
 	private Tab tab = Tab.PAGES;
 	private int spread;
+	/** Whether the pages' contents are open instead of a spread. */
+	private boolean contents;
 	/** The crafting pages' open spread: the contents and the first recipe, then two recipes at a time. */
 	private int recipeSpread;
 	private @Nullable String armed;
@@ -110,6 +112,22 @@ public class HunterGuideScreen extends Screen {
 	/** Which two pages are open (0 for pages 1 and 2). */
 	public int spread() {
 		return this.spread;
+	}
+
+	/** Whether the pages' contents are open. */
+	public boolean contentsOpen() {
+		return this.contents;
+	}
+
+	/** Centre of the link that opens the contents, in GUI pixels. */
+	public double[] contentsLink() {
+		int[] at = GuideContents.link(this.font, this.left(), this.top());
+		return new double[] {at[0] + at[2] / 2.0, at[1] + at[3] / 2.0};
+	}
+
+	/** Centre of the contents' line for the chapter starting on this page, in GUI pixels. */
+	public double[] contentsLine(final int page) {
+		return GuideContents.line(this.left(), this.top(), GuideContents.CHAPTERS.indexOf(page));
 	}
 
 	/** Which crafting spread is open (0: the contents and the first recipe). */
@@ -224,6 +242,21 @@ public class HunterGuideScreen extends Screen {
 		if (this.tab == Tab.PAGES) {
 			int x = this.left();
 			int y = this.top();
+			int[] link = GuideContents.link(this.font, x, y);
+			if (inside(mx, my, link[0], link[1], link[2], link[3])) {
+				this.contents = !this.contents;
+				click(SoundEvents.BOOK_PAGE_TURN);
+				return true;
+			}
+			if (this.contents) {
+				int chapter = GuideContents.at(x, y, mx, my);
+				if (chapter >= 0 && GuideContents.CHAPTERS.get(chapter) <= MistinnItems.GUIDE_PAGES) {
+					this.spread = (GuideContents.CHAPTERS.get(chapter) - 1) / 2;
+					this.contents = false;
+					click(SoundEvents.BOOK_PAGE_TURN);
+				}
+				return true;
+			}
 			if (this.spread > 0 && inside(mx, my, x + 16, y + 176, 18, 12)) {
 				this.spread--;
 				click(SoundEvents.BOOK_PAGE_TURN);
@@ -325,6 +358,11 @@ public class HunterGuideScreen extends Screen {
 	}
 
 	private void pages(final GuiGraphicsExtractor g, final int x, final int y, final int mouseX, final int mouseY) {
+		if (this.contents) {
+			GuideContents.draw(g, this.font, x, y, mouseX, mouseY);
+			GuideContents.drawLink(g, this.font, x, y, mouseX, mouseY);
+			return;
+		}
 		for (int side = 0; side < 2; side++) {
 			int page = this.spread * 2 + side + 1;
 			if (page > MistinnItems.GUIDE_PAGES) {
@@ -347,6 +385,7 @@ public class HunterGuideScreen extends Screen {
 			boolean hover = inside(mouseX, mouseY, x + W - 34, y + 176, 18, 12);
 			g.blit(RenderPipelines.GUI_TEXTURED, ARROWS, x + W - 34, y + 176, 18.0F, hover ? 12 : 0, 18, 12, 36, 24);
 		}
+		GuideContents.drawLink(g, this.font, x, y, mouseX, mouseY);
 	}
 
 	private void stats(final GuiGraphicsExtractor g, final int x, final int y) {

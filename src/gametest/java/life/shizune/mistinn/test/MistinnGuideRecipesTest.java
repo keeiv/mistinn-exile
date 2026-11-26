@@ -31,6 +31,7 @@ public final class MistinnGuideRecipesTest implements FabricClientGameTest {
 			context.waitTicks(10);
 			context.runOnClient(mc -> everyRecipeHasItsPage());
 			theCraftingBookmarkAndItsContents(context);
+			thePagesContents(context);
 		}
 	}
 
@@ -87,6 +88,26 @@ public final class MistinnGuideRecipesTest implements FabricClientGameTest {
 		check(context.computeOnClient(mc -> screen.recipeSpread()) == (food + 1) / 2, "and the contents' lines only work on the contents page");
 		click(context, context.computeOnClient(mc -> screen.nextPage()));
 		check(context.computeOnClient(mc -> screen.recipeSpread()) == (food + 1) / 2 + 1, "the arrow turns the crafting pages too");
+		context.runOnClient(mc -> mc.gui.setScreen(null));
+	}
+
+	/** The pages' contents: the link between the arrows opens it, a chapter's line turns to that chapter, and the link closes it again. */
+	private static void thePagesContents(final ClientGameTestContext context) {
+		HunterGuideScreen screen = context.computeOnClient(mc -> {
+			HunterGuideScreen opened = new HunterGuideScreen();
+			mc.gui.setScreen(opened);
+			return opened;
+		});
+		context.waitTicks(3);
+		check(context.computeOnClient(mc -> screen.tab()) == HunterGuideScreen.Tab.PAGES && !screen.contentsOpen(), "the guide opens on its pages");
+		click(context, context.computeOnClient(mc -> screen.contentsLink()));
+		check(context.computeOnClient(mc -> screen.contentsOpen()), "the link opens the contents");
+		context.takeScreenshot("mistinn-guide-contents");
+		click(context, context.computeOnClient(mc -> screen.contentsLine(35)));
+		check(context.computeOnClient(mc -> !screen.contentsOpen() && screen.spread() == 17), "a chapter's line turns to it: " + context.computeOnClient(mc -> screen.spread()));
+		click(context, context.computeOnClient(mc -> screen.contentsLink()));
+		click(context, context.computeOnClient(mc -> screen.contentsLink()));
+		check(context.computeOnClient(mc -> !screen.contentsOpen() && screen.spread() == 17), "and the link closes it again, where the hunter was");
 		context.runOnClient(mc -> mc.gui.setScreen(null));
 	}
 
