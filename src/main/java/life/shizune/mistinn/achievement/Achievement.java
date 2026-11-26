@@ -42,6 +42,7 @@ public enum Achievement {
 	RIFT_CALLED(AchievementService.RIFT_CALLED, 300),
 	ENDING_ANCHOR(AchievementService.ENDING_ANCHOR, 2000),
 	ENDING_INN(AchievementService.ENDING_INN, 2000),
+	SEA_SEEN(AchievementService.SEA_SEEN, 2000),
 	REVIVE_LIMB("revive_limb", 150),
 	BELL("bell", 50),
 	RESIDUE("residue", 100),
