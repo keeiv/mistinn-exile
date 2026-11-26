@@ -28,10 +28,11 @@ import net.minecraft.util.FormattedCharSequence;
 import org.jspecify.annotations.Nullable;
 
 /**
- * 追獵者手冊: an open field manual with four bookmarks. The guide's pages read as spreads; the
+ * 追獵者手冊: an open field manual with six bookmarks. The guide's pages read as spreads; the
  * stats page shows what each stat does for the hunter now and what they carry to spend; the
- * skills page is the tree, where a node is bought with a second click; the achievements page
- * lists what the hunter has done, and what is still to do.
+ * skills page is the tree, where a node is bought with a second click; the crafting pages show
+ * the recipes; the supply page is the anchor station's list, ordered from the same way; the
+ * achievements page lists what the hunter has done, and what is still to do.
  */
 public class HunterGuideScreen extends Screen {
 	/** The guide's four pages, by the tab that opens each. */
@@ -40,6 +41,7 @@ public class HunterGuideScreen extends Screen {
 		STATS("gui.mistinn.guide.tab.stats"),
 		SKILLS("gui.mistinn.guide.tab.skills"),
 		RECIPES("gui.mistinn.guide.tab.recipes"),
+		SUPPLY("gui.mistinn.guide.tab.supply"),
 		ACHIEVEMENTS("gui.mistinn.guide.tab.achievements");
 
 		final String key;
@@ -54,7 +56,9 @@ public class HunterGuideScreen extends Screen {
 	public static final int PAGE_WIDTH = 128;
 	public static final int PAGE_ROWS = 16;
 	public static final int H = 200;
-	private static final int TAB_W = 64;
+	private static final int TAB_W = 52;
+	/** The bookmark texture is wider than a bookmark: it is drawn as its two ends. */
+	private static final int TABS_TEX_W = 64;
 	private static final int TAB_H = 20;
 	private static final int MAJOR = 32;
 	private static final int MINOR = 24;
@@ -149,7 +153,7 @@ public class HunterGuideScreen extends Screen {
 
 	/** Centre of a tab, in GUI pixels. */
 	public double[] tabCentre(final Tab tab) {
-		// five bookmarks along the top edge, each just overlapping the next
+		// six bookmarks along the top edge, each just overlapping the next
 		return new double[] {this.left() + 2 + tab.ordinal() * (TAB_W - 1) + TAB_W / 2.0, this.top() - TAB_H / 2.0};
 	}
 
@@ -167,6 +171,16 @@ public class HunterGuideScreen extends Screen {
 	/** Top-left of the locked major node that closes each row (a later keeper's skill). */
 	private static int[] reservedAt(final int row) {
 		return new int[] {250, 22 + row * 42};
+	}
+
+	/** Centre of an offer's row on the supply page, in GUI pixels. */
+	public double[] offerCentre(final int index) {
+		return GuideSupplyPage.rowCentre(this.left(), this.top(), index);
+	}
+
+	/** The anchor station answered an order. */
+	public static void supplied(final life.shizune.mistinn.supply.SupplyService.OrderResultPayload payload) {
+		GuideSupplyPage.answered(payload);
 	}
 
 	/** Centre of a node on the skills page, in GUI pixels. */
@@ -195,12 +209,16 @@ public class HunterGuideScreen extends Screen {
 				if (this.tab != each) {
 					this.tab = each;
 					this.armed = null;
+					GuideSupplyPage.disarm();
 					click(SoundEvents.BOOK_PAGE_TURN);
 				}
 				return true;
 			}
 		}
 		if (this.tab == Tab.RECIPES && this.recipesClicked(mx, my)) {
+			return true;
+		}
+		if (this.tab == Tab.SUPPLY && GuideSupplyPage.clicked(this.left(), this.top(), mx, my)) {
 			return true;
 		}
 		if (this.tab == Tab.PAGES) {
@@ -284,7 +302,9 @@ public class HunterGuideScreen extends Screen {
 			int ty = (int) (c[1] - TAB_H / 2.0);
 			boolean hover = inside(mouseX, mouseY, tx, ty, TAB_W, TAB_H);
 			int v = each == this.tab ? 2 * TAB_H : hover ? TAB_H : 0;
-			g.blit(RenderPipelines.GUI_TEXTURED, TABS, tx, ty, 0.0F, v, TAB_W, TAB_H, TAB_W, TAB_H * 3);
+			int half = TAB_W / 2;
+			g.blit(RenderPipelines.GUI_TEXTURED, TABS, tx, ty, 0.0F, v, half, TAB_H, TABS_TEX_W, TAB_H * 3);
+			g.blit(RenderPipelines.GUI_TEXTURED, TABS, tx + half, ty, TABS_TEX_W - (TAB_W - half), v, TAB_W - half, TAB_H, TABS_TEX_W, TAB_H * 3);
 			Component label = Component.translatable(each.key);
 			g.text(this.font, label, tx + (TAB_W - this.font.width(label)) / 2, ty + 7, each == this.tab ? INK : 0xFFE8DCC4, false);
 		}
@@ -294,6 +314,7 @@ public class HunterGuideScreen extends Screen {
 			case STATS -> this.stats(g, x, y);
 			case SKILLS -> this.skills(g, x, y, mouseX, mouseY);
 			case RECIPES -> GuideRecipePages.draw(this, g, x, y, mouseX, mouseY);
+			case SUPPLY -> GuideSupplyPage.draw(this, g, x, y, mouseX, mouseY);
 			case ACHIEVEMENTS -> {
 			}
 		}
