@@ -97,8 +97,14 @@ public final class GridLogic {
 		return null;
 	}
 
-	/** A backpack that still holds things cannot be packed into another grid. */
+	/**
+	 * No bag in a bag: a backpack or a chest rig, full or empty, never goes into a grid (pockets, safe
+	 * box, backpack or rig). They are worn, carried on the hotbar or left in a chest.
+	 */
 	public static boolean canStore(final ItemStack stack) {
+		if (GridInventory.backpackOf(stack) != null || GridInventory.rigOf(stack) != null) {
+			return false;
+		}
 		List<Placed> contents = stack.get(life.shizune.mistinn.registry.MistinnComponents.BACKPACK_CONTENTS);
 		return contents == null || contents.isEmpty();
 	}
