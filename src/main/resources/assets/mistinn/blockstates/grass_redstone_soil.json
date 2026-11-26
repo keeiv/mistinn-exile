@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "age=0,snowy=false": {
+      "model": "mistinn:block/grass_redstone_soil"
+    },
+    "age=0,snowy=true": {
+      "model": "mistinn:block/grass_redstone_soil_snow"
+    },
+    "age=1,snowy=false": {
+      "model": "mistinn:block/grass_redstone_soil"
+    },
+    "age=1,snowy=true": {
+      "model": "mistinn:block/grass_redstone_soil_snow"
+    },
+    "age=2,snowy=false": {
+      "model": "mistinn:block/grass_redstone_soil"
+    },
+    "age=2,snowy=true": {
+      "model": "mistinn:block/grass_redstone_soil_snow"
+    },
+    "age=3,snowy=false": {
+      "model": "mistinn:block/grass_redstone_soil_ripe"
+    },
+    "age=3,snowy=true": {
+      "model": "mistinn:block/grass_redstone_soil_snow_ripe"
+    }
+  }
+}

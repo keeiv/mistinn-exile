@@ -94,7 +94,19 @@ public final class MistinnBlocks {
 			.pushReaction(PushReaction.POPPED)
 	);
 
-	/** 紅石息壤: earth that breeds redstone, ripening by itself. */
+	/** 草紅石息壤: redstone soil under grass, found on the surface. */
+	public static final Block GRASS_REDSTONE_SOIL = register(
+		"grass_redstone_soil",
+		life.shizune.mistinn.block.GrassRedstoneSoilBlock::new,
+		BlockBehaviour.Properties.of()
+			.mapColor(MapColor.GRASS)
+			.strength(0.6F)
+			.sound(SoundType.GRASS)
+			.randomTicks()
+			.lightLevel(state -> state.getValue(life.shizune.mistinn.block.RedstoneSoilBlock.AGE) == life.shizune.mistinn.block.RedstoneSoilBlock.RIPE ? 7 : 0)
+	);
+
+	/** 泥紅石息壤: earth that breeds redstone, ripening by itself; found in the dirt layers, and crafted. */
 	public static final Block REDSTONE_SOIL = register(
 		"redstone_soil",
 		life.shizune.mistinn.block.RedstoneSoilBlock::new,

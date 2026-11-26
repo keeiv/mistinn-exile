@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:disk",
+  "half_height": 0,
+  "radius": {
+    "type": "minecraft:uniform",
+    "min_inclusive": 0,
+    "max_inclusive": 1
+  },
+  "state_provider": {
+    "type": "minecraft:rule_based",
+    "fallback": {
+      "id": "mistinn:grass_redstone_soil",
+      "properties": {
+        "age": "3",
+        "snowy": "false"
+      }
+    },
+    "rules": []
+  },
+  "target": {
+    "type": "minecraft:matching_blocks",
+    "blocks": [
+      "minecraft:grass_block"
+    ]
+  }
+}

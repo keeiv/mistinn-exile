@@ -90,6 +90,7 @@ public final class MistinnItems {
 	public static final Item LAMP_STAND = block("lamp_stand", MistinnBlocks.LAMP_STAND, new Item.Properties());
 	public static final Item MARKER_BEACON = block("marker_beacon", MistinnBlocks.MARKER_BEACON, new Item.Properties().stacksTo(16));
 	public static final Item REDSTONE_SOIL = block("redstone_soil", MistinnBlocks.REDSTONE_SOIL, new Item.Properties());
+	public static final Item GRASS_REDSTONE_SOIL = block("grass_redstone_soil", MistinnBlocks.GRASS_REDSTONE_SOIL, new Item.Properties());
 
 	/** 護甲維修包 / 頭盔維修包 for tiers III to VI, indexed by {@code tier.ordinal() - 3}. */
 	public static final List<Item> ARMOR_REPAIR_KITS = repairKits("armor_repair_kit", EquipmentSlot.CHEST);
