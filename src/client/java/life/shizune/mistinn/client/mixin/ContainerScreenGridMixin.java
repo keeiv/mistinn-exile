@@ -7,12 +7,12 @@ import life.shizune.mistinn.tier.Tiers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -76,7 +76,7 @@ public abstract class ContainerScreenGridMixin {
 
 	@Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
 	private void mistinn$click(final MouseButtonEvent event, final boolean doubleClick, final CallbackInfoReturnable<Boolean> cir) {
-		if (GridPanel.click(this.menu, event.x(), event.y(), event.button(), event.hasShiftDown())) {
+		if (GridPanel.click(this.menu, event.x(), event.y(), event.button(), event.hasShiftDown(), doubleClick)) {
 			cir.setReturnValue(true);
 		}
 	}
@@ -106,7 +106,7 @@ public abstract class ContainerScreenGridMixin {
 
 	@Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
 	private void mistinn$key(final KeyEvent event, final CallbackInfoReturnable<Boolean> cir) {
-		if (GridPanel.key(this.menu, event.key())) {
+		if (GridPanel.key(this.menu, event)) {
 			cir.setReturnValue(true);
 		}
 	}
@@ -118,8 +118,9 @@ public abstract class ContainerScreenGridMixin {
 			return;
 		}
 		boolean fromContainer = !(slot.container instanceof Inventory);
+		// in the hunter's own inventory a stack from the hotbar goes into the grid; beside a chest it goes into the chest
 		boolean fromHotbar = slot.container instanceof Inventory && slot.getContainerSlot() < Inventory.getSelectionSize()
-			&& (Object) this instanceof InventoryScreen;
+			&& this.menu instanceof InventoryMenu;
 		if (fromContainer || fromHotbar) {
 			GridPanel.grab(slot.index);
 			ci.cancel();

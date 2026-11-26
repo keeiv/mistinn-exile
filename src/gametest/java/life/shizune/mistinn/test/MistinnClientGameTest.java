@@ -512,9 +512,9 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 				player.getInventory().setItem(6, new ItemStack(MistinnItems.MASKS.get(4)));
 				check(GridService.insert(player, new ItemStack(Items.IRON_INGOT, 3)), "ingots go in");
 				GridInventory inv = GridService.get(player);
-				check(inv.items(Area.RIG).stream().anyMatch(pl -> pl.stack().is(Items.IRON_INGOT)) || inv.pockets().stream().anyMatch(pl -> pl.stack().is(Items.IRON_INGOT)),
-					"pickups go to pockets, then the rig, before the backpack: " + inv.items(Area.RIG));
-				check(inv.items(Area.BACKPACK).stream().noneMatch(pl -> pl.stack().is(Items.IRON_INGOT)), "not into the backpack while the rig has room");
+				check(inv.items(Area.BACKPACK).stream().anyMatch(pl -> pl.stack().is(Items.IRON_INGOT)) || inv.pockets().stream().anyMatch(pl -> pl.stack().is(Items.IRON_INGOT)),
+					"the grid takes things into the pockets, then the backpack, before the rig: " + inv.items(Area.BACKPACK));
+				check(inv.items(Area.RIG).stream().noneMatch(pl -> pl.stack().is(Items.IRON_INGOT)), "not into the rig while the backpack has room");
 			});
 			context.waitTicks(4);
 			context.takeScreenshot("hunter-rig");

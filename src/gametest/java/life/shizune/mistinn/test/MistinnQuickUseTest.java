@@ -53,6 +53,8 @@ public final class MistinnQuickUseTest implements FabricClientGameTest {
 			eatenAsFromTheHand(context, world);
 			aRepairKitFromThePouch(context, world);
 			theWheelPicksWithTheMouse(context, world);
+			theMiddlePutsTheWheelAway(context, world);
+			aScreenPutsTheWheelAway(context, world);
 			context.getInput().pressKey(InputConstants.KEY_B);
 			context.waitTicks(3);
 			check(context.computeOnClient(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.guide.HunterGuideScreen), "B opens the guide");
@@ -216,6 +218,49 @@ public final class MistinnQuickUseTest implements FabricClientGameTest {
 		check(!context.computeOnClient(mc -> QuickWheel.open()), "letting go closes it");
 		context.waitTicks(40);
 		world.getServer().runOnServer(server -> check(QuickUse.at(player(server), SECOND).getCount() == 1, "and the bread it picked is eaten"));
+	}
+
+	/** The pick goes out to the bread and back to the middle: letting go there uses nothing. */
+	private static void theMiddlePutsTheWheelAway(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			pockets(player, Items.STICK, new ItemStack(Items.BREAD, 2), Items.APPLE, null);
+			player.getFoodData().setFoodLevel(10);
+		});
+		context.waitTicks(5);
+		context.getInput().holdKey(InputConstants.KEY_R);
+		context.waitTicks(3);
+		check(context.computeOnClient(mc -> QuickWheel.open()), "the wheel opens");
+		check(context.computeOnClient(mc -> QuickWheel.inMiddle()), "and the pick starts in the middle");
+		context.runOnClient(mc -> QuickWheel.mouse(0.0, -200.0));
+		context.waitTicks(2);
+		check(context.computeOnClient(mc -> QuickWheel.picked()) == 0, "out to the bread");
+		// the pick only reaches so far: bringing it back the length of its reach lands it in the middle
+		context.runOnClient(mc -> QuickWheel.mouse(0.0, 120.0));
+		context.waitTicks(2);
+		check(context.computeOnClient(mc -> QuickWheel.inMiddle() && QuickWheel.picked() == -1), "and back to the middle");
+		context.takeScreenshot("mistinn-quick-wheel-middle");
+		context.getInput().releaseKey(InputConstants.KEY_R);
+		context.waitTicks(3);
+		check(!context.computeOnClient(mc -> QuickWheel.open()), "letting go in the middle puts the wheel away");
+		context.waitTicks(40);
+		world.getServer().runOnServer(server -> check(QuickUse.at(player(server), SECOND).getCount() == 2, "and nothing was eaten"));
+	}
+
+	/** A screen opening while the wheel is up puts it away without using what was picked. */
+	private static void aScreenPutsTheWheelAway(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		context.getInput().holdKey(InputConstants.KEY_R);
+		context.waitTicks(3);
+		context.runOnClient(mc -> QuickWheel.mouse(0.0, -200.0));
+		context.waitTicks(2);
+		check(context.computeOnClient(mc -> QuickWheel.picked()) == 0, "the bread is picked");
+		context.runOnClient(mc -> mc.gui.setScreen(new net.minecraft.client.gui.screens.ChatScreen("", false)));
+		context.waitTicks(3);
+		check(!context.computeOnClient(mc -> QuickWheel.open()), "a screen puts the wheel away");
+		context.getInput().releaseKey(InputConstants.KEY_R);
+		context.runOnClient(mc -> mc.gui.setScreen(null));
+		context.waitTicks(40);
+		world.getServer().runOnServer(server -> check(QuickUse.at(player(server), SECOND).getCount() == 2, "and the bread is still there"));
 	}
 
 	private static void deathMidUseDoublesNothing(final ClientGameTestContext context, final TestSingleplayerContext world) {
