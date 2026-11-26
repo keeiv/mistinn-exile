@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mistinn:block/facility_deck_edge",
+    "side": "mistinn:block/facility_deck_edge",
+    "bottom": "mistinn:block/facility_deck",
+    "particle": "mistinn:block/facility_deck_edge"
+  }
+}

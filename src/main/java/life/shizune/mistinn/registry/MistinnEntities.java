@@ -93,6 +93,13 @@ public final class MistinnEntities {
 		.clientTrackingRange(12)
 		.fireImmune());
 
+	/** 晶耕族: the people of the Terra valleys, in the player model. */
+	public static final EntityType<life.shizune.mistinn.terra.Tiller> TILLER = register("tiller",
+		EntityType.Builder.<life.shizune.mistinn.terra.Tiller>of(life.shizune.mistinn.terra.Tiller::new, MobCategory.MISC)
+		.sized(0.6F, 1.8F)
+		.eyeHeight(1.62F)
+		.clientTrackingRange(10));
+
 	/** A salt bomb, a flare or a bell lure in flight. */
 	public static final EntityType<life.shizune.mistinn.tool.ThrownTool> THROWN_TOOL = register("thrown_tool",
 		EntityType.Builder.<life.shizune.mistinn.tool.ThrownTool>of(life.shizune.mistinn.tool.ThrownTool::new, MobCategory.MISC)
@@ -135,6 +142,7 @@ public final class MistinnEntities {
 		FabricDefaultAttributeRegistry.register(RIFT_WALKER, life.shizune.mistinn.rift.RiftWalker.createAttributes());
 		FabricDefaultAttributeRegistry.register(RIFT_HERALD, life.shizune.mistinn.rift.RiftHerald.createAttributes());
 		FabricDefaultAttributeRegistry.register(CRYSTAL_DRAKE, life.shizune.mistinn.terra.CrystalDrake.createAttributes());
+		FabricDefaultAttributeRegistry.register(TILLER, life.shizune.mistinn.terra.Tiller.createAttributes());
 		// crystal drakes come of themselves under the open sky of a Terra highland, day or night
 		life.shizune.mistinn.mixin.SpawnPlacementsInvoker.mistinn$register(CRYSTAL_DRAKE, net.minecraft.world.entity.SpawnPlacementTypes.NO_RESTRICTIONS,
 			net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, life.shizune.mistinn.terra.CrystalDrake::checkSpawnRules);

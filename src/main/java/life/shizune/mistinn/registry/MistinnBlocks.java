@@ -211,6 +211,12 @@ public final class MistinnBlocks {
 	public static final Block LATTICE_CRYSTAL_DIM = register("lattice_crystal_dim", Block::new, BlockBehaviour.Properties.of()
 		.mapColor(MapColor.COLOR_LIGHT_GRAY).requiresCorrectToolForDrops().strength(3.0F, 6.0F).sound(SoundType.AMETHYST));
 
+	/** What the crystal tillers build with: like bedrock it cannot be broken, blown up, pushed or taken. */
+	private static BlockBehaviour.Properties facility() {
+		return BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).strength(-1.0F, 3600000.0F).noLootTable().sound(SoundType.METAL)
+			.pushReaction(PushReaction.IMMOVEABLE).isValidSpawn((state, level, pos, type) -> false);
+	}
+
 	private static BlockBehaviour.Properties veinStone() {
 		return BlockBehaviour.Properties.of().mapColor(MapColor.TERRACOTTA_LIGHT_GRAY).requiresCorrectToolForDrops().strength(1.5F, 6.0F);
 	}
@@ -218,6 +224,23 @@ public final class MistinnBlocks {
 	private static BlockBehaviour.Properties plant() {
 		return BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).replaceable().noCollision().instabreak().sound(SoundType.GRASS);
 	}
+
+	// ── The crystal tillers' facilities: they cannot be broken, moved or made ──
+
+	public static final Block FACILITY_DECK = register("facility_deck", Block::new, facility());
+	public static final Block FACILITY_DECK_EDGE = register("facility_deck_edge", Block::new, facility());
+	public static final Block FACILITY_DECK_SLAB = register("facility_deck_slab", net.minecraft.world.level.block.SlabBlock::new, facility());
+	public static final Block FACILITY_PANEL = register("facility_panel", Block::new, facility());
+	public static final Block FACILITY_FRAME = register("facility_frame", Block::new, facility().noOcclusion());
+	public static final Block FACILITY_CONDUIT = register("facility_conduit", net.minecraft.world.level.block.RotatedPillarBlock::new, facility().noOcclusion());
+	public static final Block FACILITY_LAMP = register("facility_lamp", Block::new, facility().lightLevel(state -> 13));
+	public static final Block FACILITY_CRATE = register("facility_crate", Block::new, facility());
+	public static final Block FACILITY_GLASS = register("facility_glass", life.shizune.mistinn.block.FacilityGlassBlock::new, facility()
+		.sound(SoundType.GLASS).noOcclusion().isViewBlocking((state, level, pos, box) -> false));
+	public static final Block HAZARD_STRIPE = register("hazard_stripe", Block::new, facility());
+	/** 樞紐核心: the heart of a settlement; woken with crystal cores, it makes the settlement a homestead. */
+	public static final Block HUB_CORE = register("hub_core", life.shizune.mistinn.block.HubCoreBlock::new, facility()
+		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.HubCoreBlock.LIT) ? 14 : 3));
 
 	private MistinnBlocks() {
 	}

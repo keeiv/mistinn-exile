@@ -93,7 +93,7 @@ public final class MistinnItems {
 	public static final Item HUNTER_TAG = register("hunter_tag", Item::new, new Item.Properties().stacksTo(1));
 
 	/** Pages of the guide's text (item.mistinn.hunter_guide.page.N), read as spreads in its screen. */
-	public static final int GUIDE_PAGES = 36;
+	public static final int GUIDE_PAGES = 37;
 	public static final Item HUNTER_GUIDE = register("hunter_guide", life.shizune.mistinn.story.HunterGuideItem::new, new Item.Properties().stacksTo(1));
 
 	public static final Item GOLDEN_BELL = block("golden_bell", MistinnBlocks.GOLDEN_BELL, new Item.Properties().rarity(Rarity.RARE));
@@ -132,6 +132,18 @@ public final class MistinnItems {
 	public static final Item TERRA_CRYSTAL_BLOCK = block("terra_crystal_block", MistinnBlocks.TERRA_CRYSTAL_BLOCK, new Item.Properties());
 	public static final Item LATTICE_CRYSTAL = block("lattice_crystal", MistinnBlocks.LATTICE_CRYSTAL, new Item.Properties());
 	public static final Item LATTICE_CRYSTAL_DIM = block("lattice_crystal_dim", MistinnBlocks.LATTICE_CRYSTAL_DIM, new Item.Properties());
+	// the facilities' items exist only for those who build worlds by command; no one can get them in play
+	public static final Item FACILITY_DECK = block("facility_deck", MistinnBlocks.FACILITY_DECK, new Item.Properties());
+	public static final Item FACILITY_DECK_EDGE = block("facility_deck_edge", MistinnBlocks.FACILITY_DECK_EDGE, new Item.Properties());
+	public static final Item FACILITY_DECK_SLAB = block("facility_deck_slab", MistinnBlocks.FACILITY_DECK_SLAB, new Item.Properties());
+	public static final Item FACILITY_PANEL = block("facility_panel", MistinnBlocks.FACILITY_PANEL, new Item.Properties());
+	public static final Item FACILITY_FRAME = block("facility_frame", MistinnBlocks.FACILITY_FRAME, new Item.Properties());
+	public static final Item FACILITY_CONDUIT = block("facility_conduit", MistinnBlocks.FACILITY_CONDUIT, new Item.Properties());
+	public static final Item FACILITY_LAMP = block("facility_lamp", MistinnBlocks.FACILITY_LAMP, new Item.Properties());
+	public static final Item FACILITY_CRATE = block("facility_crate", MistinnBlocks.FACILITY_CRATE, new Item.Properties());
+	public static final Item FACILITY_GLASS = block("facility_glass", MistinnBlocks.FACILITY_GLASS, new Item.Properties());
+	public static final Item HAZARD_STRIPE = block("hazard_stripe", MistinnBlocks.HAZARD_STRIPE, new Item.Properties());
+	public static final Item HUB_CORE = block("hub_core", MistinnBlocks.HUB_CORE, new Item.Properties());
 	/** 晶屑: crystal grit, from the veins, the crop and the crystal dragons. */
 	public static final Item CRYSTAL_DUST = register("crystal_dust", Item::new, new Item.Properties());
 	/** 晶核: the heart of a crystal dragon. */

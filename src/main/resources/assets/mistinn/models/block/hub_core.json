@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mistinn:block/hub_core_top",
+    "side": "mistinn:block/hub_core",
+    "bottom": "mistinn:block/hub_core_top",
+    "particle": "mistinn:block/hub_core"
+  }
+}
