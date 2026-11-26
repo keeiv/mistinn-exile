@@ -19,5 +19,6 @@ public abstract class ShoreMistFogMixin {
 		final ClientLevel level, final CallbackInfoReturnable<FogData> cir) {
 		ShoreMistClient.apply(cir.getReturnValue(), camera);
 		life.shizune.mistinn.client.naval.NavalClient.fog(cir.getReturnValue(), deltaTracker.getGameTimeDeltaPartialTick(false));
+		life.shizune.mistinn.client.tide.TideClient.fog(cir.getReturnValue());
 	}
 }

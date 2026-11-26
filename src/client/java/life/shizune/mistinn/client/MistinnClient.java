@@ -187,6 +187,7 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.medical.TreatmentSounds.tick(minecraft);
 			life.shizune.mistinn.client.music.KeeperMusic.tick(minecraft);
 			life.shizune.mistinn.client.naval.NavalClient.tick(minecraft);
+			life.shizune.mistinn.client.tide.TideClient.tick(minecraft);
 			ExecutionView.tick(minecraft);
 			life.shizune.mistinn.client.death.DeathScene.tick(minecraft);
 			life.shizune.mistinn.client.mist.ShoreMistClient.tick(minecraft);
