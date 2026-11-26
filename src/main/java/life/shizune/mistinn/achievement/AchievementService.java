@@ -32,6 +32,8 @@ public final class AchievementService {
 	public static final String SUNKEN_BELL = "sunken_bell";
 	/** 打倒鏽輪: the third keeper has fallen with this hunter near. */
 	public static final String RUST_WHEEL = "rust_wheel";
+	/** 鏽錨使徒: the hidden one ({@link ApostleService}). */
+	public static final String APOSTLE = "apostle";
 	/** 霧海奪船: a pirate ship taken, its captain falling with the hunter near. */
 	public static final String PIRATE_SHIP = "pirate_ship";
 	/** 船隊剋星: the third pirate ship taken in a world, with the hunter near. */
@@ -153,6 +155,11 @@ public final class AchievementService {
 			}
 			player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.ACHIEVEMENT, SoundSource.PLAYERS, 0.8F, 1.0F);
 			announce(player, holder);
+			if (achievement == Achievement.APOSTLE) {
+				ApostleService.anointed(player);
+			} else if (achievement == Achievement.SNUFFER || achievement == Achievement.SUNKEN_BELL || achievement == Achievement.RUST_WHEEL) {
+				ApostleService.consider(player);
+			}
 		}
 		return true;
 	}
@@ -188,6 +195,7 @@ public final class AchievementService {
 			}
 			player.removeAttached(MistinnAttachments.ACHIEVEMENTS);
 		}
+		ApostleService.consider(player);
 	}
 
 	// ── What earns them ───────────────────────────────────────────

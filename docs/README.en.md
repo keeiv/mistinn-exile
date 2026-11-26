@@ -88,7 +88,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Pirate landings | By night on the shore, pirates may row in and land: two or three boarders and a marksman, their boat left at the water's edge. At most once every two days for each hunter, and more of them as the fog sea grows wary. Beat them and the shore is held; at dawn, or if it drags on, the rest go back to the sea. |
 | Flintlock and pistol | Taken from pirates (a captain always carries a pistol, a marksman now and then leaves a musket, the captain's chest may hold one). Hold use to raise and aim, let go to fire one paper cartridge; the musket reaches further and hits harder, the pistol comes up quicker. Paper cartridges: paper, gunpowder and an iron nugget make three; they are taken from the hotbar, the offhand, or the pockets, rig and backpack. |
 | Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: twenty-eight pages on the world, the mission, the rules and what you hunt, the stats, the skill tree, the recipes and the achievements. |
-| Achievements | Twenty-five of them, from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer, the Sunken Bell and the Rust Wheel, taking a pirate ship, holding the shore, bringing down an elite of three affixes, and the story's two endings. The game's toast shows at the top right and some salt is paid; all are kept on the mod's own tab of the advancements screen. See [Achievements](#achievements). |
+| Achievements | Twenty-six of them (one hidden), from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer, the Sunken Bell and the Rust Wheel, taking a pirate ship, holding the shore, bringing down an elite of three affixes, and the story's two endings. The game's toast shows at the top right and some salt is paid; all are kept on the mod's own tab of the advancements screen. See [Achievements](#achievements). |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V; each with its own durability, protection, capacity, layout and a two-line story. |
@@ -503,6 +503,7 @@ Achievements are the game's own **advancements**: press `L` and the mod has a ta
 | Sharpshooter | Bring down a pirate with a flintlock or pistol | 300 |
 | Elite Hunter | Bring down an elite | 300 |
 | Triple Threat | Bring down an elite of three affixes | 900 |
+| Apostle of the Rust Anchor | Hidden; how it is earned is not told. Once earned, 8% less from every blow and 2 more in each of the four stats (past the cap) | 5000 |
 | The Anchor | Send the Rust God's salt up | 2000 |
 | Mist Inn | Throw the Rust God's salt into the Mist Inn's fire | 2000 |
 | Steady Hands | Save a destroyed part with a surgery kit | 150 |

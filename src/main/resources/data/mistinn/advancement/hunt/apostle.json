@@ -1,0 +1,27 @@
+{
+	"parent": "mistinn:hunt/rust_wheel",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.apostle.desc"
+		},
+		"icon": {
+			"id": "mistinn:anchor_blade"
+		},
+		"title": {
+			"translate": "achievement.mistinn.apostle"
+		},
+		"frame": "challenge",
+		"hidden": true
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

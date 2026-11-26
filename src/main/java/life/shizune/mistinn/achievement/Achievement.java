@@ -20,6 +20,8 @@ public enum Achievement {
 	SNUFFER(AchievementService.SNUFFER, 1000),
 	SUNKEN_BELL(AchievementService.SUNKEN_BELL, 1200),
 	RUST_WHEEL(AchievementService.RUST_WHEEL, 1500),
+	/** Hidden until earned; see {@link ApostleService}. */
+	APOSTLE(AchievementService.APOSTLE, 5000),
 	PIRATE_SHIP(AchievementService.PIRATE_SHIP, 1200),
 	FLEET_BREAKER(AchievementService.FLEET_BREAKER, 2000),
 	SHORE_HELD(AchievementService.SHORE_HELD, 400),
