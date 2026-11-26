@@ -93,6 +93,8 @@ public final class MistinnSupplyTest implements FabricClientGameTest {
 				// the zombie is on no errand yet
 				NoiseService.forget(zombie[0]);
 				zombie[0].setTarget(null);
+				// someone plants a sign right where it will land: the barrel must not break it
+				player.level().setBlock(drop.at(), Blocks.OAK_SIGN.defaultBlockState(), 3);
 				return drop.at();
 			});
 
@@ -102,17 +104,19 @@ public final class MistinnSupplyTest implements FabricClientGameTest {
 				ServerPlayer player = player(server);
 				ServerLevel level = server.overworld();
 				check(!player.hasAttached(SupplyService.ORDER), "the order is done");
-				check(level.getBlockState(at).is(Blocks.BARREL), "a barrel where it was marked");
-				check(level.getBlockEntity(at) instanceof BarrelBlockEntity barrel && barrel.countItem(MistinnItems.TOURNIQUET) == 2,
+				check(level.getBlockState(at).is(Blocks.OAK_SIGN), "the sign in the way is left standing");
+				SupplyService.Drop drop = player.getAttached(SupplyService.DROP);
+				check(drop != null && drop.at().equals(at.above()), "the minimap marks the barrel where it came to rest: " + (drop == null ? null : drop.at()));
+				check(level.getBlockState(at.above()).is(Blocks.BARREL), "a barrel on top of it");
+				check(level.getBlockEntity(at.above()) instanceof BarrelBlockEntity barrel && barrel.countItem(MistinnItems.TOURNIQUET) == 2,
 					"with two tourniquets in it");
 				check(zombie[0].distanceToSqr(net.minecraft.world.phys.Vec3.atCenterOf(at)) > SupplyService.HEARD * SupplyService.HEARD
 					|| NoiseService.heard(zombie[0]) != null, "a zombie within earshot comes to look");
-				check(player.getAttached(SupplyService.DROP) != null, "the minimap still marks the barrel");
 			});
 
 			// emptied, the mark goes
 			world.getServer().runOnServer(server -> {
-				if (server.overworld().getBlockEntity(at) instanceof BarrelBlockEntity barrel) {
+				if (server.overworld().getBlockEntity(at.above()) instanceof BarrelBlockEntity barrel) {
 					barrel.clearContent();
 				}
 			});
