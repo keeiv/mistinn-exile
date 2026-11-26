@@ -21,12 +21,13 @@ import net.minecraft.server.level.ServerPlayer;
  * once. A hunter new to the world has nothing to unlearn and reads none of them.
  */
 public final class UpdateNotice {
-	/** One update's notice: its id, and how many lines it has ({@code notice.mistinn.<id>.1} and on). */
-	public record Notice(String id, int lines) {
+	/** One update's notice: one line, {@code notice.mistinn.<id>}; the README tells the rest. */
+	public record Notice(String id) {
 	}
 
 	/** Every notice, oldest first. */
-	public static final List<Notice> NOTICES = List.of(new Notice("coop", 4), new Notice("downed", 3), new Notice("beacons", 2), new Notice("quick", 2), new Notice("bags", 2));
+	public static final List<Notice> NOTICES = List.of(new Notice("coop"), new Notice("downed"), new Notice("beacons"), new Notice("quick"),
+		new Notice("bags"), new Notice("enchant"), new Notice("recipes"));
 
 	/** The notices this hunter has read. */
 	public static final AttachmentType<List<String>> SEEN = AttachmentRegistry.<List<String>>builder()
@@ -53,22 +54,23 @@ public final class UpdateNotice {
 			return;
 		}
 		Set<String> read = new LinkedHashSet<>(seen == null ? List.of() : seen);
-		boolean shown = false;
+		int shown = 0;
 		for (Notice notice : NOTICES) {
 			if (read.add(notice.id())) {
 				show(player, notice);
-				shown = true;
+				shown++;
 			}
 		}
-		if (shown || seen == null) {
+		if (shown > 0) {
+			// last, so it is the line still on screen however many came before it
+			player.sendSystemMessage(Component.translatable("notice.mistinn.heading", shown).withStyle(ChatFormatting.GOLD));
+		}
+		if (shown > 0 || seen == null) {
 			player.setAttached(SEEN, List.copyOf(read));
 		}
 	}
 
 	private static void show(final ServerPlayer player, final Notice notice) {
-		player.sendSystemMessage(Component.translatable("notice.mistinn." + notice.id() + ".title").withStyle(ChatFormatting.GOLD));
-		for (int i = 1; i <= notice.lines(); i++) {
-			player.sendSystemMessage(Component.literal("・").append(Component.translatable("notice.mistinn." + notice.id() + "." + i)).withStyle(ChatFormatting.GRAY));
-		}
+		player.sendSystemMessage(Component.literal("・").append(Component.translatable("notice.mistinn." + notice.id())).withStyle(ChatFormatting.GRAY));
 	}
 }

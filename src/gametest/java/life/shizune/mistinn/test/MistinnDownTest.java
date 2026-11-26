@@ -64,6 +64,7 @@ public final class MistinnDownTest implements FabricClientGameTest {
 			world.getServer().runOnServer(MistinnDownTest::revivedWithAQuarter);
 			world.getServer().runOnServer(MistinnDownTest::rescueInPlaceTakesTenSeconds);
 			world.getServer().runOnServer(MistinnDownTest::walkingAwayBreaksTheRescueOff);
+			world.getServer().runOnServer(MistinnDownTest::lettingGoOfFStopsOnlyARescueInPlace);
 			world.getServer().runOnServer(MistinnDownTest::draggingPullsThemAlong);
 			world.getServer().runOnServer(MistinnDownTest::outOfTimeTheyBleedOut);
 			world.getServer().runOnServer(MistinnDownTest::withEveryoneDownTheyDie);
@@ -73,7 +74,7 @@ public final class MistinnDownTest implements FabricClientGameTest {
 			context.runOnClient(mc -> mc.player.respawn());
 			context.waitTicks(40);
 		} finally {
-			DownService.standing = player -> 0;
+			DownService.standing = DownService.STANDING;
 		}
 	}
 
@@ -185,6 +186,23 @@ public final class MistinnDownTest implements FabricClientGameTest {
 		check(DownService.get(mate).rescuer() == -1 && DownService.get(mate).progress() == 0, "out of reach, the rescue breaks off and starts over");
 		mate.setPos(player.getX() + 9.0, player.getY(), player.getZ());
 		check(!DownService.startRescue(player, mate, false), "and cannot start from afar");
+		DownService.revive(mate, null);
+	}
+
+	private static void lettingGoOfFStopsOnlyARescueInPlace(final MinecraftServer server) {
+		ServerPlayer player = player(server);
+		Mate mate = down(server, player, 1.5, 0.0);
+		// a tap: held and let go before anything was seen of it
+		DownService.handle(player, mate, DownService.RescuePayload.HOLD);
+		check(DownService.get(mate).rescuer() == player.getId(), "F held starts the rescue");
+		DownService.handle(player, mate, DownService.RescuePayload.RELEASE);
+		check(DownService.get(mate).rescuer() == -1, "letting go of F ends a rescue in place");
+		DownService.handle(player, mate, DownService.RescuePayload.DRAG);
+		check(DownService.get(mate).dragging(), "H starts dragging");
+		DownService.handle(player, mate, DownService.RescuePayload.RELEASE);
+		check(DownService.get(mate).rescuer() == player.getId() && DownService.get(mate).dragging(), "but not a drag: " + DownService.get(mate));
+		DownService.letGo(player, mate);
+		check(DownService.get(mate).rescuer() == -1, "a rescuer who swings lets go");
 		DownService.revive(mate, null);
 	}
 

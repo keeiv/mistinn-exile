@@ -83,10 +83,8 @@ public final class RescueClient {
 			holding = target.getId();
 			ClientPlayNetworking.send(new DownService.RescuePayload(DownService.RescuePayload.HOLD, holding));
 		} else if (!down && holding >= 0) {
-			Player helped = helping(mc);
-			if (helped != null && helped.getId() == holding && !DownService.get(helped).dragging()) {
-				ClientPlayNetworking.send(new DownService.RescuePayload(DownService.RescuePayload.RELEASE, holding));
-			}
+			// always said, even before the server's answer arrives: a quick tap must not leave a rescue running
+			ClientPlayNetworking.send(new DownService.RescuePayload(DownService.RescuePayload.RELEASE, holding));
 			holding = -1;
 		}
 		while (drag.consumeClick()) {
