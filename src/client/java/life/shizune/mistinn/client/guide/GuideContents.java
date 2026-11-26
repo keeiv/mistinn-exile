@@ -13,11 +13,11 @@ import net.minecraft.network.chat.Component;
  */
 final class GuideContents {
 	/** The page each chapter starts on. */
-	static final List<Integer> CHAPTERS = List.of(1, 2, 4, 6, 7, 9, 10, 12, 17, 19, 22, 25, 28, 29, 30, 32, 33, 34, 35, 36, 37, 39, 41, 43, 45, 47);
+	static final List<Integer> CHAPTERS = List.of(1, 2, 4, 6, 7, 9, 10, 12, 17, 19, 22, 25, 28, 29, 30, 32, 33, 34, 35, 36, 37, 39, 41, 43, 45, 47, 48);
 	/** Down each page: how many lines, from where, how far apart. */
-	private static final int PER_PAGE = 13;
+	private static final int PER_PAGE = 14;
 	private static final int TOP = 30;
-	private static final int ROW = 11;
+	private static final int ROW = 10;
 	/** The link: its middle along the arrows' line. */
 	private static final int LINK_Y = 180;
 
