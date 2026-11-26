@@ -34,11 +34,12 @@ public final class MinimapHud implements HudElement {
 	/** Created on first draw: item stacks cannot exist before the registries are bound. */
 	private ItemStack saltIcon;
 
-	/** Whether the minimap is drawn now: in a world, with no screen or debug overlay over it, and a head to read it with. */
+	/**
+	 * Whether the minimap is drawn now: always in a world, with a screen open or a head destroyed too;
+	 * only the debug screen, which fills that corner with its text, covers it.
+	 */
 	private static boolean showing(final Minecraft minecraft) {
-		// a destroyed head cannot read the map
-		return minecraft.player != null && !life.shizune.mistinn.client.body.BodyHud.headDestroyed() && minecraft.gui.screen() == null
-			&& !minecraft.getDebugOverlay().showDebugScreen() && MinimapTexture.ready();
+		return minecraft.player != null && !minecraft.getDebugOverlay().showDebugScreen() && MinimapTexture.ready();
 	}
 
 	/** How much of the top right the minimap takes now, frame and margin included, in GUI pixels; 0 when it is not drawn. */
