@@ -12,10 +12,13 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.RandomizableContainer;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.AmethystClusterBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
@@ -23,6 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.storage.loot.LootTable;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -64,6 +68,10 @@ public final class TerraShaper implements DomainService.Shaper {
 	private static final double SPRING_MOST = 0.036;
 	/** For tests: how many times more likely a spring is (0 for none). */
 	public static double springs = 1.0;
+	/** How likely a chunk of the vein waste is to hold a ruin of the old lattice towers, and for tests how many times more (0 for none). */
+	public static final double RUIN = 1.0 / 40.0;
+	public static double ruins = 1.0;
+	public static final ResourceKey<LootTable> RUIN_LOOT = ResourceKey.create(Registries.LOOT_TABLE, Mistinn.id("chests/terra_ruin"));
 	/** The crown elder's nest at the heart: the dais, the ring of spires round it, how many, and how far each leans out as it rises. */
 	public static final double DAIS = 5.5;
 	public static final double NEST = 13.0;
@@ -302,6 +310,9 @@ public final class TerraShaper implements DomainService.Shaper {
 				}
 			}
 			case VEINS -> {
+				if (ruin(level, chunk, domain, x, ground, z)) {
+					return;
+				}
 				if (hash(x / PINE_CELL, z / PINE_CELL, domain.id() + 79) < 0.45 && pine(level, chunk, domain, x, ground, z)) {
 					return;
 				}
@@ -319,6 +330,85 @@ public final class TerraShaper implements DomainService.Shaper {
 				}
 			}
 		}
+	}
+
+	/**
+	 * A ruin of the old lattice towers, out in the vein waste, in some chunks: a broken floor of
+	 * vein stone, the stumps of its four corner pillars, the lattice core still standing, a fallen
+	 * beam, a chest of what was left, and three crystal lizards lying among the rubble, still as
+	 * stone. All of it inside the one chunk, stood on its own column at the chunk's heart.
+	 * Returns whether this column was that column (and so is done).
+	 */
+	private static boolean ruin(final ServerLevel level, final LevelChunk chunk, final Domain domain, final int x, final int ground, final int z) {
+		int cx = x >> 4;
+		int cz = z >> 4;
+		if (hash(cx, cz, domain.id() + 401) >= RUIN * ruins) {
+			return false;
+		}
+		int ax = (cx << 4) + 5 + (int) (hash(cz, cx, domain.id() + 403) * 6);
+		int az = (cz << 4) + 5 + (int) (hash(cx + 7, cz, domain.id() + 405) * 6);
+		if (x != ax || z != az) {
+			return false;
+		}
+		BlockPos.MutableBlockPos at = new BlockPos.MutableBlockPos();
+		// the floor, broken here and there, on footings down to the ground
+		for (int dx = -2; dx <= 2; dx++) {
+			for (int dz = -2; dz <= 2; dz++) {
+				for (int y = 1; y <= 8; y++) {
+					at.set(x + dx, ground + y, z + dz);
+					if (!chunk.getBlockState(at).isAir() && !chunk.getBlockState(at).is(BlockTags.LOGS)) {
+						level.setBlock(at, Blocks.AIR.defaultBlockState(), FLAGS);
+					}
+				}
+				for (int y = -1; y >= -3; y--) {
+					at.set(x + dx, ground + y, z + dz);
+					if (chunk.getBlockState(at).isAir() || !chunk.getFluidState(at).isEmpty()) {
+						level.setBlock(at, MistinnBlocks.VEIN_STONE.defaultBlockState(), FLAGS);
+					}
+				}
+				if (hash(x + dx, z + dz, domain.id() + 407) < 0.82) {
+					Block floor = hash(x + dx * 3, z + dz, domain.id() + 409) < 0.6 ? MistinnBlocks.VEIN_STONE_BRICKS : MistinnBlocks.VEIN_STONE_POLISHED;
+					level.setBlock(at.set(x + dx, ground, z + dz), floor.defaultBlockState(), FLAGS);
+				}
+			}
+		}
+		// the stumps of the corner pillars
+		for (int corner = 0; corner < 4; corner++) {
+			int dx = corner % 2 == 0 ? -2 : 2;
+			int dz = corner < 2 ? -2 : 2;
+			int height = 1 + (int) (hash(x + dx, z + dz, domain.id() + 411) * 4);
+			for (int y = 1; y <= height; y++) {
+				level.setBlock(at.set(x + dx, ground + y, z + dz), MistinnBlocks.VEIN_STONE_BRICKS.defaultBlockState(), FLAGS);
+			}
+			if (height >= 3 && hash(x - dx, z - dz, domain.id() + 413) < 0.5) {
+				level.setBlock(at.set(x + dx, ground + height + 1, z + dz), bud(MistinnBlocks.TERRA_CRYSTAL_MEDIUM_BUD), FLAGS);
+			}
+		}
+		// the lattice core, still standing, and a beam fallen from it
+		int core = 4 + (int) (hash(x, z, domain.id() + 415) * 4);
+		for (int y = 1; y <= core; y++) {
+			level.setBlock(at.set(x + 1, ground + y, z - 1), MistinnBlocks.LATTICE_CRYSTAL.defaultBlockState(), FLAGS);
+		}
+		level.setBlock(at.set(x + 1, ground + core + 1, z - 1), bud(MistinnBlocks.TERRA_CRYSTAL_CLUSTER), FLAGS);
+		level.setBlock(at.set(x - 1, ground + 1, z + 1), MistinnBlocks.LATTICE_CRYSTAL.defaultBlockState(), FLAGS);
+		level.setBlock(at.set(x, ground + 1, z + 1), MistinnBlocks.LATTICE_CRYSTAL.defaultBlockState(), FLAGS);
+		// what was left
+		BlockPos chest = new BlockPos(x, ground + 1, z);
+		Direction facing = Direction.from2DDataValue((int) (hash(z, x, domain.id() + 417) * 4));
+		level.setBlock(chest, Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, facing), FLAGS);
+		RandomizableContainer.setBlockEntityLootTable(level, level.getRandom(), chest, RUIN_LOOT);
+		// and its keepers, lying among the rubble
+		int[][] spots = {{-1, -1}, {2, 0}, {-2, 1}};
+		for (int[] spot : spots) {
+			CrystalLizard lizard = life.shizune.mistinn.registry.MistinnEntities.CRYSTAL_LIZARD.create(level, EntitySpawnReason.STRUCTURE);
+			if (lizard != null) {
+				lizard.snapTo(x + spot[0] + 0.5, ground + 1.0, z + spot[1] + 0.5, (float) (hash(spot[0], spot[1], domain.id()) * 360.0), 0.0F);
+				lizard.setPersistenceRequired();
+				lizard.lieStill(CrystalLizard.STILL_MAX * 3);
+				level.addFreshEntity(lizard);
+			}
+		}
+		return true;
 	}
 
 	/**
