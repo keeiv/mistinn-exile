@@ -77,7 +77,7 @@ public final class Elders {
 		long now = level.getGameTime();
 		for (Domain domain : DomainService.of(server, Domain.Kind.TERRA)) {
 			Crown crown = crown(server, domain.id());
-			if (crown != null && (crown.out() || now < crown.next())) {
+			if (crown != null && (crown.out() || now < crown.next()) || life.shizune.mistinn.path.PathService.holdsElder(server, domain.id())) {
 				continue;
 			}
 			ServerPlayer near = null;

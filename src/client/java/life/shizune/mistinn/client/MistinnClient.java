@@ -113,6 +113,7 @@ public class MistinnClient implements ClientModInitializer {
 		// the quick-use wheel round the crosshair while its key is held
 		HudElementRegistry.addLast(Mistinn.id("quick_wheel"), new life.shizune.mistinn.client.grid.QuickWheel());
 		HudElementRegistry.addLast(Mistinn.id("story"), new life.shizune.mistinn.client.story.StoryHud());
+		HudElementRegistry.addLast(Mistinn.id("path"), new life.shizune.mistinn.client.path.PathHud());
 		HudElementRegistry.addLast(Mistinn.id("training"), TrainingClient::draw);
 		LevelExtractionEvents.END_EXTRACTION.register(TrainingGuide::extract);
 		LevelExtractionEvents.END_EXTRACTION.register(SwordQi::extract);
