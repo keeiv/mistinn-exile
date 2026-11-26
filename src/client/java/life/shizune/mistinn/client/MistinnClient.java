@@ -120,6 +120,8 @@ public class MistinnClient implements ClientModInitializer {
 		LevelRenderEvents.COLLECT_SUBMITS.register(SwordQi::submit);
 		LevelExtractionEvents.END_EXTRACTION.register(life.shizune.mistinn.client.rift.RiftSky::extract);
 		LevelRenderEvents.COLLECT_SUBMITS.register(life.shizune.mistinn.client.rift.RiftSky::submit);
+		LevelExtractionEvents.END_EXTRACTION.register(life.shizune.mistinn.client.terra.TerraAurora::extract);
+		LevelRenderEvents.COLLECT_SUBMITS.register(life.shizune.mistinn.client.terra.TerraAurora::submit);
 		// "正在使用 …" and its progress bar above the hotbar
 		HudElementRegistry.addLast(Mistinn.id("treatment"), new life.shizune.mistinn.client.medical.TreatmentHud());
 		// 倒地: the downed hunter's minute, and the rescuer's prompt and bar
