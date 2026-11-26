@@ -99,6 +99,7 @@ public class RiftBeaconItem extends Item {
 			server.playSound(null, hunter.getX(), hunter.getY(), hunter.getZ(), SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 1.2F, 0.5F);
 			server.sendParticles(GLOW, hunter.getX(), hunter.getY() + 1.6, hunter.getZ(), 40, 0.4, 0.6, 0.4, 0.0);
 			stack.consume(1, hunter);
+			life.shizune.mistinn.achievement.AchievementService.grant(hunter, life.shizune.mistinn.achievement.AchievementService.RIFT_CALLED);
 		}
 		return stack;
 	}

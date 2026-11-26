@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/drake_shattered",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": true,
+		"description": {
+			"translate": "achievement.mistinn.ruin_opened.desc"
+		},
+		"icon": {
+			"id": "mistinn:vein_stone_bricks"
+		},
+		"title": {
+			"translate": "achievement.mistinn.ruin_opened"
+		},
+		"frame": "task"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

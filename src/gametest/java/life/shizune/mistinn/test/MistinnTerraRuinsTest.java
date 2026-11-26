@@ -86,6 +86,12 @@ public final class MistinnTerraRuinsTest implements FabricClientGameTest {
 				check(level.getBlockState(chest.offset(1, 1, -1)).is(MistinnBlocks.LATTICE_CRYSTAL), "by the lattice core still standing");
 				long still = level.getEntitiesOfClass(CrystalLizard.class, new AABB(chest).inflate(4.0), CrystalLizard::isStill).size();
 				check(still >= 2, "with lizards lying still among the rubble: " + still);
+				// opening it is remembered
+				player.teleportTo(level, chest.getX() + 0.5, chest.getY() + 1.0, chest.getZ() + 2.5, java.util.Set.of(), 180.0F, 30.0F, true);
+				player.gameMode.useItemOn(player, level, player.getMainHandItem(), net.minecraft.world.InteractionHand.MAIN_HAND,
+					new net.minecraft.world.phys.BlockHitResult(Vec3.atCenterOf(chest), net.minecraft.core.Direction.UP, chest, false));
+				check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.RUIN_OPENED),
+					"opening a ruin's chest is remembered");
 
 				// what the chest holds
 				LootTable table = server.reloadableRegistries().getLootTable(TerraShaper.RUIN_LOOT);

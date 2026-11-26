@@ -63,6 +63,7 @@ public final class MistinnRiftBeaconTest implements FabricClientGameTest {
 				double off = rifts.getFirst().distance(player.getX(), player.getZ());
 				check(off >= RiftService.NEAR - 1 && off <= RiftService.FAR + 1, "a long walk off: " + off);
 				check(beacons.getCount() == 1, "and the beacon is spent");
+				check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.RIFT_CALLED), "the sky called down is remembered");
 
 				check(RiftBeaconItem.refusal(level) != null, "while it hangs open another does not answer");
 				beacons.getItem().finishUsingItem(beacons, level, player);

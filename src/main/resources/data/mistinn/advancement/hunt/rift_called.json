@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/rift_sealed",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": true,
+		"description": {
+			"translate": "achievement.mistinn.rift_called.desc"
+		},
+		"icon": {
+			"id": "mistinn:rift_beacon"
+		},
+		"title": {
+			"translate": "achievement.mistinn.rift_called"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

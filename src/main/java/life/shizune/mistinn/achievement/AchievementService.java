@@ -64,6 +64,12 @@ public final class AchievementService {
 	public static final String SIEGE_HELD = "siege_held";
 	/** 嚎聲止息: a rift alpha brought down. */
 	public static final String ALPHA_SLAIN = "alpha_slain";
+	/** 晶蜥的朋友: a crystal lizard tamed. */
+	public static final String LIZARD_TAMED = "lizard_tamed";
+	/** 遺跡尋寶: a vein ruin's chest opened. */
+	public static final String RUIN_OPENED = "ruin_opened";
+	/** 呼喚天裂: a rift torn open with a beacon. */
+	public static final String RIFT_CALLED = "rift_called";
 	/** The story ended: the salt sent up (錨), or thrown into the Mist Inn's fire (霧宿). */
 	public static final String ENDING_ANCHOR = "ending_anchor";
 	public static final String ENDING_INN = "ending_inn";

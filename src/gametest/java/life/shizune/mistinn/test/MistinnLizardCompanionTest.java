@@ -79,6 +79,7 @@ public final class MistinnLizardCompanionTest implements FabricClientGameTest {
 				CrystalLizard.tameOdds = 3;
 				check(lizard[0].tamed() && player.getUUID().equals(lizard[0].ownerId()), "given grit, it is tamed");
 				check(player.getMainHandItem().getCount() == 3, "and takes one");
+				check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.LIZARD_TAMED), "a lizard's friend");
 			});
 			context.getInput().releaseKey(options -> options.keyShift);
 			context.waitTicks(40);
