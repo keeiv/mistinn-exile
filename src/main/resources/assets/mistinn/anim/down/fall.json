@@ -1,0 +1,23 @@
+{
+	"_comment": "倒地等救援: struck in the gut the hunter doubles over clutching it, the knees give and they drop onto both, hold there hunched, then topple back onto their back and lie with one hand pressed to the wound and the other arm flung out on the ground. Progress is seconds over DownPose.FALL (2.4 s); what follows (breath, the head turning to look for help, the free arm reaching up now and then) is DownPose's own.",
+	"keys": [0.0, 0.05, 0.2, 0.34, 0.5, 0.58, 0.7, 1.0],
+	"eases": ["out_quad", "in_out_sine", "in_out_sine", "in_quad", "out_quad", "in_out_sine", "linear"],
+	"pivot": 0.0,
+	"root": {
+		"pitch": [0, 14, 16, 20, -90, -86, -90, -90],
+		"roll": [0, 0, -4, -6, 12, 6, 0, 0],
+		"y": [0, -0.04, -0.5, -0.5, 0.15, 0.2, 0.15, 0.15]
+	},
+	"limbs": {
+		"head_x": [0, 30, 38, 42, -25, -10, -15, -15],
+		"body_x": [0, 18, 15, 18, 0, 0, 0, 0],
+		"right_arm_x": [0, -45, -40, -42, -35, -30, -32, -32],
+		"right_arm_z": [0, -20, -25, -25, -45, -50, -55, -55],
+		"left_arm_x": [0, -50, -20, -18, -30, -15, -10, -10],
+		"left_arm_z": [0, 25, -10, -12, -60, -70, -75, -75],
+		"right_leg_x": [0, -5, 68, 70, -30, -25, -25, -25],
+		"right_leg_z": [0, 0, 3, 3, 8, 6, 6, 6],
+		"left_leg_x": [0, 5, 70, 72, -8, -6, -5, -5],
+		"left_leg_z": [0, 0, -3, -3, -8, -6, -6, -6]
+	}
+}

@@ -1,0 +1,24 @@
+{
+	"_comment": "被拖行: on the back, head toward the rescuer and the shoulders pulled up off the ground, the right hand up over the head holding the rescuer's left, the left arm and the legs trailing, the head fallen back. DownPose turns the body to face away from the rescuer and blends in over half a second; root z moves it back so the hands meet.",
+	"keys": [0.0, 1.0],
+	"eases": ["linear"],
+	"pivot": 0.0,
+	"root": {
+		"pitch": [-75, -75],
+		"y": [0.03, 0.03],
+		"z": [1.15, 1.15]
+	},
+	"limbs": {
+		"head_x": [-55, -55],
+		"head_z": [8, 8],
+		"body_x": [0, 0],
+		"right_arm_x": [-161, -161],
+		"right_arm_z": [6, 6],
+		"left_arm_x": [14, 14],
+		"left_arm_z": [-28, -28],
+		"right_leg_x": [-2, -2],
+		"right_leg_z": [5, 5],
+		"left_leg_x": [-6, -6],
+		"left_leg_z": [-5, -5]
+	}
+}

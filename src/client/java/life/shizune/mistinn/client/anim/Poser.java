@@ -63,14 +63,20 @@ public final class Poser {
 
 	/** Moves and turns the whole body; call where the renderer sets up the body's rotations. */
 	public static void root(final Clip clip, final float p, final PoseStack pose, final int mirror, final float scale) {
-		float pivot = clip.number("pivot", 0.9F) * scale;
+		root(clip.at("root.x", p), clip.at("root.y", p), clip.at("root.z", p), clip.at("root.yaw", p), clip.at("root.roll", p), clip.at("root.pitch", p),
+			clip.number("pivot", 0.9F), pose, mirror, scale);
+	}
+
+	/** {@link #root(Clip, float, PoseStack, int, float)} from values already worked out (two clips blended, say). */
+	public static void root(final float x, final float y, final float z, final float yaw, final float roll, final float pitch, final float pivot,
+		final PoseStack pose, final int mirror, final float scale) {
 		// here the body faces -z, +y up and its right toward +x: a forward pitch turns the head
 		// toward -z, a roll to the right lowers +x
-		pose.translate(mirror * clip.at("root.x", p) * scale, clip.at("root.y", p) * scale, -clip.at("root.z", p) * scale);
-		pose.rotateDegrees(Axis.YP, -mirror * clip.at("root.yaw", p));
-		pose.translate(0.0F, pivot, 0.0F);
-		pose.rotateDegrees(Axis.ZP, -mirror * clip.at("root.roll", p));
-		pose.rotateDegrees(Axis.XP, -clip.at("root.pitch", p));
-		pose.translate(0.0F, -pivot, 0.0F);
+		pose.translate(mirror * x * scale, y * scale, -z * scale);
+		pose.rotateDegrees(Axis.YP, -mirror * yaw);
+		pose.translate(0.0F, pivot * scale, 0.0F);
+		pose.rotateDegrees(Axis.ZP, -mirror * roll);
+		pose.rotateDegrees(Axis.XP, -pitch);
+		pose.translate(0.0F, -pivot * scale, 0.0F);
 	}
 }
