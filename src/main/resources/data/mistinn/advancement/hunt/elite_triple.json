@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/elite_slain",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.elite_triple.desc"
+		},
+		"icon": {
+			"id": "minecraft:golden_helmet"
+		},
+		"title": {
+			"translate": "achievement.mistinn.elite_triple"
+		},
+		"frame": "challenge"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

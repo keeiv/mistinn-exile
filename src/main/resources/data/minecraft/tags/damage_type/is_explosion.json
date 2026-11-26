@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "mistinn:cannon"
+    "mistinn:cannon",
+    "mistinn:salt_burst"
   ]
 }

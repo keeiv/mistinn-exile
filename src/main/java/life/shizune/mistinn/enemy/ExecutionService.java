@@ -122,7 +122,9 @@ public final class ExecutionService {
 		}
 		long now = player.level().getGameTime();
 		ExecutionMove move = ExecutionMove.of(attacker);
+		// every finisher is measured on its kind's own size: a grown-large creature (a hulking elite) just kills
 		if (move == null || move.ranged() != shot || player.hasAttached(SEQUENCE) || holdsMob(attacker)
+			|| attacker.getAttributeValue(Attributes.SCALE) != 1.0
 			|| now < player.getAttachedOrElse(NEXT_ATTEMPT, Long.MIN_VALUE)
 			|| !(shot ? canAim(player, attacker) : eligible(player, attacker))) {
 			return false;
