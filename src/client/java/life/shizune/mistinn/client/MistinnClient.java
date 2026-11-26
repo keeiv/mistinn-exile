@@ -46,6 +46,9 @@ public class MistinnClient implements ClientModInitializer {
 		life.shizune.mistinn.client.team.TeamClient.register();
 		life.shizune.mistinn.client.team.RescueClient.register(CATEGORY);
 		life.shizune.mistinn.client.team.MarkerClient.register();
+		// grassy redstone soil is as green as the grass round it
+		net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry.register(java.util.List.of(net.minecraft.client.color.block.BlockTintSources.grassBlock()),
+			life.shizune.mistinn.registry.MistinnBlocks.GRASS_REDSTONE_SOIL);
 		life.shizune.mistinn.client.grid.QuickWheel.register(CATEGORY);
 		KeyMapping guide = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.guide", InputConstants.KEY_B, CATEGORY)

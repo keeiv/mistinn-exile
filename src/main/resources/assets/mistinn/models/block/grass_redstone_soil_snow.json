@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "mistinn:block/redstone_soil",
+    "particle": "mistinn:block/redstone_soil",
+    "side": "mistinn:block/grass_redstone_soil_snow",
+    "top": "minecraft:block/grass_block_top"
+  }
+}

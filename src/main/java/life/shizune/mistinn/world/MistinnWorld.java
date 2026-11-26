@@ -161,6 +161,10 @@ public final class MistinnWorld {
 			placed("salt_works")
 		);
 
+		// redstone soil, so the radio's redstone is never far: grassy patches on the surface, veins in the dirt beneath
+		BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(), GenerationStep.Decoration.UNDERGROUND_ORES, placed("redstone_soil_grass"));
+		BiomeModifications.addFeature(BiomeSelectors.foundInOverworld(), GenerationStep.Decoration.UNDERGROUND_ORES, placed("redstone_soil_dirt"));
+
 		ServerLifecycleEvents.SERVER_STARTED.register(MistinnWorld::ensureSpawnStation);
 		ShoreMist.init();
 		life.shizune.mistinn.shore.ShoreSpawner.init();

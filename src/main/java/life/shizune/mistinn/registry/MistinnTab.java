@@ -46,6 +46,7 @@ public final class MistinnTab {
 				output.accept(MistinnItems.LAMP_STAND);
 				output.accept(MistinnItems.MARKER_BEACON);
 				output.accept(MistinnItems.REDSTONE_SOIL);
+				output.accept(MistinnItems.GRASS_REDSTONE_SOIL);
 				output.accept(MistinnItems.SALT);
 				output.accept(MistinnItems.RUST_GOD_SALT);
 				output.accept(MistinnItems.LAMP_OIL);
