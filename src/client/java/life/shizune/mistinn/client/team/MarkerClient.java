@@ -41,8 +41,7 @@ public final class MarkerClient implements HudElement {
 	@Override
 	public void extractRenderState(final GuiGraphicsExtractor g, final DeltaTracker deltaTracker) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.player == null || mc.level == null || mc.gui.screen() != null || mc.getDebugOverlay().showDebugScreen()
-			|| life.shizune.mistinn.client.body.BodyHud.headDestroyed()) {
+		if (mc.player == null || mc.level == null || mc.gui.screen() != null || mc.getDebugOverlay().showDebugScreen()) {
 			return;
 		}
 		Identifier here = mc.level.dimension().identifier();
