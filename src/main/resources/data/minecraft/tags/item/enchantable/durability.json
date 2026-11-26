@@ -5,6 +5,8 @@
     "#mistinn:helmets",
     "#mistinn:body_armor",
     "#mistinn:leggings",
-    "#mistinn:boots"
+    "#mistinn:boots",
+    "mistinn:flintlock",
+    "mistinn:flintlock_pistol"
   ]
 }

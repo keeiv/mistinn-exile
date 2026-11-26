@@ -20,6 +20,7 @@ public enum Achievement {
 	SNUFFER(AchievementService.SNUFFER, 1000),
 	SUNKEN_BELL(AchievementService.SUNKEN_BELL, 1200),
 	RUST_WHEEL(AchievementService.RUST_WHEEL, 1500),
+	PIRATE_SHIP(AchievementService.PIRATE_SHIP, 1200),
 	ENDING_ANCHOR(AchievementService.ENDING_ANCHOR, 2000),
 	ENDING_INN(AchievementService.ENDING_INN, 2000),
 	REVIVE_LIMB("revive_limb", 150),

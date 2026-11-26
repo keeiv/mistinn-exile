@@ -36,6 +36,9 @@ public final class ItemSizes {
 
 		put(1, 1, MistinnItems.SALT);
 		put(1, 2, MistinnItems.LAMP_OIL);
+		put(1, 4, MistinnItems.FLINTLOCK);
+		put(1, 2, MistinnItems.FLINTLOCK_PISTOL);
+		put(1, 1, MistinnItems.PAPER_CARTRIDGE, MistinnItems.CANNONBALL);
 		put(2, 2, MistinnItems.RUST_GOD_SALT, MistinnItems.GOLDEN_BELL, MistinnItems.ORE_BELL);
 		put(1, 3, MistinnItems.ANCHOR_BLADE);
 		put(1, 4, MistinnItems.BELL_GREATSWORD);

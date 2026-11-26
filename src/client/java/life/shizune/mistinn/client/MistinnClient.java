@@ -154,6 +154,12 @@ public class MistinnClient implements ClientModInitializer {
 		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.shore.MistShadeModel.LAYER,
 			life.shizune.mistinn.client.shore.MistShadeModel::definition);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.MIST_SHADE, life.shizune.mistinn.client.shore.MistShadeRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.PIRATE,
+			life.shizune.mistinn.client.naval.PirateRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.CANNON_SHOT,
+			context -> new net.minecraft.client.renderer.entity.ThrownItemRenderer<>(context, 1.4F, false));
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.naval.NavalFx.TYPE,
+			(payload, context) -> life.shizune.mistinn.client.naval.NavalFxClient.received(payload));
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.training.StationCeremony.DropPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.training.TrainingClient.drop(payload.ticks()));
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.world.ShoreMist.MistPayload.TYPE,

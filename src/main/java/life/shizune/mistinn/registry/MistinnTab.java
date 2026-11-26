@@ -50,6 +50,10 @@ public final class MistinnTab {
 				output.accept(MistinnItems.SALT);
 				output.accept(MistinnItems.RUST_GOD_SALT);
 				output.accept(MistinnItems.LAMP_OIL);
+				output.accept(MistinnItems.FLINTLOCK);
+				output.accept(MistinnItems.FLINTLOCK_PISTOL);
+				output.accept(MistinnItems.PAPER_CARTRIDGE);
+				output.accept(MistinnItems.CANNONBALL);
 				for (life.shizune.mistinn.food.StationFood food : life.shizune.mistinn.food.StationFood.values()) {
 					output.accept(MistinnItems.FOODS.get(food));
 				}

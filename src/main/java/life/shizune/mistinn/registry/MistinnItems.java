@@ -50,6 +50,13 @@ public final class MistinnItems {
 	public static final Item SALT = register("salt", SaltItem::new, new Item.Properties());
 	/** 燈油: lighthouse lamp oil. Lamp thralls carry it; it lights the golden bell halfway up a lighthouse. */
 	public static final Item LAMP_OIL = register("lamp_oil", Item::new, new Item.Properties().stacksTo(16));
+	/** 火槍 and 手槍: the pirates' guns; 紙彈 they fire; 炮彈 from a ship's guns. */
+	public static final Item FLINTLOCK = register("flintlock", life.shizune.mistinn.naval.FlintlockItem::musket, new Item.Properties()
+		.durability(160).rarity(Rarity.UNCOMMON).enchantable(10));
+	public static final Item FLINTLOCK_PISTOL = register("flintlock_pistol", life.shizune.mistinn.naval.FlintlockItem::pistol, new Item.Properties()
+		.durability(120).rarity(Rarity.RARE).enchantable(10));
+	public static final Item PAPER_CARTRIDGE = register("paper_cartridge", Item::new, new Item.Properties());
+	public static final Item CANNONBALL = register("cannonball", Item::new, new Item.Properties().stacksTo(16));
 	public static final Item RUST_GOD_SALT = register("rust_god_salt", Item::new, new Item.Properties().stacksTo(16).rarity(Rarity.EPIC).fireResistant());
 
 	/** The named weapons: each a branch's own, with sounds made for it. */
