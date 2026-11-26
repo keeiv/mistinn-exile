@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/rift_sealed",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": true,
+		"description": {
+			"translate": "achievement.mistinn.alpha_slain.desc"
+		},
+		"icon": {
+			"id": "mistinn:rift_shard"
+		},
+		"title": {
+			"translate": "achievement.mistinn.alpha_slain"
+		},
+		"frame": "task"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

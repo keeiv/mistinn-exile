@@ -395,6 +395,18 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		check(has(world, Achievement.ELDER_SLAIN), "the crown is remembered");
 		int gainedElder = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeElder;
 		check(gainedElder == 1000, "and pays 1000: " + gainedElder);
+		// the elder stunned against stone, a siege held, an alpha brought down (MistinnCrystalElderTest, MistinnSiegeTest and MistinnRiftHoundTest earn them)
+		String[] terra = {AchievementService.ELDER_STUNNED, AchievementService.SIEGE_HELD, AchievementService.ALPHA_SLAIN};
+		int[] pays = {300, 600, 400};
+		for (int i = 0; i < terra.length; i++) {
+			String id = terra[i];
+			int beforeEach = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
+			world.getServer().runOnServer(server -> AchievementService.grant(player(server), id));
+			context.waitTicks(5);
+			check(has(world, Achievement.byId(id)), id + " is remembered");
+			int gainedEach = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeEach;
+			check(gainedEach == pays[i], "and pays " + pays[i] + ": " + gainedEach);
+		}
 		// the hidden one (MistinnApostleTest earns it the way the game does)
 		int beforeApostle = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
 		world.getServer().runOnServer(server -> AchievementService.grant(player(server), AchievementService.APOSTLE));

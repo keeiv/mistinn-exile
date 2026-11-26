@@ -306,6 +306,7 @@ public final class Siege {
 		}
 		for (ServerPlayer player : near(level, hub, THANKS)) {
 			SaltService.add(player, SALT);
+			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.AchievementService.SIEGE_HELD);
 			player.spawnAtLocation(level, new ItemStack(MistinnItems.CRYSTAL_CORE));
 			player.sendSystemMessage(Component.translatable("message.mistinn.siege.held", SALT).withStyle(ChatFormatting.GOLD));
 		}

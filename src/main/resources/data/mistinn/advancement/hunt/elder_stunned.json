@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/homestead",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": true,
+		"description": {
+			"translate": "achievement.mistinn.elder_stunned.desc"
+		},
+		"icon": {
+			"id": "mistinn:terra_crystal_block"
+		},
+		"title": {
+			"translate": "achievement.mistinn.elder_stunned"
+		},
+		"frame": "task"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/homestead",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": true,
+		"description": {
+			"translate": "achievement.mistinn.siege_held.desc"
+		},
+		"icon": {
+			"id": "mistinn:crystal_core"
+		},
+		"title": {
+			"translate": "achievement.mistinn.siege_held"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

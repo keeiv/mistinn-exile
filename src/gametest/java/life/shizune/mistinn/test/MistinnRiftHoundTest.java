@@ -219,6 +219,8 @@ public final class MistinnRiftHoundTest implements FabricClientGameTest {
 			int shards = level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new net.minecraft.world.phys.AABB(alpha[0].blockPosition()).inflate(6.0),
 				e -> e.getItem().is(life.shizune.mistinn.registry.MistinnItems.RIFT_SHARD)).stream().mapToInt(e -> e.getItem().getCount()).sum();
 			check(shards >= 2, "the alpha leaves rift shards: " + shards);
+			check(life.shizune.mistinn.achievement.AchievementService.has(player(server), life.shizune.mistinn.achievement.Achievement.ALPHA_SLAIN),
+				"the howl silenced is remembered");
 		});
 		context.waitTicks(80);
 		world.getServer().runOnServer(server -> {

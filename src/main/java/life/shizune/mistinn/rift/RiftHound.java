@@ -261,6 +261,9 @@ public class RiftHound extends Monster implements RiftTouched {
 			}
 			level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ZOGLIN_DEATH, SoundSource.HOSTILE, 2.0F, 0.5F);
 			if (this.getLastHurtByPlayer() != null) {
+				if (this.getLastHurtByPlayer() instanceof net.minecraft.server.level.ServerPlayer killer) {
+					life.shizune.mistinn.achievement.AchievementService.grant(killer, life.shizune.mistinn.achievement.AchievementService.ALPHA_SLAIN);
+				}
 				this.spawnAtLocation(level, new ItemStack(MistinnItems.RIFT_SHARD, 2 + this.random.nextInt(2)));
 				if (this.random.nextInt(4) == 0) {
 					List<Item> pieces = MistinnItems.gearOfTier(3 + this.random.nextInt(2));
