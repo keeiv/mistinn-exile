@@ -24,8 +24,11 @@ import org.jspecify.annotations.Nullable;
  * ({@code anim/down/dragged}), blended in and out over half a second.
  */
 public final class DownPose {
-	/** A downed hunter as drawn: seconds since they went down, how far into being dragged (0 to 1), and the way a drag turns them. */
-	public record State(float seconds, float drag, float facing) {
+	/**
+	 * A downed hunter as drawn: seconds since they went down, how far into being dragged (0 to 1), the
+	 * way a drag turns them, and where the head turns to a teammate kneeling to help (radians, NaN when none is).
+	 */
+	public record State(float seconds, float drag, float facing, float look) {
 	}
 
 	public static final RenderStateDataKey<State> KEY = RenderStateDataKey.create(() -> "mistinn:down");
@@ -35,6 +38,8 @@ public final class DownPose {
 	private static final float BLEND = 10.0F;
 	/** Seconds between the free arm's reaches toward the sky. */
 	private static final float REACH_EVERY = 7.0F;
+	/** How far the head turns to a teammate kneeling to help, in radians (toward the right when positive). */
+	private static final float LOOK = 0.9F;
 	private static final String FALL_CLIP = "down/fall";
 	private static final String DRAGGED_CLIP = "down/dragged";
 
@@ -85,7 +90,14 @@ public final class DownPose {
 			}
 		}
 		float t = Mth.clamp((now - track.since + partialTicks) / BLEND, 0.0F, 1.0F);
-		return new State(seconds, dragged ? t : 1.0F - t, track.facing);
+		// a teammate kneeling to help where they lie: the head turns to them
+		float look = Float.NaN;
+		if (!down.dragging() && down.rescuer() >= 0 && entity.level().getEntity(down.rescuer()) instanceof Player helper) {
+			float yaw = entity.getVisualRotationYInDegrees() * Mth.DEG_TO_RAD;
+			Vec3 right = new Vec3(-Mth.cos(yaw), 0.0, -Mth.sin(yaw));
+			look = helper.position().subtract(entity.position()).dot(right) >= 0.0 ? LOOK : -LOOK;
+		}
+		return new State(seconds, dragged ? t : 1.0F - t, track.facing, look);
 	}
 
 	private static float progress(final float seconds) {
@@ -122,10 +134,17 @@ public final class DownPose {
 		float p = progress(state.seconds());
 		Poser.limbs(fall, p, model, 1, fall.weightIn(p));
 		float rest = state.seconds() - FALL;
+		boolean helped = !Float.isNaN(state.look());
 		if (rest > 0.0F) {
-			lying(rest, model);
+			lying(rest, model, helped);
 		} else {
 			model.head.yRot = 0.0F;
+		}
+		if (helped) {
+			// looking to the one kneeling there, the free arm drawn in to give them room
+			model.head.yRot = state.look();
+			model.leftArm.zRot = Mth.lerp(0.8F, model.leftArm.zRot, -0.15F);
+			model.leftArm.xRot = Mth.lerp(0.8F, model.leftArm.xRot, 0.0F);
 		}
 		float w = state.drag();
 		if (w > 0.0F) {
@@ -138,15 +157,18 @@ public final class DownPose {
 		}
 	}
 
-	/** Lying there: breathing hard, the head turning to look for help, the free arm lifted toward the sky now and then, the hand on the wound trembling. */
-	private static void lying(final float t, final HumanoidModel<?> model) {
+	/**
+	 * Lying there: breathing hard, the head turning to look for help, the free arm lifted toward the
+	 * sky now and then (not while someone is already helping), the hand on the wound trembling.
+	 */
+	private static void lying(final float t, final HumanoidModel<?> model, final boolean helped) {
 		float breath = Mth.sin(t * 2.6F) * 0.05F;
 		model.body.xRot += breath * 0.3F;
 		model.rightArm.xRot += breath;
 		model.head.xRot += breath * 0.5F;
 		model.head.yRot = Mth.sin(t * 0.45F) * 0.6F;
 		float cycle = (t % REACH_EVERY) / REACH_EVERY;
-		if (cycle > 0.55F && cycle < 0.85F) {
+		if (!helped && cycle > 0.55F && cycle < 0.85F) {
 			float reach = Mth.sin((cycle - 0.55F) / 0.3F * Mth.PI);
 			model.leftArm.xRot = Mth.lerp(reach, model.leftArm.xRot, -1.9F);
 			model.leftArm.zRot = Mth.lerp(reach, model.leftArm.zRot, -0.25F);

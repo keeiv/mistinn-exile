@@ -66,6 +66,15 @@ public abstract class AvatarRollMixin {
 		// through their own eyes: nothing worn on the head is drawn, nor what a hand holds up in front of the eye
 		boolean own = OwnBody.inWorldPass() && entity == net.minecraft.client.Minecraft.getInstance().player && OwnBody.active();
 		state.setData(OwnBody.KEY, own ? Boolean.TRUE : null);
+		// a rescuer bringing someone back where they lie kneels at their side (not drawn so through their own eyes)
+		life.shizune.mistinn.client.team.AidPose.State aid = down == null && death == null && execution == null && !dragging && !own
+			? life.shizune.mistinn.client.team.AidPose.sample(entity, partialTicks) : null;
+		state.setData(life.shizune.mistinn.client.team.AidPose.KEY, aid);
+		if (aid != null) {
+			state.isCrouching = false;
+			state.setData(life.shizune.mistinn.client.view.RunPose.KEY, null);
+			state.bodyRot = net.minecraft.util.Mth.rotLerp(aid.weight(), state.bodyRot, aid.facing());
+		}
 		state.setData(OwnBody.HANDS_UP, null);
 		float raised = own ? OwnBody.raised(partialTicks) : 0.0F;
 		state.setData(OwnBody.RAISED, own ? raised : null);
@@ -137,6 +146,11 @@ public abstract class AvatarRollMixin {
 		life.shizune.mistinn.client.team.DownPose.State down = state.getData(life.shizune.mistinn.client.team.DownPose.KEY);
 		if (down != null) {
 			life.shizune.mistinn.client.team.DownPose.root(down, pose, entityScale);
+			return;
+		}
+		life.shizune.mistinn.client.team.AidPose.State aid = state.getData(life.shizune.mistinn.client.team.AidPose.KEY);
+		if (aid != null) {
+			life.shizune.mistinn.client.team.AidPose.root(aid, pose, entityScale);
 			return;
 		}
 		RollClient.Pose roll = state.getData(RollClient.KEY);

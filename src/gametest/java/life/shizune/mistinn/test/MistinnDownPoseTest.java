@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.UUID;
+import life.shizune.mistinn.client.team.AidPose;
 import life.shizune.mistinn.client.team.DownPose;
 import life.shizune.mistinn.client.team.DragPose;
 import life.shizune.mistinn.team.DownService;
@@ -18,15 +19,17 @@ import net.minecraft.world.level.block.Blocks;
 
 /**
  * The downed poses as teammates see them, on hunters drawn only on this client: one lying there
- * waiting, one still going down (on the knees), and a rescuer dragging a third. Each is its own
- * motion (not the death scene's), the dragged one lies head toward the rescuer, and the rescuer
- * bends into the pull.
+ * waiting, one still going down (on the knees), a rescuer dragging a third, and one kneeling to bring
+ * the first back where they lie. Each is its own motion (not the death scene's), the dragged one lies
+ * head toward the rescuer, the rescuer bends into the pull, and the one kneeling is down at the side
+ * with the hands on the wound while the one lying there turns their head to them.
  */
 @SuppressWarnings("UnstableApiUsage")
 public final class MistinnDownPoseTest implements FabricClientGameTest {
 	private static final int LYING = 900001;
 	private static final int RESCUER = 900002;
 	private static final int DRAGGED = 900003;
+	private static final int AIDER = 900004;
 
 	@Override
 	public void runTest(final ClientGameTestContext context) {
@@ -94,6 +97,40 @@ public final class MistinnDownPoseTest implements FabricClientGameTest {
 			look(world, centre[0], 2.6, 2.2, -3.0, 90.0F, 40.0F);
 			context.waitTicks(3);
 			context.takeScreenshot("mistinn-down-lying");
+			// a teammate kneels by the one lying there to bring them back where they lie: at their side,
+			// hands on the wound, and the one lying there turns their head to them
+			context.runOnClient(mc -> {
+				BlockPos c = centre[0];
+				RemotePlayer aider = remote(mc.level, AIDER, "aider", c.getX() - 1.0, c.getY(), c.getZ() - 3.6, -90.0F);
+				RemotePlayer lying = (RemotePlayer) mc.level.getEntity(LYING);
+				DownService.Down down = lying.getAttached(DownService.DOWN);
+				lying.setAttached(DownService.DOWN, new DownService.Down(down.left(), down.since(), down.lastHit(), aider.getId(), 20, false));
+			});
+			context.waitTicks(10);
+			String aided = context.computeOnClient(mc -> {
+				AidPose.State aid = AidPose.sample((RemotePlayer) mc.level.getEntity(AIDER), 0.0F);
+				DownPose.State lying = DownPose.sample((RemotePlayer) mc.level.getEntity(LYING), 0.0F);
+				return aid != null && aid.weight() > 0.99F && lying != null && lying.look() > 0.0F ? "ok" : aid + " / " + lying;
+			});
+			check("ok".equals(aided), "the aider is down on the knees by the one lying there, who turns their head to them (west): " + aided);
+			context.takeScreenshot("mistinn-down-aid");
+			look(world, centre[0], -3.2, 1.0, -3.2, -90.0F, 20.0F);
+			context.waitTicks(3);
+			context.takeScreenshot("mistinn-down-aid-side");
+			look(world, centre[0], 0.0, 1.4, -0.6, 180.0F, 30.0F);
+			context.waitTicks(3);
+			context.takeScreenshot("mistinn-down-aid-front");
+			look(world, centre[0], 2.6, 2.2, -3.0, 90.0F, 40.0F);
+			// let go: the one lying there alone again
+			context.runOnClient(mc -> {
+				RemotePlayer lying = (RemotePlayer) mc.level.getEntity(LYING);
+				DownService.Down down = lying.getAttached(DownService.DOWN);
+				lying.setAttached(DownService.DOWN, new DownService.Down(down.left(), down.since(), down.lastHit(), -1, 0, false));
+				mc.level.removeEntity(AIDER, net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
+			});
+			context.waitTicks(2);
+			check(context.computeOnClient(mc -> Float.isNaN(DownPose.sample((RemotePlayer) mc.level.getEntity(LYING), 0.0F).look())),
+				"with no one kneeling there, nobody to turn to");
 			look(world, centre[0], 4.5, 0.0, 0.5, 90.0F, 18.0F);
 			context.waitTicks(3);
 			// a moment of the fall: down on both knees, hunched over the wound
