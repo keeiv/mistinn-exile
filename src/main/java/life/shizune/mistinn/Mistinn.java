@@ -72,6 +72,9 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.station.StationTalk.init();
 		life.shizune.mistinn.station.StationBroadcast.init();
 
+		life.shizune.mistinn.team.UpdateNotice.register();
+		life.shizune.mistinn.team.TeamService.register();
+
 		// A fallen hunter leaves their salt as residue; a defeated creature gives salt.
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
 			if (entity instanceof ServerPlayer player) {

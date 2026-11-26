@@ -17,8 +17,8 @@ import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3x2fStack;
 
 /**
- * The hunter's minimap in the top right corner: terrain, the player's heading, the golden bell
- * they are bound to and the gravestone holding their residue. Markers outside the map sit on its
+ * The hunter's minimap in the top right corner: terrain, the player's heading, the other hunters,
+ * the golden bell they are bound to and the gravestone holding their residue. Markers outside the map sit on its
  * edge, pointing the way. Below it: the salt they carry and how far the residue is.
  */
 public final class MinimapHud implements HudElement {
@@ -101,6 +101,15 @@ public final class MinimapHud implements HudElement {
 			g.text(font, line, x + size - font.width(line), textY + 12, TEXT, true);
 		}
 
+		// the other hunters, each in their own colour, pinned to the edge when far
+		net.minecraft.resources.Identifier here = player.level().dimension().identifier();
+		for (life.shizune.mistinn.team.TeamPayload.Member member : life.shizune.mistinn.client.team.TeamClient.members()) {
+			if (member.dimension().equals(here)) {
+				int[] at = place(member.x() - originX, member.z() - originZ, scale, cx, cy, size);
+				drawTeammate(g, at[0], at[1], member.colour(), member.downed() && (player.tickCount / 6) % 2 == 0);
+			}
+		}
+
 		drawPlayer(g, cx + (float) ((px - originX) / scale), cy + (float) ((pz - originZ) / scale), player.getYRot(partial));
 
 		int salt = player.getAttachedOrElse(MistinnAttachments.SALT, 0);
@@ -173,6 +182,12 @@ public final class MinimapHud implements HudElement {
 			g.fill(x + i, y + i, x + i + 1, y + i + 1, core);
 			g.fill(x + i, y - i, x + i + 1, y - i + 1, core);
 		}
+	}
+
+	/** Another hunter: a dot in their colour with a dark rim; a downed one blinks white. */
+	private static void drawTeammate(final GuiGraphicsExtractor g, final int x, final int y, final int colour, final boolean blink) {
+		g.fill(x - 2, y - 2, x + 3, y + 3, 0xFF000000);
+		g.fill(x - 1, y - 1, x + 2, y + 2, blink ? 0xFFFFFFFF : 0xFF000000 | colour);
 	}
 
 	/** The player: an arrow pointing where they face (map north is up). */
