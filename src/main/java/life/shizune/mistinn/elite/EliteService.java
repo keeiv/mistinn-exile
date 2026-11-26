@@ -111,6 +111,8 @@ public final class EliteService {
 	public static final double BAR = 24.0;
 	/** For each affix, the chance a hunter's kill leaves something behind. */
 	public static final float SPOILS = 0.6F;
+	/** The chance a hunter's kill also leaves a piece of gear. */
+	public static final float GEAR = 0.25F;
 	public static final ResourceKey<DamageType> SALT_BURST = ResourceKey.create(Registries.DAMAGE_TYPE, Mistinn.id("salt_burst"));
 
 	/** An elite's affixes, by id; absent on an ordinary creature. Saved with it, and known to every client. */
@@ -501,6 +503,11 @@ public final class EliteService {
 			if (mob.getRandom().nextFloat() < SPOILS) {
 				mob.spawnAtLocation(level, spoil(mob.getRandom()));
 			}
+		}
+		// and now and then a piece of gear, of the tier its affixes make it (I to III), any line's
+		if (mob.getRandom().nextFloat() < GEAR) {
+			List<net.minecraft.world.item.Item> pieces = MistinnItems.gearOfTier(Math.min(3, affixes.size()));
+			mob.spawnAtLocation(level, new ItemStack(pieces.get(mob.getRandom().nextInt(pieces.size()))));
 		}
 		AchievementService.grant(hunter, AchievementService.ELITE_SLAIN);
 		if (affixes.size() >= 3) {

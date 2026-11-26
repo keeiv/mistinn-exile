@@ -26,6 +26,8 @@ public final class TierText {
 	/** A piece's costs in red, what it gives back in green. */
 	private static final int BAD = 0xFFC54242;
 	private static final int GOOD = 0xFF7FBF7F;
+	/** What a whole set adds. */
+	private static final int SET = 0xFFB9A46A;
 
 	/** "1×2、3×4": a grid's compartments. */
 	private static String layout(final GridShape shape) {
@@ -99,6 +101,9 @@ public final class TierText {
 		}
 		if (burden.swing() > 0.0F) {
 			lines.add(at++, Component.translatable("tooltip.mistinn.swing", signed(-burden.swing())).withColor(BAD));
+		}
+		if (line == Gear.Line.LIGHT || line == Gear.Line.HEAVY) {
+			lines.add(at++, Component.translatable("tooltip.mistinn.set." + line.id).withColor(SET));
 		}
 		String base = "item." + BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace() + "." + BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
 		String usage = base + ".usage";

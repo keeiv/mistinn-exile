@@ -89,7 +89,7 @@ public final class MistinnItems {
 	public static final Item HUNTER_TAG = register("hunter_tag", Item::new, new Item.Properties().stacksTo(1));
 
 	/** Pages of the guide's text (item.mistinn.hunter_guide.page.N), read as spreads in its screen. */
-	public static final int GUIDE_PAGES = 29;
+	public static final int GUIDE_PAGES = 30;
 	public static final Item HUNTER_GUIDE = register("hunter_guide", life.shizune.mistinn.story.HunterGuideItem::new, new Item.Properties().stacksTo(1));
 
 	public static final Item GOLDEN_BELL = block("golden_bell", MistinnBlocks.GOLDEN_BELL, new Item.Properties().rarity(Rarity.RARE));
@@ -136,6 +136,33 @@ public final class MistinnItems {
 	public static final List<Item> BOOTS = Gear.BOOTS.stream().map(g -> legGear(g, "boots", EquipmentSlot.FEET, EquipmentSlotGroup.FEET)).toList();
 
 	private MistinnItems() {
+	}
+
+	/**
+	 * Every piece of a tier a keeper may leave behind: its helmets and body armour of all three lines,
+	 * its mask, its rigs (standard and heavy), and its leggings and boots where the tier has them.
+	 */
+	public static List<Item> gearOfTier(final int tier) {
+		List<Item> pieces = new java.util.ArrayList<>();
+		for (int i = 0; i < Gear.HELMETS.size(); i++) {
+			if (Gear.HELMETS.get(i).tier().ordinal() == tier) {
+				pieces.add(HELMETS.get(i));
+			}
+			if (Gear.ARMORS.get(i).tier().ordinal() == tier) {
+				pieces.add(ARMORS.get(i));
+			}
+		}
+		for (int i = 0; i < Gear.RIGS.size(); i++) {
+			if (Gear.RIGS.get(i).tier().ordinal() == tier) {
+				pieces.add(RIGS.get(i));
+			}
+		}
+		pieces.add(MASKS.get(tier));
+		if (tier < LEGGINGS.size()) {
+			pieces.add(LEGGINGS.get(tier));
+			pieces.add(BOOTS.get(tier));
+		}
+		return List.copyOf(pieces);
 	}
 
 	private static ResourceKey<EquipmentAsset> asset(final Tier tier) {

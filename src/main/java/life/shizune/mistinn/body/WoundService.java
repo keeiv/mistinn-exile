@@ -125,7 +125,8 @@ public final class WoundService {
 		}
 		java.util.List<Component> news = new java.util.ArrayList<>();
 		boolean broke = false;
-		float hardship = life.shizune.mistinn.hardship.Hardship.of(player).woundChance;
+		// a whole heavy set turns more of the blows that would open a wound or break a bone
+		float hardship = life.shizune.mistinn.hardship.Hardship.of(player).woundChance * life.shizune.mistinn.gear.GearBurden.wounds(player);
 		for (BodyPart part : reached) {
 			if (body.destroyed(part)) {
 				continue;
