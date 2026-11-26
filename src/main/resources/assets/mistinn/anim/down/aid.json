@@ -1,0 +1,21 @@
+{
+	"_comment": "原地救援: the rescuer down on one knee beside the downed hunter, leaning over them, both hands pressed together on the wound. AidPose turns the body toward the hunter's chest, moves it in to kneel there, blends it in over a few ticks and presses in rhythm.",
+	"keys": [0.0, 1.0],
+	"eases": ["linear"],
+	"pivot": 0.0,
+	"root": {
+		"pitch": [18, 18],
+		"y": [-0.42, -0.42]
+	},
+	"limbs": {
+		"head_x": [35, 35],
+		"body_x": [12, 12],
+		"right_arm_x": [-62, -62],
+		"right_arm_z": [-14, -14],
+		"left_arm_x": [-58, -58],
+		"left_arm_z": [14, 14],
+		"right_leg_x": [72, 72],
+		"left_leg_x": [-86, -86],
+		"left_leg_z": [-4, -4]
+	}
+}
