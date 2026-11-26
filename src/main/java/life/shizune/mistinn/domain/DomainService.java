@@ -155,12 +155,21 @@ public final class DomainService {
 
 	/** A new domain, spreading from nothing. */
 	public static Domain add(final MinecraftServer server, final Domain.Kind kind, final BlockPos centre, final int radius, final Domain.Phase phase) {
+		return add(server, kind, centre, radius, phase, 0);
+	}
+
+	/** A new domain whose change has already spread this far (all of it, for one that is simply there). */
+	public static Domain add(final MinecraftServer server, final Domain.Kind kind, final BlockPos centre, final int radius, final Domain.Phase phase,
+		final int spread) {
 		Book book = book(server);
 		long now = server.overworld().getGameTime();
-		Domain domain = new Domain(book.next(), kind, centre, radius, phase, now, 0);
+		Domain domain = new Domain(book.next(), kind, centre, radius, phase, now, spread);
 		List<Domain> domains = new ArrayList<>(book.domains());
 		domains.add(domain);
 		write(server, new Book(book.next() + 1, domains, book.done()));
+		if (spread > 0) {
+			queueLoaded(server.overworld(), domain);
+		}
 		return domain;
 	}
 

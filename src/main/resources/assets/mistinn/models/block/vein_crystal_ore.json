@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "mistinn:block/vein_crystal_ore"
+  }
+}

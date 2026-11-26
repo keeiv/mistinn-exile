@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "condition": {
+            "type": "minecraft:match_block",
+            "blocks": "mistinn:mist_reed",
+            "state": {
+              "half": "lower"
+            }
+          },
+          "name": "mistinn:mist_reed"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "mistinn:blocks/mist_reed"
+}

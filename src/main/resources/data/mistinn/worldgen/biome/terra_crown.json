@@ -1,0 +1,52 @@
+{
+  "has_precipitation": true,
+  "temperature": 0.6,
+  "downfall": 0.8,
+  "effects": {
+    "water_color": "#5ac8d0",
+    "grass_color": "#6fb5a0",
+    "foliage_color": "#5fa894",
+    "dry_foliage_color": "#5fa894"
+  },
+  "attributes": {
+    "minecraft:visual/sky_color": "#7cc6da",
+    "minecraft:visual/fog_color": "#a9dde6",
+    "minecraft:visual/cloud_color": "#ddeef9fc",
+    "minecraft:visual/water_fog_color": "#3aa0aa",
+    "minecraft:visual/ambient_particles": {
+      "argument": [
+        {
+          "particle": {
+            "type": "minecraft:end_rod"
+          },
+          "probability": 0.004
+        },
+        {
+          "particle": {
+            "type": "minecraft:white_ash"
+          },
+          "probability": 0.004
+        }
+      ],
+      "modifier": "append"
+    },
+    "minecraft:gameplay/natural_mob_spawns": {
+      "argument": {
+        "spawn_costs": {},
+        "spawns_by_category": {
+          "ambient": [],
+          "axolotls": [],
+          "creature": [],
+          "misc": [],
+          "monster": [],
+          "underground_water_creature": [],
+          "water_ambient": [],
+          "water_creature": []
+        }
+      },
+      "modifier": "overlay"
+    }
+  },
+  "carvers": [],
+  "features": []
+}

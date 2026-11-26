@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "mistinn:block/terra_crystal_large_bud"
+  }
+}

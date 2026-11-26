@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "planks",
+  "ingredients": [
+    "mistinn:mist_pine_log"
+  ],
+  "result": {
+    "count": 4,
+    "id": "mistinn:mist_pine_planks"
+  }
+}

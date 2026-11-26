@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "half=lower": {
+      "model": "mistinn:block/mist_reed_bottom"
+    },
+    "half=upper": {
+      "model": "mistinn:block/mist_reed_top"
+    }
+  }
+}

@@ -151,6 +151,74 @@ public final class MistinnBlocks {
 	public static final Block CHARRED_LOG = register("charred_log", net.minecraft.world.level.block.RotatedPillarBlock::new, BlockBehaviour.Properties.of()
 		.mapColor(MapColor.COLOR_BLACK).strength(2.0F).sound(SoundType.WOOD));
 
+	// ── Terra ─────────────────────────────────────────────────────
+
+	/** 玉草地: the jade turf of the Terra highlands. */
+	public static final Block JADE_TURF = register("jade_turf", Block::new, BlockBehaviour.Properties.of()
+		.mapColor(MapColor.EMERALD).strength(0.6F).sound(SoundType.GRASS));
+	/** 晶脈土: grey-violet earth flecked with crystal. */
+	public static final Block VEIN_SOIL = register("vein_soil", Block::new, BlockBehaviour.Properties.of()
+		.mapColor(MapColor.TERRACOTTA_PURPLE).strength(0.5F).sound(SoundType.ROOTED_DIRT));
+	/** 晶脈岩: pale stone veined with crystal, as it lies, polished, and cut into bricks. */
+	public static final Block VEIN_STONE = register("vein_stone", Block::new, veinStone());
+	public static final Block VEIN_STONE_POLISHED = register("vein_stone_polished", Block::new, veinStone());
+	public static final Block VEIN_STONE_BRICKS = register("vein_stone_bricks", Block::new, veinStone());
+	/** 晶脈露頭: where the crystal breaks through the stone. */
+	public static final Block VEIN_CRYSTAL_ORE = register("vein_crystal_ore", Block::new, BlockBehaviour.Properties.of()
+		.mapColor(MapColor.TERRACOTTA_LIGHT_GRAY).requiresCorrectToolForDrops().strength(3.0F, 3.0F).lightLevel(state -> 2));
+	/** 霧松: the highlands' one tree, silver-barked. */
+	public static final Block MIST_PINE_LOG = register("mist_pine_log", net.minecraft.world.level.block.RotatedPillarBlock::new, BlockBehaviour.Properties.of()
+		.mapColor(MapColor.QUARTZ).strength(2.0F).sound(SoundType.WOOD).ignitedByLava());
+	public static final Block MIST_PINE_PLANKS = register("mist_pine_planks", Block::new, BlockBehaviour.Properties.of()
+		.mapColor(MapColor.QUARTZ).strength(2.0F, 3.0F).sound(SoundType.WOOD).ignitedByLava());
+	public static final Block MIST_PINE_LEAVES = register("mist_pine_leaves", p -> new net.minecraft.world.level.block.UntintedParticleLeavesBlock(0.02F,
+		net.minecraft.core.particles.ParticleTypes.WHITE_ASH, net.minecraft.world.level.block.sounds.AmbientLeavesBlockSoundPlayer.noAmbientSound(), p),
+		BlockBehaviour.Properties.of()
+		.mapColor(MapColor.COLOR_CYAN).strength(0.2F).randomTicks().sound(SoundType.GRASS).noOcclusion()
+		.isValidSpawn((state, level, pos, type) -> false).isSuffocating((state, level, pos) -> false).isViewBlocking((state, level, pos, box) -> false)
+		.ignitedByLava().pushReaction(PushReaction.POPPED).isRedstoneConductor((state, level, pos) -> false));
+	/** 玉草, 玉蕨: the highlands' grass and fern; 霧蘆, a tall reed by the water. */
+	public static final Block JADE_GRASS = register("jade_grass", life.shizune.mistinn.block.TerraPlantBlock::new, plant()
+		.offsetType(BlockBehaviour.OffsetType.XYZ).pushReaction(PushReaction.POPPED));
+	public static final Block JADE_FERN = register("jade_fern", life.shizune.mistinn.block.TerraPlantBlock::new, plant()
+		.offsetType(BlockBehaviour.OffsetType.XYZ).pushReaction(PushReaction.POPPED));
+	public static final Block MIST_REED = register("mist_reed", net.minecraft.world.level.block.DoublePlantBlock::new, plant()
+		.offsetType(BlockBehaviour.OffsetType.XZ).pushReaction(PushReaction.POPPED));
+	/** 晶苗: the valley people's crystal crop. */
+	public static final Block CRYSTAL_SPROUT = register("crystal_sprout", life.shizune.mistinn.block.CrystalSproutBlock::new, BlockBehaviour.Properties.of()
+		.mapColor(MapColor.PLANT).noCollision().randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.POPPED));
+	/** 晶格: the living crystal of Terra, in four growths and as blocks. */
+	public static final Block TERRA_CRYSTAL_SMALL_BUD = register("terra_crystal_small_bud", p -> new net.minecraft.world.level.block.AmethystClusterBlock(3F, 4F, p),
+		BlockBehaviour.Properties.of().mapColor(MapColor.DIAMOND).forceSolidOn().noOcclusion().strength(1.5F)
+			.sound(SoundType.SMALL_AMETHYST_BUD).lightLevel(state -> 1).pushReaction(PushReaction.POPPED));
+	/** A medium growth. */
+	public static final Block TERRA_CRYSTAL_MEDIUM_BUD = register("terra_crystal_medium_bud", p -> new net.minecraft.world.level.block.AmethystClusterBlock(4F, 3F, p),
+		BlockBehaviour.Properties.of().mapColor(MapColor.DIAMOND).forceSolidOn().noOcclusion().strength(1.5F)
+			.sound(SoundType.MEDIUM_AMETHYST_BUD).lightLevel(state -> 2).pushReaction(PushReaction.POPPED));
+	/** A large growth. */
+	public static final Block TERRA_CRYSTAL_LARGE_BUD = register("terra_crystal_large_bud", p -> new net.minecraft.world.level.block.AmethystClusterBlock(5F, 3F, p),
+		BlockBehaviour.Properties.of().mapColor(MapColor.DIAMOND).forceSolidOn().noOcclusion().strength(1.5F)
+			.sound(SoundType.LARGE_AMETHYST_BUD).lightLevel(state -> 4).pushReaction(PushReaction.POPPED));
+	/** A full cluster. */
+	public static final Block TERRA_CRYSTAL_CLUSTER = register("terra_crystal_cluster", p -> new net.minecraft.world.level.block.AmethystClusterBlock(7F, 3F, p),
+		BlockBehaviour.Properties.of().mapColor(MapColor.DIAMOND).forceSolidOn().noOcclusion().strength(1.5F)
+			.sound(SoundType.AMETHYST_CLUSTER).lightLevel(state -> 5).pushReaction(PushReaction.POPPED));
+	public static final Block TERRA_CRYSTAL_BLOCK = register("terra_crystal_block", Block::new, BlockBehaviour.Properties.of()
+		.mapColor(MapColor.DIAMOND).requiresCorrectToolForDrops().strength(1.5F).sound(SoundType.AMETHYST).lightLevel(state -> 3));
+	/** 晶格: crystal grown in a lattice, the great formations; dim where the crystal has died. */
+	public static final Block LATTICE_CRYSTAL = register("lattice_crystal", Block::new, BlockBehaviour.Properties.of()
+		.mapColor(MapColor.DIAMOND).requiresCorrectToolForDrops().strength(3.0F, 6.0F).sound(SoundType.AMETHYST).lightLevel(state -> 6));
+	public static final Block LATTICE_CRYSTAL_DIM = register("lattice_crystal_dim", Block::new, BlockBehaviour.Properties.of()
+		.mapColor(MapColor.COLOR_LIGHT_GRAY).requiresCorrectToolForDrops().strength(3.0F, 6.0F).sound(SoundType.AMETHYST));
+
+	private static BlockBehaviour.Properties veinStone() {
+		return BlockBehaviour.Properties.of().mapColor(MapColor.TERRACOTTA_LIGHT_GRAY).requiresCorrectToolForDrops().strength(1.5F, 6.0F);
+	}
+
+	private static BlockBehaviour.Properties plant() {
+		return BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).replaceable().noCollision().instabreak().sound(SoundType.GRASS);
+	}
+
 	private MistinnBlocks() {
 	}
 

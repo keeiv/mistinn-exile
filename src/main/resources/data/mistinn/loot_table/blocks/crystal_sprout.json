@@ -1,0 +1,59 @@
+{
+  "type": "minecraft:block",
+  "modifier": {
+    "type": "minecraft:explosion_decay"
+  },
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:item",
+              "condition": {
+                "type": "minecraft:match_block",
+                "blocks": "mistinn:crystal_sprout",
+                "state": {
+                  "age": "3"
+                }
+              },
+              "name": "mistinn:crystal_dust"
+            },
+            {
+              "type": "minecraft:item",
+              "name": "mistinn:crystal_sprout"
+            }
+          ]
+        }
+      ],
+      "rolls": 1
+    },
+    {
+      "condition": {
+        "type": "minecraft:match_block",
+        "blocks": "mistinn:crystal_sprout",
+        "state": {
+          "age": "3"
+        }
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:apply_bonus",
+            "enchantment": "minecraft:fortune",
+            "formula": "minecraft:binomial_with_bonus_count",
+            "parameters": {
+              "extra": 3,
+              "probability": 0.5714286
+            }
+          },
+          "name": "mistinn:crystal_sprout"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "mistinn:blocks/crystal_sprout"
+}

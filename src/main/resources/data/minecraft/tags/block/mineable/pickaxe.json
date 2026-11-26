@@ -3,6 +3,17 @@
     "mistinn:scorched_stone",
     "mistinn:rift_crystal_bud",
     "mistinn:rift_crystal_cluster",
-    "mistinn:rift_crystal_block"
+    "mistinn:rift_crystal_block",
+    "mistinn:vein_stone",
+    "mistinn:vein_stone_polished",
+    "mistinn:vein_stone_bricks",
+    "mistinn:vein_crystal_ore",
+    "mistinn:terra_crystal_small_bud",
+    "mistinn:terra_crystal_medium_bud",
+    "mistinn:terra_crystal_large_bud",
+    "mistinn:terra_crystal_cluster",
+    "mistinn:terra_crystal_block",
+    "mistinn:lattice_crystal",
+    "mistinn:lattice_crystal_dim"
   ]
 }

@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mistinn:block/jade_turf_top",
+    "side": "mistinn:block/jade_turf_side",
+    "bottom": "mistinn:block/vein_soil",
+    "particle": "mistinn:block/vein_soil"
+  }
+}
