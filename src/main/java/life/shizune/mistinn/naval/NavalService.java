@@ -162,6 +162,9 @@ public final class NavalService {
 		int quiet;
 		boolean asleep;
 		int missing;
+		/** The most crew seen standing, and how many the bar shows now. */
+		int most;
+		int shown = -1;
 
 		Battle(final Ship ship) {
 			this.bar = new ServerBossEvent(UUID.randomUUID(), Component.empty().append(ship.shipName()).append(" · ").append(ship.captainName()),
@@ -557,6 +560,7 @@ public final class NavalService {
 		}
 		shown.forEach(battle.bar::removePlayer);
 
+		crewOnBar(level, ship, frame, battle);
 		Pirate captain = ship.captain().map(uuid -> level.getEntity(uuid) instanceof Pirate pirate ? pirate : null).orElse(null);
 		if (captain != null && captain.isAlive()) {
 			battle.missing = 0;
@@ -567,6 +571,22 @@ public final class NavalService {
 			return;
 		}
 		guns(level, ship, frame, battle, near);
+	}
+
+	/** The bar names the ship and its captain, and counts the crew still standing: ◆ for each, ◇ for each lost. */
+	private static void crewOnBar(final ServerLevel level, final Ship ship, final ShipFrame frame, final Battle battle) {
+		if (battle.age % 10 != 1) {
+			return;
+		}
+		int standing = level.getEntitiesOfClass(Pirate.class, frame.box().inflate(24.0), p -> p.isAlive() && p.ship() == ship.id() && !p.fleeing()).size();
+		battle.most = Math.max(battle.most, standing);
+		if (standing == battle.shown) {
+			return;
+		}
+		battle.shown = standing;
+		String marks = "◆".repeat(standing) + "◇".repeat(Math.max(0, battle.most - standing));
+		battle.bar.setName(Component.empty().append(ship.shipName()).append(" · ").append(ship.captainName()).append("  ")
+			.append(Component.translatable("hud.mistinn.naval.crew", marks)));
 	}
 
 	/** The broadsides: while a gunner lives, each side's guns fire in turn at a hunter off that side. */

@@ -1485,6 +1485,9 @@
   "item.mistinn.hunter_guide.page.22": "[Salt Works]\n\nOn level ground inland, rarer than a lighthouse: a walled round yard with four stone pillars.\n\nOutside the gate, a golden bell, the boiling house with its stores, and the salt pans. The Rust Wheel waits in the middle.",
   "item.mistinn.hunter_guide.page.23": "[The Rust Wheel]\n\nIts iron front shrugs off blows; its back, the axle and the man, is soft.\n\nAfter a spin it rolls straight at you, faster each run; the ◆ on its bar is its momentum. Lure it into a pillar: stuck, one full heavy blow throws it off balance.\n\nLinger at its back and the man lashes his chain.",
   "item.mistinn.hunter_guide.page.24": "[Rust Rim]\n\nThe Rust Wheel slain; constitution 4.\n\nA full heavy blow rolls you on some six blocks, running over all in the path and throwing them aside; a wall stops you, dazed.\n\nDropped by the Rust Wheel.",
+  "item.mistinn.hunter_guide.page.25": "[Pirates of the Fog Sea]\n\nSail far out of sight of land and in time a horn sounds in the fog. A black-sailed ship heaves to, broadside on, with a warning shot.\n\nWhile a gunner lives its guns fire; a marksman's lock clicks before the shot, so move.\n\nLadders come up the hull.",
+  "item.mistinn.hunter_guide.page.26": "[Taking a Ship]\n\nWhen the captain falls the ship is yours: the crew go over the side.\n\nThe chest in the stern cabin holds their takings, at times a treasure map; the hold keeps stores.\n\nEach ship taken makes the next crews harder. Leave if you must: they wait.",
+  "item.mistinn.hunter_guide.page.27": "[Flintlock and Pistol]\n\nHold use to aim (steadier the longer you hold), let go to fire one paper cartridge, then reload.\n\nThe musket reaches far and hits hard; the pistol comes up quicker.\n\nPaper cartridges: paper, gunpowder and an iron nugget make three. Captains carry pistols.",
   "staff.mistinn.bell_keeper.ask.fogbell": "The bell in the mist",
   "staff.mistinn.bell_keeper.fogbell.0": "There is a fog-bell station out on the reef. When the mist came in, someone rang the bell there to guide the boats home.",
   "staff.mistinn.bell_keeper.fogbell.1": "He never came back either. On misty nights that bell still rings. ...Once, and again.",
@@ -1580,5 +1583,6 @@
   "achievement.mistinn.pirate_ship": "Prize of the Fog Sea",
   "achievement.mistinn.pirate_ship.desc": "Take a pirate ship: its captain falls with you near",
   "notice.mistinn.pirates": "Pirates sail the fog sea: far out of sight of land, a black-sailed ship may come for a hunter's salt. Take it, and its guns are yours.",
+  "hud.mistinn.naval.crew": "crew %s",
   "hud.mistinn.naval.raiders": "Raiders of the fog sea · %s"
 }
