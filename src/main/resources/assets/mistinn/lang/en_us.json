@@ -979,6 +979,7 @@
   "notice.mistinn.recipes": "The guide has a Crafting bookmark: every recipe with its grid and a description.",
   "notice.mistinn.controls": "The grid takes the usual inventory controls now: right-click for half or one, shift-click into a chest, number keys and F to swap, Q for one, a double click to gather. Pickups go to the hotbar first, then the pockets, the backpack and the rig. Bring the wheel back to the middle and let go of R to put it away.",
   "notice.mistinn.story_shared": "The story is the team's now: one hunter's objective done moves everyone on, with the same lines and cards (a teammate far off gets the lines, and the card once out of a fight); a hunter who was away catches up on arrival. Achievements are told in the chat.",
+  "notice.mistinn.pings": "Press G to mark whatever is under the crosshair (a place, a creature or a thing on the ground) for the whole team, in view and on the minimap, for twelve seconds.",
   "notice.mistinn.bells": "Golden bells cool for each hunter apart; ringing one restores you and clears harmful effects; every hunter can have a one-time bell remember them once.",
   "key.mistinn.rescue": "Rescue a teammate in place",
   "key.mistinn.drag": "Drag a teammate",
@@ -1584,5 +1585,10 @@
   "achievement.mistinn.pirate_ship.desc": "Take a pirate ship: its captain falls with you near",
   "notice.mistinn.pirates": "Pirates sail the fog sea: far out of sight of land, a black-sailed ship may come for a hunter's salt. Take it, and its guns are yours.",
   "hud.mistinn.naval.crew": "crew %s",
-  "hud.mistinn.naval.raiders": "Raiders of the fog sea · %s"
+  "hud.mistinn.naval.raiders": "Raiders of the fog sea · %s",
+  "key.mistinn.ping": "Mark for the team",
+  "hud.mistinn.ping.place": "Here",
+  "hud.mistinn.ping.enemy": "Enemy",
+  "hud.mistinn.ping.item": "Item",
+  "hud.mistinn.ping.line": "%1$s %2$sm"
 }
