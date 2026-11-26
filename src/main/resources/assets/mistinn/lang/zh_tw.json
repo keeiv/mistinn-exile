@@ -1485,6 +1485,9 @@
   "item.mistinn.hunter_guide.page.22": "【鹽坊】\n\n內陸的平地上，比燈塔更少見。石牆圍起一座圓形的輪場，場裡四根石柱。\n\n門外有金鐘石龕、存著補給的煮鹽房和曬鹽池。鏽輪就停在輪場中央。",
   "item.mistinn.hunter_guide.page.23": "【鏽輪】\n\n正面包著鐵，打不太動；背後的輪軸和那個人才是軟的。\n\n空轉之後它會直直滾過來，越滾越快，血條上的 ◆ 是它的勢。引它撞上柱子，卡住時一記蓄滿的重擊讓它直接失衡。\n\n在它背後待太久，那個人會甩鍊。",
   "item.mistinn.hunter_guide.page.24": "【鏽輪緣】\n\n打倒鏽輪、體質 4。\n\n蓄滿的重擊落下後往前滾出約六格，輾過路上的每一個，把它們甩到一邊；撞上牆會停下來，暈兩秒。\n\n鏽輪倒下時掉落。",
+  "item.mistinn.hunter_guide.page.25": "【霧海的海盜】\n\n坐船駛到看不見陸地的遠海，久了，霧裡會傳來號角。黑帆船側舷對著你停下，先開一炮警告。\n\n炮手活著，兩側的炮就輪流開；火槍手拉擊錘時會響一聲，聽到就閃。\n\n船身中段和後段有梯子。",
+  "item.mistinn.hunter_guide.page.26": "【奪船】\n\n船長倒下，船就是你的：船員跳海逃走，船留在原地。\n\n船尾船長室的箱子是他們搶來的東西，有時有藏寶圖；船艙的木桶裡是補給。\n\n每奪下一艘，之後的海盜就更多、更狠。打不過可以先走，船和船員會等你回來。",
+  "item.mistinn.hunter_guide.page.27": "【火槍與手槍】\n\n按住使用鍵舉槍瞄準，舉久一點比較準，放開射出一發紙彈，之後要裝填。\n\n長槍打得遠、傷害高；手槍舉得快。\n\n紙彈：紙、火藥、鐵粒，合成三發。船長身上一定有手槍。",
   "staff.mistinn.bell_keeper.ask.fogbell": "霧裡的鐘聲",
   "staff.mistinn.bell_keeper.fogbell.0": "海上有座霧鐘台。從前起霧時，有人在那裡敲鐘，替船指回家的路。",
   "staff.mistinn.bell_keeper.fogbell.1": "後來他也沒回來。起霧的夜裡，那口鐘還是會響。……一聲，又一聲。",
@@ -1580,5 +1583,6 @@
   "achievement.mistinn.pirate_ship": "霧海奪船",
   "achievement.mistinn.pirate_ship.desc": "奪下一艘海盜船：船長在你附近倒下",
   "notice.mistinn.pirates": "霧海上有海盜：駛出看不見陸地的遠海，黑帆船可能會來搶你身上的鹽。奪下它，船上的槍就是你的。",
+  "hud.mistinn.naval.crew": "船員 %s",
   "hud.mistinn.naval.raiders": "霧海的劫掠者・%s"
 }
