@@ -40,8 +40,15 @@ public class HubCoreBlock extends Block {
 	@Override
 	protected InteractionResult useItemOn(final ItemStack stack, final BlockState state, final Level level, final BlockPos pos, final Player player,
 		final InteractionHand hand, final BlockHitResult hit) {
-		if (state.getValue(LIT) || !stack.is(MistinnItems.CRYSTAL_CORE)) {
+		if (!stack.is(MistinnItems.CRYSTAL_CORE)) {
 			return InteractionResult.TRY_WITH_EMPTY_HAND;
+		}
+		if (state.getValue(LIT)) {
+			// a homestead's hub given more cores grows a step
+			if (level instanceof ServerLevel server && player instanceof ServerPlayer hunter) {
+				return life.shizune.mistinn.terra.HomesteadUpgrades.offer(server, pos, hunter, stack) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+			}
+			return InteractionResult.SUCCESS;
 		}
 		if (!(level instanceof ServerLevel server) || !(player instanceof ServerPlayer hunter)) {
 			return InteractionResult.SUCCESS;
@@ -61,9 +68,16 @@ public class HubCoreBlock extends Block {
 
 	@Override
 	protected InteractionResult useWithoutItem(final BlockState state, final Level level, final BlockPos pos, final Player player, final BlockHitResult hit) {
-		if (!level.isClientSide()) {
-			player.sendSystemMessage(Component.translatable(state.getValue(LIT) ? "message.mistinn.hub.home" : "message.mistinn.hub.asleep", Settlements.CORES)
-				.withStyle(ChatFormatting.GRAY));
+		if (level instanceof ServerLevel server && player instanceof ServerPlayer hunter) {
+			if (state.getValue(LIT)) {
+				// the grit the fields have sent, if any; else what it is
+				if (!life.shizune.mistinn.terra.HomesteadUpgrades.collect(server, pos, hunter)) {
+					hunter.sendSystemMessage(Component.translatable("message.mistinn.hub.home").append(" ")
+						.append(life.shizune.mistinn.terra.HomesteadUpgrades.describe(server.getServer(), pos)).withStyle(ChatFormatting.GRAY));
+				}
+			} else {
+				hunter.sendSystemMessage(Component.translatable("message.mistinn.hub.asleep", Settlements.CORES).withStyle(ChatFormatting.GRAY));
+			}
 		}
 		return InteractionResult.SUCCESS;
 	}

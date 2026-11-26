@@ -304,11 +304,12 @@ public final class Siege {
 		for (Tiller tiller : level.getEntitiesOfClass(Tiller.class, new net.minecraft.world.phys.AABB(hub).inflate(Settlements.HOME + 8))) {
 			level.sendParticles(ParticleTypes.HAPPY_VILLAGER, tiller.getX(), tiller.getY() + 2.0, tiller.getZ(), 8, 0.3, 0.3, 0.3, 0.0);
 		}
+		int times = HomesteadUpgrades.thanks(level.getServer(), home.domain());
 		for (ServerPlayer player : near(level, hub, THANKS)) {
-			SaltService.add(player, SALT);
+			SaltService.add(player, SALT * times);
 			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.AchievementService.SIEGE_HELD);
-			player.spawnAtLocation(level, new ItemStack(MistinnItems.CRYSTAL_CORE));
-			player.sendSystemMessage(Component.translatable("message.mistinn.siege.held", SALT).withStyle(ChatFormatting.GOLD));
+			player.spawnAtLocation(level, new ItemStack(MistinnItems.CRYSTAL_CORE, times));
+			player.sendSystemMessage(Component.translatable("message.mistinn.siege.held", SALT * times).withStyle(ChatFormatting.GOLD));
 		}
 	}
 
