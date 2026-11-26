@@ -12,14 +12,19 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.RandomizableContainer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.AmethystClusterBlock;
+import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.storage.loot.LootTable;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -41,6 +46,10 @@ public final class RiftShaper implements DomainService.Shaper {
 	/** How far down through a tree the shaper looks for the ground. */
 	private static final int TREE = 40;
 	private static final int FLAGS = Block.UPDATE_CLIENTS;
+	/** How likely a chunk of a rift's ground is to hold a hunter's camp it took, and for tests how many times more (0 for none). */
+	public static final double CAMP = 1.0 / 25.0;
+	public static double camps = 1.0;
+	public static final ResourceKey<LootTable> CAMP_LOOT = ResourceKey.create(Registries.LOOT_TABLE, Mistinn.id("chests/rift_camp"));
 
 	@Override
 	public @Nullable Holder<Biome> biome(final ServerLevel level, final Domain domain, final double distance) {
@@ -117,6 +126,9 @@ public final class RiftShaper implements DomainService.Shaper {
 			return;
 		}
 		double inner = Math.max(0.0, 1.0 - distance / domain.radius());
+		if (camp(level, chunk, domain, x, ground, z)) {
+			return;
+		}
 		if (pool(domain, x, z, distance) && chunk.getBlockState(surface).is(MistinnBlocks.RIFT_TURF) && flat(chunk, x, ground, z)) {
 			level.setBlock(surface, Blocks.WATER.defaultBlockState(), Block.UPDATE_ALL);
 			return;
@@ -139,6 +151,66 @@ public final class RiftShaper implements DomainService.Shaper {
 		} else if (roll < crystal + 0.045 + 0.25 * (0.4 + inner)) {
 			level.setBlock(above, MistinnBlocks.CRIMSON_MOSS_CARPET.defaultBlockState(), FLAGS);
 		}
+	}
+
+	/**
+	 * A hunter's camp the rift took, in some chunks of its ground: a tent's charred frame, a cold
+	 * fire, and their pack left where they fell. All of it inside the one chunk, stood on its own
+	 * column at the chunk's heart. Returns whether this column was that column (and so is done).
+	 */
+	private static boolean camp(final ServerLevel level, final LevelChunk chunk, final Domain domain, final int x, final int ground, final int z) {
+		int cx = x >> 4;
+		int cz = z >> 4;
+		if (hash(cx, cz, domain.id() + 501) >= CAMP * camps) {
+			return false;
+		}
+		int ax = (cx << 4) + 5 + (int) (hash(cz, cx, domain.id() + 503) * 6);
+		int az = (cz << 4) + 5 + (int) (hash(cx + 3, cz, domain.id() + 505) * 6);
+		if (x != ax || z != az || !chunk.getFluidState(new BlockPos(x, ground, z)).isEmpty()) {
+			return false;
+		}
+		BlockPos.MutableBlockPos at = new BlockPos.MutableBlockPos();
+		// clear the ground for it, and level it
+		for (int dx = -2; dx <= 2; dx++) {
+			for (int dz = -2; dz <= 2; dz++) {
+				for (int y = 1; y <= 4; y++) {
+					at.set(x + dx, ground + y, z + dz);
+					if (!chunk.getBlockState(at).isAir() && !chunk.getBlockState(at).is(BlockTags.LOGS)) {
+						level.setBlock(at, Blocks.AIR.defaultBlockState(), FLAGS);
+					}
+				}
+				at.set(x + dx, ground, z + dz);
+				if (chunk.getBlockState(at).isAir() || !chunk.getFluidState(at).isEmpty()) {
+					level.setBlock(at, MistinnBlocks.RIFT_SOIL.defaultBlockState(), FLAGS);
+				}
+			}
+		}
+		// the tent's charred frame: two posts and the ridge between, one end fallen
+		BlockState post = MistinnBlocks.CHARRED_LOG.defaultBlockState();
+		BlockState ridge = MistinnBlocks.CHARRED_LOG.defaultBlockState().setValue(RotatedPillarBlock.AXIS, Direction.Axis.X);
+		for (int y = 1; y <= 2; y++) {
+			level.setBlock(at.set(x - 2, ground + y, z - 1), post, FLAGS);
+		}
+		level.setBlock(at.set(x + 2, ground + 1, z - 1), post, FLAGS);
+		level.setBlock(at.set(x - 1, ground + 3, z - 1), ridge, FLAGS);
+		level.setBlock(at.set(x, ground + 3, z - 1), ridge, FLAGS);
+		level.setBlock(at.set(x + 1, ground + 1, z - 2), ridge, FLAGS);
+		// the cold fire, and the pack
+		level.setBlock(at.set(x, ground + 1, z + 1), Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, false), FLAGS);
+		BlockPos pack = new BlockPos(x + 1, ground + 1, z);
+		Direction facing = Direction.from2DDataValue((int) (hash(z, x, domain.id() + 507) * 4));
+		level.setBlock(pack, Blocks.BARREL.defaultBlockState().setValue(BarrelBlock.FACING, facing), FLAGS);
+		RandomizableContainer.setBlockEntityLootTable(level, level.getRandom(), pack, CAMP_LOOT);
+		// the rift's growth over it all
+		for (int dx = -2; dx <= 2; dx++) {
+			for (int dz = -2; dz <= 2; dz++) {
+				at.set(x + dx, ground + 1, z + dz);
+				if (chunk.getBlockState(at).isAir() && hash(x + dx, z + dz, domain.id() + 509) < 0.4) {
+					level.setBlock(at, MistinnBlocks.CRIMSON_MOSS_CARPET.defaultBlockState(), FLAGS);
+				}
+			}
+		}
+		return true;
 	}
 
 	private static BlockState cluster(final Block block) {
