@@ -83,6 +83,7 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.naval.RaidService.register();
 		life.shizune.mistinn.elite.EliteService.register();
 		life.shizune.mistinn.tide.TideService.register();
+		life.shizune.mistinn.tool.ThrowService.register();
 
 		// A fallen hunter leaves their salt as residue; a defeated creature gives salt.
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {

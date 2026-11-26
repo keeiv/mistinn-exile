@@ -70,6 +70,13 @@ public final class MistinnEntities {
 		.eyeHeight(1.62F)
 		.clientTrackingRange(10));
 
+	/** A salt bomb, a flare or a bell lure in flight. */
+	public static final EntityType<life.shizune.mistinn.tool.ThrownTool> THROWN_TOOL = register("thrown_tool",
+		EntityType.Builder.<life.shizune.mistinn.tool.ThrownTool>of(life.shizune.mistinn.tool.ThrownTool::new, MobCategory.MISC)
+		.sized(0.25F, 0.25F)
+		.clientTrackingRange(4)
+		.updateInterval(10));
+
 	/** A round shot from a ship's gun. */
 	public static final EntityType<life.shizune.mistinn.naval.CannonShot> CANNON_SHOT = register("cannon_shot",
 		EntityType.Builder.<life.shizune.mistinn.naval.CannonShot>of(life.shizune.mistinn.naval.CannonShot::new, MobCategory.MISC)

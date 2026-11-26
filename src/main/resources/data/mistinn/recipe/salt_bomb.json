@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "P": "minecraft:paper",
+    "S": "mistinn:salt",
+    "G": "minecraft:gunpowder",
+    "C": "minecraft:clay_ball"
+  },
+  "pattern": [
+    " P ",
+    "SGS",
+    " C "
+  ],
+  "result": {
+    "id": "mistinn:salt_bomb",
+    "count": 2
+  }
+}
