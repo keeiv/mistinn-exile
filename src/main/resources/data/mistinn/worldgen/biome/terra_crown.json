@@ -51,6 +51,27 @@
         }
       },
       "modifier": "overlay"
+    },
+    "minecraft:audio/background_music": {
+      "default": {
+        "sound": "mistinn:music.terra",
+        "min_delay": 2400,
+        "max_delay": 9600,
+        "replace_current_music": true
+      }
+    },
+    "minecraft:audio/ambient_sounds": {
+      "loop": "mistinn:ambient.terra.loop",
+      "additions": {
+        "sound": "mistinn:ambient.terra.additions",
+        "tick_chance": 0.0045
+      },
+      "mood": {
+        "sound": "minecraft:ambient.cave",
+        "tick_delay": 6000,
+        "block_search_extent": 8,
+        "offset": 2.0
+      }
     }
   },
   "carvers": [],

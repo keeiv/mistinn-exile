@@ -116,10 +116,22 @@ public final class MistinnTerraTest implements FabricClientGameTest {
 				}
 			});
 			check(context.computeOnClient(mc -> mc.level.getBiome(centre[0].offset(0, 0, 30)).is(TerraShaper.TERRACES)), "the client sees the terraces");
+			// every ring has the highlands' music and air
+			for (BlockPos at : new BlockPos[] {centre[0], centre[0].offset(0, 0, 30), centre[0].offset(0, 0, 47)}) {
+				check(context.computeOnClient(mc -> {
+					net.minecraft.world.phys.Vec3 here = net.minecraft.world.phys.Vec3.atCenterOf(at.above(2));
+					var music = mc.level.environmentAttributes().getValue(net.minecraft.world.attribute.EnvironmentAttributes.BACKGROUND_MUSIC, here).defaultMusic();
+					var air = mc.level.environmentAttributes().getValue(net.minecraft.world.attribute.EnvironmentAttributes.AMBIENT_SOUNDS, here).loop();
+					return music.isPresent() && music.get().sound().value() == life.shizune.mistinn.registry.MistinnSounds.MUSIC_TERRA
+						&& air.isPresent() && air.get().value() == life.shizune.mistinn.registry.MistinnSounds.AMBIENT_TERRA_LOOP;
+				}), "the highlands' music and air play at " + at);
+			}
 
 			// walking in: the ring's name, and a look at each ring
 			look(context, world, centre[0].offset(-6, 0, 30), 90.0F, 8.0F, "terra-terraces");
 			check(context.computeOnClient(mc -> TerraShaper.TERRACES.equals(ZoneTitle.shown())), "walking into the terraces shows their name");
+			check(context.computeOnClient(mc -> mc.getSituationalMusic().sound().value() == life.shizune.mistinn.registry.MistinnSounds.MUSIC_TERRA),
+				"and the music that would play there is the highlands'");
 			look(context, world, centre[0].offset(-24, 0, 4), -90.0F, -6.0F, "terra-crown");
 			look(context, world, centre[0].offset(0, 0, 47), 180.0F, 4.0F, "terra-veins");
 		}

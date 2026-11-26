@@ -102,6 +102,7 @@ public final class MistinnRiftTest implements FabricClientGameTest {
 				check(level.getBlockState(chest[0].below()).equals(underChest[0]), "and the ground under it untouched: " + level.getBlockState(chest[0].below()));
 			});
 			check(context.computeOnClient(mc -> mc.level.getBiome(centre[0]).is(RiftShaper.OPEN)), "the client sees the rift's biome");
+			check(context.computeOnClient(mc -> music(mc, centre[0]) == life.shizune.mistinn.registry.MistinnSounds.MUSIC_RIFT), "an open rift has its own music");
 			check(context.computeOnClient(mc -> {
 				List<Domain> view = mc.level.getAttached(DomainService.VIEW);
 				return view != null && view.stream().anyMatch(d -> d.id() == id[0] && d.open());
@@ -189,11 +190,18 @@ public final class MistinnRiftTest implements FabricClientGameTest {
 			context.waitTicks((int) (RiftService.CLOSING / 2));
 			context.takeScreenshot(TestScreenshotOptions.of("rift-closing").disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("rift")));
 			context.waitTicks((int) RiftService.CLOSING);
+			check(context.computeOnClient(mc -> music(mc, centre[0]) == life.shizune.mistinn.registry.MistinnSounds.MUSIC_RIFT_SCAR), "and the scar it leaves, its own");
 			world.getServer().runOnServer(server -> player(server).setYRot(0.0F));
 			context.takeScreenshot(TestScreenshotOptions.of("rift-scar").disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("rift")));
 		} finally {
 			DomainService.pace = 1;
 		}
+	}
+
+	/** The music the biome at a place would play, as the client has it. */
+	private static net.minecraft.sounds.SoundEvent music(final net.minecraft.client.Minecraft mc, final BlockPos at) {
+		return mc.level.environmentAttributes().getValue(net.minecraft.world.attribute.EnvironmentAttributes.BACKGROUND_MUSIC,
+			net.minecraft.world.phys.Vec3.atCenterOf(at.above(2))).defaultMusic().map(m -> m.sound().value()).orElse(null);
 	}
 
 	/** Stills one guardian (the herald, or the first walker) and stands the hunter a few steps in front of it, looking at it. */

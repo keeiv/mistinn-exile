@@ -30,6 +30,8 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 
 | File | Made from | License |
 | --- | --- | --- |
+| `ambient/terra_loop.ogg` | `synth:highland wind through two moving bands of circular noise, a faint crystal shimmer and hum; a seamless stereo loop` | project synthesis |
+| `ambient/terra_chime_*.ogg` | `synth:a few crystal chimes, struck bars of six detuned partials, in a small room` | project synthesis |
 | `ambient/shore_mist.ogg` | `synth:surf from shaped low noise, wind swells through a moving band, a far wood creak; a seamless stereo loop` | project synthesis |
 | `voice/male/*.ogg`, `voice/female/*.ogg` | `synth:a hunter's own voice (breaths, cries, effort): summed harmonics with breath noise through three moving formants; a man's at 118 Hz, a girl's at 222 Hz` | project synthesis |
 | `block/golden_bell/rest_1.ogg` | `kenney_impact:impactBell_heavy_002`; `synth:fog air, noise room` | CC0 1.0 sources + project synthesis |
@@ -304,6 +306,9 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `music/keeper_dark.ogg` | `vsco_ce:cello section (susvib, spic, trem)`; `vsco_ce:timpani`; `kenney_impact:impactBell_heavy_002` | CC0 1.0 sources |
 | `music/keeper_turn.ogg` | `vsco_ce:gongscrape_mf`; `kenney_impact:impactBell_heavy_002` | CC0 1.0 sources |
 | `music/naval.ogg` | `vsco_ce:trumpet (sus)`; `vsco_ce:F horn (sus)`; `vsco_ce:tenor trombone (sus)`; `vsco_ce:cello section (spic, susvib)`; `vsco_ce:violin section (susVib)`; `vsco_ce:timpani`; `vsco_ce:bass drum`; `vsco_ce:snare`; `vsco_ce:anvil`; `vsco_ce:crash cymbals`; `vsco_ce:gong` | CC0 1.0 sources |
+| `music/terra.ogg` | `vsco_ce:violin section (susVib)`; `vsco_ce:cello section (susvib)`; `vsco_ce:F horn (sus)`; `vsco_ce:timpani`; `vsco_ce:gong`; `synth:crystal chimes, struck bars of six detuned partials` | CC0 1.0 sources + project synthesis |
+| `music/rift.ogg` | `vsco_ce:cello section (spic, susvib)`; `vsco_ce:tenor trombone (sus)`; `vsco_ce:F horn (sus)`; `vsco_ce:trumpet (sus)`; `vsco_ce:violin section (susVib)`; `vsco_ce:timpani`; `vsco_ce:bass drum`; `vsco_ce:snare`; `vsco_ce:anvil`; `vsco_ce:crash cymbals`; `vsco_ce:gong` | CC0 1.0 sources |
+| `music/rift_scar.ogg` | `vsco_ce:cello section (susvib)`; `vsco_ce:violin section (susVib)`; `vsco_ce:F horn (sus)`; `vsco_ce:timpani`; `vsco_ce:gong` | CC0 1.0 sources |
 | `music/shore.ogg` | `vsco_ce:cello section (susvib)`; `kenney_impact:impactBell_heavy_002` | CC0 1.0 sources |
 | `player/dive_1.ogg` | `kenney_rpg:cloth`; `synth:moving-band noise whoosh` | CC0 1.0 sources + project synthesis |
 | `player/dive_2.ogg` | `kenney_rpg:cloth`; `synth:moving-band noise whoosh` | CC0 1.0 sources + project synthesis |
