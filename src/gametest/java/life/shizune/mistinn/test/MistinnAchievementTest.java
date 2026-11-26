@@ -343,6 +343,16 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		check(has(world, Achievement.FLEET_BREAKER) && has(world, Achievement.SHORE_HELD) && has(world, Achievement.SHARPSHOOTER), "the sea's other deeds are remembered");
 		int gainedSea = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeSea;
 		check(gainedSea == 2000 + 400 + 300, "and pay 2700 between them: " + gainedSea);
+		// the elites' two (MistinnEliteTest earns them)
+		int beforeElite = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
+		world.getServer().runOnServer(server -> {
+			AchievementService.grant(player(server), AchievementService.ELITE_SLAIN);
+			AchievementService.grant(player(server), AchievementService.ELITE_TRIPLE);
+		});
+		context.waitTicks(5);
+		check(has(world, Achievement.ELITE_SLAIN) && has(world, Achievement.ELITE_TRIPLE), "the elites' deeds are remembered");
+		int gainedElite = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeElite;
+		check(gainedElite == 300 + 900, "and pay 1200 between them: " + gainedElite);
 		world.getServer().runOnServer(server -> {
 			ServerPlayer player = player(server);
 			player.removeAttached(MistinnAttachments.WOUNDS);

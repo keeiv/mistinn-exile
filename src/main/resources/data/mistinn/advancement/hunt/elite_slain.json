@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/first_kill",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.elite_slain.desc"
+		},
+		"icon": {
+			"id": "minecraft:golden_sword"
+		},
+		"title": {
+			"translate": "achievement.mistinn.elite_slain"
+		},
+		"frame": "task"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

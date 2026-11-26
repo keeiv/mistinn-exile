@@ -31,12 +31,12 @@ public final class SaltService {
 
 	/**
 	 * Salt for defeating {@code victim}: hostile creatures give their full health in salt,
-	 * others a fifth of it, at least 1.
+	 * others a fifth of it, at least 1; an elite that again for each of its affixes.
 	 */
 	public static int rewardFor(final LivingEntity victim) {
 		float health = victim.getMaxHealth();
 		float share = victim instanceof Enemy ? 1.0F : 0.2F;
-		return Math.max(1, Math.round(health * share));
+		return Math.max(1, Math.round(health * share)) * life.shizune.mistinn.elite.EliteService.saltFactor(victim);
 	}
 
 	public static void reward(final ServerPlayer player, final LivingEntity victim) {

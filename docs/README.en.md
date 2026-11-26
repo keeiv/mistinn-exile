@@ -64,7 +64,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 
 | Area | What it does |
 | --- | --- |
-| Salt | The currency. Defeating a hostile creature gives salt equal to its maximum health; others give a fifth (at least 1). Salt found in structures is worth 10 each when used. |
+| Salt | The currency. Defeating a hostile creature gives salt equal to its maximum health; others give a fifth (at least 1), and an elite that again for each of its affixes. Salt found in structures is worth 10 each when used. |
 | Residue and gravestones | When you fall, all the salt you carry becomes residue, and everything else you carry (gear, hotbar, pockets, chest rig and backpack; not the safe box) goes into the same gravestone instead of onto the ground; right-click it to take it all back. Fall again first and the old residue fades: the salt is lost and the things spill where the stone stood. |
 | Death scene | Killed by a creature, every other creature vanishes; the hunter drops to one knee, topples onto one side and turns to smoke. Other deaths are a plain fall. Then the mission ends: the cause, a line from Rust Anchor, and the choice to return or to rest. |
 | Story mode | A prologue and three chapters with objectives, radio calls, tags left by the hunters before you, pixel-art story cards and in-world scenes, with a mission journal on `K`. Later chapters are still being made. |
@@ -80,14 +80,15 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Weapons | Six branches (blade, greatsword, spear, dagger, hammer, scythe) in five materials (wood, stone, iron, diamond, netherite), so there is something to fight with from day one; four named weapons: Anchor Blade, Sunken Bell Greatsword, Mistwalker Spear and Salt Fang; and five special weapons that only answer a hunter who has earned them: the Snuffer's Hook, the Mist-Lantern Staff, the Tide-Bell Maul, the Bell Clapper and the Rust Rim. Each has vanilla-style art and a held model, its own swing and hit sounds, and its own first- and third-person swing. |
 | Swings | Every blow has a wind-up, a strike, an overshoot and a recovery, and leaves a cut of vanilla-style pixel light where it lands, turned to the blow: the blade's diagonal, the greatsword's chop, the spear's line, the dagger's two crossing cuts, the hammer's sweep, the scythe's rising reap. Hold use to charge a **heavy blow** that hits everything in its reach. Third person twists and steps into it. In first person the view swings with the blow and jolts on a hit. |
 | Vanilla monsters | Their voices are built from CC0 recordings, lower and more savage; their movement and poses are remade for each rig. They stalk low once they have a hunter, and every melee blow has a windup you can see and hear, and roll away from. A hunter whose legs are both destroyed is executed: see [Vanilla monsters and executions](#vanilla-monsters-and-executions). |
+| Elites | Creatures that spawn of themselves are now and then elites: a golden name, gold dust about them, half again the life, and one to three affixes (Swift, Ironclad, Hulking, Bloodthirsty, Mistwalker, Volatile, Warchief). Commoner by night and far out; they pay more salt and may drop medical supplies. See [Elites](#elites). |
 | Stamina and rolls | Swings, sprints and rolls cost stamina. The legs determine how far a roll goes and the arms shape its motion. Badly injured legs can force a dive, whose landing strains the upper body. |
 | Title screen | An original misty shore with a dead lighthouse: drifting fog, glinting water and a last ember in the lamp room. |
 | World map | The title menu's *World Map* is one cut through the world, scrolled top to bottom: the End, Rust Anchor Station on its sea and the water under it, the misty coast, the Nether. It opens on the station and sinks with the drop pod through the water to the coast while the way the story walks draws itself, stop by stop; a stop opens its chapter's story card and what the chapter asks. Chapters this computer has not reached yet stay in the fog, unless you choose to see everything. |
 | Pirates of the fog sea | Sail a boat far out, out of sight of land, for a while, and a horn sounds in the fog: the view drops to the water as a black-sailed pirate ship comes out of the fog, its name and its captain's come up, and the fight's music begins (space or Esc skips it); it heaves to nearby, broadside on, with a warning shot: boarders, marksmen, gunners and a captain on its deck. While a gunner lives the guns fire broadside after broadside (shot on an arc, a column of spray where it falls, boats smashed); a marksman's lock clicks before the shot, so move when you hear it. Ride out the guns, or row through them to the hull and climb its ladders. When the captain falls the ship is taken: the crew go over the side, the ship stays, the captain's chest is in the cabin at the stern (now and then with a treasure map) and the hold's barrels keep stores. The ◆ on the bar are the crew still standing. Every ship taken makes the next crews more and harder. If everyone in the fight leaves or falls, the ship and its crew wait where they are. |
 | Pirate landings | By night on the shore, pirates may row in and land: two or three boarders and a marksman, their boat left at the water's edge. At most once every two days for each hunter, and more of them as the fog sea grows wary. Beat them and the shore is held; at dawn, or if it drags on, the rest go back to the sea. |
 | Flintlock and pistol | Taken from pirates (a captain always carries a pistol, a marksman now and then leaves a musket, the captain's chest may hold one). Hold use to raise and aim, let go to fire one paper cartridge; the musket reaches further and hits harder, the pistol comes up quicker. Paper cartridges: paper, gunpowder and an iron nugget make three; they are taken from the hotbar, the offhand, or the pockets, rig and backpack. |
-| Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: twenty-seven pages on the world, the mission, the rules and what you hunt, the stats, the skill tree, the recipes and the achievements. |
-| Achievements | Twenty-three of them, from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer, the Sunken Bell and the Rust Wheel, taking a pirate ship, holding the shore, and the story's two endings. The game's toast shows at the top right and some salt is paid; all are kept on the mod's own tab of the advancements screen. See [Achievements](#achievements). |
+| Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: twenty-eight pages on the world, the mission, the rules and what you hunt, the stats, the skill tree, the recipes and the achievements. |
+| Achievements | Twenty-five of them, from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer, the Sunken Bell and the Rust Wheel, taking a pirate ship, holding the shore, bringing down an elite of three affixes, and the story's two endings. The game's toast shows at the top right and some salt is paid; all are kept on the mod's own tab of the advancements screen. See [Achievements](#achievements). |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V; each with its own durability, protection, capacity, layout and a two-line story. |
@@ -323,6 +324,23 @@ Rust Anchor drops its hunters into the zone from beyond the edge. Where you wake
 - Another hunter's blow on the monster saves the victim; the victim's own blows do not. Where the monster has no room to stand (a corridor, a cave) there is no execution and the blow is an ordinary one.
 - Bodies do not pass through each other: every move is measured against every monster, tick by tick, and no model box goes more than 0.1 blocks into another.
 
+### Elites
+
+Zombies of every kind, skeletons of every kind, spiders, endermen and wither skeletons that spawn of themselves are now and then **elites**, creatures that stayed too long in the fog: their names show gold when you look at them (say, "Swift Ironclad Zombie"), gold dust drifts about them, they have half again the life, and they carry one to three affixes. About 3% anywhere by day, 5% by night, and 1% more for every 500 blocks out from the world's spawn (4% more at most); halved on Easy, half again at Rust Anchor. A second affix comes a quarter of the time, and beyond 1500 blocks from spawn a third may. Never in a training world, on Peaceful, nor the young or a rider.
+
+| Affix | What it does |
+| --- | --- |
+| Swift | A third faster |
+| Ironclad | +8 armour, and hardly knocked back |
+| Hulking | A third larger, four fifths more life again, hits a third harder, a tenth slower; finishers are measured for the usual size, so it kills without one |
+| Bloodthirsty | Every blow opens a bleeding wound where it lands, and the damage heals it |
+| Mistwalker | Struck by a hunter, 35% of the time it goes into the fog and steps out beside or behind you (once in three seconds; never mid-windup, staggered or in a finisher) |
+| Volatile | A breath and a half after it dies it bursts: white salt gathers and hisses first, so back off |
+| Warchief | Once it is after a hunter, its kind within 12 blocks go faster and hit harder, and those with no quarry join in |
+
+- While an elite is fighting you (or you it), hunters within 24 blocks see its golden bar at the top of the screen.
+- An elite pays (its affixes + 1) times its kind's salt, counting the extra life; brought down by a hunter, each affix has a 60% chance to leave something: salt, a tourniquet, a splint, painkillers, now and then a surgery kit or a potent injector.
+
 ## Death and the end of the mission
 
 ![Struck down on a drop station platform at dusk, a hunter on one knee, a hand on the floor, the pod behind](images/death.jpg)
@@ -483,6 +501,8 @@ Achievements are the game's own **advancements**: press `L` and the mod has a ta
 | Fleet Breaker | Be near when the third pirate ship of this world is taken | 2000 |
 | Shore Held | Fight off a pirate landing by night | 400 |
 | Sharpshooter | Bring down a pirate with a flintlock or pistol | 300 |
+| Elite Hunter | Bring down an elite | 300 |
+| Triple Threat | Bring down an elite of three affixes | 900 |
 | The Anchor | Send the Rust God's salt up | 2000 |
 | Mist Inn | Throw the Rust God's salt into the Mist Inn's fire | 2000 |
 | Steady Hands | Save a destroyed part with a surgery kit | 150 |

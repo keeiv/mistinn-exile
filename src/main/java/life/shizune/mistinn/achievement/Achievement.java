@@ -24,6 +24,8 @@ public enum Achievement {
 	FLEET_BREAKER(AchievementService.FLEET_BREAKER, 2000),
 	SHORE_HELD(AchievementService.SHORE_HELD, 400),
 	SHARPSHOOTER(AchievementService.SHARPSHOOTER, 300),
+	ELITE_SLAIN(AchievementService.ELITE_SLAIN, 300),
+	ELITE_TRIPLE(AchievementService.ELITE_TRIPLE, 900),
 	ENDING_ANCHOR(AchievementService.ENDING_ANCHOR, 2000),
 	ENDING_INN(AchievementService.ENDING_INN, 2000),
 	REVIVE_LIMB("revive_limb", 150),

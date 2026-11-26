@@ -315,6 +315,8 @@ public final class BodyService {
 			WoundService.afterHit(player, hit, source, damage * DAMAGE_SCALE);
 			// and in a Rust Anchor world, out in the field, take one off
 			LostLimbs.afterHit(player, hit, source, damage * DAMAGE_SCALE, body);
+			// a bloodthirsty elite's blow always bleeds, and feeds it
+			life.shizune.mistinn.elite.EliteService.struck(player, hit, source, damage);
 		}
 		player.gameEvent(GameEvent.ENTITY_DAMAGE);
 	}
