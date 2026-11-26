@@ -20,12 +20,15 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BiomeTags;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
@@ -35,7 +38,9 @@ import org.jspecify.annotations.Nullable;
  * 海盜夜襲: on a night by the sea, a hunter on the shore may hear oars: a landing party rows in
  * out of the fog and comes up the beach, boarders and a marksman, their boat left at the water's edge.
  * Beat them all and the shore is held; at dawn, or if the fight drags on, what is left of them
- * goes back into the sea. Each hunter is raided at most once every two days.
+ * goes back into the sea, and a party that got away (some of it, or all) held nothing. Only the sea
+ * brings them: the open sea must be in reach, and they land on the shore, not on a deck.
+ * Each hunter is raided at most once every two days.
  */
 public final class RaidService {
 	/** After a raid on a hunter, the next comes no sooner than this. */
@@ -54,11 +59,12 @@ public final class RaidService {
 		.copyOnDeath()
 		.buildAndRegister(Mistinn.id("raid_next"));
 
-	/** A landing party: who it came for, who is in it, when it landed, and whether any of it fell to a hunter. */
+	/** A landing party: who it came for, who is in it, when it landed, how many of it are dead and whether any fell to a hunter. */
 	private static final class Raid {
 		final UUID target;
 		final List<UUID> crew = new ArrayList<>();
 		final long landed;
+		int fallen;
 		boolean blooded;
 
 		Raid(final UUID target, final long landed) {
@@ -85,12 +91,24 @@ public final class RaidService {
 		return RAIDS.containsKey(raid);
 	}
 
-	/** A raider fell to a hunter: the raid was fought, not just sat out. */
-	public static void fell(final int raid) {
+	/** A raider died, of whatever cause; {@code byHunter} when a hunter brought it down (the raid was fought, not sat out). */
+	public static void fell(final int raid, final boolean byHunter) {
 		Raid known = RAIDS.get(raid);
 		if (known != null) {
-			known.blooded = true;
+			known.fallen++;
+			known.blooded |= byHunter;
 		}
+	}
+
+	/** Whether this is woodwork (a deck, a pier, a jetty) rather than the shore itself. */
+	static boolean built(final BlockState state) {
+		return state.is(BlockTags.PLANKS) || state.is(BlockTags.LOGS) || state.is(BlockTags.WOODEN_SLABS) || state.is(BlockTags.WOODEN_STAIRS)
+			|| state.is(BlockTags.WOODEN_TRAPDOORS);
+	}
+
+	/** Whether this water is the open sea's (or a beach's shallows), not a river's, a lake's or a swamp's. */
+	static boolean openSea(final ServerLevel level, final BlockPos water) {
+		return level.getBiome(water).is(BiomeTags.IS_OCEAN) || level.getBiome(water).is(BiomeTags.IS_BEACH);
 	}
 
 	private static void tick(final MinecraftServer server) {
@@ -128,12 +146,16 @@ public final class RaidService {
 	}
 
 	/**
-	 * Where a boat could come in: a place on the sea's edge some way off, with dry ground just inland
-	 * of it toward the hunter. Returns {water, land} (the land as the block to stand on), or null.
+	 * Where a boat could come in: a place on the water's edge some way off, with dry ground just
+	 * inland of it toward the hunter, and the open sea in reach (a river mouth by the sea will do; a
+	 * river or a lake far from it will not). Returns {water, land} (the land as the block to stand
+	 * on), or null.
 	 */
 	static BlockPos @Nullable [] beach(final ServerLevel level, final ServerPlayer player) {
 		int sea = level.getSeaLevel();
 		double start = level.getRandom().nextDouble() * Math.PI * 2.0;
+		List<BlockPos> waters = new ArrayList<>();
+		boolean open = false;
 		for (int radius = NEAR; radius <= FAR; radius += 7) {
 			for (int i = 0; i < 24; i++) {
 				double angle = start + Math.PI * 2.0 * i / 24.0;
@@ -144,20 +166,28 @@ public final class RaidService {
 				}
 				int top = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) - 1;
 				BlockPos water = new BlockPos(x, top, z);
-				if (top != sea - 1 || !level.getFluidState(water).is(Fluids.WATER)) {
-					continue;
+				if (top == sea - 1 && level.getFluidState(water).is(Fluids.WATER)) {
+					waters.add(water);
+					open |= openSea(level, water);
 				}
-				// a few steps toward the hunter, the ground rises out of the sea
-				for (int step = 2; step <= 6; step++) {
-					double t = step / (double) radius;
-					int lx = Mth.floor(x + (player.getX() - x) * t);
-					int lz = Mth.floor(z + (player.getZ() - z) * t);
-					int ground = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, lx, lz);
-					BlockPos land = new BlockPos(lx, ground, lz);
-					if (ground >= sea && ground <= sea + 6 && level.getFluidState(land.below()).isEmpty() && level.getBlockState(land).isAir()
-						&& level.getBlockState(land.above()).isAir()) {
-						return new BlockPos[] {water, land};
-					}
+			}
+		}
+		if (!open) {
+			return null;
+		}
+		for (BlockPos water : waters) {
+			// a few steps toward the hunter, the ground rises out of the water
+			double radius = Math.hypot(player.getX() - water.getX(), player.getZ() - water.getZ());
+			for (int step = 2; step <= 6; step++) {
+				double t = step / radius;
+				int lx = Mth.floor(water.getX() + (player.getX() - water.getX()) * t);
+				int lz = Mth.floor(water.getZ() + (player.getZ() - water.getZ()) * t);
+				int ground = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, lx, lz);
+				BlockPos land = new BlockPos(lx, ground, lz);
+				// dry ground, and the shore's own: a ship's deck or a wooden pier is not where they land
+				if (ground >= sea && ground <= sea + 6 && level.getFluidState(land.below()).isEmpty() && level.getBlockState(land).isAir()
+					&& level.getBlockState(land.above()).isAir() && !built(level.getBlockState(land.below()))) {
+					return new BlockPos[] {water, land};
 				}
 			}
 		}
@@ -214,7 +244,11 @@ public final class RaidService {
 		return id;
 	}
 
-	/** A raid going on: when every raider is gone it ends, held if they were fought; at dawn or after a long while, they go back to the sea. */
+	/**
+	 * A raid going on: when no raider is left on the shore it ends, held only if every one of them is
+	 * dead and a hunter fought them (not when some went back to the sea, or the hunter left them behind);
+	 * at dawn or after a long while, they go back to the sea.
+	 */
 	private static void follow(final ServerLevel level, final int id, final Raid raid) {
 		List<Pirate> left = new ArrayList<>();
 		for (UUID member : raid.crew) {
@@ -224,7 +258,7 @@ public final class RaidService {
 		}
 		if (left.isEmpty()) {
 			RAIDS.remove(id);
-			if (raid.blooded) {
+			if (raid.blooded && raid.fallen >= raid.crew.size()) {
 				ServerPlayer target = level.getServer().getPlayerList().getPlayer(raid.target);
 				for (ServerPlayer hunter : level.players()) {
 					boolean near = target != null && hunter.distanceToSqr(target) < 64.0 * 64.0 || hunter.getUUID().equals(raid.target);

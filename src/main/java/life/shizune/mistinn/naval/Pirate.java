@@ -261,8 +261,8 @@ public class Pirate extends Monster implements Voiced {
 	@Override
 	public void die(final DamageSource source) {
 		super.die(source);
-		if (this.raid >= 0 && (source.getEntity() instanceof Player || this.getLastHurtByPlayer() != null)) {
-			RaidService.fell(this.raid);
+		if (this.raid >= 0) {
+			RaidService.fell(this.raid, source.getEntity() instanceof Player || this.getLastHurtByPlayer() != null);
 		}
 		if (this.level() instanceof ServerLevel level && this.role() == PirateRole.CAPTAIN) {
 			NavalService.captainFell(level, this);
