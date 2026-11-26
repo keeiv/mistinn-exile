@@ -496,7 +496,10 @@ Achievements are the game's own **advancements**: press `L` and the mod has a ta
 | Left Alt | Roll or dive, depending on leg injuries and painkillers |
 | Crouch while running | Slide (once learned) |
 | Hold use with a weapon | Charge; let go for a heavy blow |
-| Use the Hunter's Guide | Open the guide: pages, stats and skills |
+| Use the Hunter's Guide, or `B` | Open the guide: pages, stats and skills |
+| Hold `R` | Quick-use wheel: food, medicine and repair kits in the pockets and rig, used where they lie; move the mouse to pick, let go to use, and keep walking |
+| Hold `F` (by a downed teammate) | Bring them back where they lie, ten seconds |
+| `H` (by a downed teammate) | Drag them along while bringing them back, ten seconds; `H` again lets go |
 | `J` | Toggle the first-person swing view |
 | `V` | Change your voice (a man's, a girl's, none) |
 | Click a cell | Pick up or put down |
