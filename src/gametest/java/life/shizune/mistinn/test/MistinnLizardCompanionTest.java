@@ -138,6 +138,24 @@ public final class MistinnLizardCompanionTest implements FabricClientGameTest {
 			}
 			check(beside, "left far behind, it comes to its hunter's side");
 
+			// a quarry its hunter marks, it goes for; going home along the way, it comes too
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				ServerPlayer player = player(server);
+				Zombie marked = net.minecraft.world.entity.EntityTypes.ZOMBIE.spawn(level, player.blockPosition().offset(-8, 0, 0), EntitySpawnReason.COMMAND);
+				marked.setNoAi(true);
+				check(life.shizune.mistinn.team.PingService.ping(player, new life.shizune.mistinn.team.PingService.PingPayload(marked.position().add(0.0, 1.0, 0.0),
+					marked.getId())), "the hunter marks a quarry");
+				check(lizard[0].getTarget() == marked, "and the lizard goes for it");
+				marked.discard();
+				lizard[0].setTarget(null);
+				java.util.List<CrystalLizard> with = CrystalLizard.companionsOf(player, 16.0, false);
+				check(with.contains(lizard[0]), "keeping with its hunter");
+				player.teleportTo(level, floor[0].getX() - 30.5, floor[0].getY() + 1.0, floor[0].getZ() + 0.5, Set.of(), 90.0F, 0.0F, true);
+				CrystalLizard.bring(player, with);
+				check(lizard[0].distanceTo(player) < 3.0F, "and comes along when the hunter is taken home: " + lizard[0].distanceTo(player));
+			});
+
 			// told to stay, it stays
 			world.getServer().runOnServer(server -> player(server).setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY));
 			context.getInput().holdKey(options -> options.keyShift);

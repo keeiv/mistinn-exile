@@ -1,6 +1,7 @@
 package life.shizune.mistinn.terra;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.UUID;
 import life.shizune.mistinn.registry.MistinnBlocks;
 import life.shizune.mistinn.registry.MistinnItems;
@@ -93,6 +94,8 @@ public class CrystalLizard extends Monster {
 	public static final double LEFT_BEHIND = 28.0;
 	/** How near its hunter it watches for hostile creatures. */
 	public static final double WATCH = 12.0;
+	/** How far off a companion hears its hunter mark a quarry. */
+	public static final double ORDERS = 32.0;
 
 	private int still;
 	private int restless = 100;
@@ -521,6 +524,36 @@ public class CrystalLizard extends Monster {
 	@Override
 	public boolean removeWhenFarAway(final double distance) {
 		return !this.tamed() && super.removeWhenFarAway(distance);
+	}
+
+	/** A hunter's companions about them: those within reach, and (unless {@code staying} too) not told to stay. */
+	public static List<CrystalLizard> companionsOf(final ServerPlayer hunter, final double reach, final boolean staying) {
+		return hunter.level().getEntitiesOfClass(CrystalLizard.class, hunter.getBoundingBox().inflate(reach),
+			l -> l.isAlive() && l.tamed() && hunter.getUUID().equals(l.owner) && (staying || !l.staying));
+	}
+
+	/** Its hunter has marked a quarry: up and at it, those near enough (even one told to stay). */
+	public static void sic(final ServerPlayer hunter, final LivingEntity quarry) {
+		if (companion(quarry) || quarry instanceof Player) {
+			return;
+		}
+		for (CrystalLizard lizard : companionsOf(hunter, ORDERS, true)) {
+			lizard.lieStill(0);
+			lizard.setTarget(quarry);
+			lizard.playSound(SoundEvents.AMETHYST_BLOCK_RESONATE, 0.8F, 1.8F);
+		}
+	}
+
+	/** Its hunter has gone home along the way: those that kept with them come too, round their feet. */
+	public static void bring(final ServerPlayer hunter, final List<CrystalLizard> lizards) {
+		for (int i = 0; i < lizards.size(); i++) {
+			CrystalLizard lizard = lizards.get(i);
+			double angle = i * Math.PI * 2.0 / Math.max(1, lizards.size());
+			lizard.teleportTo(hunter.level(), hunter.getX() + Math.cos(angle) * 1.5, hunter.getY(), hunter.getZ() + Math.sin(angle) * 1.5, java.util.Set.of(),
+				lizard.getYRot(), lizard.getXRot(), true);
+			lizard.getNavigation().stop();
+			lizard.setTarget(null);
+		}
 	}
 
 	/** Keeps near its hunter: walks after them, and slips to their side when left far behind. */
