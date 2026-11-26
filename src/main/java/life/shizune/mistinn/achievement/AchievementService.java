@@ -52,6 +52,8 @@ public final class AchievementService {
 	public static final String BOUNTY = "bounty";
 	/** 縫合天空: under a sky rift when it is sealed. */
 	public static final String RIFT_SEALED = "rift_sealed";
+	/** 碎晶: a crystal drake brought down. */
+	public static final String DRAKE_SHATTERED = "drake_shattered";
 	/** The story ended: the salt sent up (錨), or thrown into the Mist Inn's fire (霧宿). */
 	public static final String ENDING_ANCHOR = "ending_anchor";
 	public static final String ENDING_INN = "ending_inn";

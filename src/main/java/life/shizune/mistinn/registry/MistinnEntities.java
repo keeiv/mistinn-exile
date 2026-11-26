@@ -85,6 +85,14 @@ public final class MistinnEntities {
 		.clientTrackingRange(12)
 		.fireImmune());
 
+	/** 晶龍: a wyvern of living crystal that keeps the skies of a Terra highland. */
+	public static final EntityType<life.shizune.mistinn.terra.CrystalDrake> CRYSTAL_DRAKE = register("crystal_drake",
+		EntityType.Builder.<life.shizune.mistinn.terra.CrystalDrake>of(life.shizune.mistinn.terra.CrystalDrake::new, MobCategory.MONSTER)
+		.sized(2.4F, 1.6F)
+		.eyeHeight(1.3F)
+		.clientTrackingRange(12)
+		.fireImmune());
+
 	/** A salt bomb, a flare or a bell lure in flight. */
 	public static final EntityType<life.shizune.mistinn.tool.ThrownTool> THROWN_TOOL = register("thrown_tool",
 		EntityType.Builder.<life.shizune.mistinn.tool.ThrownTool>of(life.shizune.mistinn.tool.ThrownTool::new, MobCategory.MISC)
@@ -126,6 +134,10 @@ public final class MistinnEntities {
 		FabricDefaultAttributeRegistry.register(PIRATE, life.shizune.mistinn.naval.Pirate.createAttributes());
 		FabricDefaultAttributeRegistry.register(RIFT_WALKER, life.shizune.mistinn.rift.RiftWalker.createAttributes());
 		FabricDefaultAttributeRegistry.register(RIFT_HERALD, life.shizune.mistinn.rift.RiftHerald.createAttributes());
+		FabricDefaultAttributeRegistry.register(CRYSTAL_DRAKE, life.shizune.mistinn.terra.CrystalDrake.createAttributes());
+		// crystal drakes come of themselves under the open sky of a Terra highland, day or night
+		life.shizune.mistinn.mixin.SpawnPlacementsInvoker.mistinn$register(CRYSTAL_DRAKE, net.minecraft.world.entity.SpawnPlacementTypes.NO_RESTRICTIONS,
+			net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, life.shizune.mistinn.terra.CrystalDrake::checkSpawnRules);
 		// rift walkers come of themselves where a rift has scarred the ground, in the dark like any monster
 		life.shizune.mistinn.mixin.SpawnPlacementsInvoker.mistinn$register(RIFT_WALKER, net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
 			net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, net.minecraft.world.entity.monster.Monster::checkMonsterSpawnRules);
