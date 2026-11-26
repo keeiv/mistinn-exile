@@ -58,6 +58,12 @@ public final class AchievementService {
 	public static final String HOMESTEAD = "homestead";
 	/** 晶冠: a crown elder brought down. */
 	public static final String ELDER_SLAIN = "elder_slain";
+	/** 撞上晶塔: there when a crown elder's charge ends against stone and stuns it. */
+	public static final String ELDER_STUNNED = "elder_stunned";
+	/** 守住晶田: near the hub when a homestead's siege is held. */
+	public static final String SIEGE_HELD = "siege_held";
+	/** 嚎聲止息: a rift alpha brought down. */
+	public static final String ALPHA_SLAIN = "alpha_slain";
 	/** The story ended: the salt sent up (錨), or thrown into the Mist Inn's fire (霧宿). */
 	public static final String ENDING_ANCHOR = "ending_anchor";
 	public static final String ENDING_INN = "ending_inn";

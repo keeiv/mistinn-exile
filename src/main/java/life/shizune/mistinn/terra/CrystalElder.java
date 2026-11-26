@@ -363,6 +363,10 @@ public class CrystalElder extends CrystalDrake {
 	private void slam(final ServerLevel level) {
 		this.setDeltaMovement(this.rush.scale(-0.3));
 		this.begin(Move.STUNNED, STUN);
+		// whoever drew it into the stone, and all near enough to see it
+		for (ServerPlayer near : level.getEntitiesOfClass(ServerPlayer.class, this.getBoundingBox().inflate(24.0), p -> p.isAlive() && !p.isSpectator())) {
+			AchievementService.grant(near, AchievementService.ELDER_STUNNED);
+		}
 		level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.HOSTILE, 3.0F, 0.4F);
 		level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ANVIL_LAND, SoundSource.HOSTILE, 1.5F, 0.5F);
 		level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, MistinnBlocks.LATTICE_CRYSTAL.defaultBlockState()),

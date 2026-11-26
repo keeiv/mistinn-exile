@@ -120,6 +120,8 @@ public final class MistinnSiegeTest implements FabricClientGameTest {
 					e -> e.getItem().is(MistinnItems.CRYSTAL_CORE));
 				boolean carried = player.getInventory().countItem(MistinnItems.CRYSTAL_CORE) > 0;
 				check(!cores.isEmpty() || carried, "and a crystal core");
+				check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.SIEGE_HELD),
+					"and holding the fields is remembered");
 			});
 
 			// another, left standing at dawn: it crumbles away

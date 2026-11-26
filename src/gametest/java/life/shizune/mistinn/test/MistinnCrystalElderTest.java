@@ -189,6 +189,7 @@ public final class MistinnCrystalElderTest implements FabricClientGameTest {
 		}
 		check(lowered, "it lowers its head before it charges");
 		check(stunned, "a charge that ends against stone stuns it");
+		check(world.getServer().computeOnServer(server -> AchievementService.has(player(server), Achievement.ELDER_STUNNED)), "and the hunter who saw it remembers it");
 		context.waitTicks(8);
 		world.getServer().runOnServer(server -> {
 			// from down the cleared run behind it, looking along its charge
