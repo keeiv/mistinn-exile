@@ -152,10 +152,37 @@ public final class MistinnSupplyTest implements FabricClientGameTest {
 			context.waitTicks(5);
 			context.takeScreenshot(TestScreenshotOptions.of("guide-supply").disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("guide")));
 			context.runOnClient(mc -> mc.gui.setScreen(null));
-			// let it land, so nothing is left falling
-			context.waitTicks(DELAY + 10);
+
+			// the flares' spot walled in, eight high: nowhere to stand, so they land loose
+			BlockPos[] walled = new BlockPos[1];
+			for (int i = 0; i < DELAY && walled[0] == null; i += 5) {
+				context.waitTicks(5);
+				walled[0] = world.getServer().computeOnServer(server -> {
+					SupplyService.Order order = player(server).getAttached(SupplyService.ORDER);
+					SupplyService.Drop drop = player(server).getAttached(SupplyService.DROP);
+					return order != null && drop != null && drop.lands() == order.due() ? drop.at() : null;
+				});
+			}
+			check(walled[0] != null, "the flares begin to fall");
+			world.getServer().runOnServer(server -> {
+				for (int up = 0; up < 8; up++) {
+					server.overworld().setBlock(walled[0].above(up), Blocks.CHEST.defaultBlockState(), 3);
+				}
+			});
+			context.waitTicks(SupplyService.FALL + 5);
 			context.takeScreenshot(TestScreenshotOptions.of("supply-landed").disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("guide")));
-			check(world.getServer().computeOnServer(server -> !player(server).hasAttached(SupplyService.ORDER)), "the flares land too");
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				ServerLevel level = server.overworld();
+				check(!player.hasAttached(SupplyService.ORDER), "the flares land too");
+				for (int up = 0; up < 8; up++) {
+					check(level.getBlockState(walled[0].above(up)).is(Blocks.CHEST), "no chest is broken: " + up);
+				}
+				int loose = level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new net.minecraft.world.phys.AABB(walled[0]).inflate(3.0, 12.0, 3.0),
+					e -> e.getItem().is(MistinnItems.FLARE)).stream().mapToInt(e -> e.getItem().getCount()).sum();
+				check(loose == 2, "the two flares lie loose on the ground: " + loose);
+				check(player.getAttached(SupplyService.DROP) == null, "and nothing is marked");
+			});
 		} finally {
 			SupplyService.fixedDelay = 0;
 		}
