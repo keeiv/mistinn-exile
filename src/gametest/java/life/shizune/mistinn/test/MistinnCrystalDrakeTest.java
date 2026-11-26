@@ -55,12 +55,15 @@ public final class MistinnCrystalDrakeTest implements FabricClientGameTest {
 				start[0] = drake[0].getY();
 			});
 
-			// it takes the air
-			context.waitTicks(80);
-			world.getServer().runOnServer(server -> {
-				check(drake[0].isAloft(), "the drake is aloft");
-				check(drake[0].getY() > start[0] + 3.0, "and has climbed: " + (drake[0].getY() - start[0]));
-			});
+			// it takes the air (watched a while: it may already be stooping by the time we look)
+			double highest = start[0];
+			for (int i = 0; i < 24; i++) {
+				context.waitTicks(5);
+				highest = Math.max(highest, world.getServer().computeOnServer(server -> drake[0].getY()));
+			}
+			double climbed = highest - start[0];
+			world.getServer().runOnServer(server -> check(drake[0].isAloft(), "the drake is aloft"));
+			check(climbed > 3.0, "and has climbed: " + climbed);
 			photo(context, world, drake[0], 9.0, "drake-flight");
 
 			// it stoops on the hunter and bites

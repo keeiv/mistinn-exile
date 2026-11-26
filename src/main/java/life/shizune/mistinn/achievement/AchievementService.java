@@ -56,6 +56,8 @@ public final class AchievementService {
 	public static final String DRAKE_SHATTERED = "drake_shattered";
 	/** 家園: a settlement's hub woken. */
 	public static final String HOMESTEAD = "homestead";
+	/** 晶冠: a crown elder brought down. */
+	public static final String ELDER_SLAIN = "elder_slain";
 	/** The story ended: the salt sent up (錨), or thrown into the Mist Inn's fire (霧宿). */
 	public static final String ENDING_ANCHOR = "ending_anchor";
 	public static final String ENDING_INN = "ending_inn";

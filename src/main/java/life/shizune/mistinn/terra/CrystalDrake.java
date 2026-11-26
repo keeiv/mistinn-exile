@@ -153,7 +153,7 @@ public class CrystalDrake extends Monster {
 		this.timer--;
 		switch (this.mode) {
 			case CIRCLE -> {
-				Vec3 anchor = target != null ? target.position().add(0.0, 9.0, 0.0) : Vec3.atCenterOf(this.home).add(0.0, 14.0, 0.0);
+				Vec3 anchor = target != null ? target.position().add(0.0, this.over(), 0.0) : Vec3.atCenterOf(this.home).add(0.0, this.over() + 5.0, 0.0);
 				this.angle += (this.clockwise ? 1.0 : -1.0) * CIRCLE_SPEED / this.radius;
 				this.aim = anchor.add(Math.cos(this.angle) * this.radius, Math.sin(this.tickCount * 0.05) * 2.0, Math.sin(this.angle) * this.radius);
 				if (target != null && this.timer <= 0 && this.hasLineOfSight(target)) {
@@ -195,16 +195,36 @@ public class CrystalDrake extends Monster {
 				}
 			}
 		}
+		this.abilities(level, target);
 		if (this.mode != Mode.REST) {
 			this.steer(this.mode == Mode.SWOOP ? SWOOP_SPEED : this.mode == Mode.LAND ? 0.3 : CIRCLE_SPEED);
 		}
+	}
+
+	/** How high over its quarry it circles. */
+	protected double over() {
+		return 9.0;
+	}
+
+	/** How wide it wheels, at the least. */
+	protected double wheel() {
+		return 10.0;
+	}
+
+	/** Whatever else it does each moment, beside flying and diving: nothing, for a drake. */
+	protected void abilities(final ServerLevel level, final @Nullable LivingEntity target) {
+	}
+
+	/** The home it circles and comes back to rest at. */
+	public void home(final BlockPos at) {
+		this.home = at;
 	}
 
 	/** Pulls up out of a dive and goes back to circling, a while before the next. */
 	private void climb() {
 		this.setMode(Mode.CIRCLE);
 		this.timer = DIVE_MIN + this.random.nextInt(DIVE_MAX - DIVE_MIN);
-		this.radius = 10.0 + this.random.nextDouble() * 8.0;
+		this.radius = this.wheel() + this.random.nextDouble() * 8.0;
 		this.angle = Math.atan2(this.getZ() - this.aim.z, this.getX() - this.aim.x);
 		this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 0.0, 0.6).add(0.0, 0.5, 0.0));
 	}

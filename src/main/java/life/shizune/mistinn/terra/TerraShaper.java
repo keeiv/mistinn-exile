@@ -57,6 +57,8 @@ public final class TerraShaper implements DomainService.Shaper {
 	private static final int SPIRE_CELL = 9;
 	/** New mist pines stand on a grid of cells this wide, one in some of them. */
 	private static final int PINE_CELL = 8;
+	/** How high a terrace step is. */
+	private static final int TERRACE = 3;
 
 	private static ResourceKey<Biome> key(final String name) {
 		return ResourceKey.create(Registries.BIOME, Mistinn.id(name));
@@ -149,6 +151,12 @@ public final class TerraShaper implements DomainService.Shaper {
 				surface |= depth == 0;
 			}
 		}
+		if (surface && zone == Zone.TERRACES) {
+			ground = terrace(level, chunk, domain, x, ground, z);
+			if (chunk.getBlockState(new BlockPos(x, ground, z)).is(Blocks.WATER)) {
+				return;
+			}
+		}
 		if (surface) {
 			decorate(level, chunk, domain, zone, x, ground, z, distance);
 		}
@@ -156,6 +164,80 @@ public final class TerraShaper implements DomainService.Shaper {
 		if (plant != null && chunk.getBlockState(above).isAir()) {
 			level.setBlock(above, plant.defaultBlockState(), FLAGS);
 		}
+	}
+
+	/**
+	 * In the valley the slopes are stepped into terraces, a step every three blocks up from the
+	 * sea's level: the ground is built up to its step (never cut down, so nothing standing on it is
+	 * left hanging, and never where something already stands), the step's face walled in vein
+	 * stone bricks where it stands above a neighbour's, and some level stretches flooded as
+	 * paddies. Returns the column's ground now.
+	 */
+	private static int terrace(final ServerLevel level, final LevelChunk chunk, final Domain domain, final int x, final int ground, final int z) {
+		int sea = level.getSeaLevel();
+		if (ground < sea) {
+			return ground;
+		}
+		int step = stepOf(ground, sea);
+		BlockPos.MutableBlockPos at = new BlockPos.MutableBlockPos();
+		for (int y = ground + 1; y <= step; y++) {
+			BlockState there = chunk.getBlockState(at.set(x, y, z));
+			if (!there.isAir() && !there.canBeReplaced()) {
+				return ground;
+			}
+		}
+		if (step > ground) {
+			for (int y = ground; y < step; y++) {
+				level.setBlock(at.set(x, y, z), MistinnBlocks.VEIN_SOIL.defaultBlockState(), FLAGS);
+			}
+			level.setBlock(at.set(x, step, z), MistinnBlocks.JADE_TURF.defaultBlockState(), FLAGS);
+		}
+		int lowest = step;
+		for (Direction side : Direction.Plane.HORIZONTAL) {
+			int nx = x + side.getStepX();
+			int nz = z + side.getStepZ();
+			if (!level.hasChunk(nx >> 4, nz >> 4)) {
+				continue;
+			}
+			int neighbour = groundAt(level, nx, nz);
+			lowest = Math.min(lowest, neighbour < sea ? neighbour : stepOf(neighbour, sea));
+		}
+		// the step's face, where it stands above its neighbour, walled in stone
+		for (int y = Math.max(lowest + 1, step - TERRACE * 3); y < step; y++) {
+			level.setBlock(at.set(x, y, z), MistinnBlocks.VEIN_STONE_BRICKS.defaultBlockState(), FLAGS);
+		}
+		if (lowest == step && paddy(domain, x, z, step)) {
+			level.setBlock(at.set(x, step, z), Blocks.WATER.defaultBlockState(), Block.UPDATE_ALL);
+		}
+		return step;
+	}
+
+	/** How high a terrace step at this height stands: up to the next multiple of the step from the sea's level. */
+	private static int stepOf(final int height, final int sea) {
+		return Math.floorDiv(height - sea + TERRACE - 1, TERRACE) * TERRACE + sea;
+	}
+
+	/** The ground under a column, looking past trees, crystal and growth. */
+	private static int groundAt(final ServerLevel level, final int x, final int z) {
+		BlockPos.MutableBlockPos at = new BlockPos.MutableBlockPos(x, level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) - 1, z);
+		for (int i = 0; i < TREE; i++, at.move(Direction.DOWN)) {
+			BlockState state = level.getBlockState(at);
+			if (state.isAir() || state.canBeReplaced() || state.is(BlockTags.LOGS) || state.is(BlockTags.LEAVES) || !state.getFluidState().isEmpty()
+				|| state.is(MistinnBlocks.LATTICE_CRYSTAL) || state.is(MistinnBlocks.TERRA_CRYSTAL_BLOCK) || state.getBlock() instanceof AmethystClusterBlock
+				|| state.is(MistinnBlocks.MIST_REED) || state.is(MistinnBlocks.CRYSTAL_SPROUT)) {
+				if (!state.getFluidState().isEmpty()) {
+					return at.getY();
+				}
+				continue;
+			}
+			return at.getY();
+		}
+		return at.getY();
+	}
+
+	/** Whether a level stretch of a terrace is flooded as a paddy: some of the 9-block cells on each step. */
+	private static boolean paddy(final Domain domain, final int x, final int z, final int step) {
+		return hash(Math.floorDiv(x, 9) * 7 + step, Math.floorDiv(z, 9) * 13 - step, domain.id() + 97) < 0.18;
 	}
 
 	/** What grows on the changed ground, by ring. */
