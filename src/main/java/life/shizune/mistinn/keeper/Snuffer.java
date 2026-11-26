@@ -243,13 +243,10 @@ public class Snuffer extends Keeper {
 		}
 	}
 
-	/** One piece of tier III or IV gear. */
+	/** One piece of tier III or IV gear, of any line. */
 	private net.minecraft.world.item.Item gearDrop() {
 		int tier = 3 + this.random.nextInt(2);
-		List<net.minecraft.world.item.Item> pool = List.of(
-			MistinnItems.HELMETS.get(tier), MistinnItems.ARMORS.get(tier), MistinnItems.MASKS.get(tier),
-			MistinnItems.RIGS.get(tier), MistinnItems.LEGGINGS.get(tier), MistinnItems.BOOTS.get(tier)
-		);
+		List<net.minecraft.world.item.Item> pool = MistinnItems.gearOfTier(tier);
 		return pool.get(this.random.nextInt(pool.size()));
 	}
 }

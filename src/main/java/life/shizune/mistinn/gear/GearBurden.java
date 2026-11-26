@@ -21,6 +21,11 @@ public final class GearBurden {
 	public static final float QUIETEST = 0.5F;
 	/** However heavy the gear, stamina still comes back at least this share as fast. */
 	public static final float SLOWEST = 0.4F;
+	/** A whole light set (helmet, armour and pack of one tier's light line): quieter and easier on the breath again. */
+	public static final float LIGHT_SET_NOISE = -0.15F;
+	public static final float LIGHT_SET_STAMINA = 0.10F;
+	/** A whole heavy set (helmet, armour, rig and pack of one tier's heavy line): wounds open and bones break this much less often. */
+	public static final float HEAVY_SET_WOUNDS = 0.75F;
 
 	private static @Nullable Map<Item, Gear.Burden> burdens;
 	private static @Nullable Map<Item, Gear.Line> lines;
@@ -74,7 +79,7 @@ public final class GearBurden {
 
 	/** How far the hunter's noises carry, for what they wear: 1 for none of it. */
 	public static float noise(final Player player) {
-		float sum = 0.0F;
+		float sum = set(player) == Gear.Line.LIGHT ? LIGHT_SET_NOISE : 0.0F;
 		for (ItemStack worn : worn(player)) {
 			sum += of(worn).noise();
 		}
@@ -83,11 +88,41 @@ public final class GearBurden {
 
 	/** How fast stamina comes back, for what the hunter wears: 1 for none of it. */
 	public static float stamina(final Player player) {
-		float sum = 0.0F;
+		float sum = set(player) == Gear.Line.LIGHT ? LIGHT_SET_STAMINA : 0.0F;
 		for (ItemStack worn : worn(player)) {
 			sum += of(worn).stamina();
 		}
 		return Mth.clamp(1.0F + sum, SLOWEST, 2.0F);
+	}
+
+	/** How often a blow opens a wound or breaks a bone, for what the hunter wears: 1, or less in a whole heavy set. */
+	public static float wounds(final Player player) {
+		return set(player) == Gear.Line.HEAVY ? HEAVY_SET_WOUNDS : 1.0F;
+	}
+
+	/**
+	 * 整套: the line whose whole set of one tier the hunter wears (helmet, body armour and pack; for
+	 * the heavy line its rig too), or null.
+	 */
+	public static Gear.@Nullable Line set(final Player player) {
+		ItemStack[] worn = worn(player);
+		int helmet = MistinnItems.HELMETS.indexOf(worn[0].getItem());
+		int armor = MistinnItems.ARMORS.indexOf(worn[1].getItem());
+		int rig = MistinnItems.RIGS.indexOf(worn[2].getItem());
+		int pack = MistinnItems.BACKPACKS.indexOf(worn[3].getItem());
+		if (helmet < 0 || armor < 0 || pack < 0) {
+			return null;
+		}
+		Gear.Helmet h = Gear.HELMETS.get(helmet);
+		Gear.BodyArmor a = Gear.ARMORS.get(armor);
+		Gear.Backpack p = Gear.BACKPACKS.get(pack);
+		if (h.line() == Gear.Line.STANDARD || h.line() != a.line() || h.line() != p.line() || h.tier() != a.tier() || h.tier() != p.tier()) {
+			return null;
+		}
+		if (h.line() == Gear.Line.HEAVY && (rig < 0 || Gear.RIGS.get(rig).line() != Gear.Line.HEAVY || Gear.RIGS.get(rig).tier() != h.tier())) {
+			return null;
+		}
+		return h.line();
 	}
 
 	private static ItemStack[] worn(final Player player) {

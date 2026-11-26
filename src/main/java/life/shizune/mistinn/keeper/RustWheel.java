@@ -479,9 +479,8 @@ public class RustWheel extends Keeper {
 		}
 		if (this.random.nextFloat() < 0.3F) {
 			int tier = 4 + this.random.nextInt(2);
-			List<net.minecraft.world.item.Item> pool = List.of(
-				MistinnItems.HELMETS.get(tier), MistinnItems.ARMORS.get(tier), MistinnItems.MASKS.get(tier),
-				MistinnItems.RIGS.get(tier), MistinnItems.LEGGINGS.get(tier), MistinnItems.BOOTS.get(tier));
+			// any line's: the standard issue, the light or the heavy
+			List<net.minecraft.world.item.Item> pool = MistinnItems.gearOfTier(tier);
 			this.spawnAtLocation(level, new ItemStack(pool.get(this.random.nextInt(pool.size()))));
 		}
 		if (source.getEntity() instanceof ServerPlayer player) {

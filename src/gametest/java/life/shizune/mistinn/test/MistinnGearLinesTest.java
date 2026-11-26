@@ -32,7 +32,7 @@ import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeType;
 
 /**
- * The light and heavy lines: every new piece is there at its tier with a recipe; the light gear
+ * The light and heavy lines: every new piece is there at its tier with a recipe (and among a keeper's spoils); the light gear
  * makes the hunter quieter and eases their breath, the heavy the other way round, slows their swing
  * and weighs on their feet (the rig too); a heavy helmet's visor guards the face; the tooltip says
  * which line made a piece and what it costs; the worn sets on a hunter, for a look.
@@ -60,6 +60,11 @@ public final class MistinnGearLinesTest implements FabricClientGameTest {
 				checkLine(server, MistinnItems.ARMORS, Gear.ARMORS.stream().map(g -> new Piece(g.tier(), g.line())).toList(), "armor");
 				checkLine(server, MistinnItems.BACKPACKS, Gear.BACKPACKS.stream().map(g -> new Piece(g.tier(), g.line())).toList(), "backpack");
 				checkLine(server, MistinnItems.RIGS, Gear.RIGS.stream().map(g -> new Piece(g.tier(), g.line())).toList(), "rig");
+				// what a keeper may leave: every line's pieces of the tier
+				check(MistinnItems.gearOfTier(3).size() == 11 && MistinnItems.gearOfTier(3).contains(item("armor_heavy_3"))
+					&& MistinnItems.gearOfTier(3).contains(item("helmet_light_3")) && MistinnItems.gearOfTier(3).contains(item("rig_heavy_3")),
+					"tier III's spoils: three helmets and armours, two rigs, a mask, leggings, boots: " + MistinnItems.gearOfTier(3).size());
+				check(MistinnItems.gearOfTier(6).size() == 9, "tier VI's: no leggings or boots: " + MistinnItems.gearOfTier(6).size());
 				// the N tier's leather-and-string recipes, where the lines could most easily be taken for each other
 				ServerLevel level = server.overworld();
 				craft(level, "backpack_light_n", Items.STRING, Items.STRING, Items.STRING, Items.LEATHER, Items.LEATHER, Items.LEATHER);
@@ -89,16 +94,22 @@ public final class MistinnGearLinesTest implements FabricClientGameTest {
 				check(Math.abs(weight(speed) + 0.07) < 1.0E-6, "the coffin and the heavy rig weigh 7% between them: " + weight(speed));
 				check(GridService.get(player).shape(life.shizune.mistinn.grid.Area.BACKPACK).cells() == 56, "the coffin holds 56");
 				check(BodyGear.faceArmor(player) == 1.0F, "the visor guards the face with no mask: " + BodyGear.faceArmor(player));
+				check(GearBurden.set(player) == Gear.Line.HEAVY && GearBurden.wounds(player) == 0.75F, "the whole heavy set turns a quarter of the wounds");
 				wear(player, "helmet_light_6", "armor_light_6", "backpack_light_6", null);
 			});
 			context.waitTicks(2);
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = player(server);
 				AttributeInstance speed = player.getAttribute(Attributes.MOVEMENT_SPEED);
-				check(Math.abs(GearBurden.noise(player) - 0.80F) < EPSILON, "the light set is a fifth quieter: " + GearBurden.noise(player));
-				check(Math.abs(GearBurden.stamina(player) - 1.15F) < EPSILON, "and stamina comes back 15% faster: " + GearBurden.stamina(player));
+				// the pieces' own 20% quieter and 15% easier, and the whole set's 15% and 10% more
+				check(GearBurden.set(player) == Gear.Line.LIGHT && GearBurden.wounds(player) == 1.0F, "a whole light set");
+				check(Math.abs(GearBurden.noise(player) - 0.65F) < EPSILON, "the light set is a third quieter: " + GearBurden.noise(player));
+				check(Math.abs(GearBurden.stamina(player) - 1.25F) < EPSILON, "and stamina comes back a quarter faster: " + GearBurden.stamina(player));
 				check(weight(speed) == 0.0, "and weighs nothing: " + weight(speed));
 				check(BodyGear.faceArmor(player) == 0.0F, "an open helm leaves the face to the mask");
+				// a heavy helmet over light armour is no set at all
+				player.setItemSlot(EquipmentSlot.HEAD, item("helmet_heavy_6").getDefaultInstance());
+				check(GearBurden.set(player) == null, "a mixed set is no set");
 			});
 
 			// the tooltip: the line, and what it costs
@@ -106,7 +117,7 @@ public final class MistinnGearLinesTest implements FabricClientGameTest {
 				List<Component> lines = item("backpack_heavy_6").getDefaultInstance().getTooltipLines(net.minecraft.world.item.Item.TooltipContext.of(mc.level), mc.player,
 					TooltipFlag.Default.NORMAL);
 				return has(lines, "tooltip.mistinn.line.heavy") && has(lines, "tooltip.mistinn.noise") && has(lines, "tooltip.mistinn.stamina_regen")
-					&& has(lines, "tooltip.mistinn.capacity");
+					&& has(lines, "tooltip.mistinn.capacity") && has(lines, "tooltip.mistinn.set.heavy");
 			}), "a heavy pack's tooltip names its line, its room and its costs");
 			check(context.computeOnClient(mc -> {
 				List<Component> lines = item("helmet_heavy_3").getDefaultInstance().getTooltipLines(net.minecraft.world.item.Item.TooltipContext.of(mc.level), mc.player,
