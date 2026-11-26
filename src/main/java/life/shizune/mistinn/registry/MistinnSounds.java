@@ -202,6 +202,7 @@ public final class MistinnSounds {
 	/** The highland air, and crystal touching crystal somewhere near. */
 	public static final SoundEvent AMBIENT_TERRA_LOOP = register("ambient.terra.loop");
 	public static final SoundEvent AMBIENT_TERRA_ADDITIONS = register("ambient.terra.additions");
+	public static final SoundEvent RIFT_HOUND_HOWL = register("entity.rift_hound.howl");
 
 	private MistinnSounds() {
 	}

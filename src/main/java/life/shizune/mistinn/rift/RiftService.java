@@ -359,6 +359,10 @@ public final class RiftService {
 		for (int i = 0; i < hounds; i++) {
 			Mob hound = drop(level, domain, MistinnEntities.RIFT_HOUND);
 			if (hound != null) {
+				if (wave == WAVES && i == 0 && hound instanceof RiftHound pack) {
+					// the last wave's hounds run behind an alpha
+					pack.lead();
+				}
 				down.add(hound.getUUID());
 			}
 		}

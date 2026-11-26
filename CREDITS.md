@@ -32,6 +32,7 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | --- | --- | --- |
 | `ambient/terra_loop.ogg` | `synth:highland wind through two moving bands of circular noise, a faint crystal shimmer and hum; a seamless stereo loop` | project synthesis |
 | `ambient/terra_chime_*.ogg` | `synth:a few crystal chimes, struck bars of six detuned partials, in a small room` | project synthesis |
+| `mob/rift_hound/howl_*.ogg` | `synth:a howl, a harmonic voice sliding up and falling long through moving vowel formants, with breath and an under-voice an octave down, outdoors` | project synthesis |
 | `ambient/shore_mist.ogg` | `synth:surf from shaped low noise, wind swells through a moving band, a far wood creak; a seamless stereo loop` | project synthesis |
 | `voice/male/*.ogg`, `voice/female/*.ogg` | `synth:a hunter's own voice (breaths, cries, effort): summed harmonics with breath noise through three moving formants; a man's at 118 Hz, a girl's at 222 Hz` | project synthesis |
 | `block/golden_bell/rest_1.ogg` | `kenney_impact:impactBell_heavy_002`; `synth:fog air, noise room` | CC0 1.0 sources + project synthesis |
