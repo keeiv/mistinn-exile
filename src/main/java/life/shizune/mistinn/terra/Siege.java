@@ -14,6 +14,7 @@ import life.shizune.mistinn.salt.SaltService;
 import life.shizune.mistinn.story.WorldMode;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -65,6 +66,8 @@ public final class Siege {
 	public static final long SETTLING = 12000L;
 	/** Under the automated tests no siege comes of itself. */
 	private static final boolean AUTOMATED = System.getProperty("fabric.client.gametest") != null;
+	/** The mark every creature of a siege carries. */
+	public static final String MARK = "mistinn.siege";
 
 	/**
 	 * One homestead's watch: the last night weighed, the wave now (0: none yet), when the first
@@ -103,6 +106,41 @@ public final class Siege {
 				tick(server);
 			}
 		});
+		// one of a siege that is over (left unloaded when it ended) crumbles as it comes back into the world
+		ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+			if (entity.entityTags().contains(MARK) && !fighting(level.getServer(), entity.getUUID())) {
+				entity.discard();
+			}
+		});
+	}
+
+	/** Whether this creature is one of a siege still going on. */
+	public static boolean fighting(final MinecraftServer server, final UUID id) {
+		for (Watch watch : server.overworld().getAttachedOrElse(WATCHES, List.of())) {
+			if (watch.on() && watch.foes().contains(id)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** Night by the clock (a daytime storm is not night). */
+	public static boolean night(final ServerLevel level) {
+		long time = Math.floorMod(level.getOverworldClockTime(), 24000L);
+		return time >= 13000L && time < 23000L;
+	}
+
+	/** Whether all the ground a siege's creatures come up on is in the world. */
+	private static boolean loaded(final ServerLevel level, final BlockPos hub) {
+		int reach = RING_FAR + 16;
+		for (int dx = -reach; dx <= reach; dx += 16) {
+			for (int dz = -reach; dz <= reach; dz += 16) {
+				if (!level.isLoaded(hub.offset(dx, 0, dz))) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	public static Watch watch(final MinecraftServer server, final int domain) {
@@ -141,7 +179,7 @@ public final class Siege {
 				set(server, watch);
 				continue;
 			}
-			if (level.isDarkOutside() && watch.night() != night) {
+			if (night(level) && watch.night() != night) {
 				// each night is weighed once, as it falls
 				watch = new Watch(home.domain(), night, 0, 0L, List.of(), 0L);
 				set(server, watch);
@@ -182,14 +220,19 @@ public final class Siege {
 
 	/** A moment of a siege: on to the next wave, the thanks, or its end. */
 	private static Watch go(final ServerLevel level, final Settlements.Settlement home, final Watch watch, final long now) {
-		long seen = near(level, home.hub(), GONE).isEmpty() ? watch.seen() : now;
-		if (!level.isDarkOutside()) {
+		boolean watched = !near(level, home.hub(), GONE).isEmpty();
+		long seen = watched ? now : watch.seen();
+		if (!night(level)) {
 			crumble(level, home, watch, true);
 			return watch.idle();
 		}
 		if (now - seen > ABANDONED) {
 			crumble(level, home, watch, false);
 			return watch.idle();
+		}
+		if (!watched || !loaded(level, home.hub())) {
+			// nobody to hold it, or the ground round the hub not all there: it waits; what is not in the world is not counted gone
+			return new Watch(watch.domain(), watch.night(), watch.wave(), watch.at(), watch.foes(), seen);
 		}
 		List<UUID> standing = watch.foes().stream().filter(id -> level.getEntity(id) instanceof Mob mob && mob.isAlive()).toList();
 		// whoever of it has lost its quarry goes for the nearest hunter again, and does not lie down
@@ -274,6 +317,8 @@ public final class Siege {
 			mob.setTarget(nearest);
 		}
 		level.addFreshEntity(mob);
+		// marked once in the world (the mark is for when it comes back into it later)
+		mob.addTag(MARK);
 		foes.add(mob.getUUID());
 	}
 

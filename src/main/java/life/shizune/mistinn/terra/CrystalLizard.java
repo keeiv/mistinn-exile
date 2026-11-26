@@ -241,7 +241,7 @@ public class CrystalLizard extends Monster {
 		level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.HOSTILE, 1.0F, 1.6F);
 		level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, MistinnBlocks.VEIN_STONE.defaultBlockState()), this.getX(), this.getY() + 0.2, this.getZ(),
 			12, 0.3, 0.1, 0.3, 0.1);
-		for (CrystalLizard other : level.getEntitiesOfClass(CrystalLizard.class, this.getBoundingBox().inflate(10.0), l -> l != this && l.getTarget() == null)) {
+		for (CrystalLizard other : level.getEntitiesOfClass(CrystalLizard.class, this.getBoundingBox().inflate(10.0), l -> l != this && !l.tamed() && l.getTarget() == null)) {
 			other.setTarget(target);
 		}
 	}
@@ -490,6 +490,23 @@ public class CrystalLizard extends Monster {
 			this.lieStill(STILL_MAX);
 		} else {
 			this.lieStill(0);
+		}
+	}
+
+	@Override
+	public void setTarget(final @Nullable LivingEntity target) {
+		// a companion is never set on a hunter, nor on another companion, by its pack or anything else
+		if (target != null && this.tamed() && (target instanceof Player || companion(target))) {
+			return;
+		}
+		super.setTarget(target);
+	}
+
+	@Override
+	public void checkDespawn() {
+		// a companion stays, whatever the difficulty
+		if (!this.tamed()) {
+			super.checkDespawn();
 		}
 	}
 

@@ -546,6 +546,9 @@ public class RiftHound extends Monster implements RiftTouched {
 	protected void readAdditionalSaveData(final ValueInput input) {
 		super.readAdditionalSaveData(input);
 		this.entityData.set(DATA_ALPHA, input.getBooleanOr("alpha", false));
+		if (this.isAlpha()) {
+			this.xpReward = 25;
+		}
 	}
 
 	@Override

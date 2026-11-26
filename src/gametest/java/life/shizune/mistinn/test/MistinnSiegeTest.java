@@ -124,6 +124,57 @@ public final class MistinnSiegeTest implements FabricClientGameTest {
 					"and holding the fields is remembered");
 			});
 
+			// left with nobody to hold it, it waits: its creatures down out of sight do not bring the next wave
+			world.getServer().runOnServer(server -> Siege.begin(server.overworld(), home[0], 1));
+			for (int i = 0; i < 10 && world.getServer().computeOnServer(server -> Siege.watch(server, home[0].domain()).wave() != 1); i++) {
+				context.waitTicks(10);
+			}
+			BlockPos[] back = new BlockPos[1];
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				ServerPlayer player = player(server);
+				back[0] = player.blockPosition();
+				for (UUID id : Siege.watch(server, home[0].domain()).foes()) {
+					if (level.getEntity(id) instanceof LivingEntity foe) {
+						foe.hurtServer(level, level.damageSources().playerAttack(player), 10000.0F);
+					}
+				}
+				BlockPos far = back[0].offset(0, 0, 200);
+				player.teleportTo(level, far.getX() + 0.5, level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, far.getX(), far.getZ()) + 1.0,
+					far.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
+			});
+			context.waitTicks(60);
+			check(world.getServer().computeOnServer(server -> Siege.watch(server, home[0].domain()).wave() == 1), "with nobody near, the next wave does not come");
+			world.getServer().runOnServer(server -> player(server).teleportTo(server.overworld(), back[0].getX() + 0.5, back[0].getY(), back[0].getZ() + 0.5,
+				Set.of(), 0.0F, 0.0F, true));
+			boolean resumed = false;
+			for (int i = 0; i < 30 && !resumed; i++) {
+				context.waitTicks(10);
+				resumed = world.getServer().computeOnServer(server -> Siege.watch(server, home[0].domain()).wave() == 2);
+			}
+			check(resumed, "back again, the next wave comes");
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				// one of a siege that is over, coming back into the world, crumbles
+				CrystalLizard stray = life.shizune.mistinn.registry.MistinnEntities.CRYSTAL_LIZARD.create(level, net.minecraft.world.entity.EntitySpawnReason.LOAD);
+				stray.addTag(Siege.MARK);
+				stray.snapTo(home[0].hub().getX() + 5.5, home[0].hub().getY() + 1.0, home[0].hub().getZ() + 0.5, 0.0F, 0.0F);
+				level.addFreshEntity(stray);
+				check(stray.isRemoved(), "a stray of a siege that is over crumbles as it comes back");
+				for (UUID id : Siege.watch(server, home[0].domain()).foes()) {
+					if (level.getEntity(id) instanceof LivingEntity foe) {
+						foe.discard();
+					}
+				}
+			});
+			world.getServer().runCommand("time set 6000");
+			world.getServer().runCommand("weather thunder");
+			context.waitTicks(30);
+			world.getServer().runOnServer(server -> check(!Siege.night(server.overworld()), "a daytime storm is not night"));
+			world.getServer().runCommand("weather clear");
+			world.getServer().runCommand("time set 14000");
+			context.waitTicks(30);
+
 			// another, left standing at dawn: it crumbles away
 			List<UUID> left = new java.util.ArrayList<>();
 			world.getServer().runOnServer(server -> Siege.begin(server.overworld(), home[0], 1));
