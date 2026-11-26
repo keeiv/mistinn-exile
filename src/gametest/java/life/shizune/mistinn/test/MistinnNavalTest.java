@@ -317,6 +317,11 @@ public final class MistinnNavalTest implements FabricClientGameTest {
 			NavalService.Ship ship = NavalService.ship(server, shipId);
 			Pirate captain = crew(level, ship.frame()).stream().filter(p -> p.role() == PirateRole.CAPTAIN).findFirst().orElseThrow();
 			check(captain.getMaxHealth() >= 140.0F, "the captain is hard to kill: " + captain.getMaxHealth());
+			String first = NavalService.barName(ship, 0, 0).getString();
+			check(first.contains("☆☆☆☆") && !first.contains("★") && !first.contains("◆"), "the first ship's bar shows no name among the pirates yet: " + first);
+			NavalService.Ship feared = new NavalService.Ship(ship.id(), ship.origin(), ship.turn(), ship.name(), 2, ship.state(), ship.captain(), ship.since());
+			String later = NavalService.barName(feared, 3, 5).getString();
+			check(later.contains("★★☆☆") && later.contains("◆◆◆◇◇"), "a later ship's bar shows the hunters' name and the crew standing: " + later);
 			captain.kill(level);
 			check(NavalService.ship(server, shipId).state() == NavalService.TAKEN, "the ship is taken");
 			check(NavalService.sea(server).taken() == 1, "and the fog sea remembers");
