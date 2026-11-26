@@ -57,6 +57,10 @@ public final class MistinnItems {
 		.durability(120).rarity(Rarity.RARE).enchantable(10));
 	public static final Item PAPER_CARTRIDGE = register("paper_cartridge", Item::new, new Item.Properties());
 	public static final Item CANNONBALL = register("cannonball", Item::new, new Item.Properties().stacksTo(16));
+	/** 鹽彈, 信號焰, 響鈴誘餌: thrown, they burst, burn or ring where they come down ({@link life.shizune.mistinn.tool.ThrowService}). */
+	public static final Item SALT_BOMB = register("salt_bomb", life.shizune.mistinn.tool.ThrowableToolItem::new, new Item.Properties().stacksTo(8));
+	public static final Item FLARE = register("flare", life.shizune.mistinn.tool.ThrowableToolItem::new, new Item.Properties().stacksTo(8));
+	public static final Item BELL_LURE = register("bell_lure", life.shizune.mistinn.tool.ThrowableToolItem::new, new Item.Properties().stacksTo(4));
 	public static final Item RUST_GOD_SALT = register("rust_god_salt", Item::new, new Item.Properties().stacksTo(16).rarity(Rarity.EPIC).fireResistant());
 
 	/** The named weapons: each a branch's own, with sounds made for it. */
@@ -89,7 +93,7 @@ public final class MistinnItems {
 	public static final Item HUNTER_TAG = register("hunter_tag", Item::new, new Item.Properties().stacksTo(1));
 
 	/** Pages of the guide's text (item.mistinn.hunter_guide.page.N), read as spreads in its screen. */
-	public static final int GUIDE_PAGES = 30;
+	public static final int GUIDE_PAGES = 31;
 	public static final Item HUNTER_GUIDE = register("hunter_guide", life.shizune.mistinn.story.HunterGuideItem::new, new Item.Properties().stacksTo(1));
 
 	public static final Item GOLDEN_BELL = block("golden_bell", MistinnBlocks.GOLDEN_BELL, new Item.Properties().rarity(Rarity.RARE));

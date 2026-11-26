@@ -42,6 +42,9 @@ public final class Tiers {
 		FIXED.put(MistinnItems.GOLDEN_BELL, Tier.V);
 		FIXED.put(MistinnItems.LAMP_OIL, Tier.II);
 		FIXED.put(MistinnItems.RUST_GOD_SALT, Tier.VI);
+		FIXED.put(MistinnItems.SALT_BOMB, Tier.I);
+		FIXED.put(MistinnItems.FLARE, Tier.II);
+		FIXED.put(MistinnItems.BELL_LURE, Tier.II);
 		MistinnItems.WEAPONS.values().forEach(byMaterial -> byMaterial.forEach((material, item) -> FIXED.put(item, material.tier)));
 		// every line's helmets, body armour, packs and rigs, each at its own tier
 		for (int i = 0; i < MistinnItems.HELMETS.size(); i++) {
