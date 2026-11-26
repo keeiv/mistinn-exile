@@ -213,7 +213,7 @@ public final class HomesteadTravel {
 		player.teleportTo(level, at.getX() + 0.5, target.deck() + 1.0, at.getZ() + 0.5, java.util.Set.of(), player.getYRot(), player.getXRot(), true);
 		level.sendParticles(ParticleTypes.END_ROD, at.getX() + 0.5, target.deck() + 2.0, at.getZ() + 0.5, 40, 0.4, 0.8, 0.4, 0.05);
 		level.playSound(null, at, SoundEvents.BEACON_POWER_SELECT, SoundSource.PLAYERS, 1.2F, 1.3F);
-		player.setAttached(READY_AT, level.getGameTime() + COOLDOWN);
+		player.setAttached(READY_AT, level.getGameTime() + HomesteadUpgrades.travelCooldown(level.getServer(), target, COOLDOWN));
 		player.sendSystemMessage(Component.translatable("message.mistinn.travel.arrived").withStyle(ChatFormatting.AQUA), true);
 	}
 
