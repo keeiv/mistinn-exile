@@ -77,7 +77,8 @@ public final class OwnBody {
 		if (player == null || mc.getCameraEntity() != player || !mc.options.getCameraType().isFirstPerson()) {
 			return false;
 		}
-		if (player.isSpectator() || player.isSleeping() || !player.isAlive() || player.isInvisible()) {
+		// lying on the ground the hunter sees the sky, not their own body under the eye
+		if (player.isSpectator() || player.isSleeping() || !player.isAlive() || player.isInvisible() || life.shizune.mistinn.team.DownService.isDown(player)) {
 			return false;
 		}
 		// lying, swimming, gliding or tumbling, the eye would be inside the body: it is left out

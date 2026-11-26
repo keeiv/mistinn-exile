@@ -92,7 +92,7 @@ public final class NoiseService {
 
 	/** The hunter made this noise where they stand. */
 	public static void emit(final ServerPlayer hunter, final Noise noise) {
-		if (!BodyService.applies(hunter) || hunter.isSpectator() || hunter.isDeadOrDying()) {
+		if (!BodyService.applies(hunter) || hunter.isSpectator() || hunter.isDeadOrDying() || life.shizune.mistinn.team.DownService.isDown(hunter)) {
 			return;
 		}
 		long now = hunter.level().getGameTime();
@@ -147,7 +147,7 @@ public final class NoiseService {
 	}
 
 	public static boolean bleeding(final ServerPlayer hunter) {
-		if (!BodyService.applies(hunter) || hunter.isDeadOrDying()) {
+		if (!BodyService.applies(hunter) || hunter.isDeadOrDying() || life.shizune.mistinn.team.DownService.isDown(hunter)) {
 			return false;
 		}
 		for (BodyPart part : BodyPart.values()) {

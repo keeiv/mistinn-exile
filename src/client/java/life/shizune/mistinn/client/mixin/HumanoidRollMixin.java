@@ -30,6 +30,11 @@ public abstract class HumanoidRollMixin {
 			ExecutionView.limbs(execution, model);
 			return;
 		}
+		Float down = state.getData(life.shizune.mistinn.client.team.DownPose.KEY);
+		if (down != null && state.getData(DeathScene.KEY) == null) {
+			life.shizune.mistinn.client.team.DownPose.limbs(down, model);
+			return;
+		}
 		DeathScene.Pose death = state.getData(DeathScene.KEY);
 		if (death != null) {
 			Clip clip = Clip.get(death.kneel() ? "death/kneel" : "death/collapse");

@@ -26,7 +26,7 @@ public final class UpdateNotice {
 	}
 
 	/** Every notice, oldest first. */
-	public static final List<Notice> NOTICES = List.of(new Notice("coop", 4));
+	public static final List<Notice> NOTICES = List.of(new Notice("coop", 4), new Notice("downed", 3));
 
 	/** The notices this hunter has read. */
 	public static final AttachmentType<List<String>> SEEN = AttachmentRegistry.<List<String>>builder()

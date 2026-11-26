@@ -60,6 +60,8 @@ public final class BodyService {
 
 	/** True while {@link #hurt} runs: vanilla's own death check follows it. */
 	private static boolean hurting;
+	/** The blow being taken while {@link #hurting}: whether it may put the hunter down instead of killing them. */
+	private static @Nullable DamageSource hurtingSource;
 
 	private BodyService() {
 	}
@@ -109,6 +111,24 @@ public final class BodyService {
 		// a lost limb stays at nothing, whatever tried to mend it
 		Body body = LostLimbs.hold(player, mended);
 		Body before = get(player);
+		if (body.lethal()) {
+			// with a teammate on their feet the hunter goes down instead; once down, nothing here kills them
+			boolean down = life.shizune.mistinn.team.DownService.isDown(player);
+			if (down || life.shizune.mistinn.team.DownService.goesDown(player, hurting ? hurtingSource : null)) {
+				Body held = life.shizune.mistinn.team.DownService.held(player, body);
+				if (!held.lethal()) {
+					player.setAttached(MistinnAttachments.BODY, held);
+					syncHealth(player, held);
+					if (!down) {
+						life.shizune.mistinn.team.DownService.knockDown(player);
+					}
+					if (!held.equals(before)) {
+						applyPenalties(player, held);
+					}
+					return;
+				}
+			}
+		}
 		player.setAttached(MistinnAttachments.BODY, body);
 		if (body.lethal()) {
 			player.setHealth(0.0F);
@@ -235,6 +255,15 @@ public final class BodyService {
 		if (player.isInvulnerableTo(level, source) || ExecutionService.holdsBlow(player, source) || ExecutionService.headshotLands(player, source)) {
 			return;
 		}
+		if (life.shizune.mistinn.team.DownService.isDown(player)) {
+			if (!life.shizune.mistinn.team.DownService.killsOutright(source)) {
+				// no part gives out further on the ground; each hit costs them time instead
+				life.shizune.mistinn.team.DownService.hitWhileDown(player);
+				return;
+			}
+			// the void, /kill or a finisher's last blow: no more lying there, it ends now
+			player.removeAttached(life.shizune.mistinn.team.DownService.DOWN);
+		}
 		float damage = Math.min(incoming, 1.0E6F);
 		boolean execution = ExecutionService.finalBlow(player, source);
 		Hit hit = execution ? Hit.on(BodyPart.TORSO, false) : locate(player, source);
@@ -273,11 +302,13 @@ public final class BodyService {
 		player.getCombatTracker().recordDamage(source, damage);
 		player.awardStat(Stats.DAMAGE_TAKEN, Math.round(Math.min(damage, 1.0E5F) * 10.0F));
 		hurting = true;
+		hurtingSource = source;
 		Body body = get(player);
 		try {
 			set(player, execution ? body.with(BodyPart.TORSO, 0.0F) : apply(body, hit, damage * DAMAGE_SCALE));
 		} finally {
 			hurting = false;
+			hurtingSource = null;
 		}
 		if (player.isAlive()) {
 			// blows may open a bleeding wound, falls and crushing blows may break a limb

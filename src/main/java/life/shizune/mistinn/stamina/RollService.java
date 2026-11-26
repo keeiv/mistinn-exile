@@ -108,7 +108,7 @@ public final class RollService {
 	}
 
 	private static void handle(final ServerPlayer player, final RollPayload payload) {
-		if (!StaminaService.applies(player) || player.isDeadOrDying()) {
+		if (!StaminaService.applies(player) || player.isDeadOrDying() || life.shizune.mistinn.team.DownService.isDown(player)) {
 			return;
 		}
 		// the server's clock, not the player's: a respawned player is a new entity counting from zero

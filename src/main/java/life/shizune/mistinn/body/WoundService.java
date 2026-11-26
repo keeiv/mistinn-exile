@@ -165,7 +165,8 @@ public final class WoundService {
 			return;
 		}
 		for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-			if (!BodyService.applies(player) || player.isDeadOrDying()) {
+			// a downed hunter's minute is the only clock: their wounds wait for the rescue
+			if (!BodyService.applies(player) || player.isDeadOrDying() || life.shizune.mistinn.team.DownService.isDown(player)) {
 				continue;
 			}
 			Wounds wounds = get(player);

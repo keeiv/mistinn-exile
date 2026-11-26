@@ -44,6 +44,7 @@ public class MistinnClient implements ClientModInitializer {
 		life.shizune.mistinn.client.multiplayer.Invites.load();
 		life.shizune.mistinn.client.skin.SyncedSkins.register();
 		life.shizune.mistinn.client.team.TeamClient.register();
+		life.shizune.mistinn.client.team.RescueClient.register(CATEGORY);
 		KeyMapping zoom = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.minimap_zoom", InputConstants.KEY_M, CATEGORY)
 		);
@@ -96,6 +97,8 @@ public class MistinnClient implements ClientModInitializer {
 		LevelRenderEvents.COLLECT_SUBMITS.register(SwordQi::submit);
 		// "正在使用 …" and its progress bar above the hotbar
 		HudElementRegistry.addLast(Mistinn.id("treatment"), new life.shizune.mistinn.client.medical.TreatmentHud());
+		// 倒地: the downed hunter's minute, and the rescuer's prompt and bar
+		HudElementRegistry.addLast(Mistinn.id("rescue"), new life.shizune.mistinn.client.team.RescueHud());
 		// the heavy blow's charge, under the crosshair
 		HudElementRegistry.addLast(Mistinn.id("charge"), new life.shizune.mistinn.client.combat.ChargeHud());
 		// hunters see their body parts where the hearts were
