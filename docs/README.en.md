@@ -158,6 +158,11 @@ The host enters a Story or Free exploration world, presses Esc, and chooses **Wo
 - **Offline accounts can join**: only people with the invite get in. Each time the room opens it gets a new invite, and old ones stop working once it closes. A guest whose name is already in the room is turned away.
 - **Same version**: everyone needs the same Mistinn version; the join screen says so when they differ.
 - **Skins**: the skin set in the launcher is shown to everyone in the room.
+- **Three at most**: a world takes three hunters at most; a fourth is turned away at the door with a message saying so.
+- **Growing together**: major skills (the ones a rust god salt unlocks, such as the slide) belong to the whole team: when one hunter learns one, everyone has it, those who join later included. Minor skills and salt are still each hunter's own. Major skills already learned in an old world are handed to the others the next time they arrive.
+- **No friendly fire**: the first time a world is loaded, friendly fire is turned off (old worlds too); the host can turn it back on with `/gamerule pvp true`.
+- **Knowing who is who**: every hunter's name has a colour of its own (name tag, chat, player list), and the minimap marks the others in the same colour, pinned to its edge when they are far.
+- **Update notes**: when an update changes how an old world plays, those who played it before read a few lines about it in the chat the next time they arrive, once.
 - **When the relay cannot be reached**: the screen switches to a direct connection. Enter an address your friends can reach (a public IP, hostname or virtual LAN address). For a public IPv4 connection, forward the TCP port (default `25565`) to the host computer and allow it through the firewall. [Minecraft Java multiplayer help](https://help.minecraft.net/hc/en-us/articles/32899741198989)
 
 Story worlds remember whether the keeper has fallen and the salt block has been turned in. Friends who join later can continue their own objectives when they reach those steps.

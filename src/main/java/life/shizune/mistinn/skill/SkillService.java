@@ -175,6 +175,10 @@ public final class SkillService {
 		}
 		set(player, skills.with(id));
 		life.shizune.mistinn.achievement.AchievementService.learned(player);
+		if (node.major()) {
+			// a major skill is the whole team's: everyone here learns it, and those who come later
+			life.shizune.mistinn.team.TeamSkills.share(player, id);
+		}
 		return Result.UNLOCKED;
 	}
 
