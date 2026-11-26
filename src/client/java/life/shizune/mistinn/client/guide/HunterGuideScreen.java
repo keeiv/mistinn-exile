@@ -39,6 +39,7 @@ public class HunterGuideScreen extends Screen {
 		PAGES("gui.mistinn.guide.tab.pages"),
 		STATS("gui.mistinn.guide.tab.stats"),
 		SKILLS("gui.mistinn.guide.tab.skills"),
+		RECIPES("gui.mistinn.guide.tab.recipes"),
 		ACHIEVEMENTS("gui.mistinn.guide.tab.achievements");
 
 		final String key;
@@ -57,18 +58,18 @@ public class HunterGuideScreen extends Screen {
 	private static final int TAB_H = 20;
 	private static final int MAJOR = 32;
 	private static final int MINOR = 24;
-	private static final int INK = 0xFF3B2A1E;
-	private static final int FADED = 0xFF7A6650;
-	private static final int RED = 0xFF8E2A1E;
+	static final int INK = 0xFF3B2A1E;
+	static final int FADED = 0xFF7A6650;
+	static final int RED = 0xFF8E2A1E;
 	private static final int AMBER = 0xFFB8822E;
-	private static final int LINE_DARK = 0xFF6E5A44;
+	static final int LINE_DARK = 0xFF6E5A44;
 
 	private static final Identifier SPREAD = tex("spread");
 	private static final Identifier TABS = tex("tabs");
 	private static final Identifier NODE_MAJOR = tex("node_major");
 	private static final Identifier NODE_MINOR = tex("node_minor");
 	private static final Identifier ICONS = tex("icons");
-	private static final Identifier ARROWS = tex("arrows");
+	static final Identifier ARROWS = tex("arrows");
 	private static final Identifier GLOW = tex("glow");
 
 	/** The answer the server last gave to an unlock request, for the line under the tree. */
@@ -79,6 +80,8 @@ public class HunterGuideScreen extends Screen {
 
 	private Tab tab = Tab.PAGES;
 	private int spread;
+	/** The crafting pages' open spread: the contents and the first recipe, then two recipes at a time. */
+	private int recipeSpread;
 	private @Nullable String armed;
 
 	public HunterGuideScreen() {
@@ -103,6 +106,30 @@ public class HunterGuideScreen extends Screen {
 		return this.spread;
 	}
 
+	/** Which crafting spread is open (0: the contents and the first recipe). */
+	public int recipeSpread() {
+		return this.recipeSpread;
+	}
+
+	/** Centre of a chapter's line on the crafting contents page, in GUI pixels. */
+	public double[] chapterLine(final GuideRecipes.Chapter chapter) {
+		return GuideRecipePages.chapterLine(this.left(), this.top(), chapter);
+	}
+
+	private boolean recipesClicked(final double mx, final double my) {
+		int turned = GuideRecipePages.clicked(this.left(), this.top(), this.recipeSpread, mx, my);
+		if (turned < 0) {
+			return false;
+		}
+		this.recipeSpread = turned;
+		click(SoundEvents.BOOK_PAGE_TURN);
+		return true;
+	}
+
+	net.minecraft.client.gui.Font guideFont() {
+		return this.font;
+	}
+
 	/** Centre of the next-page arrow, in GUI pixels. */
 	public double[] nextPage() {
 		return new double[] {this.left() + W - 34 + 9.0, this.top() + 176 + 6.0};
@@ -120,7 +147,8 @@ public class HunterGuideScreen extends Screen {
 
 	/** Centre of a tab, in GUI pixels. */
 	public double[] tabCentre(final Tab tab) {
-		return new double[] {this.left() + 24 + tab.ordinal() * (TAB_W + 6) + TAB_W / 2.0, this.top() - TAB_H / 2.0};
+		// five bookmarks along the top edge, each just overlapping the next
+		return new double[] {this.left() + 2 + tab.ordinal() * (TAB_W - 1) + TAB_W / 2.0, this.top() - TAB_H / 2.0};
 	}
 
 	/** Top-left of a node's frame on the skills page, relative to the spread. */
@@ -170,6 +198,9 @@ public class HunterGuideScreen extends Screen {
 				return true;
 			}
 		}
+		if (this.tab == Tab.RECIPES && this.recipesClicked(mx, my)) {
+			return true;
+		}
 		if (this.tab == Tab.PAGES) {
 			int x = this.left();
 			int y = this.top();
@@ -209,7 +240,7 @@ public class HunterGuideScreen extends Screen {
 		Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(sound, 1.0F, 0.8F));
 	}
 
-	private static boolean inside(final double mx, final double my, final int x, final int y, final int w, final int h) {
+	static boolean inside(final double mx, final double my, final int x, final int y, final int w, final int h) {
 		return mx >= x && mx < x + w && my >= y && my < y + h;
 	}
 
@@ -260,6 +291,7 @@ public class HunterGuideScreen extends Screen {
 			case PAGES -> this.pages(g, x, y, mouseX, mouseY);
 			case STATS -> this.stats(g, x, y);
 			case SKILLS -> this.skills(g, x, y, mouseX, mouseY);
+			case RECIPES -> GuideRecipePages.draw(this, g, x, y, mouseX, mouseY);
 			case ACHIEVEMENTS -> {
 			}
 		}
