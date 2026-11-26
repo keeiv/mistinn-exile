@@ -1,21 +1,21 @@
 {
-	"_comment": "原地救援: the rescuer down on one knee beside the downed hunter, leaning over them, both hands pressed together on the wound. AidPose turns the body toward the hunter's chest, moves it in to kneel there, blends it in over a few ticks and presses in rhythm.",
+	"_comment": "原地救援: the rescuer down on both knees at the downed hunter's side, upright over them with the shoulders above the wound and both arms straight down, the hands together on it. AidPose turns the body to face the wound, moves it in to kneel at that side, blends it in over a few ticks and bobs the whole body to press in rhythm.",
 	"keys": [0.0, 1.0],
 	"eases": ["linear"],
 	"pivot": 0.0,
 	"root": {
-		"pitch": [18, 18],
-		"y": [-0.42, -0.42]
+		"pitch": [12, 12],
+		"y": [-0.5, -0.5]
 	},
 	"limbs": {
-		"head_x": [35, 35],
-		"body_x": [12, 12],
-		"right_arm_x": [-62, -62],
-		"right_arm_z": [-14, -14],
-		"left_arm_x": [-58, -58],
-		"left_arm_z": [14, 14],
-		"right_leg_x": [72, 72],
-		"left_leg_x": [-86, -86],
-		"left_leg_z": [-4, -4]
+		"head_x": [40, 40],
+		"right_arm_x": [-14, -14],
+		"right_arm_z": [-22, -22],
+		"left_arm_x": [-14, -14],
+		"left_arm_z": [22, 22],
+		"right_leg_x": [76, 76],
+		"right_leg_z": [3, 3],
+		"left_leg_x": [76, 76],
+		"left_leg_z": [-3, -3]
 	}
 }

@@ -53,6 +53,11 @@ public abstract class HumanoidRollMixin {
 			life.shizune.mistinn.client.team.DragPose.limbs(state, model);
 			return;
 		}
+		life.shizune.mistinn.client.team.AidPose.State aid = state.getData(life.shizune.mistinn.client.team.AidPose.KEY);
+		if (aid != null) {
+			life.shizune.mistinn.client.team.AidPose.limbs(aid, model);
+			return;
+		}
 		RollClient.Pose roll = state.getData(RollClient.KEY);
 		if (roll == null) {
 			return;
