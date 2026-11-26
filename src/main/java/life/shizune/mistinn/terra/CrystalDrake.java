@@ -4,6 +4,7 @@ import life.shizune.mistinn.registry.MistinnBlocks;
 import life.shizune.mistinn.weapon.WeaponStyle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -66,6 +67,7 @@ public class CrystalDrake extends Monster {
 	public static final float GLANCE = 0.7F;
 	public static final float CRACK = 1.3F;
 	private static final int BITE_SHOWN = 10;
+	private static final DustParticleOptions SHADOW = new DustParticleOptions(0x15141C, 1.8F);
 
 	/** What it is doing. */
 	public enum Mode {
@@ -80,6 +82,7 @@ public class CrystalDrake extends Monster {
 	private int timer = 40;
 	private int alone;
 	private Vec3 aim = Vec3.ZERO;
+	private int shadows;
 
 	private float aloftO;
 	private float aloft;
@@ -164,6 +167,8 @@ public class CrystalDrake extends Monster {
 					this.setMode(Mode.SWOOP);
 					this.timer = 100;
 					this.playSound(SoundEvents.PHANTOM_SWOOP, 2.0F, 1.4F);
+					// a shriek of crystal heard where it means to strike, whichever way its quarry looks
+					level.playSound(null, target.getX(), target.getY() + 2.0, target.getZ(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.HOSTILE, 1.6F, 1.8F);
 				} else if (target == null && this.alone > restless) {
 					this.setMode(Mode.LAND);
 					BlockPos ground = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, this.home);
@@ -175,6 +180,9 @@ public class CrystalDrake extends Monster {
 					this.climb();
 				} else {
 					this.aim = target.getEyePosition();
+					if (this.tickCount % 2 == 0) {
+						this.shadow(level, target);
+					}
 					if (this.getBoundingBox().inflate(0.8).intersects(target.getBoundingBox())) {
 						this.doHurtTarget(level, target);
 						this.entityData.set(DATA_BITE, BITE_SHOWN);
@@ -203,6 +211,29 @@ public class CrystalDrake extends Monster {
 		if (this.mode != Mode.REST) {
 			this.steer(this.mode == Mode.SWOOP ? SWOOP_SPEED : this.mode == Mode.LAND ? 0.3 : CIRCLE_SPEED);
 		}
+	}
+
+	/**
+	 * Its shadow on the ground round its quarry as it comes down, darker and wider the nearer it
+	 * is: the warning a hunter who is not looking up can still see.
+	 */
+	private void shadow(final ServerLevel level, final LivingEntity target) {
+		BlockPos floor = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, target.blockPosition());
+		double y = Math.abs(floor.getY() - target.getY()) < 3.0 ? floor.getY() + 0.1 : target.getY() + 0.1;
+		float near = Mth.clamp(1.0F - this.distanceTo(target) / 24.0F, 0.0F, 1.0F);
+		double reach = (0.6 + 1.4 * near) * Math.max(1.0, this.getBbWidth() / 1.6);
+		int points = 10 + (int) (reach * 4);
+		for (int i = 0; i < points; i++) {
+			double angle = i * Math.PI * 2.0 / points;
+			level.sendParticles(SHADOW, target.getX() + Math.cos(angle) * reach, y, target.getZ() + Math.sin(angle) * reach, 1, 0.0, 0.0, 0.0, 0.0);
+		}
+		level.sendParticles(SHADOW, target.getX(), y, target.getZ(), 2 + (int) (near * 6), reach * 0.4, 0.0, reach * 0.4, 0.0);
+		this.shadows++;
+	}
+
+	/** How many times its shadow has fallen on a quarry, for tests. */
+	public int shadows() {
+		return this.shadows;
 	}
 
 	/** How high over its quarry it circles. */
