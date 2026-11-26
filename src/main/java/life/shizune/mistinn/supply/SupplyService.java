@@ -32,12 +32,14 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BarrelBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -268,19 +270,24 @@ public final class SupplyService {
 
 	/** The barrel comes down: placed and filled, heard far off. */
 	private static void land(final ServerLevel level, final ServerPlayer player, final Drop drop, final Offer offer) {
-		// whatever was put there meanwhile, it comes down on top
-		BlockPos at = drop.at();
-		if (!level.getBlockState(at).canBeReplaced()) {
-			at = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, at);
+		// whatever was put there meanwhile, it comes down on top; it never breaks anything
+		BlockPos at = free(level, player, drop.at());
+		Vec3 c;
+		if (at == null) {
+			// nowhere to stand: the crate burst, and what was in it lies on the ground
+			c = Vec3.atBottomCenterOf(drop.at());
+			level.addFreshEntity(new ItemEntity(level, c.x, c.y + 0.5, c.z, offer.stack()));
+			player.removeAttached(DROP);
+		} else {
+			level.setBlock(at, Blocks.BARREL.defaultBlockState().setValue(BarrelBlock.FACING, Direction.UP), 3);
+			if (level.getBlockEntity(at) instanceof BarrelBlockEntity barrel) {
+				barrel.setItem(13, offer.stack());
+			}
+			if (!at.equals(drop.at())) {
+				player.setAttached(DROP, new Drop(at, drop.lands(), drop.until()));
+			}
+			c = Vec3.atBottomCenterOf(at);
 		}
-		level.setBlock(at, Blocks.BARREL.defaultBlockState().setValue(BarrelBlock.FACING, Direction.UP), 3);
-		if (level.getBlockEntity(at) instanceof BarrelBlockEntity barrel) {
-			barrel.setItem(13, offer.stack());
-		}
-		if (!at.equals(drop.at())) {
-			player.setAttached(DROP, new Drop(at, drop.lands(), drop.until()));
-		}
-		Vec3 c = Vec3.atBottomCenterOf(at);
 		level.sendParticles(ParticleTypes.EXPLOSION, true, true, c.x, c.y + 0.5, c.z, 2, 0.4, 0.2, 0.4, 0.0);
 		level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, true, true, c.x, c.y + 0.5, c.z, 16, 0.8, 0.3, 0.8, 0.02);
 		level.sendParticles(ParticleTypes.POOF, true, true, c.x, c.y + 0.3, c.z, 24, 1.0, 0.2, 1.0, 0.05);
@@ -288,6 +295,23 @@ public final class SupplyService {
 		level.playSound(null, c.x, c.y, c.z, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.6F, 0.6F);
 		NoiseService.hear(level, c, HEARD);
 		player.sendSystemMessage(Component.translatable("message.mistinn.supply.landed"));
+	}
+
+	/**
+	 * Where the barrel may stand: the spot, or the first of the few above it that is empty or
+	 * holds only something that gives way (grass, snow), with no block entity, no water, and
+	 * nothing the hunter may not touch there; null if none is.
+	 */
+	static @Nullable BlockPos free(final ServerLevel level, final ServerPlayer player, final BlockPos at) {
+		for (int up = 0; up < 8; up++) {
+			BlockPos p = at.above(up);
+			BlockState state = level.getBlockState(p);
+			if (level.isInWorldBounds(p) && (state.isAir() || state.canBeReplaced() && state.getFluidState().isEmpty())
+				&& level.getBlockEntity(p) == null && level.mayInteract(player, p)) {
+				return p;
+			}
+		}
+		return null;
 	}
 
 	/** A barrel down: it smokes until emptied, and the mark goes when it is, or in time. */
