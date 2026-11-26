@@ -1,0 +1,15 @@
+{
+  "values": [
+    "mistinn:facility_deck",
+    "mistinn:facility_deck_edge",
+    "mistinn:facility_deck_slab",
+    "mistinn:facility_panel",
+    "mistinn:facility_frame",
+    "mistinn:facility_conduit",
+    "mistinn:facility_lamp",
+    "mistinn:facility_crate",
+    "mistinn:facility_glass",
+    "mistinn:hazard_stripe",
+    "mistinn:hub_core"
+  ]
+}

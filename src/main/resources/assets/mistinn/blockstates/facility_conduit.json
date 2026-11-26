@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=y": {
+      "model": "mistinn:block/facility_conduit"
+    },
+    "axis=x": {
+      "model": "mistinn:block/facility_conduit",
+      "x": 90,
+      "y": 90
+    },
+    "axis=z": {
+      "model": "mistinn:block/facility_conduit",
+      "x": 90
+    }
+  }
+}

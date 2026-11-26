@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "mistinn:block/facility_deck_slab"
+    },
+    "type=double": {
+      "model": "mistinn:block/facility_deck_slab_double"
+    },
+    "type=top": {
+      "model": "mistinn:block/facility_deck_slab_top"
+    }
+  }
+}
