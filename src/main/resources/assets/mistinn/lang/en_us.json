@@ -1579,5 +1579,6 @@
   "naval.mistinn.captain.5": "Captain Sela White-Salt",
   "achievement.mistinn.pirate_ship": "Prize of the Fog Sea",
   "achievement.mistinn.pirate_ship.desc": "Take a pirate ship: its captain falls with you near",
-  "notice.mistinn.pirates": "Pirates sail the fog sea: far out of sight of land, a black-sailed ship may come for a hunter's salt. Take it, and its guns are yours."
+  "notice.mistinn.pirates": "Pirates sail the fog sea: far out of sight of land, a black-sailed ship may come for a hunter's salt. Take it, and its guns are yours.",
+  "hud.mistinn.naval.raiders": "Raiders of the fog sea · %s"
 }

@@ -86,6 +86,11 @@ public final class NavalService {
 	public static final int ACTIVE = 0;
 	public static final int TAKEN = 1;
 	public static final int LOST = 2;
+	/** Still sailing in out of the fog: no blocks yet, no crew. */
+	public static final int ARRIVING = 3;
+	/** How long the ship takes to sail in, and how far out it is first seen. */
+	public static final int APPROACH_TICKS = 220;
+	public static final int APPROACH = 72;
 
 	public static final ResourceKey<LootTable> CHEST = ResourceKey.create(Registries.LOOT_TABLE, Mistinn.id("chests/pirate_ship"));
 	public static final ResourceKey<LootTable> HOLD = ResourceKey.create(Registries.LOOT_TABLE, Mistinn.id("chests/pirate_hold"));
@@ -109,6 +114,15 @@ public final class NavalService {
 
 		Ship withState(final int state) {
 			return new Ship(this.id, this.origin, this.turn, this.name, this.notoriety, state, this.captain, this.since);
+		}
+
+		Ship arrived(final UUID captain) {
+			return new Ship(this.id, this.origin, this.turn, this.name, this.notoriety, ACTIVE, Optional.of(captain), this.since);
+		}
+
+		/** Whether its fight is still to be decided (sailing in, or heaved to with its captain alive). */
+		public boolean unresolved() {
+			return this.state == ACTIVE || this.state == ARRIVING;
 		}
 
 		public Component shipName() {
@@ -170,7 +184,9 @@ public final class NavalService {
 		}
 	}
 
-	private static final Map<UUID, Integer> SAILING = new HashMap<>();
+	private static final Map<UUID, Integer> AT_SEA = new HashMap<>();
+	/** The ships under sail now, by id. */
+	private static final Map<Integer, SailingShip> UNDER_SAIL = new HashMap<>();
 	private static final Map<Integer, Battle> BATTLES = new HashMap<>();
 	/** Where each ship lies, by id: what its crew reckon "aboard" from. */
 	private static final Map<Integer, ShipFrame> FRAMES = new HashMap<>();
@@ -183,12 +199,14 @@ public final class NavalService {
 
 	public static void register() {
 		NavalFx.register();
+		NavalIntroPayload.register();
 		ServerTickEvents.END_SERVER_TICK.register(NavalService::tick);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			BATTLES.values().forEach(battle -> battle.bar.removeAllPlayers());
 			BATTLES.clear();
 			FRAMES.clear();
-			SAILING.clear();
+			AT_SEA.clear();
+			UNDER_SAIL.clear();
 		});
 	}
 
@@ -241,6 +259,12 @@ public final class NavalService {
 		for (Ship ship : List.copyOf(sea(server).ships())) {
 			if (ship.state() == ACTIVE) {
 				fight(level, ship);
+			} else if (ship.state() == ARRIVING) {
+				SailingShip sailing = UNDER_SAIL.get(ship.id());
+				if ((sailing == null || sailing.isRemoved()) && level.isLoaded(ship.origin())) {
+					// the world was closed while it sailed in: it is where it was going
+					arrive(level, ship);
+				}
 			}
 		}
 	}
@@ -248,10 +272,10 @@ public final class NavalService {
 	/** A hunter at sea: how long they have sailed out of sight of land, and whether pirates come for them now. */
 	private static void sail(final ServerLevel level, final ServerPlayer player) {
 		if (!atSea(level, player)) {
-			SAILING.remove(player.getUUID());
+			AT_SEA.remove(player.getUUID());
 			return;
 		}
-		int sailed = SAILING.merge(player.getUUID(), 20, Integer::sum);
+		int sailed = AT_SEA.merge(player.getUUID(), 20, Integer::sum);
 		if (sailed < seaTime || level.getGameTime() < player.getAttachedOrElse(NEXT, 0L)) {
 			return;
 		}
@@ -259,13 +283,13 @@ public final class NavalService {
 			return;
 		}
 		for (Ship ship : sea(level.getServer()).ships()) {
-			if (ship.state() == ACTIVE && ship.frame().middle().distanceTo(player.position()) < APART) {
+			if (ship.unresolved() && ship.frame().middle().distanceTo(player.position()) < APART) {
 				return;
 			}
 		}
 		if (encounter(level, player) == null) {
 			// no open water to heave to in: try again a little later
-			SAILING.put(player.getUUID(), seaTime - 300);
+			AT_SEA.put(player.getUUID(), seaTime - 300);
 		}
 	}
 
@@ -301,7 +325,11 @@ public final class NavalService {
 
 	// ── A ship comes ──────────────────────────────────────────────
 
-	/** Pirates come for a hunter: a ship is found a place, raised, crewed, and the fight begins. Null when there was no room. */
+	/**
+	 * Pirates come for a hunter: a ship is found a berth and comes sailing in out of the fog toward it
+	 * (straight there when the way in is not open sea); when it is there it is raised and crewed and the
+	 * fight begins. Null when there was no room.
+	 */
 	public static @Nullable Ship encounter(final ServerLevel level, final ServerPlayer player) {
 		ShipFrame frame = heaveTo(level, player);
 		if (frame == null) {
@@ -312,19 +340,110 @@ public final class NavalService {
 		int id = sea.next();
 		int name = Math.floorMod(id * 7 + level.getRandom().nextInt(NAMES), NAMES);
 		int notoriety = Math.min(MAX_NOTORIETY, sea.taken());
-		UUID captain = raise(level, frame, id, name, notoriety);
-		Ship ship = new Ship(id, frame.origin(), frame.rotation().ordinal(), name, notoriety, ACTIVE, Optional.of(captain), level.getGameTime());
+		Vec3 berth = frame.world(0.5, 0.0, 0.5);
+		Vec3 bow = Vec3.atLowerCornerOf(frame.world(net.minecraft.core.Direction.EAST).getUnitVec3i());
+		int approach = approach(level, berth, bow);
+		Ship ship = new Ship(id, frame.origin(), frame.rotation().ordinal(), name, notoriety, ARRIVING, Optional.empty(), level.getGameTime());
 		List<Ship> ships = new ArrayList<>(sea.ships());
 		ships.add(ship);
 		save(server, new Sea(ships, id + 1, sea.taken()));
+		List<ServerPlayer> hunters = new ArrayList<>();
 		for (ServerPlayer hunter : level.players()) {
 			if (hunter.position().distanceTo(frame.middle()) < PART) {
 				hunter.setAttached(NEXT, level.getGameTime() + COOLDOWN);
-				SAILING.remove(hunter.getUUID());
-				arrive(hunter, ship);
+				AT_SEA.remove(hunter.getUUID());
+				hunters.add(hunter);
 			}
 		}
+		if (approach <= 0) {
+			arrive(level, ship);
+			hunters.forEach(hunter -> announceArrival(hunter, ship));
+			return ship(server, id);
+		}
+		SailingShip sailing = MistinnEntities.SAILING_SHIP.create(level, EntitySpawnReason.EVENT);
+		Vec3 start = berth.subtract(bow.scale(approach));
+		sailing.sail(id, frame.rotation(), start, berth, APPROACH_TICKS);
+		level.addFreshEntity(sailing);
+		UNDER_SAIL.put(id, sailing);
+		// the horn, from out in the fog where the ship comes from
+		level.playSound(null, start.x, start.y + 8.0, start.z, SoundEvents.RAID_HORN.value(), SoundSource.HOSTILE, 64.0F, 0.8F);
+		for (ServerPlayer hunter : hunters) {
+			net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(hunter, new NavalIntroPayload(sailing.getId(), name, APPROACH_TICKS));
+		}
 		return ship;
+	}
+
+	/** How far out the ship can be seen coming along its keel to its berth over open sea: the most of a few tries, or 0. */
+	private static int approach(final ServerLevel level, final Vec3 berth, final Vec3 bow) {
+		int sea = level.getSeaLevel();
+		for (int distance : new int[] {APPROACH, APPROACH * 2 / 3, APPROACH / 3}) {
+			boolean open = true;
+			for (int k = 1; k <= 6 && open; k++) {
+				Vec3 at = berth.subtract(bow.scale(distance * k / 6.0));
+				int x = Mth.floor(at.x);
+				int z = Mth.floor(at.z);
+				open = level.hasChunk(x >> 4, z >> 4) && level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, x, z) <= sea;
+			}
+			if (open) {
+				return distance;
+			}
+		}
+		return 0;
+	}
+
+	/** The ship under sail has reached its berth: the real one takes its place, crewed, and a warning shot is fired. */
+	public static void arrived(final ServerLevel level, final SailingShip sailing) {
+		UNDER_SAIL.remove(sailing.ship());
+		Ship ship = ship(level.getServer(), sailing.ship());
+		if (ship != null && ship.state() == ARRIVING) {
+			arrive(level, ship);
+			Ship now = ship(level.getServer(), ship.id());
+			for (ServerPlayer hunter : level.players()) {
+				if (hunter.position().distanceTo(ship.frame().middle()) < PART) {
+					announceArrival(hunter, now);
+				}
+			}
+			ServerPlayer nearest = null;
+			for (ServerPlayer hunter : level.players()) {
+				if (!hunter.isSpectator() && hunter.isAlive() && (nearest == null
+					|| hunter.distanceToSqr(ship.frame().middle()) < nearest.distanceToSqr(ship.frame().middle()))) {
+					nearest = hunter;
+				}
+			}
+			if (nearest != null && nearest.position().distanceTo(ship.frame().middle()) < GUN_FAR) {
+				warn(level, ship.frame(), nearest);
+			}
+		}
+	}
+
+	/** Raises a ship that was sailing in, crews it, and starts its fight. */
+	private static void arrive(final ServerLevel level, final Ship ship) {
+		UUID captain = raise(level, ship.frame(), ship.id(), ship.name(), ship.notoriety());
+		MinecraftServer server = level.getServer();
+		Sea sea = sea(server);
+		List<Ship> ships = new ArrayList<>();
+		for (Ship other : sea.ships()) {
+			ships.add(other.id() == ship.id() ? other.arrived(captain) : other);
+		}
+		save(server, new Sea(ships, sea.next(), sea.taken()));
+	}
+
+	/** A shot across the bow: it falls short, in front of the hunter, a column of spray between them and the ship. */
+	private static void warn(final ServerLevel level, final ShipFrame frame, final ServerPlayer target) {
+		int side = frame.local(target.position()).z >= 0.5 ? 0 : 3;
+		ShipPlan.Gun gun = ShipPlan.guns().get(side + 1);
+		Vec3 out = Vec3.atLowerCornerOf(frame.world(gun.out()).getUnitVec3i());
+		Vec3 muzzle = frame.centre(gun.muzzle()).add(0.0, 0.5, 0.0).add(out.scale(0.9));
+		Vec3 fallsShort = target.position().add(muzzle.subtract(target.position()).multiply(1.0, 0.0, 1.0).normalize().scale(7.0));
+		CannonShot shot = MistinnEntities.CANNON_SHOT.create(level, EntitySpawnReason.TRIGGERED);
+		if (shot == null) {
+			return;
+		}
+		shot.setPos(muzzle);
+		shot.aim(new Vec3(fallsShort.x, level.getSeaLevel() - 0.2, fallsShort.z), Mth.clamp((int) Math.round(muzzle.distanceTo(fallsShort) / 1.5), 16, 40));
+		level.addFreshEntity(shot);
+		level.playSound(null, muzzle.x, muzzle.y, muzzle.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 8.0F, 0.5F);
+		NavalFx.send(level, NavalFx.CANNON, muzzle, muzzle.add(out));
 	}
 
 	/**
@@ -400,10 +519,8 @@ public final class NavalService {
 		return pirate;
 	}
 
-	/** What a hunter is told when a ship comes for them: the horn across the water, and its name. */
-	private static void arrive(final ServerPlayer hunter, final Ship ship) {
-		Vec3 middle = ship.frame().middle();
-		hunter.level().playSound(null, middle.x, middle.y + 4.0, middle.z, SoundEvents.RAID_HORN.value(), SoundSource.HOSTILE, 64.0F, 0.85F);
+	/** What a hunter is told when the ship has heaved to: its name, and whose it is. */
+	private static void announceArrival(final ServerPlayer hunter, final Ship ship) {
 		hunter.sendSystemMessage(Component.translatable("message.mistinn.naval.arrive", ship.shipName(), ship.captainName()));
 	}
 
@@ -577,7 +694,9 @@ public final class NavalService {
 		BATTLES.values().forEach(battle -> battle.bar.removeAllPlayers());
 		BATTLES.clear();
 		FRAMES.clear();
-		SAILING.clear();
+		AT_SEA.clear();
+		UNDER_SAIL.values().forEach(Entity::discard);
+		UNDER_SAIL.clear();
 		server.overworld().removeAttached(SEA);
 	}
 }

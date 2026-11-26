@@ -193,6 +193,8 @@ public final class MistinnSounds {
 	public static final SoundEvent MUSIC_KEEPER = register("music.keeper");
 	public static final SoundEvent MUSIC_KEEPER_TURN = register("music.keeper_turn");
 	public static final SoundEvent MUSIC_KEEPER_DARK = register("music.keeper_dark");
+	/** The sea fight: drums, low strings and brass, from the ship's first sighting to the last pirate gone. */
+	public static final SoundEvent MUSIC_NAVAL = register("music.naval");
 
 	private MistinnSounds() {
 	}

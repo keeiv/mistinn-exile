@@ -18,5 +18,6 @@ public abstract class ShoreMistFogMixin {
 	private void mistinn$shoreMist(final Camera camera, final int renderDistance, final DeltaTracker deltaTracker, final float darken,
 		final ClientLevel level, final CallbackInfoReturnable<FogData> cir) {
 		ShoreMistClient.apply(cir.getReturnValue(), camera);
+		life.shizune.mistinn.client.naval.NavalClient.fog(cir.getReturnValue(), deltaTracker.getGameTimeDeltaPartialTick(false));
 	}
 }

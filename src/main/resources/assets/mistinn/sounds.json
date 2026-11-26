@@ -767,6 +767,14 @@
       }
     ]
   },
+  "music.naval": {
+    "sounds": [
+      {
+        "name": "mistinn:music/naval",
+        "stream": true
+      }
+    ]
+  },
   "music.keeper_dark": {
     "sounds": [
       {
