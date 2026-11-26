@@ -129,7 +129,7 @@ public class Tiller extends PathfinderMob implements Merchant {
 			}
 		});
 		this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Mob.class, 10, true, false,
-			(target, level) -> this.role() == Role.WARDEN && target instanceof Enemy && target.distanceTo(this) < 16.0F));
+			(target, level) -> this.role() == Role.WARDEN && target instanceof Enemy && !CrystalLizard.companion(target) && target.distanceTo(this) < 16.0F));
 		this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class, 10, false, false,
 			(target, level) -> this.role() == Role.WARDEN && this.holdsAgainst(target)));
 	}

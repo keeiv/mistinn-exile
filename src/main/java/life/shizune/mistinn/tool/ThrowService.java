@@ -7,6 +7,7 @@ import life.shizune.mistinn.enemy.NoiseService;
 import life.shizune.mistinn.enemy.StaggerService;
 import life.shizune.mistinn.enemy.WindupService;
 import life.shizune.mistinn.registry.MistinnItems;
+import life.shizune.mistinn.terra.CrystalLizard;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.BlockPos;
@@ -109,7 +110,8 @@ public final class ThrowService {
 		level.playSound(null, at.x, at.y, at.z, SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 1.2F, 0.6F);
 		level.playSound(null, at.x, at.y, at.z, SoundEvents.SAND_BREAK, SoundSource.PLAYERS, 1.5F, 0.8F);
 		DamageSource source = thrown != null ? level.damageSources().thrown(thrown, thrower) : level.damageSources().generic();
-		for (Mob mob : level.getEntitiesOfClass(Mob.class, new AABB(at, at).inflate(BURST), m -> m.isAlive() && m instanceof Enemy && m.position().distanceTo(at) <= BURST)) {
+		for (Mob mob : level.getEntitiesOfClass(Mob.class, new AABB(at, at).inflate(BURST),
+			m -> m.isAlive() && m instanceof Enemy && !CrystalLizard.companion(m) && m.position().distanceTo(at) <= BURST)) {
 			WindupService.interrupt(mob);
 			Vec3 away = mob.position().subtract(at).multiply(1.0, 0.0, 1.0);
 			StaggerService.stagger(mob, StaggerService.TICKS, away.lengthSqr() < 1.0E-4 ? new Vec3(0.0, 0.0, 1.0) : away.normalize());
@@ -131,7 +133,8 @@ public final class ThrowService {
 
 	private static void reveal(final ServerLevel level, final BlockPos at) {
 		Vec3 centre = Vec3.atCenterOf(at);
-		for (Mob mob : level.getEntitiesOfClass(Mob.class, new AABB(at).inflate(REVEAL), m -> m.isAlive() && m instanceof Enemy && m.position().distanceTo(centre) <= REVEAL)) {
+		for (Mob mob : level.getEntitiesOfClass(Mob.class, new AABB(at).inflate(REVEAL),
+			m -> m.isAlive() && m instanceof Enemy && !CrystalLizard.companion(m) && m.position().distanceTo(centre) <= REVEAL)) {
 			mob.addEffect(new MobEffectInstance(MobEffects.GLOWING, REVEAL_EVERY + 20, 0, false, false));
 		}
 	}

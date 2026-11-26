@@ -11,6 +11,7 @@ import life.shizune.mistinn.achievement.Achievement;
 import life.shizune.mistinn.achievement.AchievementService;
 import life.shizune.mistinn.hardship.Hardship;
 import life.shizune.mistinn.story.WorldMode;
+import life.shizune.mistinn.terra.CrystalLizard;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
@@ -202,7 +203,8 @@ public final class TideService {
 			if (!player.isAlive() || player.isSpectator() || player.isCreative()) {
 				continue;
 			}
-			if (level.getEntitiesOfClass(net.minecraft.world.entity.Mob.class, player.getBoundingBox().inflate(CROWD_RANGE), mob -> mob instanceof Enemy).size() >= CROWD) {
+			if (level.getEntitiesOfClass(net.minecraft.world.entity.Mob.class, player.getBoundingBox().inflate(CROWD_RANGE),
+				mob -> mob instanceof Enemy && !CrystalLizard.companion(mob)).size() >= CROWD) {
 				continue;
 			}
 			int count = 1 + random.nextInt(3);
