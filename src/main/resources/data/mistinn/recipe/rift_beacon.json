@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": "mistinn:rift_shard",
+    "C": "mistinn:crystal_core",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    " S ",
+    "SCS",
+    "SIS"
+  ],
+  "result": {
+    "id": "mistinn:rift_beacon",
+    "count": 1
+  }
+}
