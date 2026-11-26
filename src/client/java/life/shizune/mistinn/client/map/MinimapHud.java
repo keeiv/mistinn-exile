@@ -102,6 +102,13 @@ public final class MinimapHud implements HudElement {
 			g.text(font, line, x + size - font.width(line), textY + 12, TEXT, true);
 		}
 
+		// a standing bounty: a red cross, pinned to the edge when far
+		net.minecraft.core.BlockPos bounty = player.getAttached(life.shizune.mistinn.bounty.BountyService.MARK);
+		if (bounty != null && player.level().dimension() == net.minecraft.world.level.Level.OVERWORLD) {
+			int[] at = place(bounty.getX() + 0.5 - originX, bounty.getZ() + 0.5 - originZ, scale, cx, cy, size);
+			drawBounty(g, at[0], at[1], (player.tickCount / 10) % 2 == 0 || at[2] == 1);
+		}
+
 		// the team's beacons, each in its colour, pinned to the edge when far
 		for (life.shizune.mistinn.team.MarkerService.Marker marker : life.shizune.mistinn.client.team.MarkerClient.markers()) {
 			if (marker.dimension().equals(player.level().dimension().identifier())) {
@@ -176,6 +183,19 @@ public final class MinimapHud implements HudElement {
 			mz *= k;
 		}
 		return new int[] {cx + (int) Math.round(mx), cy + (int) Math.round(mz), inside ? 1 : 0};
+	}
+
+	/** A bounty: a red cross with a dark rim, bright or dim as it blinks. */
+	private static void drawBounty(final GuiGraphicsExtractor g, final int x, final int y, final boolean bright) {
+		int core = bright ? 0xFFE0402A : 0xFF8A2A20;
+		for (int i = -3; i <= 3; i++) {
+			g.fill(x + i - 1, y + i - 1, x + i + 2, y + i + 2, 0xFF1A0806);
+			g.fill(x + i - 1, y - i - 1, x + i + 2, y - i + 2, 0xFF1A0806);
+		}
+		for (int i = -2; i <= 2; i++) {
+			g.fill(x + i, y + i, x + i + 1, y + i + 1, core);
+			g.fill(x + i, y - i, x + i + 1, y - i + 1, core);
+		}
 	}
 
 	/** The story's goal: a small amber diamond with a dark rim. */

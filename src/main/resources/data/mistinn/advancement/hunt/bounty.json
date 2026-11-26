@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/elite_slain",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.bounty.desc"
+		},
+		"icon": {
+			"id": "minecraft:filled_map"
+		},
+		"title": {
+			"translate": "achievement.mistinn.bounty"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}
