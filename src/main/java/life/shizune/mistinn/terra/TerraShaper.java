@@ -59,6 +59,11 @@ public final class TerraShaper implements DomainService.Shaper {
 	private static final int PINE_CELL = 8;
 	/** How high a terrace step is. */
 	private static final int TERRACE = 3;
+	/** How likely a step's face is to have a spring in it, for every step it drops; and the most it can be. */
+	public static final double SPRING = 0.012;
+	private static final double SPRING_MOST = 0.036;
+	/** For tests: how many times more likely a spring is (0 for none). */
+	public static double springs = 1.0;
 
 	private static ResourceKey<Biome> key(final String name) {
 		return ResourceKey.create(Registries.BIOME, Mistinn.id(name));
@@ -171,7 +176,8 @@ public final class TerraShaper implements DomainService.Shaper {
 	 * sea's level: the ground is built up to its step (never cut down, so nothing standing on it is
 	 * left hanging, and never where something already stands), the step's face walled in vein
 	 * stone bricks where it stands above a neighbour's, and some level stretches flooded as
-	 * paddies. Returns the column's ground now.
+	 * paddies. Here and there a spring wells out of a step's face, just under its edge, and falls
+	 * to the step below: the taller the face, the likelier. Returns the column's ground now.
 	 */
 	private static int terrace(final ServerLevel level, final LevelChunk chunk, final Domain domain, final int x, final int ground, final int z) {
 		int sea = level.getSeaLevel();
@@ -208,6 +214,10 @@ public final class TerraShaper implements DomainService.Shaper {
 		}
 		if (lowest == step && paddy(domain, x, z, step)) {
 			level.setBlock(at.set(x, step, z), Blocks.WATER.defaultBlockState(), Block.UPDATE_ALL);
+		}
+		if (step - lowest >= TERRACE && hash(x, z, domain.id() + 131) < Math.min(SPRING_MOST, SPRING * ((step - lowest) / TERRACE)) * springs) {
+			// walled in stone on three sides and the turf above: it can only run out of the face, and down
+			level.setBlock(at.set(x, step - 1, z), Blocks.WATER.defaultBlockState(), Block.UPDATE_ALL);
 		}
 		return step;
 	}
