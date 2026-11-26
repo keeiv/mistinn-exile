@@ -109,6 +109,14 @@ public final class MinimapHud implements HudElement {
 			drawBounty(g, at[0], at[1], (player.tickCount / 10) % 2 == 0 || at[2] == 1);
 		}
 
+		// a supply barrel coming down or lying where it fell, pinned to the edge when far
+		life.shizune.mistinn.supply.SupplyService.Drop drop = player.getAttached(life.shizune.mistinn.supply.SupplyService.DROP);
+		if (drop != null && player.level().dimension() == net.minecraft.world.level.Level.OVERWORLD) {
+			int[] at = place(drop.at().getX() + 0.5 - originX, drop.at().getZ() + 0.5 - originZ, scale, cx, cy, size);
+			boolean falling = player.level().getGameTime() < drop.lands();
+			drawSupply(g, at[0], at[1], !falling || (player.tickCount / 5) % 2 == 0);
+		}
+
 		// the team's beacons, each in its colour, pinned to the edge when far
 		for (life.shizune.mistinn.team.MarkerService.Marker marker : life.shizune.mistinn.client.team.MarkerClient.markers()) {
 			if (marker.dimension().equals(player.level().dimension().identifier())) {
@@ -183,6 +191,14 @@ public final class MinimapHud implements HudElement {
 			mz *= k;
 		}
 		return new int[] {cx + (int) Math.round(mx), cy + (int) Math.round(mz), inside ? 1 : 0};
+	}
+
+	/** A supply barrel: a small brown square banded in iron, with a dark rim; dim as it blinks while falling. */
+	private static void drawSupply(final GuiGraphicsExtractor g, final int x, final int y, final boolean bright) {
+		g.fill(x - 3, y - 3, x + 4, y + 4, 0xFF1A1008);
+		g.fill(x - 2, y - 2, x + 3, y + 3, bright ? 0xFFB07A3C : 0xFF6E4C26);
+		g.fill(x - 2, y - 1, x + 3, y, bright ? 0xFF4A4A4E : 0xFF2E2E30);
+		g.fill(x - 2, y + 1, x + 3, y + 2, bright ? 0xFF4A4A4E : 0xFF2E2E30);
 	}
 
 	/** A bounty: a red cross with a dark rim, bright or dim as it blinks. */

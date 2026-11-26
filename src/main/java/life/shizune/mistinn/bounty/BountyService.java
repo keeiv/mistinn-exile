@@ -212,7 +212,7 @@ public final class BountyService {
 	}
 
 	/** Which way the place lies from the hunter, as a compass point. */
-	private static Component direction(final ServerPlayer player, final BlockPos at) {
+	public static Component direction(final ServerPlayer player, final BlockPos at) {
 		double angle = Math.toDegrees(Math.atan2(at.getX() - player.getX(), -(at.getZ() - player.getZ())));
 		int point = Math.floorMod(Math.round((float) angle / 45.0F), 8);
 		return Component.translatable("direction.mistinn." + new String[] {"n", "ne", "e", "se", "s", "sw", "w", "nw"}[point]);

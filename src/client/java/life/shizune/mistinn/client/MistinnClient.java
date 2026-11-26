@@ -64,6 +64,8 @@ public class MistinnClient implements ClientModInitializer {
 		life.shizune.mistinn.story.HunterGuideItem.opener = () -> net.minecraft.client.Minecraft.getInstance().gui.setScreen(new life.shizune.mistinn.client.guide.HunterGuideScreen());
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.skill.SkillService.UnlockResultPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.guide.HunterGuideScreen.answered(payload));
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.supply.SupplyService.OrderResultPayload.TYPE,
+			(payload, context) -> life.shizune.mistinn.client.guide.HunterGuideScreen.supplied(payload));
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.weapon.HeavyService.HeavyAnimPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.anim.HeavyClient.received(payload));
 		life.shizune.mistinn.weapon.WeaponItem.releasedOnClient = life.shizune.mistinn.client.anim.HeavyClient::released;
