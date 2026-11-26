@@ -109,8 +109,10 @@ public final class DownService {
 		.syncWith(Down.STREAM_CODEC, AttachmentSyncPredicate.all())
 		.buildAndRegister(Mistinn.id("down"));
 
-	/** How many other hunters are on their feet; tests put a teammate here that the player list cannot hold. */
-	public static ToIntFunction<ServerPlayer> standing = DownService::othersStanding;
+	/** How many other hunters are on their feet, counted from the player list. */
+	public static final ToIntFunction<ServerPlayer> STANDING = DownService::othersStanding;
+	/** What {@link #goesDown} counts with; tests put a teammate here that the player list cannot hold. */
+	public static ToIntFunction<ServerPlayer> standing = STANDING;
 
 	private DownService() {
 	}
@@ -250,6 +252,51 @@ public final class DownService {
 		return true;
 	}
 
+	/**
+	 * A rescuer's key. F held starts the rescue in place, and F let go ends it (a drag goes on: the
+	 * key may be let go before the server has even heard it was dragging); H starts or stops dragging.
+	 */
+	public static void handle(final ServerPlayer rescuer, final RescuePayload payload) {
+		if (rescuer.level().getEntity(payload.casualty()) instanceof ServerPlayer casualty) {
+			handle(rescuer, casualty, payload.action());
+		}
+	}
+
+	/** {@link #handle(ServerPlayer, RescuePayload)} for the casualty itself. */
+	public static void handle(final ServerPlayer rescuer, final ServerPlayer casualty, final int action) {
+		Down down = get(casualty);
+		switch (action) {
+			case RescuePayload.HOLD -> startRescue(rescuer, casualty, false);
+			case RescuePayload.DRAG -> {
+				if (down != null && down.rescuer() == rescuer.getId() && down.dragging()) {
+					stopRescue(rescuer, casualty);
+				} else {
+					startRescue(rescuer, casualty, true);
+				}
+			}
+			default -> {
+				if (down != null && down.rescuer() == rescuer.getId() && !down.dragging()) {
+					stopRescue(rescuer, casualty);
+				}
+			}
+		}
+	}
+
+	/** A rescuer who swings at something lets go of whoever they were helping. */
+	public static void letGo(final ServerPlayer rescuer) {
+		for (ServerPlayer other : rescuer.level().getServer().getPlayerList().getPlayers()) {
+			letGo(rescuer, other);
+		}
+	}
+
+	/** {@link #letGo(ServerPlayer)} for one casualty. */
+	public static void letGo(final ServerPlayer rescuer, final ServerPlayer casualty) {
+		Down down = get(casualty);
+		if (down != null && down.rescuer() == rescuer.getId()) {
+			stopRescue(rescuer, casualty);
+		}
+	}
+
 	/** The rescuer lets go: what was done is lost. */
 	public static void stopRescue(final ServerPlayer rescuer, final ServerPlayer casualty) {
 		Down down = get(casualty);
@@ -263,24 +310,7 @@ public final class DownService {
 
 	public static void register() {
 		PayloadTypeRegistry.serverboundPlay().register(RescuePayload.TYPE, RescuePayload.CODEC);
-		ServerPlayNetworking.registerGlobalReceiver(RescuePayload.TYPE, (payload, context) -> {
-			ServerPlayer rescuer = context.player();
-			if (!(rescuer.level().getEntity(payload.casualty()) instanceof ServerPlayer casualty)) {
-				return;
-			}
-			switch (payload.action()) {
-				case RescuePayload.HOLD -> startRescue(rescuer, casualty, false);
-				case RescuePayload.DRAG -> {
-					Down down = get(casualty);
-					if (down != null && down.rescuer() == rescuer.getId() && down.dragging()) {
-						stopRescue(rescuer, casualty);
-					} else {
-						startRescue(rescuer, casualty, true);
-					}
-				}
-				default -> stopRescue(rescuer, casualty);
-			}
-		});
+		ServerPlayNetworking.registerGlobalReceiver(RescuePayload.TYPE, (payload, context) -> handle(context.player(), payload));
 		ServerTickEvents.END_SERVER_TICK.register(DownService::tickAll);
 		ServerPlayerEvents.JOIN.register(player -> {
 			Down down = get(player);
@@ -299,6 +329,9 @@ public final class DownService {
 		AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
 			if (isDown(player)) {
 				return InteractionResult.FAIL;
+			}
+			if (player instanceof ServerPlayer rescuer) {
+				letGo(rescuer);
 			}
 			return InteractionResult.PASS;
 		});

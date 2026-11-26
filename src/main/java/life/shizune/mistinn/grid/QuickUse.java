@@ -191,8 +191,8 @@ public final class QuickUse {
 			stopEating(player);
 			ItemStack used = stack.copy();
 			UseRemainder remainder = used.get(DataComponents.USE_REMAINDER);
-			Consumable consumable = used.get(DataComponents.CONSUMABLE);
-			ItemStack left = consumable == null ? used : consumable.onConsume(player.level(), player, used);
+			// the item's own way of being eaten, as from the hand: spoiled food spoils the stomach here too
+			ItemStack left = used.getItem().finishUsingItem(used, player.level(), player);
 			put(player, eating.spot(), left);
 			if (remainder != null) {
 				// the bowl of a soup comes back to the hunter

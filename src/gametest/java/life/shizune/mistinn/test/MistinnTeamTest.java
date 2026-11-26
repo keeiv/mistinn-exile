@@ -48,6 +48,9 @@ public final class MistinnTeamTest implements FabricClientGameTest {
 			world.getServer().runOnServer(MistinnTeamTest::anOldWorldsSkillsAreShared);
 			world.getServer().runOnServer(MistinnTeamTest::theFourthIsTurnedAway);
 			world.getServer().runOnServer(MistinnTeamTest::oldHuntersReadWhatChangedOnce);
+			// how the notices read in the chat of an old world
+			context.waitTicks(5);
+			context.takeScreenshot("mistinn-update-notice");
 		} finally {
 			TeamService.limit = TeamService.MAX_HUNTERS;
 		}

@@ -50,6 +50,8 @@ public final class MistinnQuickUseTest implements FabricClientGameTest {
 			eatingFromThePocket(context, world);
 			theBowlComesBack(context, world);
 			world.getServer().runOnServer(MistinnQuickUseTest::fullHuntersDoNotEat);
+			eatenAsFromTheHand(context, world);
+			aRepairKitFromThePouch(context, world);
 			theWheelPicksWithTheMouse(context, world);
 			context.getInput().pressKey(InputConstants.KEY_B);
 			context.waitTicks(3);
@@ -133,7 +135,7 @@ public final class MistinnQuickUseTest implements FabricClientGameTest {
 		world.getServer().runOnServer(server -> {
 			ServerPlayer player = player(server);
 			check(count(player, Items.MUSHROOM_STEW) == 0, "the stew is eaten");
-			check(count(player, Items.BOWL) == 1 || player.getInventory().countItem(Items.BOWL) == 1, "and its bowl comes back");
+			check(count(player, Items.BOWL) + player.getInventory().countItem(Items.BOWL) == 1, "and its one bowl comes back");
 		});
 	}
 
@@ -143,6 +145,54 @@ public final class MistinnQuickUseTest implements FabricClientGameTest {
 		player.getFoodData().setFoodLevel(20);
 		QuickUse.request(player, SECOND);
 		check(!QuickUse.eating(player) && QuickUse.at(player, SECOND).getCount() == 1, "a full hunter does not eat");
+	}
+
+	/** Station food feeds as it does from the hand, and damp food spoils the stomach as it does from the hand. */
+	private static void eatenAsFromTheHand(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			pockets(player, MistinnItems.FOODS.get(life.shizune.mistinn.food.StationFood.HARDTACK), null, null, null);
+			player.getFoodData().setFoodLevel(8);
+			QuickUse.request(player, FIRST);
+		});
+		// hardtack takes its time: longer than bread
+		context.waitTicks(80);
+		int[] cap = new int[1];
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			check(QuickUse.at(player, FIRST).isEmpty() && player.getFoodData().getFoodLevel() > 8, "station food feeds from the pouch");
+			cap[0] = life.shizune.mistinn.food.HungerCap.of(player);
+			pockets(player, MistinnItems.DAMP_FOOD, null, null, null);
+			player.getFoodData().setFoodLevel(4);
+			QuickUse.request(player, FIRST);
+		});
+		context.waitTicks(80);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			check(QuickUse.at(player, FIRST).isEmpty(), "the damp food is eaten");
+			check(life.shizune.mistinn.food.HungerCap.of(player) < cap[0], "and spoils the stomach as from the hand: " + cap[0] + " -> " + life.shizune.mistinn.food.HungerCap.of(player));
+		});
+	}
+
+	/** A helmet repair kit used from the pouch mends the worn helmet, as the user asked of the wheel. */
+	private static void aRepairKitFromThePouch(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			ItemStack helmet = new ItemStack(MistinnItems.HELMETS.get(3));
+			helmet.setDamageValue(helmet.getMaxDamage() / 2);
+			player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, helmet);
+			pockets(player, MistinnItems.HELMET_REPAIR_KITS.getFirst(), null, null, null);
+			QuickUse.request(player, FIRST);
+			check(TreatmentService.active(player), "the repair starts from the pouch");
+		});
+		context.waitTicks(200);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			check(!TreatmentService.active(player), "done");
+			check(player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).getDamageValue()
+				< player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).getMaxDamage() / 2, "the worn helmet is mended");
+			check(QuickUse.at(player, FIRST).isEmpty(), "and the kit spent where it lay");
+		});
 	}
 
 	/** The key held, the pick moved to the bread, the key let go: the bread is eaten. */
