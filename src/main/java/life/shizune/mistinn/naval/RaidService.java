@@ -123,7 +123,9 @@ public final class RaidService {
 			return;
 		}
 		for (ServerPlayer player : level.players()) {
-			if (eligible(level, player) && (certain || level.getRandom().nextFloat() < CHANCE)) {
+			// the fog tide brings them in twice as readily
+			float chance = life.shizune.mistinn.tide.TideService.up(server) ? CHANCE * 2.0F : CHANCE;
+			if (eligible(level, player) && (certain || level.getRandom().nextFloat() < chance)) {
 				land(level, player);
 			}
 		}

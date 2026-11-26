@@ -208,6 +208,10 @@ public final class EliteService {
 			chance += NIGHT;
 		}
 		chance += Math.min(MOST_DISTANT, (float) (distance(level, at) / 500.0) * PER_500);
+		// twice as many under the fog tide
+		if (level.dimension().equals(Level.OVERWORLD) && life.shizune.mistinn.tide.TideService.up(level.getServer())) {
+			chance *= 2.0F;
+		}
 		float hardship = switch (Hardship.of(level.getServer())) {
 			case EASY -> 0.5F;
 			case NORMAL -> 1.0F;

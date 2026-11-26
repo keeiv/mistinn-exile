@@ -353,6 +353,13 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		check(has(world, Achievement.ELITE_SLAIN) && has(world, Achievement.ELITE_TRIPLE), "the elites' deeds are remembered");
 		int gainedElite = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeElite;
 		check(gainedElite == 300 + 900, "and pay 1200 between them: " + gainedElite);
+		// coming through a fog tide (MistinnTideTest earns it)
+		int beforeTide = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
+		world.getServer().runOnServer(server -> AchievementService.grant(player(server), AchievementService.TIDE));
+		context.waitTicks(5);
+		check(has(world, Achievement.TIDE), "the tide's deed is remembered");
+		int gainedTide = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeTide;
+		check(gainedTide == 500, "and pays 500: " + gainedTide);
 		// the hidden one (MistinnApostleTest earns it the way the game does)
 		int beforeApostle = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
 		world.getServer().runOnServer(server -> AchievementService.grant(player(server), AchievementService.APOSTLE));

@@ -28,6 +28,7 @@ public enum Achievement {
 	SHARPSHOOTER(AchievementService.SHARPSHOOTER, 300),
 	ELITE_SLAIN(AchievementService.ELITE_SLAIN, 300),
 	ELITE_TRIPLE(AchievementService.ELITE_TRIPLE, 900),
+	TIDE(AchievementService.TIDE, 500),
 	ENDING_ANCHOR(AchievementService.ENDING_ANCHOR, 2000),
 	ENDING_INN(AchievementService.ENDING_INN, 2000),
 	REVIVE_LIMB("revive_limb", 150),

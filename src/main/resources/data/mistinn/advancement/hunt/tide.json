@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/first_kill",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.tide.desc"
+		},
+		"icon": {
+			"id": "minecraft:bell"
+		},
+		"title": {
+			"translate": "achievement.mistinn.tide"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}
