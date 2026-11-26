@@ -26,7 +26,11 @@ public final class BellService {
 	private BellService() {
 	}
 
-	/** Binds the hunter to a ready bell. The bell itself tracks when it can ring again. */
+	/**
+	 * Binds the hunter to a bell that is ready for them, and the bell restores them: every part
+	 * whole again (a lost limb stays lost), wounds closed, fed, the fire out, and every harmful
+	 * effect gone. Each hunter has their own cooldown and their own claim on a one-time bell.
+	 */
 	public static boolean rest(final ServerPlayer player, final BlockPos pos) {
 		ServerLevel level = player.level();
 		if (!(level.getBlockState(pos).getBlock() instanceof GoldenBellBlock block)
@@ -35,7 +39,7 @@ public final class BellService {
 		}
 		boolean oneTime = block.isOneTime();
 		if (oneTime) {
-			if (bell.claimed()) {
+			if (!bell.mayClaim(player.getUUID())) {
 				player.sendSystemMessage(Component.translatable("message.mistinn.bell.claimed"), true);
 				return false;
 			}
@@ -43,7 +47,7 @@ public final class BellService {
 			player.setAttached(MistinnAttachments.ONE_TIME_BELL, true);
 		} else {
 			long now = System.currentTimeMillis();
-			long remaining = bell.remainingCooldown(now);
+			long remaining = bell.remainingCooldown(player.getUUID(), now);
 			if (remaining > 0L) {
 				long minutes = Math.ceilDiv(remaining, TimeUnit.MINUTES.toMillis(1));
 				player.sendSystemMessage(Component.translatable("message.mistinn.bell.cooldown", minutes), true);
@@ -51,10 +55,11 @@ public final class BellService {
 				StoryService.rested(player);
 				return false;
 			}
-			bell.startCooldown(now);
+			bell.startCooldown(player.getUUID(), now);
 			player.removeAttached(MistinnAttachments.ONE_TIME_BELL);
 		}
 		player.setAttached(MistinnAttachments.BELL, GlobalPos.of(level.dimension(), pos));
+		restore(player);
 		level.playSound(null, pos, MistinnSounds.GOLDEN_BELL_REST, SoundSource.BLOCKS, oneTime ? 0.35F : 1.0F, oneTime ? 1.12F : 1.0F);
 		level.sendParticles(oneTime ? ParticleTypes.WAX_ON : ParticleTypes.END_ROD,
 			pos.getX() + 0.5, pos.getY() + 0.8, pos.getZ() + 0.5, oneTime ? 6 : 24, 0.4, 0.5, 0.4, 0.02);
@@ -64,6 +69,20 @@ public final class BellService {
 		// the bell carries over the shore, and the dead come to it
 		life.shizune.mistinn.enemy.NoiseService.emit(player, life.shizune.mistinn.enemy.NoiseService.Noise.BELL);
 		return true;
+	}
+
+	/** What a bell's ring restores: parts, wounds, hunger, fire and harmful effects. */
+	public static void restore(final ServerPlayer player) {
+		life.shizune.mistinn.body.BodyService.restoreAll(player);
+		life.shizune.mistinn.body.WoundService.clearAll(player);
+		player.getFoodData().setFoodLevel(20);
+		player.getFoodData().setSaturation(5.0F);
+		player.clearFire();
+		for (net.minecraft.world.effect.MobEffectInstance effect : java.util.List.copyOf(player.getActiveEffects())) {
+			if (effect.getEffect().value().getCategory() == net.minecraft.world.effect.MobEffectCategory.HARMFUL) {
+				player.removeEffect(effect.getEffect());
+			}
+		}
 	}
 
 	/** Respawned players waiting to be moved to their bell, with the ticks left to wait. */
@@ -118,12 +137,19 @@ public final class BellService {
 			return;
 		}
 		if (block.isOneTime()) {
-			level.setBlockAndUpdate(bell.pos(), Blocks.AIR.defaultBlockState());
-			level.playSound(null, bell.pos(), MistinnSounds.ORE_BELL_BREAK, SoundSource.BLOCKS, 1.0F, 1.0F);
-			level.sendParticles(ParticleTypes.WAX_OFF, bell.pos().getX() + 0.5, bell.pos().getY() + 0.5, bell.pos().getZ() + 0.5, 30, 0.3, 0.4, 0.3, 0.05);
+			// each hunter it took is brought back once; it cracks when the last of them has been
+			boolean last = !(level.getBlockEntity(bell.pos()) instanceof BellBlockEntity entity) || entity.spend(player.getUUID());
 			player.removeAttached(MistinnAttachments.BELL);
 			player.removeAttached(MistinnAttachments.ONE_TIME_BELL);
-			player.sendSystemMessage(Component.translatable("message.mistinn.bell.cracked"), false);
+			if (last) {
+				level.setBlockAndUpdate(bell.pos(), Blocks.AIR.defaultBlockState());
+				level.playSound(null, bell.pos(), MistinnSounds.ORE_BELL_BREAK, SoundSource.BLOCKS, 1.0F, 1.0F);
+				level.sendParticles(ParticleTypes.WAX_OFF, bell.pos().getX() + 0.5, bell.pos().getY() + 0.5, bell.pos().getZ() + 0.5, 30, 0.3, 0.4, 0.3, 0.05);
+				player.sendSystemMessage(Component.translatable("message.mistinn.bell.cracked"), false);
+			} else {
+				level.playSound(null, bell.pos(), MistinnSounds.GOLDEN_BELL_REST, SoundSource.BLOCKS, 0.3F, 1.2F);
+				player.sendSystemMessage(Component.translatable("message.mistinn.bell.spent"), false);
+			}
 		} else {
 			level.playSound(null, bell.pos(), MistinnSounds.GOLDEN_BELL_REST, SoundSource.BLOCKS, 0.6F, 0.8F);
 			player.sendSystemMessage(Component.translatable("message.mistinn.bell.returned"), true);

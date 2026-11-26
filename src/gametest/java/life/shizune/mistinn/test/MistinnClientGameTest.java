@@ -1212,8 +1212,8 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 		player.getFoodData().setSaturation(2.0F);
 		ringBell(player, first);
 		check(GlobalPos.of(level.dimension(), first).equals(player.getAttached(MistinnAttachments.BELL)), "ringing a ready golden bell binds it");
-		check(injured.equals(BodyService.get(player)) && wounded.equals(WoundService.get(player)) && player.getHealth() == health
-			&& player.getFoodData().getFoodLevel() == 11 && player.getFoodData().getSaturationLevel() == 2.0F, "normal bells preserve injuries, health, and hunger");
+		check(!injured.equals(BodyService.get(player)) && !WoundService.get(player).any() && player.getFoodData().getFoodLevel() == 20,
+			"a ready bell restores the hunter: parts whole, wounds closed, fed (" + health + " before)");
 		ringBell(player, second);
 		GlobalPos secondBell = GlobalPos.of(level.dimension(), second);
 		check(secondBell.equals(player.getAttached(MistinnAttachments.BELL)), "a different golden bell can be rung immediately");
@@ -1227,9 +1227,11 @@ public class MistinnClientGameTest implements FabricClientGameTest {
 		ringBell(player, first);
 		check(secondBell.equals(player.getAttached(MistinnAttachments.BELL)), "a cooling bell stays on cooldown after reloading its saved data");
 		check(!Block.getDrops(level.getBlockState(ore), level, ore, level.getBlockEntity(ore)).isEmpty(), "an unclaimed one-time bell drops when broken");
+		BodyService.set(player, injured);
+		WoundService.set(player, wounded);
 		ringBell(player, ore);
 		check(GlobalPos.of(level.dimension(), ore).equals(player.getAttached(MistinnAttachments.BELL)), "a one-time bell binds on its first ring");
-		check(injured.equals(BodyService.get(player)) && wounded.equals(WoundService.get(player)), "a one-time bell preserves injuries");
+		check(!injured.equals(BodyService.get(player)) && !WoundService.get(player).any(), "and restores the hunter as well");
 		check(Block.getDrops(level.getBlockState(ore), level, ore, level.getBlockEntity(ore)).isEmpty(), "a claimed one-time bell cannot be picked up to reset it");
 		player.setAttached(MistinnAttachments.BELL, secondBell);
 		ringBell(player, ore);
