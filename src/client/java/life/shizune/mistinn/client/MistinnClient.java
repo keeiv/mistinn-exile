@@ -170,7 +170,9 @@ public class MistinnClient implements ClientModInitializer {
 		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.terra.CrystalDrakeModel.LAYER,
 			life.shizune.mistinn.client.terra.CrystalDrakeModel::createBodyLayer);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.CRYSTAL_DRAKE,
-			life.shizune.mistinn.client.terra.CrystalDrakeRenderer::new);
+			life.shizune.mistinn.client.terra.CrystalDrakeRenderer::drake);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.CRYSTAL_ELDER,
+			life.shizune.mistinn.client.terra.CrystalDrakeRenderer::elder);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.TILLER,
 			life.shizune.mistinn.client.terra.TillerRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.RIFT_WALKER,

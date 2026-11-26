@@ -33,6 +33,7 @@ public enum Achievement {
 	RIFT_SEALED(AchievementService.RIFT_SEALED, 600),
 	DRAKE_SHATTERED(AchievementService.DRAKE_SHATTERED, 400),
 	HOMESTEAD(AchievementService.HOMESTEAD, 500),
+	ELDER_SLAIN(AchievementService.ELDER_SLAIN, 1000),
 	ENDING_ANCHOR(AchievementService.ENDING_ANCHOR, 2000),
 	ENDING_INN(AchievementService.ENDING_INN, 2000),
 	REVIVE_LIMB("revive_limb", 150),

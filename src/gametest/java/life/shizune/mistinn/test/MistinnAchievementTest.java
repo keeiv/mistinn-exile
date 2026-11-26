@@ -388,6 +388,13 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		check(has(world, Achievement.HOMESTEAD), "the homestead is remembered");
 		int gainedHome = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeHome;
 		check(gainedHome == 500, "and pays 500: " + gainedHome);
+		// a crown elder brought down (MistinnCrystalElderTest earns it)
+		int beforeElder = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
+		world.getServer().runOnServer(server -> AchievementService.grant(player(server), AchievementService.ELDER_SLAIN));
+		context.waitTicks(5);
+		check(has(world, Achievement.ELDER_SLAIN), "the crown is remembered");
+		int gainedElder = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeElder;
+		check(gainedElder == 1000, "and pays 1000: " + gainedElder);
 		// the hidden one (MistinnApostleTest earns it the way the game does)
 		int beforeApostle = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
 		world.getServer().runOnServer(server -> AchievementService.grant(player(server), AchievementService.APOSTLE));

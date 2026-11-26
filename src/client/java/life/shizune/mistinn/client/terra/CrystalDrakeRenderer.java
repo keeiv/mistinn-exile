@@ -10,19 +10,38 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
-/** Draws a crystal drake, its eyes, core gem and seams of light glowing in the dark. */
-public class CrystalDrakeRenderer extends MobRenderer<CrystalDrake, CrystalDrakeRenderState, CrystalDrakeModel> {
-	private static final Identifier TEXTURE = Mistinn.id("textures/entity/terra/crystal_drake.png");
-	private static final RenderType GLOW = RenderTypes.eyes(Mistinn.id("textures/entity/terra/crystal_drake_glow.png"));
+/**
+ * Draws a crystal drake, its eyes, core gem and seams of light glowing in the dark; the crown
+ * elder is the same creature, drawn bigger in its own colours.
+ */
+public class CrystalDrakeRenderer<T extends CrystalDrake> extends MobRenderer<T, CrystalDrakeRenderState, CrystalDrakeModel> {
+	private final Identifier texture;
+	private final float size;
 
-	public CrystalDrakeRenderer(final EntityRendererProvider.Context context) {
-		super(context, new CrystalDrakeModel(context.bakeLayer(CrystalDrakeModel.LAYER)), 1.4F);
+	public CrystalDrakeRenderer(final EntityRendererProvider.Context context, final String name, final float size) {
+		super(context, new CrystalDrakeModel(context.bakeLayer(CrystalDrakeModel.LAYER)), 1.4F * size);
+		this.texture = Mistinn.id("textures/entity/terra/" + name + ".png");
+		this.size = size;
+		RenderType glow = RenderTypes.eyes(Mistinn.id("textures/entity/terra/" + name + "_glow.png"));
 		this.addLayer(new EyesLayer<>(this) {
 			@Override
 			public RenderType renderType() {
-				return GLOW;
+				return glow;
 			}
 		});
+	}
+
+	public static CrystalDrakeRenderer<CrystalDrake> drake(final EntityRendererProvider.Context context) {
+		return new CrystalDrakeRenderer<>(context, "crystal_drake", 1.0F);
+	}
+
+	public static CrystalDrakeRenderer<life.shizune.mistinn.terra.CrystalElder> elder(final EntityRendererProvider.Context context) {
+		return new CrystalDrakeRenderer<>(context, "crystal_elder", 2.2F);
+	}
+
+	@Override
+	protected void scale(final CrystalDrakeRenderState state, final com.mojang.blaze3d.vertex.PoseStack poseStack) {
+		poseStack.scale(this.size, this.size, this.size);
 	}
 
 	@Override
@@ -31,7 +50,7 @@ public class CrystalDrakeRenderer extends MobRenderer<CrystalDrake, CrystalDrake
 	}
 
 	@Override
-	public void extractRenderState(final CrystalDrake entity, final CrystalDrakeRenderState state, final float partialTicks) {
+	public void extractRenderState(final T entity, final CrystalDrakeRenderState state, final float partialTicks) {
 		super.extractRenderState(entity, state, partialTicks);
 		state.aloft = entity.aloft(partialTicks);
 		state.swoop = entity.swoop(partialTicks);
@@ -44,6 +63,6 @@ public class CrystalDrakeRenderer extends MobRenderer<CrystalDrake, CrystalDrake
 
 	@Override
 	public Identifier getTextureLocation(final CrystalDrakeRenderState state) {
-		return TEXTURE;
+		return this.texture;
 	}
 }
