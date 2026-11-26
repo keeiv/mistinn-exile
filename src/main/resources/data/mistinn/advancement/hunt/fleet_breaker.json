@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/pirate_ship",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.fleet_breaker.desc"
+		},
+		"icon": {
+			"id": "mistinn:cannonball"
+		},
+		"title": {
+			"translate": "achievement.mistinn.fleet_breaker"
+		},
+		"frame": "challenge"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}
