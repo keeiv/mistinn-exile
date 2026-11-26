@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/first_kill",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.pirate_ship.desc"
+		},
+		"icon": {
+			"id": "mistinn:flintlock_pistol"
+		},
+		"title": {
+			"translate": "achievement.mistinn.pirate_ship"
+		},
+		"frame": "challenge"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

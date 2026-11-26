@@ -32,6 +32,8 @@ public final class AchievementService {
 	public static final String SUNKEN_BELL = "sunken_bell";
 	/** 打倒鏽輪: the third keeper has fallen with this hunter near. */
 	public static final String RUST_WHEEL = "rust_wheel";
+	/** 霧海奪船: a pirate ship taken, its captain falling with the hunter near. */
+	public static final String PIRATE_SHIP = "pirate_ship";
 	/** The story ended: the salt sent up (錨), or thrown into the Mist Inn's fire (霧宿). */
 	public static final String ENDING_ANCHOR = "ending_anchor";
 	public static final String ENDING_INN = "ending_inn";

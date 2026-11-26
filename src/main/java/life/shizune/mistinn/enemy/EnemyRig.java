@@ -50,6 +50,10 @@ public enum EnemyRig {
 		if (id.equals(life.shizune.mistinn.Mistinn.id("salt_corpse"))) {
 			return Identifier.withDefaultNamespace("husk");
 		}
+		if (id.equals(life.shizune.mistinn.Mistinn.id("pirate"))) {
+			// people with blades: they wind up, strike and finish as a vindicator does
+			return Identifier.withDefaultNamespace("vindicator");
+		}
 		return id.equals(life.shizune.mistinn.Mistinn.id("lamp_thrall")) || id.equals(life.shizune.mistinn.Mistinn.id("mist_shade"))
 			? Identifier.withDefaultNamespace("zombie") : id;
 	}

@@ -63,6 +63,20 @@ public final class MistinnEntities {
 		.eyeHeight(1.62F)
 		.clientTrackingRange(10));
 
+	/** 海盜: a sailor of the fog sea, in the player model. */
+	public static final EntityType<life.shizune.mistinn.naval.Pirate> PIRATE = register("pirate",
+		EntityType.Builder.<life.shizune.mistinn.naval.Pirate>of(life.shizune.mistinn.naval.Pirate::new, MobCategory.MONSTER)
+		.sized(0.6F, 1.8F)
+		.eyeHeight(1.62F)
+		.clientTrackingRange(10));
+
+	/** A round shot from a ship's gun. */
+	public static final EntityType<life.shizune.mistinn.naval.CannonShot> CANNON_SHOT = register("cannon_shot",
+		EntityType.Builder.<life.shizune.mistinn.naval.CannonShot>of(life.shizune.mistinn.naval.CannonShot::new, MobCategory.MISC)
+		.sized(0.45F, 0.45F)
+		.clientTrackingRange(10)
+		.updateInterval(5));
+
 	private MistinnEntities() {
 	}
 
@@ -79,5 +93,6 @@ public final class MistinnEntities {
 		FabricDefaultAttributeRegistry.register(SALT_CORPSE, SaltCorpse.createAttributes());
 		FabricDefaultAttributeRegistry.register(LAMP_THRALL, LampThrall.createAttributes());
 		FabricDefaultAttributeRegistry.register(MIST_SHADE, MistShade.createAttributes());
+		FabricDefaultAttributeRegistry.register(PIRATE, life.shizune.mistinn.naval.Pirate.createAttributes());
 	}
 }

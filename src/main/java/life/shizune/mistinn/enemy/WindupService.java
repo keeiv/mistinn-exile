@@ -167,7 +167,7 @@ public final class WindupService {
 	}
 
 	private static void cry(final ServerLevel level, final Mob mob) {
-		SoundEvent cry = VanillaCreatureSounds.windup(mob.getType());
+		SoundEvent cry = mob instanceof Voiced voiced ? voiced.windupCry() : VanillaCreatureSounds.windup(mob.getType());
 		if (cry != null) {
 			level.playSound(null, mob.getX(), mob.getY(), mob.getZ(), cry, SoundSource.HOSTILE, 1.0F, 0.9F + mob.getRandom().nextFloat() * 0.2F);
 		}
