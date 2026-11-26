@@ -64,6 +64,11 @@ public final class TerraShaper implements DomainService.Shaper {
 	private static final double SPRING_MOST = 0.036;
 	/** For tests: how many times more likely a spring is (0 for none). */
 	public static double springs = 1.0;
+	/** The crown elder's nest at the heart: the dais, the ring of spires round it, how many, and how far each leans out as it rises. */
+	public static final double DAIS = 5.5;
+	public static final double NEST = 13.0;
+	public static final int NEST_SPIRES = 9;
+	private static final double LEAN = 0.16;
 
 	private static ResourceKey<Biome> key(final String name) {
 		return ResourceKey.create(Registries.BIOME, Mistinn.id(name));
@@ -261,6 +266,9 @@ public final class TerraShaper implements DomainService.Shaper {
 		double roll = hash(x, z, domain.id());
 		switch (zone) {
 			case CROWN -> {
+				if (distance <= NEST + 7.0 && nest(level, chunk, domain, x, ground, z, distance)) {
+					return;
+				}
 				int spire = spire(domain, x, z);
 				if (spire > 0) {
 					for (int i = 1; i <= spire; i++) {
@@ -339,6 +347,85 @@ public final class TerraShaper implements DomainService.Shaper {
 			}
 		}
 		return best;
+	}
+
+	/**
+	 * The crown elder's nest, at a highland's very heart: a dais two steps high, paved in polished
+	 * vein stone with eight spokes of lattice running out from a crystal at its middle, and round it,
+	 * a way off, a ring of tall lattice spires that thin as they rise and lean out, a crown. Between
+	 * the two the ground is left open. Says whether the column was the nest's (and so is done).
+	 */
+	private static boolean nest(final ServerLevel level, final LevelChunk chunk, final Domain domain, final int x, final int ground, final int z,
+		final double distance) {
+		BlockPos.MutableBlockPos at = new BlockPos.MutableBlockPos();
+		double px = x + 0.5;
+		double pz = z + 0.5;
+		double cx = domain.centre().getX() + 0.5;
+		double cz = domain.centre().getZ() + 0.5;
+		double turn = hash(domain.id(), 211, 17) * Math.PI * 2.0;
+		if (distance <= DAIS) {
+			int rise = distance <= DAIS - 1.0 ? 2 : 1;
+			for (int y = 1; y <= rise; y++) {
+				if (!free(chunk, at.set(x, ground + y, z))) {
+					return true;
+				}
+			}
+			for (int y = 1; y < rise; y++) {
+				level.setBlock(at.set(x, ground + y, z), MistinnBlocks.VEIN_STONE_BRICKS.defaultBlockState(), FLAGS);
+			}
+			double angle = Math.atan2(pz - cz, px - cx) - turn;
+			double spoke = Math.round(angle / (Math.PI / 4.0)) * (Math.PI / 4.0);
+			boolean onSpoke = distance * Math.abs(Math.sin(angle - spoke)) < 0.55;
+			Block top = distance < 1.2 ? MistinnBlocks.TERRA_CRYSTAL_BLOCK : onSpoke ? MistinnBlocks.LATTICE_CRYSTAL : MistinnBlocks.VEIN_STONE_POLISHED;
+			level.setBlock(at.set(x, ground + rise, z), top.defaultBlockState(), FLAGS);
+			return true;
+		}
+		// the ring: each spire's cross-section climbs outward and thins, so a column is part of it over some run of heights
+		int highest = 0;
+		boolean[] filled = new boolean[32];
+		for (int k = 0; k < NEST_SPIRES; k++) {
+			double a = turn + k * Math.PI * 2.0 / NEST_SPIRES + (hash(k, domain.id(), 223) - 0.5) * 0.3;
+			double ox = Math.cos(a);
+			double oz = Math.sin(a);
+			double sx = cx + ox * NEST;
+			double sz = cz + oz * NEST;
+			int tall = 14 + (int) (hash(k * 7, domain.id(), 227) * 9);
+			double spread = 1.7 + hash(k * 11, domain.id(), 229) * 0.8;
+			for (int y = 1; y <= tall && y < filled.length; y++) {
+				double reach = spread * (1.0 - 0.72 * y / tall) + 0.35;
+				if (Math.hypot(px - (sx + ox * y * LEAN), pz - (sz + oz * y * LEAN)) <= reach) {
+					filled[y] = true;
+					highest = Math.max(highest, y);
+				}
+			}
+		}
+		if (highest > 0) {
+			for (int y = 1; y <= highest; y++) {
+				if (filled[y] && free(chunk, at.set(x, ground + y, z))) {
+					level.setBlock(at, (y == highest ? MistinnBlocks.TERRA_CRYSTAL_BLOCK : MistinnBlocks.LATTICE_CRYSTAL).defaultBlockState(), FLAGS);
+				}
+			}
+			if (free(chunk, at.set(x, ground + highest + 1, z)) && hash(x, z, domain.id() + 233) < 0.6) {
+				level.setBlock(at, bud(MistinnBlocks.TERRA_CRYSTAL_CLUSTER), FLAGS);
+			}
+			return true;
+		}
+		if (distance < NEST - 2.5) {
+			// the open ground inside the ring: a little grass and crystal, nothing to stand in the way
+			double roll = hash(x, z, domain.id() + 237);
+			if (roll < 0.03) {
+				level.setBlock(at.set(x, ground + 1, z), bud(budFor(hash(z, x, domain.id() + 5) * 0.6)), FLAGS);
+			} else if (roll < 0.12) {
+				level.setBlock(at.set(x, ground + 1, z), MistinnBlocks.JADE_GRASS.defaultBlockState(), FLAGS);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	private static boolean free(final LevelChunk chunk, final BlockPos at) {
+		BlockState state = chunk.getBlockState(at);
+		return state.isAir() || state.canBeReplaced() && state.getFluidState().isEmpty();
 	}
 
 	/**

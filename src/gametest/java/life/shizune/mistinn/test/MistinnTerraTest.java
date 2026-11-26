@@ -127,6 +127,38 @@ public final class MistinnTerraTest implements FabricClientGameTest {
 				}), "the highlands' music and air play at " + at);
 			}
 
+			// the crown elder's nest at the heart: a crystal in the dais, a ring of tall spires, the ground between left open
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				int base = top(level, centre[0].offset(0, 0, 9), centre[0].getY() + 40);
+				BlockPos heart = new BlockPos(centre[0].getX(), top(level, centre[0], centre[0].getY() + 40), centre[0].getZ());
+				check(level.getBlockState(heart).is(MistinnBlocks.TERRA_CRYSTAL_BLOCK) && heart.getY() == base + 2,
+					"a crystal sits two steps up in the middle of the dais: " + level.getBlockState(heart) + " at " + (heart.getY() - base));
+				int tall = 0;
+				int crowded = 0;
+				for (int dx = -19; dx <= 19; dx++) {
+					for (int dz = -19; dz <= 19; dz++) {
+						double off = Math.hypot(dx, dz);
+						int top = top(level, centre[0].offset(dx, 0, dz), centre[0].getY() + 40);
+						if (off >= 11.0 && off <= 19.0 && top >= base + 12) {
+							tall++;
+						}
+						if (off >= 7.0 && off <= 9.5 && top > base + 1) {
+							crowded++;
+						}
+					}
+				}
+				check(tall >= 9, "a ring of tall spires stands round it: " + tall);
+				check(crowded == 0, "and the ground between is open: " + crowded);
+				ServerPlayer player = player(server);
+				player.getAbilities().flying = true;
+				player.onUpdateAbilities();
+				player.teleportTo(level, centre[0].getX() - 17.5, base + 17.0, centre[0].getZ() - 17.5, Set.of(), -45.0F, 32.0F, true);
+			});
+			// the place's name fades first
+			context.waitTicks(140);
+			context.takeScreenshot(TestScreenshotOptions.of("terra-nest").disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("terra")));
+
 			// walking in: the ring's name, and a look at each ring
 			look(context, world, centre[0].offset(-6, 0, 30), 90.0F, 8.0F, "terra-terraces");
 			check(context.computeOnClient(mc -> TerraShaper.TERRACES.equals(ZoneTitle.shown())), "walking into the terraces shows their name");
@@ -146,6 +178,15 @@ public final class MistinnTerraTest implements FabricClientGameTest {
 		});
 		context.waitTicks(40);
 		context.takeScreenshot(TestScreenshotOptions.of(name).disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("terra")));
+	}
+
+	/** The highest block in a column that is not air, looking down from {@code from}. */
+	private static int top(final ServerLevel level, final BlockPos column, final int from) {
+		BlockPos.MutableBlockPos at = new BlockPos.MutableBlockPos(column.getX(), from, column.getZ());
+		while (at.getY() > level.getMinY() && level.getBlockState(at).isAir()) {
+			at.move(net.minecraft.core.Direction.DOWN);
+		}
+		return at.getY();
 	}
 
 	private static boolean terra(final BlockState state) {
