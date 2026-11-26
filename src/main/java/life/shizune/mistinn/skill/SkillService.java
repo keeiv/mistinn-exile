@@ -60,8 +60,9 @@ public final class SkillService {
 		return player.getAttachedOrElse(MistinnAttachments.SKILLS, Skills.EMPTY);
 	}
 
+	/** A stat as it counts: what was bought, and for the Rust Anchor's apostle a little more, past the cap. */
 	public static int stat(final Player player, final Stat stat) {
-		return get(player).stat(stat);
+		return get(player).stat(stat) + life.shizune.mistinn.achievement.ApostleService.blessing(player);
 	}
 
 	/** Stores the skills and brings every effect in line with them. */

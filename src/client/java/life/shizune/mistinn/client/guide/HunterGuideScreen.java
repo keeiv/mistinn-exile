@@ -62,6 +62,8 @@ public class HunterGuideScreen extends Screen {
 	static final int FADED = 0xFF7A6650;
 	static final int RED = 0xFF8E2A1E;
 	private static final int AMBER = 0xFFB8822E;
+	/** A stat the Rust Anchor has blessed: rust, past the cap. */
+	private static final int BLESSED = 0xFF9A4A1C;
 	static final int LINE_DARK = 0xFF6E5A44;
 
 	private static final Identifier SPREAD = tex("spread");
@@ -344,7 +346,9 @@ public class HunterGuideScreen extends Screen {
 			icon(g, 1 + stat.ordinal(), px, py);
 			g.text(this.font, Component.translatable(stat.key()), px + 20, py + 4, INK, false);
 			String number = value + " / " + Stat.CAP;
-			g.text(this.font, number, px + 128 - this.font.width(number), py + 4, INK, false);
+			// the anchor's blessing shows in its own rust-gold, past the cap if need be
+			int ink = life.shizune.mistinn.achievement.ApostleService.blessing(player) > 0 ? BLESSED : INK;
+			g.text(this.font, number, px + 128 - this.font.width(number), py + 4, ink, false);
 			py += 18;
 			for (FormattedCharSequence row : this.font.split(effect(stat, value), 124)) {
 				g.text(this.font, row, px + 4, py, FADED, false);
