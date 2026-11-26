@@ -55,12 +55,16 @@ public final class MistinnLizardCompanionTest implements FabricClientGameTest {
 					}
 				}
 				player.teleportTo(level, floor[0].getX() + 0.5, floor[0].getY() + 1.0, floor[0].getZ() + 0.5, Set.of(), 90.0F, 0.0F, true);
-				lizard[0] = MistinnEntities.CRYSTAL_LIZARD.spawn(level, floor[0].offset(-3, 1, 0), EntitySpawnReason.COMMAND);
+			});
+			// crouched first, as the hunter's own client says, and only then does the lizard lie there
+			context.getInput().holdKey(options -> options.keyShift);
+			context.waitTicks(10);
+			world.getServer().runOnServer(server -> {
+				check(player(server).isShiftKeyDown(), "the hunter crouches");
+				lizard[0] = MistinnEntities.CRYSTAL_LIZARD.spawn(server.overworld(), floor[0].offset(-3, 1, 0), EntitySpawnReason.COMMAND);
 				lizard[0].setPersistenceRequired();
 				lizard[0].lieStill(2000);
 			});
-			// crouched, as the hunter's own client says
-			context.getInput().holdKey(options -> options.keyShift);
 			context.waitTicks(40);
 			world.getServer().runOnServer(server -> {
 				check(lizard[0].isStill() && lizard[0].getTarget() == null, "crept up on crouching, the still lizard does not stir");
@@ -86,6 +90,21 @@ public final class MistinnLizardCompanionTest implements FabricClientGameTest {
 				lizard[0].hurtServer(level, level.damageSources().playerAttack(player), 6.0F);
 				check(lizard[0].getHealth() == health, "and its hunter's blows pass it by");
 			});
+
+			// a wild lizard springing at the hunter does not take the companion with it
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				ServerPlayer player = player(server);
+				CrystalLizard wild = MistinnEntities.CRYSTAL_LIZARD.spawn(level, floor[0].offset(-6, 1, 2), EntitySpawnReason.COMMAND);
+				wild.hurtServer(level, level.damageSources().playerAttack(player), 1.0F);
+				lizard[0].setTarget(player);
+				check(lizard[0].getTarget() == null, "the companion is never set on its hunter, not even by its pack");
+				wild.discard();
+			});
+			world.getServer().runCommand("difficulty peaceful");
+			context.waitTicks(5);
+			check(world.getServer().computeOnServer(server -> lizard[0].isAlive() && !lizard[0].isRemoved()), "and peace does not clear it away");
+			world.getServer().runCommand("difficulty normal");
 
 			// a creature that hurts its hunter: the lizard goes for it
 			Zombie[] zombie = new Zombie[1];

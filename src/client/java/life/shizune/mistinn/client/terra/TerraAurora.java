@@ -62,7 +62,7 @@ public final class TerraAurora {
 		FabricRenderState frame = (FabricRenderState) context.levelState();
 		Vec3 camera = context.camera().position();
 		Domain over = level == null ? null : over(level, camera);
-		float night = level == null ? 0.0F : Mth.clamp((level.getSkyDarken() - 3) / 6.0F, 0.0F, 1.0F);
+		float night = level == null ? 0.0F : night(level.getOverworldClockTime());
 		float want = over == null ? 0.0F : night;
 		shown += Mth.clamp(want - shown, -STEP, STEP);
 		if (shown <= 0.001F || over == null || level == null) {
@@ -80,6 +80,14 @@ public final class TerraAurora {
 			curtains.add(new Curtain(middle, angle, now, seed, shown * (0.75F + 0.25F * k / (COUNT - 1.0F))));
 		}
 		frame.setData(CURTAINS, curtains);
+	}
+
+	/** How much of the night it is by the clock: up over the hour after dusk, down over the hour before dawn (a daytime storm is not night). */
+	static float night(final long clock) {
+		long time = Math.floorMod(clock, 24000L);
+		float rise = Mth.clamp((time - 12500L) / 1000.0F, 0.0F, 1.0F);
+		float fall = Mth.clamp((23500L - time) / 1000.0F, 0.0F, 1.0F);
+		return Math.min(rise, fall);
 	}
 
 	/** The highland the camera is over, or near enough to see its sky. */

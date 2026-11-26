@@ -249,7 +249,13 @@ public class RiftHerald extends Monster implements RiftTouched {
 				level.sendParticles(ParticleTypes.REVERSE_PORTAL, out.x, out.y + 1.2, out.z, 12, 0.3, 0.8, 0.3, 0.02);
 				level.sendParticles(MARK, out.x, out.y + 1.2, out.z, 6, 0.15, 0.9, 0.15, 0.0);
 			}
-			if (--this.stepping <= 0) {
+			if (--this.stepping <= 0 && !level.noCollision(this, this.getBoundingBox().move(out.subtract(this.position())))) {
+				// the way has been stopped up meanwhile: it stays, and tries again a little later
+				this.way = null;
+				this.blink = 20;
+				return;
+			}
+			if (this.stepping <= 0) {
 				level.sendParticles(ParticleTypes.REVERSE_PORTAL, this.getX(), this.getY() + 1.2, this.getZ(), 40, 0.4, 1.0, 0.4, 0.05);
 				level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.HOSTILE, 1.5F, 0.5F);
 				this.teleportTo(out.x, out.y, out.z);
