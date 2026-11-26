@@ -197,13 +197,16 @@ public class RiftHound extends Monster implements RiftTouched {
 		this.getNavigation().stop();
 		level.playSound(null, this.getX(), this.getY(), this.getZ(), MistinnSounds.RIFT_HOUND_HOWL, SoundSource.HOSTILE, 3.0F, 0.55F);
 		level.sendParticles(ParticleTypes.CRIMSON_SPORE, this.getX(), this.getY() + 1.2, this.getZ(), 30, 0.4, 0.4, 0.4, 0.02);
+		// the pack within hearing turns on its quarry, and quickens
 		List<RiftHound> pack = level.getEntitiesOfClass(RiftHound.class, this.getBoundingBox().inflate(HEARD),
-			h -> h != this && h.isAlive() && !h.isAlpha() && h.getTarget() == quarry);
+			h -> h != this && h.isAlive() && !h.isAlpha() && !h.scattering());
 		for (RiftHound hound : pack) {
+			hound.setTarget(quarry);
 			hound.addEffect(new MobEffectInstance(MobEffects.SPEED, 100, 0, false, true));
 		}
-		// of those free to leap this moment, the two farthest apart round the ring
-		RiftHound[] pincer = pincer(quarry, pack.stream().filter(h -> !h.isCrouching() && !h.isLunging()).toList());
+		// of those free to leap at it this moment, the two farthest apart round the ring
+		RiftHound[] pincer = pincer(quarry, pack.stream().filter(h -> !h.isCrouching() && !h.isLunging() && h.distanceTo(quarry) > 1.5F
+			&& h.distanceTo(quarry) < 12.0F && h.hasLineOfSight(quarry)).toList());
 		for (RiftHound hound : pincer) {
 			if (hound != null) {
 				hound.ordered = level.getGameTime() + 20L;

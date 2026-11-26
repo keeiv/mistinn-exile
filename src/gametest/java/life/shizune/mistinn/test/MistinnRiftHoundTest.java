@@ -153,13 +153,29 @@ public final class MistinnRiftHoundTest implements FabricClientGameTest {
 		world.getServer().runOnServer(server -> {
 			ServerLevel level = server.overworld();
 			ServerPlayer player = player(server);
+			// open, level ground round the hunter, so that every hound can see them
+			BlockPos floor = player.blockPosition().below();
+			for (int x = -16; x <= 16; x++) {
+				for (int z = -16; z <= 16; z++) {
+					for (int y = 0; y <= 5; y++) {
+						level.setBlockAndUpdate(floor.offset(x, y, z), (y == 0 ? net.minecraft.world.level.block.Blocks.STONE
+							: net.minecraft.world.level.block.Blocks.AIR).defaultBlockState());
+					}
+				}
+			}
+			player.teleportTo(level, floor.getX() + 0.5, floor.getY() + 1.0, floor.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
+			for (int i = 0; i < pack.size(); i++) {
+				double angle = i * Math.PI * 2.0 / pack.size();
+				pack.get(i).teleportTo(floor.getX() + 0.5 + Math.cos(angle) * 6.0, floor.getY() + 1.0, floor.getZ() + 0.5 + Math.sin(angle) * 6.0);
+				pack.get(i).setTarget(player);
+			}
 			alpha[0] = pack.getFirst();
 			float before = alpha[0].getScale();
 			alpha[0].lead();
 			check(alpha[0].isAlpha() && alpha[0].getScale() > before * 1.3F, "the alpha is bigger: " + alpha[0].getScale());
 			check(alpha[0].getMaxHealth() >= 70.0F && alpha[0].getHealth() >= 70.0F, "and harder to bring down: " + alpha[0].getMaxHealth());
 			check(alpha[0].hasCustomName(), "and named");
-			BlockPos at = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, player.blockPosition().offset(0, 0, -8));
+			BlockPos at = player.blockPosition().offset(0, 0, -8);
 			RiftHound more = MistinnEntities.RIFT_HOUND.spawn(level, at, EntitySpawnReason.COMMAND);
 			more.setPersistenceRequired();
 			more.setTarget(player);
