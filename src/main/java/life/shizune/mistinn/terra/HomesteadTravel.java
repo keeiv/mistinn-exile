@@ -210,7 +210,10 @@ public final class HomesteadTravel {
 		level.sendParticles(ParticleTypes.END_ROD, from.x, from.y + 1.0, from.z, 40, 0.4, 0.8, 0.4, 0.05);
 		level.playSound(null, from.x, from.y, from.z, SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.PLAYERS, 1.2F, 1.2F);
 		BlockPos at = target.hub().offset(2, 0, 0);
+		// the lizards keeping with the hunter come along
+		java.util.List<CrystalLizard> with = CrystalLizard.companionsOf(player, 16.0, false);
 		player.teleportTo(level, at.getX() + 0.5, target.deck() + 1.0, at.getZ() + 0.5, java.util.Set.of(), player.getYRot(), player.getXRot(), true);
+		CrystalLizard.bring(player, with);
 		level.sendParticles(ParticleTypes.END_ROD, at.getX() + 0.5, target.deck() + 2.0, at.getZ() + 0.5, 40, 0.4, 0.8, 0.4, 0.05);
 		level.playSound(null, at, SoundEvents.BEACON_POWER_SELECT, SoundSource.PLAYERS, 1.2F, 1.3F);
 		player.setAttached(READY_AT, level.getGameTime() + HomesteadUpgrades.travelCooldown(level.getServer(), target, COOLDOWN));

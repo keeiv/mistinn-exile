@@ -99,6 +99,10 @@ public final class PingService {
 				entity = target.getId();
 				at = target.position().add(0.0, target.getBbHeight(), 0.0);
 				kind = target instanceof Enemy ? ENEMY : target instanceof ItemEntity ? ITEM : PLACE;
+				if (kind == ENEMY && target instanceof net.minecraft.world.entity.LivingEntity quarry) {
+					// a hunter's lizards go for what they mark
+					life.shizune.mistinn.terra.CrystalLizard.sic(player, quarry);
+				}
 			}
 		}
 		LAST.put(player.getUUID(), now);
