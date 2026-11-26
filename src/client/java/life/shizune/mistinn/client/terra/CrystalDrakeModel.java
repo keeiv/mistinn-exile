@@ -1,6 +1,7 @@
 package life.shizune.mistinn.client.terra;
 
 import life.shizune.mistinn.Mistinn;
+import life.shizune.mistinn.terra.CrystalElder;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -21,7 +22,9 @@ import net.minecraft.util.Mth;
  * <p>
  * Aloft it beats its wings (the forearms following a beat behind), sweeps them back as it dives,
  * tucks its legs and lets its tail stream; on the ground it folds its wings along its back and
- * walks on its hind legs.
+ * walks on its hind legs. The crown elder's moves on the ground are posed on top: coiling and
+ * turning a full circle for its sweep, head lowered and pawing before a charge and streamlined
+ * in it, and slumped with its head to the ground when a charge has stunned it.
  */
 public class CrystalDrakeModel extends EntityModel<CrystalDrakeRenderState> {
 	public static final ModelLayerLocation LAYER = new ModelLayerLocation(Mistinn.id("crystal_drake"), "main");
@@ -373,5 +376,79 @@ public class CrystalDrakeModel extends EntityModel<CrystalDrakeRenderState> {
 			this.tail[i].yRot += Mth.sin(age * 0.11F - i * 0.55F) * (0.08F + 0.04F * i) * (1.0F - 0.5F * swoop);
 			this.tail[i].xRot += (Mth.sin(age * 0.33F - 1.6F - i * 0.5F) * 0.06F - 0.05F) * aloft - state.dive * 0.15F;
 		}
+		this.move(state);
+	}
+
+	/** The crown elder's moves on the ground, over its standing pose. */
+	private void move(final CrystalDrakeRenderState state) {
+		float t = state.moveAge;
+		switch (state.move) {
+			case SWEEP_WINDUP -> {
+				float p = ease(t / CrystalElder.SWEEP_WINDUP);
+				this.body.yRot -= 0.7F * p;
+				this.neckLower.xRot += 0.25F * p;
+				this.neckLower.yRot += 0.35F * p;
+				for (ModelPart segment : this.tail) {
+					segment.yRot += 0.28F * p;
+				}
+				this.wingUpperRight.zRot -= 0.3F * p;
+				this.wingUpperLeft.zRot += 0.3F * p;
+				this.jaw.xRot += 0.35F * p;
+			}
+			case SWEEP -> {
+				float e = ease(t / CrystalElder.SWEEP_TIME);
+				this.body.yRot += -0.7F + e * (Mth.TWO_PI + 0.7F);
+				for (ModelPart segment : this.tail) {
+					segment.yRot -= 0.12F * (1.0F - e);
+				}
+				this.wingUpperRight.zRot -= 0.3F * (1.0F - e);
+				this.wingUpperLeft.zRot += 0.3F * (1.0F - e);
+			}
+			case CHARGE_WINDUP -> {
+				float p = ease(t / CrystalElder.CHARGE_WINDUP);
+				this.body.xRot += 0.14F * p;
+				this.body.y += 2.0F * p;
+				this.neckLower.xRot += 0.5F * p;
+				this.head.xRot += 0.15F * p;
+				this.legUpperRight.xRot += Mth.sin(t * 0.9F) * 0.45F * p;
+				this.wingUpperRight.zRot += 0.35F * p;
+				this.wingUpperLeft.zRot -= 0.35F * p;
+				this.jaw.xRot += 0.2F * p;
+			}
+			case CHARGE -> {
+				float gallop = Mth.sin(t * 1.4F) * 0.9F;
+				this.body.xRot += 0.16F;
+				this.body.y += Math.abs(Mth.cos(t * 1.4F)) * -1.2F;
+				this.neckLower.xRot += 0.55F;
+				this.head.xRot -= 0.2F;
+				this.legUpperRight.xRot += gallop;
+				this.legUpperLeft.xRot -= gallop;
+				this.wingUpperRight.yRot += 0.9F;
+				this.wingUpperLeft.yRot -= 0.9F;
+				this.jaw.xRot += 0.5F;
+			}
+			case STUNNED -> {
+				float p = ease(t / 6.0F);
+				float sway = Mth.sin(t * 0.3F) * 0.05F;
+				this.body.zRot += (0.22F + sway) * p;
+				this.body.y += 1.5F * p;
+				this.neckLower.xRot += 0.8F * p;
+				this.neckUpper.xRot += 0.3F * p;
+				this.neckLower.yRot += sway * 2.0F;
+				// wings slack, tips down on the ground
+				this.wingUpperRight.zRot -= 0.75F * p;
+				this.wingUpperLeft.zRot += 0.75F * p;
+				this.wingUpperRight.yRot -= 0.5F * p;
+				this.wingUpperLeft.yRot += 0.5F * p;
+				this.jaw.xRot += 0.3F * p;
+			}
+			default -> {
+			}
+		}
+	}
+
+	private static float ease(final float x) {
+		float c = Mth.clamp(x, 0.0F, 1.0F);
+		return c * c * (3.0F - 2.0F * c);
 	}
 }
