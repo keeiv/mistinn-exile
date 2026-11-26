@@ -515,6 +515,7 @@ Achievements are the game's own **advancements**: press `L` and the mod has a ta
 | Right-click | Take half; while carrying, put one down |
 | Click a different item while carrying | Swap the two |
 | Double-click | Gather the same item from the grid and the hotbar into one stack (not the safe box) |
+| The Sort button (by the backpack's and rig's titles) | Stacks of a kind merged, the largest laid first; if it all would not fit again, nothing moves |
 | `Q` over an item | Throw one; `Ctrl`+`Q` the whole stack |
 | Number keys, `F` over a cell | Swap with that hotbar slot or the offhand |
 | Shift-click | Grid item: into the open chest, armour onto the body, else to the hotbar; chest item: the hotbar first, then the grid; hotbar item: into the grid, a backpack or rig put on |

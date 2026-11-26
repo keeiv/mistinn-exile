@@ -32,6 +32,8 @@ public record GridActionPayload(int action, int area, int a, int b, int c, int d
 	public static final int ONE = 10;
 	/** Double-click while carrying: gather what matches. */
 	public static final int COLLECT = 11;
+	/** The sort button over a backpack or a rig. */
+	public static final int SORT = 12;
 
 	public static final Type<GridActionPayload> TYPE = new Type<>(Mistinn.id("grid_action"));
 	public static final StreamCodec<RegistryFriendlyByteBuf, GridActionPayload> CODEC = StreamCodec.composite(
@@ -71,6 +73,7 @@ public record GridActionPayload(int action, int area, int a, int b, int c, int d
 				case HALF -> GridService.half(player, area, payload.a());
 				case ONE -> GridService.placeOne(player, area, payload.a(), payload.b(), payload.c(), payload.rotated());
 				case COLLECT -> GridService.collect(player);
+				case SORT -> GridService.sort(player, area);
 				default -> {
 				}
 			}

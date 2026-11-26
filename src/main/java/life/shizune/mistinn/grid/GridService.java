@@ -514,6 +514,29 @@ public final class GridService {
 		cue(player, GridSounds.pickup(lying.stack()));
 	}
 
+	/**
+	 * 整理 a backpack or a rig: its things laid out afresh, a kind's stacks merged, the largest
+	 * first. When they would not all fit again that way nothing moves and the hunter hears so.
+	 */
+	public static void sort(final ServerPlayer player, final Area area) {
+		if (area != Area.BACKPACK && area != Area.RIG) {
+			return;
+		}
+		GridInventory inv = get(player);
+		List<Placed> items = inv.items(area);
+		if (items.isEmpty()) {
+			return;
+		}
+		List<Placed> sorted = GridLogic.sorted(inv.shape(area), items);
+		if (sorted == null) {
+			cue(player, MistinnSounds.GRID_REJECT);
+			return;
+		}
+		set(player, inv.with(area, sorted));
+		player.containerMenu.broadcastChanges();
+		cue(player, MistinnSounds.GRID_ROTATE);
+	}
+
 	/** Right-click on a grid item with nothing carried: half of it (the larger half) onto the cursor. */
 	public static void half(final ServerPlayer player, final Area area, final int index) {
 		AbstractContainerMenu menu = player.containerMenu;

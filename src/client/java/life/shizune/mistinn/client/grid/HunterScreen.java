@@ -246,6 +246,9 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 		GridInventory inv = GridPanel.inventory(this.minecraft.player);
 		this.labels(g, inv);
 		GridPanel.draw(g, this.menu, this.gridLayout, this.leftPos, this.topPos, mouseX, mouseY);
+		int right = this.leftPos + CENTRE_X + CENTRE_W - 3;
+		GridPanel.sortButtons(g, inv, mouseX, mouseY, new int[] {life.shizune.mistinn.grid.Area.RIG.ordinal(), right, this.rigTitleY},
+			new int[] {life.shizune.mistinn.grid.Area.BACKPACK.ordinal(), right, this.packTitleY});
 		this.body(g);
 		if (!this.menu.getCarried().isEmpty()) {
 			g.text(this.font, Component.translatable("gui.mistinn.rotate_hint"), this.leftPos + CENTRE_X + 4, this.topPos + this.panelHeight + 3, GridPanel.LABEL_DIM, true);
@@ -258,7 +261,7 @@ public class HunterScreen extends AbstractContainerScreen<InventoryMenu> {
 		g.text(this.font, Component.translatable("gui.mistinn.gear"), x + 6, y + 5, GridPanel.LABEL, false);
 		Component head = Component.translatable(this.showMask ? "gui.mistinn.mask_slot" : "gui.mistinn.helmet_slot");
 		g.text(this.font, head.copy().append(" ").append(Component.translatable("gui.mistinn.head_toggle")), x + 6, y + 59, GridPanel.LABEL_DIM, false);
-		g.text(this.font, Component.translatable("gui.mistinn.rig_slot"), x + 55, y + 5, GridPanel.LABEL, false);
+		g.text(this.font, Component.translatable("gui.mistinn.rig_short"), x + 55, y + 5, GridPanel.LABEL, false);
 		g.text(this.font, Component.translatable("gui.mistinn.backpack_short"), x + 77, y + 5, GridPanel.LABEL, false);
 		g.text(this.font, Component.translatable("gui.mistinn.offhand"), x + 95, y + 59, GridPanel.LABEL_DIM, false);
 		g.text(this.font, Component.translatable("gui.mistinn.pockets"), x + 6, y + 72, GridPanel.LABEL, false);

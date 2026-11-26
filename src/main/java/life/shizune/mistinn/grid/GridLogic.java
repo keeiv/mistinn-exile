@@ -138,6 +138,51 @@ public final class GridLogic {
 		return contents == null || contents.isEmpty();
 	}
 
+	/**
+	 * 整理: the same things laid out afresh. Stacks of a kind are merged first, then the largest
+	 * footprints go in first (then by kind, then the fuller stacks), each in the first spot it fits.
+	 * Returns null when they would not all fit again that way, so a careful packing by hand is
+	 * never broken up for a worse one.
+	 */
+	public static @org.jspecify.annotations.Nullable List<Placed> sorted(final GridShape shape, final List<Placed> items) {
+		List<ItemStack> stacks = new ArrayList<>();
+		for (Placed placed : items) {
+			ItemStack stack = placed.stack().copy();
+			for (ItemStack held : stacks) {
+				if (stack.isEmpty()) {
+					break;
+				}
+				if (ItemStack.isSameItemSameComponents(held, stack) && held.getCount() < held.getMaxStackSize()) {
+					int move = Math.min(stack.getCount(), held.getMaxStackSize() - held.getCount());
+					held.grow(move);
+					stack.shrink(move);
+				}
+			}
+			if (!stack.isEmpty()) {
+				stacks.add(stack);
+			}
+		}
+		stacks.sort(java.util.Comparator.<ItemStack>comparingInt(stack -> {
+				int[] size = ItemSizes.of(stack);
+				return -size[0] * size[1];
+			})
+			.thenComparingInt(stack -> {
+				int[] size = ItemSizes.of(stack);
+				return -Math.max(size[0], size[1]);
+			})
+			.thenComparing(stack -> net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).toString())
+			.thenComparingInt(stack -> -stack.getCount()));
+		List<Placed> laid = new ArrayList<>();
+		for (ItemStack stack : stacks) {
+			Placed spot = freeSpot(shape, laid, stack);
+			if (spot == null) {
+				return null;
+			}
+			laid.add(spot);
+		}
+		return laid;
+	}
+
 	/** What {@link #repack} kept in place and what it could not place again. */
 	public record Repacked(List<Placed> kept, List<ItemStack> loose, boolean changed) {
 	}

@@ -259,10 +259,11 @@
   "item.mistinn.boots_5.lore.1": "Heavy gold-iron boots; every step swings like a pendulum.",
   "item.mistinn.boots_5.lore.2": "They say Bellkeepers keep time by their footsteps.",
   "gui.mistinn.rig_slot": "Chest rig",
+  "gui.mistinn.rig_short": "Rig",
   "gui.mistinn.mask_slot": "Mask",
   "gui.mistinn.gear": "Gear",
   "gui.mistinn.helmet_slot": "Helmet",
-  "gui.mistinn.head_toggle": "(right-click)",
+  "gui.mistinn.head_toggle": "(R-click)",
   "gui.mistinn.crafting": "Crafting",
   "gui.mistinn.no_rig": "No chest rig",
   "gui.mistinn.body": "Body",
@@ -1590,5 +1591,7 @@
   "hud.mistinn.ping.place": "Here",
   "hud.mistinn.ping.enemy": "Enemy",
   "hud.mistinn.ping.item": "Item",
-  "hud.mistinn.ping.line": "%1$s %2$sm"
+  "hud.mistinn.ping.line": "%1$s %2$sm",
+  "gui.mistinn.sort": "Sort",
+  "gui.mistinn.sort.hint": "Stacks of a kind merged, the largest laid first; if it all would not fit again, nothing moves"
 }

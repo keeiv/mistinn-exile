@@ -58,6 +58,16 @@ public final class GridPanel {
 	public static final int LEFT = InputConstants.MOUSE_BUTTON_LEFT;
 	public static final int RIGHT = InputConstants.MOUSE_BUTTON_RIGHT;
 
+	/** A sort button: the compartment it sorts and where it is on screen. */
+	public record SortButton(Area area, int x, int y, int width, int height) {
+		boolean contains(final double mx, final double my) {
+			return mx >= this.x && my >= this.y && mx < this.x + this.width && my < this.y + this.height;
+		}
+	}
+
+	/** The sort buttons drawn this frame, set by whoever draws the panel. */
+	private static List<SortButton> sortButtons = List.of();
+
 	/** Whether the carried item is turned on its side; reset when the cursor is empty. */
 	private static boolean rotated;
 	private static @Nullable Layout layout;
@@ -300,6 +310,9 @@ public final class GridPanel {
 		Component packTitle = worn.isEmpty() ? Component.translatable("gui.mistinn.no_backpack") : TierText.name(worn);
 		g.text(font, packTitle, right[0] + 4, titleY, worn.isEmpty() ? LABEL_DIM : Tiers.of(worn).color, false);
 		draw(g, menu, l, leftPos, topPos, mouseX, mouseY);
+		int rigTitle = right[1] + 3;
+		int packRow = inv.rig().isEmpty() ? right[1] + 3 : layoutRigTop - 10;
+		sortButtons(g, inv, mouseX, mouseY, new int[] {Area.RIG.ordinal(), right[2] - 3, rigTitle}, new int[] {Area.BACKPACK.ordinal(), right[2] - 3, packRow});
 		if (!menu.getCarried().isEmpty()) {
 			g.text(font, Component.translatable("gui.mistinn.rotate_hint"), right[0] + 4, right[3] + 3, LABEL_DIM, true);
 		}
@@ -489,8 +502,36 @@ public final class GridPanel {
 
 	// ── Input ──────────────────────────────────────────────────────
 
+	/**
+	 * Draws the small sort buttons at the right end of a compartment's title row ({@code right} is the
+	 * row's right edge), one for each compartment that holds anything, and remembers them for clicks.
+	 */
+	public static void sortButtons(final GuiGraphicsExtractor g, final GridInventory inv, final int mouseX, final int mouseY, final int[]... rows) {
+		Font font = Minecraft.getInstance().font;
+		Component label = Component.translatable("gui.mistinn.sort");
+		List<SortButton> buttons = new ArrayList<>();
+		for (int[] row : rows) {
+			Area area = Area.byId(row[0]);
+			if (inv.items(area).isEmpty()) {
+				continue;
+			}
+			int w = font.width(label) + 6;
+			SortButton sort = new SortButton(area, row[1] - w, row[2] - 2, w, 11);
+			boolean hover = sort.contains(mouseX, mouseY);
+			g.fill(sort.x(), sort.y(), sort.x() + sort.width(), sort.y() + sort.height(), hover ? 0xC06B5B3A : 0x80302820);
+			g.outline(sort.x(), sort.y(), sort.width(), sort.height(), hover ? 0xFFE9C46A : PANEL_LINE);
+			g.text(font, label, sort.x() + 3, sort.y() + 2, hover ? 0xFFE9C46A : LABEL_DIM, false);
+			if (hover) {
+				g.setTooltipForNextFrame(font, Component.translatable("gui.mistinn.sort.hint"), mouseX, mouseY);
+			}
+			buttons.add(sort);
+		}
+		sortButtons = List.copyOf(buttons);
+	}
+
 	/** Forgets the layout, so input stops reaching a panel that is no longer shown. */
 	public static void clear() {
+		sortButtons = List.of();
 		layout = null;
 		hover = null;
 		pressedOnPanel = false;
@@ -508,6 +549,16 @@ public final class GridPanel {
 		Minecraft mc = Minecraft.getInstance();
 		if (l == null || mc.player == null || !active()) {
 			return false;
+		}
+		for (SortButton sort : sortButtons) {
+			if (sort.contains(mx, my)) {
+				if (button == LEFT && menu.getCarried().isEmpty()) {
+					send(GridActionPayload.SORT, sort.area(), 0, 0, 0);
+				}
+				pressedOnPanel = button == LEFT;
+				pressedAt = null;
+				return true;
+			}
 		}
 		SocketBox socket = l.socketAt(mx, my);
 		if (socket != null) {
