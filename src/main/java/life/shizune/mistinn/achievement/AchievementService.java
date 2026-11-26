@@ -142,8 +142,22 @@ public final class AchievementService {
 				SaltService.add(player, achievement.reward);
 			}
 			player.level().playSound(null, player.getX(), player.getY(), player.getZ(), MistinnSounds.ACHIEVEMENT, SoundSource.PLAYERS, 0.8F, 1.0F);
+			announce(player, holder);
 		}
 		return true;
+	}
+
+	/**
+	 * Tells everyone in the world in the chat, as the game does for its own advancements: who, and
+	 * which (its description on the name's tooltip). The game rule that silences advancement messages
+	 * silences these too.
+	 */
+	private static void announce(final ServerPlayer player, final AdvancementHolder holder) {
+		net.minecraft.server.MinecraftServer server = player.level().getServer();
+		if (server == null || !player.level().getGameRules().get(net.minecraft.world.level.gamerules.GameRules.SHOW_ADVANCEMENT_MESSAGES)) {
+			return;
+		}
+		holder.value().display().ifPresent(display -> server.getPlayerList().broadcastSystemMessage(display.type().createAnnouncement(holder, player), false));
 	}
 
 	/**
