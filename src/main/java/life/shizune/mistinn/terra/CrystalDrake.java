@@ -276,9 +276,26 @@ public class CrystalDrake extends Monster {
 	private void climb() {
 		this.setMode(Mode.CIRCLE);
 		this.timer = DIVE_MIN + this.random.nextInt(DIVE_MAX - DIVE_MIN);
+		if (this.inSquall()) {
+			// the squall stirs them: they come down again twice as soon
+			this.timer /= 2;
+		}
 		this.radius = this.wheel() + this.random.nextDouble() * 8.0;
 		this.angle = Math.atan2(this.getZ() - this.aim.z, this.getX() - this.aim.x);
 		this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 0.0, 0.6).add(0.0, 0.5, 0.0));
+	}
+
+	/** Whether a crystal squall is blowing over the highland it keeps the sky of. */
+	public boolean inSquall() {
+		if (!(this.level() instanceof ServerLevel level)) {
+			return false;
+		}
+		life.shizune.mistinn.domain.Domain domain = life.shizune.mistinn.domain.DomainService.at(level.getServer(), this.getX(), this.getZ());
+		if (domain == null || domain.kind() != life.shizune.mistinn.domain.Domain.Kind.TERRA) {
+			return false;
+		}
+		Squall.Storm storm = Squall.storm(level.getServer(), domain.id());
+		return storm != null && storm.stage(level.getGameTime()) == Squall.Stage.RAGING;
 	}
 
 	/** Turns its course towards where it is going, as a flyer does, not all at once. */
