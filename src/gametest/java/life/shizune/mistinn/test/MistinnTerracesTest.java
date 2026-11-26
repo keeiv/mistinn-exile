@@ -31,6 +31,8 @@ public final class MistinnTerracesTest implements FabricClientGameTest {
 		if (TestFilter.skip(getClass())) {
 			return;
 		}
+		// the springs have a test of their own: here, only the steps
+		TerraShaper.springs = 0.0;
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			world.getConnection().waitForChunksRender();
 			world.getServer().runCommand("gamemode creative @a");
@@ -109,6 +111,8 @@ public final class MistinnTerracesTest implements FabricClientGameTest {
 			});
 			context.waitTicks(40);
 			context.takeScreenshot(TestScreenshotOptions.of("terraces").disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("terra")));
+		} finally {
+			TerraShaper.springs = 1.0;
 		}
 	}
 
