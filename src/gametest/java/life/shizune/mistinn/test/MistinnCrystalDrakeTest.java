@@ -73,6 +73,7 @@ public final class MistinnCrystalDrakeTest implements FabricClientGameTest {
 				bitten = world.getServer().computeOnServer(server -> player(server).getHealth() < player(server).getMaxHealth());
 			}
 			check(bitten, "the drake dives and bites");
+			check(world.getServer().computeOnServer(server -> drake[0].shadows() > 0), "its shadow falls round the hunter as it comes down");
 
 			// its facets
 			world.getServer().runOnServer(server -> {
