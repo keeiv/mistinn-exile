@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/rift_sealed",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.drake_shattered.desc"
+		},
+		"icon": {
+			"id": "mistinn:crystal_core"
+		},
+		"title": {
+			"translate": "achievement.mistinn.drake_shattered"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

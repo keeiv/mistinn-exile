@@ -374,6 +374,13 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		check(has(world, Achievement.RIFT_SEALED), "the sewn sky is remembered");
 		int gainedRift = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeRift;
 		check(gainedRift == 600, "and pays 600: " + gainedRift);
+		// a crystal drake shattered (MistinnCrystalDrakeTest earns it)
+		int beforeDrake = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
+		world.getServer().runOnServer(server -> AchievementService.grant(player(server), AchievementService.DRAKE_SHATTERED));
+		context.waitTicks(5);
+		check(has(world, Achievement.DRAKE_SHATTERED), "the shattered drake is remembered");
+		int gainedDrake = world.getServer().computeOnServer(server -> SaltService.get(player(server))) - beforeDrake;
+		check(gainedDrake == 400, "and pays 400: " + gainedDrake);
 		// the hidden one (MistinnApostleTest earns it the way the game does)
 		int beforeApostle = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
 		world.getServer().runOnServer(server -> AchievementService.grant(player(server), AchievementService.APOSTLE));

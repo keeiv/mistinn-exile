@@ -31,6 +31,7 @@ public enum Achievement {
 	TIDE(AchievementService.TIDE, 500),
 	BOUNTY(AchievementService.BOUNTY, 500),
 	RIFT_SEALED(AchievementService.RIFT_SEALED, 600),
+	DRAKE_SHATTERED(AchievementService.DRAKE_SHATTERED, 400),
 	ENDING_ANCHOR(AchievementService.ENDING_ANCHOR, 2000),
 	ENDING_INN(AchievementService.ENDING_INN, 2000),
 	REVIVE_LIMB("revive_limb", 150),
