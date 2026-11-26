@@ -191,6 +191,7 @@ public class MistinnClient implements ClientModInitializer {
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> life.shizune.mistinn.client.combat.WeaponText.decorate(stack, lines));
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> life.shizune.mistinn.client.combat.RustAnchorWeaponText.decorate(stack, lines));
 
+		ClientTickEvents.END_CLIENT_TICK.register(life.shizune.mistinn.client.terra.ZoneTitle::tick);
 		ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
 			life.shizune.mistinn.client.move.RollClient.tick(minecraft, roll);
 			life.shizune.mistinn.client.medical.TreatmentClient.tick(minecraft);
