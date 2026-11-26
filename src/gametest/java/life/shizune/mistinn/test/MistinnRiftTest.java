@@ -135,6 +135,12 @@ public final class MistinnRiftTest implements FabricClientGameTest {
 					}
 				}
 				check(guardians != null, "wave " + wave + " comes down");
+				if (wave >= 2) {
+					List<UUID> came = guardians;
+					long hounds = world.getServer().computeOnServer(server -> came.stream().map(server.overworld()::getEntity)
+						.filter(e -> e instanceof life.shizune.mistinn.rift.RiftHound).count());
+					check(hounds >= 2, "a pack of hounds comes down with wave " + wave + ": " + hounds);
+				}
 				List<UUID> down = guardians;
 				if (wave == 1 || wave == RiftService.WAVES) {
 					// face to face with one of them, held still for the picture

@@ -339,7 +339,7 @@ public final class RiftService {
 		level.setAttached(BATTLE, battle);
 	}
 
-	/** One wave down out of the rift: walkers, more for every hunter near; the last led by the herald. */
+	/** One wave down out of the rift: walkers, more for every hunter near; from the second on, a pack of hounds too; the last led by the herald. */
 	private static List<UUID> wave(final ServerLevel level, final Domain domain, final int wave) {
 		int hunters = (int) level.players().stream().filter(p -> !p.isSpectator() && domain.distance(p.getX(), p.getZ()) <= LEAVE).count();
 		float scale = switch (Hardship.of(level.getServer())) {
@@ -353,6 +353,13 @@ public final class RiftService {
 			Mob walker = drop(level, domain, MistinnEntities.RIFT_WALKER);
 			if (walker != null) {
 				down.add(walker.getUUID());
+			}
+		}
+		int hounds = wave < 2 ? 0 : Math.max(2, Math.round((wave + Math.max(0, hunters - 1)) * scale));
+		for (int i = 0; i < hounds; i++) {
+			Mob hound = drop(level, domain, MistinnEntities.RIFT_HOUND);
+			if (hound != null) {
+				down.add(hound.getUUID());
 			}
 		}
 		if (wave == WAVES) {
@@ -405,11 +412,16 @@ public final class RiftService {
 		level.playSound(null, at, SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.HOSTILE, 2.0F, 0.5F);
 	}
 
-	/** Left alone, an open rift lets a walker out now and then, onto its own ground. */
+	/** Left alone, an open rift lets a walker or a hound out now and then, onto its own ground. */
 	private static void release(final ServerLevel level, final Domain domain) {
-		int out = level.getEntitiesOfClass(RiftWalker.class, new net.minecraft.world.phys.AABB(domain.centre()).inflate(domain.radius(), 64.0, domain.radius())).size();
+		int out = level.getEntitiesOfClass(Mob.class, new net.minecraft.world.phys.AABB(domain.centre()).inflate(domain.radius(), 64.0, domain.radius()),
+			mob -> mob instanceof RiftTouched && !(mob instanceof RiftHerald)).size();
 		if (out < RELEASED) {
-			drop(level, domain, MistinnEntities.RIFT_WALKER);
+			if (level.getRandom().nextInt(3) == 0) {
+				drop(level, domain, MistinnEntities.RIFT_HOUND);
+			} else {
+				drop(level, domain, MistinnEntities.RIFT_WALKER);
+			}
 		}
 	}
 

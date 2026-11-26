@@ -85,6 +85,21 @@ public final class MistinnEntities {
 		.clientTrackingRange(12)
 		.fireImmune());
 
+	/** 裂隙獵犬: a gaunt hound lit from inside by a sky rift's light, that hunts in packs. */
+	public static final EntityType<life.shizune.mistinn.rift.RiftHound> RIFT_HOUND = register("rift_hound",
+		EntityType.Builder.<life.shizune.mistinn.rift.RiftHound>of(life.shizune.mistinn.rift.RiftHound::new, MobCategory.MONSTER)
+		.sized(0.9F, 1.15F)
+		.eyeHeight(1.0F)
+		.clientTrackingRange(10));
+
+	/** 晶蜥: the small one of the lattice, a lizard of vein stone and crystal that keeps to the ground in threes. */
+	public static final EntityType<life.shizune.mistinn.terra.CrystalLizard> CRYSTAL_LIZARD = register("crystal_lizard",
+		EntityType.Builder.<life.shizune.mistinn.terra.CrystalLizard>of(life.shizune.mistinn.terra.CrystalLizard::new, MobCategory.MONSTER)
+		.sized(0.9F, 0.55F)
+		.eyeHeight(0.4F)
+		.clientTrackingRange(10)
+		.fireImmune());
+
 	/** 晶龍: a wyvern of living crystal that keeps the skies of a Terra highland. */
 	public static final EntityType<life.shizune.mistinn.terra.CrystalDrake> CRYSTAL_DRAKE = register("crystal_drake",
 		EntityType.Builder.<life.shizune.mistinn.terra.CrystalDrake>of(life.shizune.mistinn.terra.CrystalDrake::new, MobCategory.MONSTER)
@@ -152,11 +167,19 @@ public final class MistinnEntities {
 		FabricDefaultAttributeRegistry.register(CRYSTAL_DRAKE, life.shizune.mistinn.terra.CrystalDrake.createAttributes());
 		FabricDefaultAttributeRegistry.register(TILLER, life.shizune.mistinn.terra.Tiller.createAttributes());
 		FabricDefaultAttributeRegistry.register(CRYSTAL_ELDER, life.shizune.mistinn.terra.CrystalElder.createAttributes());
+		FabricDefaultAttributeRegistry.register(RIFT_HOUND, life.shizune.mistinn.rift.RiftHound.createAttributes());
+		FabricDefaultAttributeRegistry.register(CRYSTAL_LIZARD, life.shizune.mistinn.terra.CrystalLizard.createAttributes());
 		// crystal drakes come of themselves under the open sky of a Terra highland, day or night
 		life.shizune.mistinn.mixin.SpawnPlacementsInvoker.mistinn$register(CRYSTAL_DRAKE, net.minecraft.world.entity.SpawnPlacementTypes.NO_RESTRICTIONS,
 			net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, life.shizune.mistinn.terra.CrystalDrake::checkSpawnRules);
 		// rift walkers come of themselves where a rift has scarred the ground, in the dark like any monster
 		life.shizune.mistinn.mixin.SpawnPlacementsInvoker.mistinn$register(RIFT_WALKER, net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
 			net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, net.minecraft.world.entity.monster.Monster::checkMonsterSpawnRules);
+		// rift hounds run the scarred ground in packs, in the dark
+		life.shizune.mistinn.mixin.SpawnPlacementsInvoker.mistinn$register(RIFT_HOUND, net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+			net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, net.minecraft.world.entity.monster.Monster::checkMonsterSpawnRules);
+		// crystal lizards keep to the ground of a Terra highland in threes, day or night
+		life.shizune.mistinn.mixin.SpawnPlacementsInvoker.mistinn$register(CRYSTAL_LIZARD, net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+			net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, life.shizune.mistinn.terra.CrystalLizard::checkSpawnRules);
 	}
 }

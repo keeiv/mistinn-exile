@@ -32,7 +32,17 @@
           "axolotls": [],
           "creature": [],
           "misc": [],
-          "monster": [],
+          "monster": [
+            {
+              "type": "mistinn:crystal_lizard",
+              "count": {
+                "type": "minecraft:uniform",
+                "min_inclusive": 3,
+                "max_inclusive": 3
+              },
+              "weight": 20
+            }
+          ],
           "underground_water_creature": [],
           "water_ambient": [],
           "water_creature": []

@@ -37,6 +37,15 @@
               "type": "mistinn:crystal_drake",
               "count": 1,
               "weight": 10
+            },
+            {
+              "type": "mistinn:crystal_lizard",
+              "count": {
+                "type": "minecraft:uniform",
+                "min_inclusive": 3,
+                "max_inclusive": 3
+              },
+              "weight": 6
             }
           ],
           "underground_water_creature": [],
