@@ -99,6 +99,7 @@ public class MistinnClient implements ClientModInitializer {
 			new KeyMapping("key.mistinn.journal", InputConstants.KEY_K, CATEGORY)
 		);
 		life.shizune.mistinn.client.story.StoryClient.register();
+		life.shizune.mistinn.client.ledger.LedgerClient.register();
 		KeyMapping swingCamera = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.swing_camera", InputConstants.KEY_J, CATEGORY)
 		);

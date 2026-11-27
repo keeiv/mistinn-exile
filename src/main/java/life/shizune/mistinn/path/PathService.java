@@ -588,7 +588,10 @@ public final class PathService {
 			PathMemorials.raise(server.overworld(), homestead, highland, fallen.size() - 1, line.walker());
 		}
 		Component lost = name(line.walker());
+		// every hunter's own ledger keeps the name: the same tiller falls again in another world
+		life.shizune.mistinn.ledger.LedgerService.tellAll(server, "path.fallen." + line.walker(), true);
 		if (fallen.size() >= PEOPLE) {
+			life.shizune.mistinn.ledger.LedgerService.tellAll(server, "path.cut", true);
 			Line cut = line.lost(fallen, line.walker(), Step.CUT);
 			set(server, cut);
 			for (ServerPlayer each : server.getPlayerList().getPlayers()) {
@@ -637,6 +640,10 @@ public final class PathService {
 			}
 		}
 		player.setAttached(SAW_END, true);
+		life.shizune.mistinn.ledger.LedgerService.tell(player, "path.sea", true);
+		if (line.fallen().isEmpty()) {
+			life.shizune.mistinn.ledger.LedgerService.tell(player, "path.sea.whole", true);
+		}
 		ServerPlayNetworking.send(player, new EndPayload(true, line.fallen(), line.walker()));
 	}
 
