@@ -48,7 +48,8 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * 晶耕族: the people of the Terra valleys, who farm the living crystal and build with high
- * technology. Each keeps to their settlement: the tillers tend the field and run when struck,
+ * technology. Each keeps to their settlement and its day ({@link TillerRoutine}): the tillers tend
+ * the field and run when struck,
  * the warden stands guard with a spear against monsters and the crystal drakes, and the keeper of
  * trade deals in crystal. Whoever harms one of them is turned away by all of them for a while.
  */
@@ -118,6 +119,8 @@ public class Tiller extends PathfinderMob implements Merchant {
 				return Tiller.this.role() != Role.WARDEN && super.canUse();
 			}
 		});
+		// the settlement's day: field, hub, workshop (see TillerRoutine)
+		this.goalSelector.addGoal(3, new TillerRoutine(this));
 		this.goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, 0.7));
 		this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.5));
 		this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
@@ -149,6 +152,16 @@ public class Tiller extends PathfinderMob implements Merchant {
 
 	public Role role() {
 		return Role.byIndex(this.entityData.get(DATA_ROLE));
+	}
+
+	/** The hub this one keeps near, or null for one who keeps no settlement. */
+	public @Nullable BlockPos home() {
+		return this.home;
+	}
+
+	/** Whether a hunter is trading with this one now. */
+	public boolean isTrading() {
+		return this.trading != null;
 	}
 
 	@Override
@@ -207,6 +220,8 @@ public class Tiller extends PathfinderMob implements Merchant {
 
 	/** How many things each of them has to say, besides what the moment calls for. */
 	public static final int LINES = 6;
+	/** How many things any of them says at dusk, and at night. */
+	public static final int EVENING_LINES = 3;
 
 	/** What one of them says to a hunter: what the moment calls for (a squall over them, a siege at their door), or one of their own. */
 	public String line(final Player player) {
@@ -218,6 +233,14 @@ public class Tiller extends PathfinderMob implements Merchant {
 			life.shizune.mistinn.domain.Domain domain = life.shizune.mistinn.domain.DomainService.at(this.level().getServer(), this.getX(), this.getZ());
 			if (domain != null && Siege.watch(this.level().getServer(), domain.id()).on()) {
 				return "message.mistinn.tiller.siege";
+			}
+		}
+		// at dusk and at night they speak of the day's end, half the time
+		Settlements.Settlement home = TillerRoutine.home(this);
+		if (home != null && this.random.nextBoolean()) {
+			TillerRoutine.Phase phase = TillerRoutine.phase(this.level(), home);
+			if (phase == TillerRoutine.Phase.GATHER || phase == TillerRoutine.Phase.REST) {
+				return "message.mistinn.tiller." + (phase == TillerRoutine.Phase.GATHER ? "dusk" : "night") + "." + this.random.nextInt(EVENING_LINES);
 			}
 		}
 		return "message.mistinn.tiller." + who + "." + this.random.nextInt(LINES);
