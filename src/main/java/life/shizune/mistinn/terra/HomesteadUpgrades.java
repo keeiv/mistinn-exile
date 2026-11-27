@@ -28,7 +28,7 @@ import org.jspecify.annotations.Nullable;
  * cores than the last.
  * <ol>
  * <li>晶田進貢: every morning the fields send crystal grit to the hub, to be taken from it.</li>
- * <li>第二位守衛: a second warden keeps the homestead, and the fields send more.</li>
+ * <li>第二位守衛: a second warden keeps the homestead, two crystal turrets rise on its deck, and the fields send more.</li>
  * <li>晶脈歸途: the way home to it closes for half as long, and the tillers' thanks for holding it are doubled.</li>
  * </ol>
  */
@@ -138,6 +138,9 @@ public final class HomesteadUpgrades {
 		level.playSound(null, hub, SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 2.0F, 0.7F + 0.2F * next);
 		if (next == 2) {
 			warden(level, home);
+		}
+		if (next >= HomesteadDefence.TURRET_STEP) {
+			HomesteadDefence.raiseTurrets(level, home);
 		}
 		for (ServerPlayer player : level.players()) {
 			player.sendSystemMessage(Component.translatable("message.mistinn.hub.grew." + next, hunter.getDisplayName()).withStyle(ChatFormatting.AQUA));

@@ -258,6 +258,9 @@ public final class MistinnBlocks {
 	/** 工作台: the bench in a homestead's workshop, where worn gear is mended for crystal grit. */
 	public static final Block WORKBENCH = register("workbench", life.shizune.mistinn.block.WorkbenchBlock::new, facility().noOcclusion()
 		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.WorkbenchBlock.LIT) ? 6 : 0));
+	/** 晶能砲台: a homestead's crystal turret, raised at its second step; it fires in a crystal tide. */
+	public static final Block TURRET = register("turret", life.shizune.mistinn.block.TurretBlock::new, facility().noOcclusion()
+		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.TurretBlock.LIT) ? 7 : 0));
 	/** 中繼塔: a relay pylon, stood in a base, a lattice mast and a head; its crystal light wakes with the hub. */
 	public static final Block RELAY_PYLON = register("relay_pylon", life.shizune.mistinn.block.RelayPylonBlock::new, facility().noOcclusion()
 		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.RelayPylonBlock.LIT) ? 9 : 1));

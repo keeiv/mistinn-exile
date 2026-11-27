@@ -14,6 +14,7 @@ import life.shizune.mistinn.block.HubSpireBlock;
 import life.shizune.mistinn.block.RefineryBlock;
 import life.shizune.mistinn.block.RelayPylonBlock;
 import life.shizune.mistinn.block.RoofVentBlock;
+import life.shizune.mistinn.block.TurretBlock;
 import life.shizune.mistinn.block.WorkbenchBlock;
 import life.shizune.mistinn.block.WorkshopWallBlock;
 import life.shizune.mistinn.domain.Domain;
@@ -424,6 +425,8 @@ public final class Settlements {
 			BlockState state = level.getBlockState(at);
 			if (state.is(MistinnBlocks.FACILITY_CONDUIT) && !state.getValue(ConduitBlock.LIT)) {
 				level.setBlock(at, state.setValue(ConduitBlock.LIT, true), Block.UPDATE_ALL);
+			} else if (state.is(MistinnBlocks.TURRET) && !state.getValue(TurretBlock.LIT)) {
+				level.setBlock(at, state.setValue(TurretBlock.LIT, true), Block.UPDATE_ALL);
 			} else if (state.is(MistinnBlocks.WORKBENCH) && !state.getValue(WorkbenchBlock.LIT)) {
 				level.setBlock(at, state.setValue(WorkbenchBlock.LIT, true), Block.UPDATE_ALL);
 			} else if (state.is(MistinnBlocks.WORKSHOP_WALL) && !state.getValue(WorkshopWallBlock.LIT)) {
