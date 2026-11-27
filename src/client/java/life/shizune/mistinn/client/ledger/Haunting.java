@@ -89,13 +89,18 @@ public final class Haunting {
 	 */
 	private static final java.util.Set<String> HEAVY = java.util.Set.of("path_stitched");
 
+	/** Whether a story card's picture may be shown at this content level, wherever it is shown (a card, the world map). */
+	public static boolean shown(final String card) {
+		return !(life.shizune.mistinn.client.ContentLevel.light() && HEAVY.contains(card));
+	}
+
 	/**
 	 * The picture of a story card as the hunter sees it now, or null for none. The pictures that have gone wrong (a figure
 	 * in the fog, someone at the lamp room's window, the fallen standing watching) are a staged turn of the fourth wall:
 	 * with scares off the card keeps its own picture, or its kind one. At the lightest level a heavy picture is not shown.
 	 */
 	public static @org.jspecify.annotations.Nullable Identifier picture(final String card) {
-		if (life.shizune.mistinn.client.ContentLevel.light() && HEAVY.contains(card)) {
+		if (!shown(card)) {
 			return null;
 		}
 		Ledger ledger = LedgerClient.ledger();
