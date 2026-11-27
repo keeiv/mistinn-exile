@@ -206,6 +206,8 @@ public final class MistinnSounds {
 	public static final SoundEvent MUSIC_PATH_END = register("music.path_end");
 	/** Under the Mist Inn ending's last pages: the morning. */
 	public static final SoundEvent MUSIC_INN_MORNING = register("music.inn_morning");
+	/** Behind the content warning before the title screen: a music box, warm, until it is answered. */
+	public static final SoundEvent MUSIC_CONTENT_WARNING = register("music.content_warning");
 	/** The highland air, and crystal touching crystal somewhere near. */
 	public static final SoundEvent AMBIENT_TERRA_LOOP = register("ambient.terra.loop");
 	public static final SoundEvent AMBIENT_TERRA_ADDITIONS = register("ambient.terra.additions");
