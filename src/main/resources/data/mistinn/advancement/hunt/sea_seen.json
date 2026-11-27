@@ -1,5 +1,5 @@
 {
-	"parent": "mistinn:hunt/elder_slain",
+	"parent": "mistinn:hunt/tab_path",
 	"criteria": {
 		"earned": {
 			"trigger": "minecraft:impossible"

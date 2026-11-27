@@ -11,7 +11,7 @@
 			"translate": "advancement.mistinn.root.desc"
 		},
 		"icon": {
-			"id": "mistinn:golden_bell"
+			"id": "mistinn:anchor_blade"
 		},
 		"show_toast": false,
 		"title": {

@@ -99,6 +99,11 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		world.getServer().runOnServer(server -> {
 			ServerPlayer player = player(server);
 			check(AchievementService.has(player, AchievementService.ROOT.getPath().substring("hunt/".length())), "every hunter has the tab's root from the start");
+			// the tabs: four in a world that is not the tillers' way; that one only for a hunter who has walked it
+			for (net.minecraft.resources.Identifier root : AchievementService.ROOTS) {
+				boolean want = !root.equals(AchievementService.PATH_TAB);
+				check(AchievementService.has(player, root.getPath().substring("hunt/".length())) == want, root + (want ? " is a tab from the start" : " is not a tab here"));
+			}
 			player.setAttached(MistinnAttachments.ACHIEVEMENTS, some);
 			AchievementService.joined(player);
 			check(AchievementService.has(player, Achievement.FIRST_KILL) && AchievementService.has(player, AchievementService.SNUFFER) && AchievementService.has(player, "kill:blade"),
@@ -108,6 +113,11 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 			check(player.getAttached(MistinnAttachments.ACHIEVEMENTS) == null, "and the old record is gone");
 			AchievementService.clear(player);
 			check(AchievementService.earned(player) == 0 && !AchievementService.has(player, "kill:blade"), "clearing forgets every one");
+			check(AchievementService.has(player, AchievementService.SHORE_TAB.getPath().substring("hunt/".length())), "but the tabs stay");
+			AchievementService.grant(player, Achievement.SEA_SEEN);
+			AchievementService.joined(player);
+			check(AchievementService.has(player, AchievementService.PATH_TAB.getPath().substring("hunt/".length())), "a hunter who has walked the way keeps its tab anywhere");
+			AchievementService.clear(player);
 		});
 	}
 
@@ -398,8 +408,8 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		// the elder stunned against stone, a siege held, an alpha brought down (MistinnCrystalElderTest, MistinnSiegeTest and MistinnRiftHoundTest earn them)
 		String[] terra = {AchievementService.ELDER_STUNNED, AchievementService.SIEGE_HELD, AchievementService.ALPHA_SLAIN,
 			AchievementService.LIZARD_TAMED, AchievementService.RUIN_OPENED, AchievementService.RIFT_CALLED, AchievementService.SEA_SEEN,
-			AchievementService.TWELVE_SLAIN, AchievementService.XIRANG, AchievementService.THE_LAND};
-		int[] pays = {300, 600, 400, 200, 300, 300, 2000, 12, 3000, 1500};
+			AchievementService.TWELVE_SLAIN, AchievementService.THIRTEEN_SLAIN, AchievementService.XIRANG, AchievementService.THE_LAND};
+		int[] pays = {300, 600, 400, 200, 300, 300, 2000, 12, 13, 3000, 1500};
 		for (int i = 0; i < terra.length; i++) {
 			String id = terra[i];
 			int beforeEach = world.getServer().computeOnServer(server -> SaltService.get(player(server)));

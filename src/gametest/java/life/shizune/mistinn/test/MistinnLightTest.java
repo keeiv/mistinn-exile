@@ -88,7 +88,7 @@ public final class MistinnLightTest implements FabricClientGameTest {
 				world.getConnection().waitForChunksRender();
 				List<String> ids = world.getServer().computeOnServer(server -> server.getAdvancements().getAllAdvancements().stream()
 					.map(holder -> holder.id())
-					.filter(id -> id.getNamespace().equals(Mistinn.MOD_ID) && id.getPath().startsWith("hunt/") && !id.getPath().equals("hunt/root"))
+					.filter(id -> id.getNamespace().equals(Mistinn.MOD_ID) && id.getPath().startsWith("hunt/") && !AchievementService.ROOTS.contains(id))
 					.map(id -> id.getPath().substring("hunt/".length())).sorted().toList());
 				check(ids.size() >= 40, "the hunt tab lists its achievements (" + ids.size() + ")");
 				world.getServer().runOnServer(server -> {

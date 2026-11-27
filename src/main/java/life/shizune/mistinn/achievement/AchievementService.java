@@ -88,8 +88,21 @@ public final class AchievementService {
 	private static final String KILL = "kill:";
 	/** The folder of the tab, under the mod's namespace. */
 	private static final String TAB = "hunt/";
-	/** The tab's root: every hunter has it from the moment they arrive, so the tab is there before anything is earned. */
+	/**
+	 * The hunt's tab (weapons, footwork, stats, elites): its root, like every tab's, every hunter has from the moment they
+	 * arrive, so the tab is there before anything on it is earned. It is the tab the guide's bookmark opens.
+	 */
 	public static final Identifier ROOT = Mistinn.id(TAB + "root");
+	/** The other tabs: the mist shore (the story and its keepers), survival, afar (the sea, the rifts, Terra), and the tillers' way. */
+	public static final Identifier SHORE_TAB = Mistinn.id(TAB + "tab_shore");
+	public static final Identifier SURVIVAL_TAB = Mistinn.id(TAB + "tab_survival");
+	public static final Identifier AFAR_TAB = Mistinn.id(TAB + "tab_afar");
+	public static final Identifier PATH_TAB = Mistinn.id(TAB + "tab_path");
+	/** Every tab's root. */
+	public static final List<Identifier> ROOTS = List.of(ROOT, SHORE_TAB, SURVIVAL_TAB, AFAR_TAB, PATH_TAB);
+	/** What is on the tillers' way's tab: a hunter who holds any of these keeps the tab in any world. */
+	private static final List<Achievement> PATH_ONES = List.of(Achievement.SEA_SEEN, Achievement.XIRANG, Achievement.THE_LAND, Achievement.TWELVE_SLAIN,
+		Achievement.THIRTEEN_SLAIN);
 
 	/**
 	 * Set by the client: whether the local hunter has an achievement or mark, read from the advancements the server
@@ -211,12 +224,18 @@ public final class AchievementService {
 	}
 
 	/**
-	 * A hunter has arrived in a world: they get the tab's root, and a record kept the old way (before achievements
-	 * were advancements) is moved over once, without paying its salt again.
+	 * A hunter has arrived in a world: they get the tabs' roots, and a record kept the old way (before achievements
+	 * were advancements) is moved over once, without paying its salt again. The tillers' way's tab is only for a world
+	 * of the way, or a hunter who has walked it: nowhere else is anything on it to be earned.
 	 */
 	public static void joined(final ServerPlayer player) {
-		AdvancementHolder root = holder(player, ROOT);
-		if (root != null) {
+		boolean way = life.shizune.mistinn.story.WorldMode.of(player.level().getServer()) == life.shizune.mistinn.story.WorldMode.PATH
+			|| PATH_ONES.stream().anyMatch(each -> has(player, each));
+		for (Identifier id : ROOTS) {
+			AdvancementHolder root = holder(player, id);
+			if (root == null || id.equals(PATH_TAB) && !way) {
+				continue;
+			}
 			for (String criterion : List.copyOf(root.value().criteria().keySet())) {
 				player.getAdvancements().award(root, criterion);
 			}
@@ -271,12 +290,12 @@ public final class AchievementService {
 		}
 	}
 
-	/** Forgets every achievement and mark (the root stays): leaving the training ground, and tests. */
+	/** Forgets every achievement and mark (the tabs' roots stay): leaving the training ground, and tests. */
 	public static void clear(final ServerPlayer player) {
 		PlayerAdvancements advancements = player.getAdvancements();
 		for (AdvancementHolder holder : player.level().getServer().getAdvancements().getAllAdvancements()) {
 			Identifier id = holder.id();
-			if (!id.getNamespace().equals(Mistinn.MOD_ID) || !id.getPath().startsWith(TAB) || id.equals(ROOT)) {
+			if (!id.getNamespace().equals(Mistinn.MOD_ID) || !id.getPath().startsWith(TAB) || ROOTS.contains(id)) {
 				continue;
 			}
 			List<String> done = new java.util.ArrayList<>();

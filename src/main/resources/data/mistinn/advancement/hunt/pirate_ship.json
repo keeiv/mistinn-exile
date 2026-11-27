@@ -1,5 +1,5 @@
 {
-	"parent": "mistinn:hunt/first_kill",
+	"parent": "mistinn:hunt/tab_afar",
 	"criteria": {
 		"earned": {
 			"trigger": "minecraft:impossible"
