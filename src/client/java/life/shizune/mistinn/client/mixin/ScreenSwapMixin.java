@@ -36,6 +36,10 @@ public abstract class ScreenSwapMixin {
 			&& mc.getSingleplayerServer() != null) {
 			return new HostRoomScreen(pause, mc.getSingleplayerServer());
 		}
+		// the thirteenth has no death screen: its face, then dark
+		if (screen.getClass() == DeathScreen.class && mc.player != null && life.shizune.mistinn.client.path.ThirteenthClient.dying()) {
+			return life.shizune.mistinn.client.path.ThirteenthClient.death();
+		}
 		// death plays its scene, then ends the mission
 		if (screen.getClass() == DeathScreen.class && mc.player != null && GridPanel.active()) {
 			DeathScreenAccessor vanilla = (DeathScreenAccessor) screen;

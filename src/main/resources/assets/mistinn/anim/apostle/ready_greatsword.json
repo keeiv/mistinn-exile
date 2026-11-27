@@ -1,0 +1,19 @@
+{"_comment":"greatsword stance, breathing.",
+"keys":[0.0,0.5,1.0],
+"eases":["in_out_sine","in_out_sine"],
+"length":64,"pitch_follow":0.0,"third_person":{
+"arm_x":[-40,-42,-40],
+"arm_y":[-20,-20,-20],
+"arm_z":[0,0,0],
+"back_leg":[12,12,12],
+"body_x":[6,8,6],
+"body_y":[10,10,10],
+"front_leg":[-12,-12,-12],
+"grip":[1,1,1],
+"item_x":[-28,-28,-28],
+"other_x":[-36,-38,-36],
+"other_y":[0,0,0],
+"other_z":[0,0,0]},
+"limbs":{
+"head_x":[2,3,2]},
+"two_handed":true}

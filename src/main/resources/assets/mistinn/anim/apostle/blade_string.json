@@ -1,0 +1,19 @@
+{"_comment":"直刃三連: chambered low left (0-4); rising cut to high right, stepping in (lands 8); wrist turned over (8-13); flat cut back across at the shoulder (lands 16); wound high right (16-22); stepping cut down to the left hip, deep lunge (lands 27); held (27-30); back into the stance (30-36).",
+"keys":[0.0,0.105263,0.210526,0.263158,0.342105,0.421053,0.473684,0.578947,0.710526,0.789474,0.947368,1.0],
+"eases":["out_quad","out_quart","linear","in_cubic","out_quart","linear","in_cubic","out_quart","linear","in_out_sine","linear"],
+"length":38,"own":true,"hands":1,"two_handed":false,"pitch_follow":0.0,"third_person":{
+"arm_x":[-50,-20,-138,-146,-96,-92,-90,-165,-35,-32,-50,-50],
+"arm_y":[4,-55,48,54,64,-70,-78,35,-45,-45,4,4],
+"arm_z":[4,-10,12,12,14,-6,-6,8,-8,-8,4,4],
+"back_leg":[10,12,18,18,18,16,16,10,26,26,10,10],
+"body_x":[5,8,-2,-2,4,6,6,-6,22,22,5,5],
+"body_y":[16,-35,30,30,45,-50,-54,40,-30,-30,16,16],
+"front_leg":[-10,-14,-26,-26,-26,-18,-18,-10,-40,-40,-10,-10],
+"item_x":[-24,-70,-82,-90,-96,-92,-90,0,-60,-60,-24,-24],
+"other_x":[-38,-30,-20,-20,-20,-30,-30,-50,20,20,-38,-38],
+"other_y":[24,20,0,0,0,0,0,30,0,0,24,24],
+"other_z":[-6,-6,-25,-25,-25,-15,-15,-6,-30,-30,-6,-6]},
+"limbs":{
+"head_x":[2,2,-4,-4,0,0,0,0,6,6,2,2]},
+"root":{
+"y":[0,0,0,0,0,0,0,0,-0.12,-0.12,0,0]}}

@@ -1,0 +1,16 @@
+{"_comment":"翻滾（左）: tucked, the weapon against the chest (0-2), over the shoulder sideways (2-13), up in the stance (13-16).",
+"keys":[0.0,0.125,0.375,0.625,0.8125,1.0],
+"eases":["out_quad","linear","linear","out_quad","in_out_sine"],
+"length":16,"pivot":0.62,"pitch_follow":0.0,"third_person":{
+"arm_x":[-30,-30,-30,-30,-40,-42],
+"arm_y":[-30,-30,-30,-30,0,4],
+"back_leg":[-40,-40,-80,-80,12,10],
+"body_x":[30,30,45,45,16,5],
+"front_leg":[-40,-40,-80,-80,-14,-10],
+"other_x":[-40,-40,-40,-40,-40,-38],
+"other_y":[30,30,30,30,30,24]},
+"limbs":{
+"head_x":[20,20,20,20,4,0]},
+"root":{
+"roll":[0,-20,-150,-270,-350,-360],
+"y":[0,-0.15,0.18,0.18,-0.12,0]}}

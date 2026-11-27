@@ -122,7 +122,7 @@ public final class ParryService {
 	public static boolean great(final LivingEntity foe) {
 		return foe instanceof life.shizune.mistinn.keeper.Keeper || foe instanceof life.shizune.mistinn.rift.RiftHerald
 			|| foe instanceof life.shizune.mistinn.terra.CrystalElder || foe instanceof EnderDragon || foe instanceof WitherBoss
-			|| foe instanceof Warden || foe instanceof ElderGuardian;
+			|| foe instanceof Warden || foe instanceof ElderGuardian || foe instanceof life.shizune.mistinn.path.RustApostle;
 	}
 
 	/**

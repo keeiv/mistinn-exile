@@ -1,0 +1,14 @@
+{"_comment":"架: the weapon brought up before the face, upright, braced back on the rear foot (0-3); held (3-12); down (12-16).",
+"keys":[0.0,0.1875,0.75,1.0],
+"eases":["out_quart","linear","in_out_sine"],
+"length":16,"pitch_follow":0.0,"third_person":{
+"arm_x":[-100,-100,-98,-98],
+"arm_y":[-12,-12,-12,-12],
+"arm_z":[0,0,0,0],
+"back_leg":[14,14,14,14],
+"body_x":[-4,-4,-4,-4],
+"body_y":[-8,-8,-8,-8],
+"front_leg":[-6,-6,-6,-6],
+"item_dx":[0,18,18,0]},
+"limbs":{
+"head_x":[-4,-4,-4,-4]}}

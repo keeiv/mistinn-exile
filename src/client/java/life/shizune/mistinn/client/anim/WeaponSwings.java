@@ -141,7 +141,7 @@ public final class WeaponSwings {
 	 * 雙手握: points the other arm at the weapon hand, so both hands stay on the grip however
 	 * the weapon arm moves. Solved in the model's root space.
 	 */
-	private static void grip(final HumanoidModel<?> model, final ModelPart arm, final ModelPart other, final int side, final float w) {
+	public static void grip(final HumanoidModel<?> model, final ModelPart arm, final ModelPart other, final int side, final float w) {
 		// the weapon hand: the end of the arm, turned by the arm's rotation (applied x, y, z)
 		float hx = -side * 1.0F;
 		float hy = HAND_REACH;

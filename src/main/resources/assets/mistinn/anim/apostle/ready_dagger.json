@@ -1,0 +1,18 @@
+{"_comment":"dagger stance, breathing.",
+"keys":[0.0,0.5,1.0],
+"eases":["in_out_sine","in_out_sine"],
+"length":64,"pitch_follow":0.0,"third_person":{
+"arm_x":[-62,-64,-62],
+"arm_y":[22,22,22],
+"arm_z":[10,10,10],
+"back_leg":[16,16,16],
+"body_x":[12,14,12],
+"body_y":[18,18,18],
+"front_leg":[-16,-16,-16],
+"item_x":[100,100,100],
+"other_x":[-66,-68,-66],
+"other_y":[-18,-18,-18],
+"other_z":[-4,-4,-4]},
+"limbs":{
+"head_x":[-6,-5,-6]},
+"two_handed":false}

@@ -50,7 +50,7 @@ public final class LedgerService {
 
 	/** Test hook: the hunter's tone, as if their client had told it. */
 	public static void setTone(final ServerPlayer player, final int tone) {
-		TONES.put(player.getUUID(), tone & 7);
+		TONES.put(player.getUUID(), tone & 15);
 	}
 
 	/** This world's id, given now if it has none. */

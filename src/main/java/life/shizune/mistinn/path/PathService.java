@@ -414,6 +414,10 @@ public final class PathService {
 		}
 		for (ServerPlayer player : everyone) {
 			if (line.stage() == Step.CUT) {
+				if (Thirteenth.stitched(player)) {
+					// the thirteenth does not watch: it walks
+					continue;
+				}
 				// the way was cut: whoever comes can only watch, as everyone does
 				player.setAttached(PLACED, true);
 				if (player.gameMode() == GameType.SURVIVAL || player.gameMode() == GameType.ADVENTURE) {
@@ -594,6 +598,15 @@ public final class PathService {
 			life.shizune.mistinn.ledger.LedgerService.tellAll(server, "path.cut", true);
 			Line cut = line.lost(fallen, line.walker(), Step.CUT);
 			set(server, cut);
+			// one who sent the salt up in their other worlds is not let stop: the twelve are stitched into a thirteenth
+			if (Thirteenth.due(server)) {
+				for (ServerPlayer each : server.getPlayerList().getPlayers()) {
+					AchievementService.grant(each, Achievement.TWELVE_SLAIN);
+				}
+				Settlements.Settlement hearth = Settlements.of(server, line.domain());
+				Thirteenth.begin(server, hearth != null ? hearth.hub().above() : player.blockPosition());
+				return;
+			}
 			for (ServerPlayer each : server.getPlayerList().getPlayers()) {
 				each.setGameMode(GameType.SPECTATOR);
 				each.connection.send(new ClientboundSetTitlesAnimationPacket(20, 100, 40));

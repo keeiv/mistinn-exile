@@ -48,6 +48,13 @@ public abstract class ThirdPersonItemSwingMixin {
 				return;
 			}
 		}
+		if (state instanceof life.shizune.mistinn.client.path.ApostleRenderState apostle && arm == apostle.mainArm) {
+			// 3412's move (or stance) owns how the weapon sits in the hand: turned, levelled, spun
+			if (apostle.posed) {
+				poseStack.rotateDegrees(Axis.XP, apostle.arm("item_x"));
+			}
+			return;
+		}
 		life.shizune.mistinn.client.anim.HeavyClient.Pose heavy = state.getData(life.shizune.mistinn.client.anim.HeavyClient.KEY);
 		if (heavy != null && arm == state.mainArm) {
 			life.shizune.mistinn.client.anim.HeavyClient.thirdPersonItem(heavy, poseStack);

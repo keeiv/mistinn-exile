@@ -22,13 +22,28 @@ public final class PathSkins {
 	/** The looks a walker may have, in turn. */
 	public static final Tiller.Role[] LOOKS = {Tiller.Role.TILLER_1, Tiller.Role.TILLER_2};
 	private static final Map<Tiller.Role, PlayerSkin> SKINS = new EnumMap<>(Tiller.Role.class);
+	/** The twelve, stitched into one: the thirteenth's skin. */
+	private static final Identifier STITCHED = Mistinn.id("textures/entity/terra/stitched.png");
+	private static @Nullable PlayerSkin stitched;
+	/** While set, a hunter's own skin is asked for, as they chose it (the one who comes for the thirteenth wears it). */
+	public static boolean bypass;
 
 	private PathSkins() {
 	}
 
 	/** The look of a hunter on this world's way, or nothing when the world is not walking it. */
 	public static @Nullable PlayerSkin skin(final UUID id) {
+		if (bypass) {
+			return null;
+		}
 		Minecraft mc = Minecraft.getInstance();
+		net.minecraft.world.entity.player.Player who = mc.level == null ? null : mc.level.getPlayerByUUID(id);
+		if (who != null && life.shizune.mistinn.path.Thirteenth.stitched(who)) {
+			if (stitched == null) {
+				stitched = PlayerSkin.insecure(new ClientAsset.ResourceTexture(STITCHED, STITCHED), null, null, PlayerModelType.WIDE);
+			}
+			return stitched;
+		}
 		PathService.View view = mc.player == null ? null : mc.player.getAttached(PathService.VIEW);
 		if (view == null) {
 			return null;

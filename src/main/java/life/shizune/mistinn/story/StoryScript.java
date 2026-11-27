@@ -58,6 +58,12 @@ public final class StoryScript {
 	public static final Card ANCHOR = new Card("anchor", 4, "");
 	/** The ending Mist Inn: no pod comes down again, and the inn's lamp stays lit. */
 	public static final Card INN = new Card("inn", 4, "");
+	/** 十三人斬: the twelve, stitched. */
+	public static final Card PATH_STITCHED = new Card("path_stitched", 4, "");
+	/** 十三人斬: the hunter going home. */
+	public static final Card THIRTEEN_END = new Card("thirteen_end", 4, "");
+	/** The hunter as they are when no one moves them. */
+	public static final String APOSTLE = "apostle";
 	/** The lamp room, lit, with no one in it. */
 	public static final Card LAMP_LIT = new Card("lamp_lit", 1, "");
 	/** The path of longing: a tiller at the field's edge, looking at the fog. */
@@ -71,7 +77,8 @@ public final class StoryScript {
 		Map.entry(UNANSWERED.id(), UNANSWERED), Map.entry(SALT_ROAD.id(), SALT_ROAD), Map.entry(BELL_STATION.id(), BELL_STATION),
 		Map.entry(ANSWER.id(), ANSWER), Map.entry(SALT_WORKS.id(), SALT_WORKS), Map.entry(STOPPED.id(), STOPPED), Map.entry(THE_CALL.id(), THE_CALL),
 		Map.entry(ANCHOR.id(), ANCHOR), Map.entry(INN.id(), INN), Map.entry(PATH_FIELDS.id(), PATH_FIELDS), Map.entry(PATH_RECORD.id(), PATH_RECORD),
-		Map.entry(PATH_SEA.id(), PATH_SEA), Map.entry(LAMP_LIT.id(), LAMP_LIT));
+		Map.entry(PATH_SEA.id(), PATH_SEA), Map.entry(LAMP_LIT.id(), LAMP_LIT),
+		Map.entry(PATH_STITCHED.id(), PATH_STITCHED), Map.entry(THIRTEEN_END.id(), THIRTEEN_END));
 
 	// ── Sequences ────────────────────────────────────────────────────
 	/** Helm's first call over the mended radio. */
@@ -124,7 +131,9 @@ public final class StoryScript {
 	}
 
 	public static List<Line> sequence(final String id) {
-		List<String> speakers = SPEAKERS.getOrDefault(id, List.of());
+		// the hunter No. 3412, talking to themself: two lines on arriving, one at a time after
+		List<String> speakers = id.startsWith("apostle_") ? (id.equals("apostle_intro") ? List.of(APOSTLE, APOSTLE) : List.of(APOSTLE))
+			: SPEAKERS.getOrDefault(id, List.of());
 		java.util.ArrayList<Line> lines = new java.util.ArrayList<>();
 		for (int i = 0; i < speakers.size(); i++) {
 			lines.add(new Line(speakers.get(i), "story.mistinn.radio." + id + "." + i));

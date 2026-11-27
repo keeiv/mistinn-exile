@@ -37,6 +37,18 @@ public abstract class AvatarRollMixin {
 		state.setData(life.shizune.mistinn.client.gear.GearLayer.BACKPACK, pack >= 0 ? pack : null);
 		int rig = entity.getAttachedOrElse(life.shizune.mistinn.registry.MistinnAttachments.WORN_RIG, -1);
 		state.setData(life.shizune.mistinn.client.gear.GearLayer.RIG, rig >= 0 ? rig : null);
+		// the thirteenth wears the best of everything, and none of it shows: only the twelve, stitched
+		if (entity instanceof net.minecraft.world.entity.player.Player wearer && life.shizune.mistinn.path.Thirteenth.stitched(wearer)) {
+			state.setData(life.shizune.mistinn.client.gear.MaskLayer.KEY, null);
+			state.setData(life.shizune.mistinn.client.gear.GearLayer.BACKPACK, null);
+			state.setData(life.shizune.mistinn.client.gear.GearLayer.RIG, null);
+			state.headEquipment = net.minecraft.world.item.ItemStack.EMPTY;
+			state.chestEquipment = net.minecraft.world.item.ItemStack.EMPTY;
+			state.legsEquipment = net.minecraft.world.item.ItemStack.EMPTY;
+			state.feetEquipment = net.minecraft.world.item.ItemStack.EMPTY;
+			state.headItem.clear();
+			state.wornHeadType = null;
+		}
 		// the local hunter's death is the scene's to draw, not vanilla's red tilt
 		life.shizune.mistinn.client.death.DeathScene.Pose death = entity == net.minecraft.client.Minecraft.getInstance().player ? life.shizune.mistinn.client.death.DeathScene.pose() : null;
 		state.setData(life.shizune.mistinn.client.death.DeathScene.KEY, death);

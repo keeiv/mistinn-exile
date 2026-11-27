@@ -40,7 +40,8 @@ public final class Ledger {
 	/** The kinds of world there are. */
 	private static final Set<String> MODES = Set.of("story", "free", "training", "path");
 	/** The things a server may tell; nothing else is written down. */
-	private static final java.util.regex.Pattern EVENTS = java.util.regex.Pattern.compile("death|revive|tiller[.]wronged|ending[.](anchor|inn)|path[.](fallen[.]([0-9]|1[01])|cut|sea|sea[.]whole)");
+	private static final java.util.regex.Pattern EVENTS = java.util.regex.Pattern.compile(
+		"death|revive|tiller[.]wronged|ending[.](anchor|inn)|path[.](fallen[.]([0-9]|1[01])|cut|sea|sea[.]whole|thirteen)");
 	/** The most worlds, and once-in-a-world events, the ledger keeps: a server cannot make it grow without end. */
 	private static final int MOST_WORLDS = 4096;
 	private static final int MOST_ONCE = 65536;
@@ -194,9 +195,14 @@ public final class Ledger {
 		return this.count("path.cut") > this.count("path.sea.whole");
 	}
 
-	/** The hunter's leaning, as the server may know it: 1 kind in the story, 2 kind on the way, 4 cruel on the way. */
+	/** Whether, in the story, they sent the salt up and never once burned it. */
+	public boolean cruelStory() {
+		return this.count("ending.anchor") >= 1 && this.count("ending.inn") == 0;
+	}
+
+	/** The hunter's leaning, as the server may know it: 1 kind in the story, 2 kind on the way, 4 cruel on the way, 8 cruel in the story. */
 	public int tone() {
-		return (this.kindStory() ? 1 : 0) | (this.kindPath() ? 2 : 0) | (this.cruelPath() ? 4 : 0);
+		return (this.kindStory() ? 1 : 0) | (this.kindPath() ? 2 : 0) | (this.cruelPath() ? 4 : 0) | (this.cruelStory() ? 8 : 0);
 	}
 
 	/** How far the story has gone wrong. */

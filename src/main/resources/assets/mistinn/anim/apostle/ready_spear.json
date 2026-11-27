@@ -1,0 +1,19 @@
+{"_comment":"spear stance, breathing.",
+"keys":[0.0,0.5,1.0],
+"eases":["in_out_sine","in_out_sine"],
+"length":64,"pitch_follow":0.0,"third_person":{
+"arm_x":[-20,-22,-20],
+"arm_y":[10,10,10],
+"arm_z":[4,4,4],
+"back_leg":[14,14,14],
+"body_x":[3,5,3],
+"body_y":[36,36,36],
+"front_leg":[-14,-14,-14],
+"item_x":[-22,-22,-22],
+"other_x":[-56,-58,-56],
+"other_y":[30,30,30],
+"other_z":[0,0,0]},
+"limbs":{
+"head_x":[0,1,1],
+"head_y":[-14,-14,-14]},
+"two_handed":false}
