@@ -25,6 +25,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(ItemInHandLayer.class)
 public abstract class ThirdPersonItemSwingMixin {
+	/** The middle of the fist, from where the held item is placed: two pixels back toward the palm, one up the arm. */
+	private static final float GRIP_Y = -2.0F / 16.0F;
+	private static final float GRIP_Z = 1.0F / 16.0F;
+
 	@Inject(
 		method = "submitArmWithItem",
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;submit(Lcom/mojang/blaze3d/vertex/PoseStack;"
@@ -51,7 +55,12 @@ public abstract class ThirdPersonItemSwingMixin {
 		if (state instanceof life.shizune.mistinn.client.path.ApostleRenderState apostle && arm == apostle.mainArm) {
 			// 3412's move (or stance) owns how the weapon sits in the hand: turned, levelled, spun
 			if (apostle.posed) {
+				// turned about the middle of the fist, where the grip is, so the hilt stays in the hand however far it
+				// turns (the item's own origin sits two pixels in front of the palm, and turning about it swings the
+				// hilt out of the hand)
+				poseStack.translate(0.0F, GRIP_Y, GRIP_Z);
 				poseStack.rotateDegrees(Axis.XP, apostle.arm("item_x"));
+				poseStack.translate(0.0F, -GRIP_Y, -GRIP_Z);
 			}
 			return;
 		}
