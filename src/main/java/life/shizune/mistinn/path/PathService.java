@@ -433,6 +433,31 @@ public final class PathService {
 		}
 	}
 
+	/** How many things the settlement's people say to the one walking the way, and of those, the ones that remember the last to fall. */
+	public static final int KIN = 6;
+	private static final java.util.Set<Integer> REMEMBERING = java.util.Set.of(3, 4);
+
+	/**
+	 * What one of the settlement's people says to a hunter walking the way: they are kin, and the
+	 * way is the settlement's. Nothing when the world is not walking it.
+	 */
+	public static @Nullable Component kin(final ServerPlayer player, final net.minecraft.util.RandomSource random) {
+		Line line = active(player.level().getServer()) ? line(player.level().getServer()) : null;
+		if (line == null || line.stage() == Step.CUT) {
+			return null;
+		}
+		if (line.stage() == Step.ENDED) {
+			return Component.translatable("path.mistinn.kin.ended", name(line.walker()));
+		}
+		int said = random.nextInt(KIN);
+		if (line.fallen().isEmpty() && REMEMBERING.contains(said)) {
+			// no one has fallen yet to remember
+			said = 0;
+		}
+		Component last = line.fallen().isEmpty() ? Component.empty() : name(line.fallen().getLast());
+		return Component.translatable("path.mistinn.kin." + said, name(line.walker()), last);
+	}
+
 	/** The name of the one walking the way now, or of one who did. */
 	public static Component name(final int walker) {
 		return Component.translatable("path.mistinn.name." + Math.floorMod(walker, PEOPLE));

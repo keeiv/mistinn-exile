@@ -194,7 +194,12 @@ public class Tiller extends PathfinderMob implements Merchant {
 				this.trading = player;
 				this.openTradingScreen(player, this.getDisplayName(), 1);
 			} else {
-				player.sendSystemMessage(Component.translatable(this.line(player)).withStyle(ChatFormatting.GRAY));
+				String line = this.line(player);
+				boolean pressing = line.endsWith(".squall") || line.endsWith(".siege");
+				// on the path of longing they are the walker's own people, and mostly speak of the way
+				Component kin = player instanceof net.minecraft.server.level.ServerPlayer hunter && !pressing && this.random.nextInt(3) != 0
+					? life.shizune.mistinn.path.PathService.kin(hunter, this.random) : null;
+				player.sendSystemMessage((kin != null ? kin.copy() : Component.translatable(line)).withStyle(ChatFormatting.GRAY));
 			}
 		}
 		return InteractionResult.SUCCESS;
