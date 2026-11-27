@@ -119,7 +119,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Flintlock and pistol | Taken from pirates (a captain always carries a pistol, a marksman now and then leaves a musket, the captain's chest may hold one). Hold use to raise and aim, let go to fire one paper cartridge; the musket reaches further and hits harder, the pistol comes up quicker. Paper cartridges: paper, gunpowder and an iron nugget make three; they are taken from the hotbar, the offhand, or the pockets, rig and backpack. |
 | Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: fifty-four pages on the world, the mission, the rules and what you hunt, the stats, the skill tree, the recipes, supply, the bestiary and the achievements. |
 | Bestiary | The guide's Bestiary bookmark keeps twenty creatures: the shore's, the three keepers, the pirates, the rift's, Terra's, and the zombies, skeletons, spiders, creepers and others found everywhere. Once one strikes you, you strike it or it winds up at you, its name, a picture that turns after the pointer, and what it is are written down; one brought down tells its **weakness**, five its **tell** (a boss such as a keeper, the crown elder or the rift herald tells everything at once). Hunters within 24 blocks share the count. Old worlds fill in the bosses already brought down from the achievements earned. |
-| Achievements | Forty-two of them (one hidden), from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer, the Sunken Bell and the Rust Wheel, taking a pirate ship, holding the shore, bringing down an elite of three affixes, the story's two endings, and the end of the Path of Longing. The game's toast shows at the top right and some salt is paid; all are kept on the mod's own tab of the advancements screen. See [Achievements](#achievements). |
+| Achievements | Forty-three of them (two hidden), from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer, the Sunken Bell and the Rust Wheel, taking a pirate ship, holding the shore, bringing down an elite of three affixes, the story's two endings, and the end of the Path of Longing. The game's toast shows at the top right and some salt is paid; they are kept on five tabs of the advancements screen: the hunt, the mist shore, survival, afar and the Path of Longing. See [Achievements](#achievements). |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V, and two more lines beside them, light (helmet, armour, pack) and heavy (helmet, armour, rig, pack): see [Light and heavy lines](#light-and-heavy-lines); each with its own durability, protection, capacity, layout and a two-line story. |
@@ -515,9 +515,11 @@ A hunter starts growing once a keeper falls and its rust god salt comes home. Op
 
 | | |
 | --- | --- |
-| ![The mod's own tab on the game's advancements screen: lines for hunting, footwork, growth, the bells and the keepers spread out from the golden bell, earned ones lit](images/advancements-tab.png) | ![The game's toast at the top right, left of the minimap: the icon and the achievement's name](images/advancement-toast.png) |
+| ![The hunt's tab on the game's advancements screen: lines for hunting, elites, footwork and growth spread out from the anchor blade, earned ones lit; the mist shore, survival and afar tabs above](images/advancements-tab.png) | ![The game's toast at the top right, left of the minimap: the icon and the achievement's name](images/advancement-toast.png) |
 
-Achievements are the game's own **advancements**: press `L` and the mod has a tab of its own (the golden bell), which the guide's deeds bookmark opens too. When you do something worth remembering, the game's toast shows at the top right (left of the minimap, so neither hides the other), a bell chimes and some salt is paid (the first time only); the chat tells everyone who earned what, as it does for the game's own advancements (hover the name for what it asks; `/gamerule show_advancement_messages false` turns it off). The Armory shows how many of the six weapon branches are done. Achievements are saved and kept through death; achievements in an older save are moved into the advancements when you enter the world, without paying their salt again; bringing down the Snuffer is also what the Snuffer's Hook asks for.
+Achievements are the game's own **advancements**: press `L` and the mod's achievements are on five tabs: **the Hunt**, **the Mist Shore**, **Survival**, **Afar**, and **the Path of Longing**, which shows only in a world of the way or for a hunter who has walked it. The guide's deeds bookmark opens the hunt's tab. When you do something worth remembering, the game's toast shows at the top right (left of the minimap, so neither hides the other), a bell chimes and some salt is paid (the first time only); the chat tells everyone who earned what, as it does for the game's own advancements (hover the name for what it asks; `/gamerule show_advancement_messages false` turns it off). The Armory shows how many of the six weapon branches are done. Achievements are saved and kept through death; achievements in an older save are moved into the advancements when you enter the world, without paying their salt again; bringing down the Snuffer is also what the Snuffer's Hook asks for.
+
+**The Hunt** (weapons, footwork, stats and elites)
 
 | Achievement | How | Salt |
 | --- | --- | --- |
@@ -525,44 +527,64 @@ Achievements are the game's own **advancements**: press `L` and the mod has a ta
 | Armory | Bring one down with each of the six branches: blade, greatsword, spear, dagger, hammer, scythe | 600 |
 | Three in One | Hit three or more with one heavy blow | 200 |
 | Broken Off | Break off a monster's attack with a full heavy blow | 200 |
+| Chosen | Land a special weapon's own heavy blow | 400 |
 | Close Shave | Roll through an attack | 150 |
 | Swept Away | Hit a monster with a slide | 150 |
 | First Skill | Learn the slide in the guide | 100 |
 | Mastery | Bring any stat to 5 | 300 |
 | All Round | At least 1 in all four stats | 200 |
-| Chosen | Land a special weapon's own heavy blow | 400 |
+| Elite Hunter | Bring down an elite | 300 |
+| Triple Threat | Bring down an elite of three affixes | 900 |
+| Bounty Hunter | Bring down an elite the anchor station put a bounty on | 500 |
+
+**The Mist Shore** (the lighthouses, the three keepers and the story's endings)
+
+| Achievement | How | Salt |
+| --- | --- | --- |
 | Snuffer Slain | The Snuffer falls with you near | 1000 |
 | Sunken Bell Silenced | The Sunken Bell falls with you near | 1200 |
 | Rust Wheel Stopped | The Rust Wheel stops with you near | 1500 |
-| Prize of the Fog Sea | Take a pirate ship: its captain falls with you near | 1200 |
-| Fleet Breaker | Be near when the third pirate ship of this world is taken | 2000 |
-| Shore Held | Fight off a pirate landing by night | 400 |
-| Sharpshooter | Bring down a pirate with a flintlock or pistol | 300 |
-| Elite Hunter | Bring down an elite | 300 |
-| Triple Threat | Bring down an elite of three affixes | 900 |
-| Through the Fog Tide | Be there when a fog tide rises and hold out till dawn without falling once | 500 |
-| Bounty Hunter | Bring down an elite the anchor station put a bounty on | 500 |
-| Sew the Sky Shut | Be under a sky rift when it is sealed | 600 |
-| Shatter | Bring down a crystal drake | 400 |
-| Homestead | Wake the hub of a crystal tillers' settlement | 500 |
-| The Crown | Bring down a crown elder | 1000 |
-| Into the Spire | Be within 24 blocks when a crown elder's charge ends against stone and stuns it | 300 |
-| Fields Held | Hold a homestead against a crystal tide | 600 |
-| Howl Silenced | Bring down a rift alpha | 400 |
-| A Lizard's Friend | Tame a crystal lizard with grit | 200 |
-| What Was Left | Open the chest in a vein ruin | 300 |
-| Call the Sky Down | Tear a sky rift open with a beacon | 300 |
-| Apostle of the Rust Anchor | Hidden; how it is earned is not told. Once earned, 8% less from every blow and 2 more in each of the four stats (past the cap) | 5000 |
 | The Anchor | Send the Rust God's salt up | 2000 |
 | Mist Inn | Throw the Rust God's salt into the Mist Inn's fire | 2000 |
+| Apostle of the Rust Anchor | Hidden; how it is earned is not told. Once earned, 8% less from every blow and 2 more in each of the four stats (past the cap) | 5000 |
+
+**Survival** (wounds, golden bells, residue and the fog tide)
+
+| Achievement | How | Salt |
+| --- | --- | --- |
+| The Bell | Rest at a golden bell | 50 |
+| Gathered Back | Take your residue back from your gravestone | 100 |
+| Steady Hands | Save a destroyed part with a surgery kit | 150 |
+| Salt Merchant | Carry 5000 salt | – |
+| Through the Fog Tide | Be there when a fog tide rises and hold out till dawn without falling once | 500 |
+
+**Afar** (the fog sea, the sky rifts and the Terra highland)
+
+| Achievement | How | Salt |
+| --- | --- | --- |
+| Prize of the Fog Sea | Take a pirate ship: its captain falls with you near | 1200 |
+| Fleet Breaker | Be near when the third pirate ship of this world is taken | 2000 |
+| Sharpshooter | Bring down a pirate with a flintlock or pistol | 300 |
+| Shore Held | Fight off a pirate landing by night | 400 |
+| Sew the Sky Shut | Be under a sky rift when it is sealed | 600 |
+| Howl Silenced | Bring down a rift alpha | 400 |
+| Call the Sky Down | Tear a sky rift open with a beacon | 300 |
+| Shatter | Bring down a crystal drake | 400 |
+| The Crown | Bring down a crown elder | 1000 |
+| Homestead | Wake the hub of a crystal tillers' settlement | 500 |
+| Into the Spire | Be within 24 blocks when a crown elder's charge ends against stone and stuns it | 300 |
+| Fields Held | Hold a homestead against a crystal tide | 600 |
+| A Lizard's Friend | Tame a crystal lizard with grit | 200 |
+| What Was Left | Open the chest in a vein ruin | 300 |
+
+**Path of Longing** (only in a world of the Path of Longing, or for a hunter who has walked it)
+
+| Achievement | How | Salt |
+| --- | --- | --- |
 | The Sea | Walk the Path of Longing out of the Terra highland to the sea | 2000 |
 | Xirang | Walk the Path of Longing to the sea with no one fallen on the way | 3000 |
 | The Land | Reach the sea on the Path of Longing over some of the fallen (its words weigh how many) | 1500 |
 | Twelve Slain | Let all twelve of the settlement fall on the Path of Longing. Having fun? | 12 |
-| Steady Hands | Save a destroyed part with a surgery kit | 150 |
-| The Bell | Rest at a golden bell | 50 |
-| Gathered Back | Take your residue back from your gravestone | 100 |
-| Salt Merchant | Carry 5000 salt | – |
 
 ## Controls
 

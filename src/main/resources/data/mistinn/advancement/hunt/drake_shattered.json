@@ -1,5 +1,5 @@
 {
-	"parent": "mistinn:hunt/rift_sealed",
+	"parent": "mistinn:hunt/tab_afar",
 	"criteria": {
 		"earned": {
 			"trigger": "minecraft:impossible"

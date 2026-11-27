@@ -1,0 +1,26 @@
+{
+	"criteria": {
+		"arrived": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"background": "minecraft:block/spruce_planks",
+		"description": {
+			"translate": "advancement.mistinn.tab_survival.desc"
+		},
+		"icon": {
+			"id": "mistinn:golden_bell"
+		},
+		"show_toast": false,
+		"title": {
+			"translate": "advancement.mistinn.tab_survival"
+		}
+	},
+	"requirements": [
+		[
+			"arrived"
+		]
+	]
+}

@@ -1,5 +1,5 @@
 {
-	"parent": "mistinn:hunt/root",
+	"parent": "mistinn:hunt/tab_shore",
 	"criteria": {
 		"earned": {
 			"trigger": "minecraft:impossible"

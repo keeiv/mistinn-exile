@@ -1,0 +1,26 @@
+{
+	"criteria": {
+		"arrived": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"background": "minecraft:block/dark_prismarine",
+		"description": {
+			"translate": "advancement.mistinn.tab_afar.desc"
+		},
+		"icon": {
+			"id": "minecraft:spyglass"
+		},
+		"show_toast": false,
+		"title": {
+			"translate": "advancement.mistinn.tab_afar"
+		}
+	},
+	"requirements": [
+		[
+			"arrived"
+		]
+	]
+}

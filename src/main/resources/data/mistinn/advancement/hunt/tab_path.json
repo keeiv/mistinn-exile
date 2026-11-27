@@ -1,0 +1,26 @@
+{
+	"criteria": {
+		"arrived": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"background": "minecraft:block/calcite",
+		"description": {
+			"translate": "advancement.mistinn.tab_path.desc"
+		},
+		"icon": {
+			"id": "mistinn:crystal_core"
+		},
+		"show_toast": false,
+		"title": {
+			"translate": "advancement.mistinn.tab_path"
+		}
+	},
+	"requirements": [
+		[
+			"arrived"
+		]
+	]
+}
