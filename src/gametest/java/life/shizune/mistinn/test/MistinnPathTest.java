@@ -251,6 +251,15 @@ public final class MistinnPathTest implements FabricClientGameTest {
 				check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.THE_LAND)
 					&& !life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.XIRANG),
 					"one fell on the way: the land, not the earth that grows of itself");
+				// after the sea the kin ask its colour, or tell of the elder whose grandfather never came back from the fog
+				// one source drawn from again and again, as the game does (fresh sources on nearby seeds all draw alike first)
+				java.util.Set<String> afterSea = new java.util.HashSet<>();
+				net.minecraft.util.RandomSource talk = net.minecraft.util.RandomSource.create(7L);
+				for (int i = 0; i < 16; i++) {
+					afterSea.add(((net.minecraft.network.chat.contents.TranslatableContents) PathService.kin(player, talk).getContents()).getKey());
+				}
+				check(afterSea.equals(java.util.Set.of("path.mistinn.kin.ended", "path.mistinn.kin.ended.elder")),
+					"after the sea the kin speak of it, and of the elder: " + afterSea);
 				PathService.Line none = new PathService.Line(0, List.of(), 0, PathService.Step.ENDED.ordinal(), -1L);
 				check(PathService.seaHonour(none) == life.shizune.mistinn.achievement.Achievement.XIRANG, "with no one fallen, it is 息壤");
 				String[] weights = {"one", "few", "few", "few", "half", "half", "half", "half", "most", "most", "most"};
