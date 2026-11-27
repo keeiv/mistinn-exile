@@ -1,12 +1,15 @@
-{"_comment":"換手: swept back past the hip (0-5; the arms change hands behind the body at 5), up over the right shoulder turning (5-8), down into the new stance (8-12).",
-"keys":[0.0,0.166667,0.416667,0.666667,0.916667,1.0],
-"eases":["out_quad","in_out_sine","out_cubic","in_out_sine","linear"],
+{"_comment":"換手: lifted in front of the chest (0-5; the arms change hands at the top of the throw, tick 5), and set back down (5-12).",
+"keys":[0.0,0.166667,0.416667,0.666667,1.0],
+"eases":["out_quad","in_out_sine","out_cubic","linear"],
 "length":12,"hands":1,"two_handed":false,"pitch_follow":0.0,"third_person":{
-"arm_x":[25,25,35,-150,-70,-70],
-"arm_y":[25,25,35,30,0,0],
-"arm_z":[12,12,16,10,0,0],
-"body_y":[22,22,28,10,10,10],
-"grip":[0,0,0,0,0.4,0.4],
-"item_dx":[0,-120,-200,-300,-360,-360],
-"other_x":[-30,-30,-30,-40,-40,-40],
-"other_z":[-10,-10,-10,-10,-10,-10]}}
+"arm_x":[-58,-58,-150,-96,-52],
+"arm_y":[8,8,4,4,4],
+"arm_z":[6,6,4,2,0],
+"body_y":[4,4,2,4,4],
+"grip":[0,0,0,0,0],
+"item_dx":[0,-80,-200,-310,-360],
+"other_x":[-40,-40,-142,-50,-50],
+"other_y":[8,8,-6,6,6],
+"other_z":[-4,-4,-4,-4,-4]},
+"limbs":{
+"head_x":[-2,-2,-8,-2,0]}}

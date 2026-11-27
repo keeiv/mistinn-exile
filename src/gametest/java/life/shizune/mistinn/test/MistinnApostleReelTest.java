@@ -80,32 +80,38 @@ public final class MistinnApostleReelTest implements FabricClientGameTest {
 				}
 				context.runOnClient(mc -> RustApostleRenderer.previewArms = null);
 			}
-			for (WeaponStyle style : new WeaponStyle[] {WeaponStyle.SLASH, WeaponStyle.CLEAVE, WeaponStyle.THRUST, WeaponStyle.FLURRY, WeaponStyle.REAP}) {
-				hold(context, world, style);
-				context.runOnClient(mc -> {
-					RustApostleRenderer.previewMove = null;
-					RustApostleRenderer.previewStyle = style;
-				});
-				context.waitTicks(3);
-				shot(context, "ready_" + style.id + "_00");
-			}
-			if (Boolean.getBoolean("mistinn.reel.short")) {
-				return;
-			}
-			for (ApostleMove move : ApostleMove.values()) {
-				WeaponStyle style = move.style != null ? move.style : WeaponStyle.SLASH;
-				hold(context, world, style);
-				for (int t = 0; t <= move.length; t += STEP) {
-					int tick = t;
+			// each take of the clips there is (another may sit beside this one, to compare)
+			for (String take : new String[] {"apostle/", "apostle_alt/"}) {
+				if (context.computeOnClient(mc -> life.shizune.mistinn.client.anim.Clip.find(take + "ready_blade")) == null) {
+					continue;
+				}
+				String prefix = take.equals("apostle/") ? "" : "alt_";
+				context.runOnClient(mc -> life.shizune.mistinn.client.path.ApostleRenderState.folder = take);
+				for (WeaponStyle style : new WeaponStyle[] {WeaponStyle.SLASH, WeaponStyle.CLEAVE, WeaponStyle.THRUST, WeaponStyle.FLURRY, WeaponStyle.REAP}) {
+					hold(context, world, style);
 					context.runOnClient(mc -> {
+						RustApostleRenderer.previewMove = null;
 						RustApostleRenderer.previewStyle = style;
-						RustApostleRenderer.previewMove = move;
-						RustApostleRenderer.previewTicks = tick;
 					});
-					context.waitTicks(1);
-					shot(context, move.id + "_" + String.format(java.util.Locale.ROOT, "%02d", tick));
+					context.waitTicks(3);
+					shot(context, prefix + "ready_" + style.id + "_00");
+				}
+				for (ApostleMove move : ApostleMove.values()) {
+					WeaponStyle style = move.style != null ? move.style : WeaponStyle.SLASH;
+					hold(context, world, style);
+					for (int t = 0; t <= move.length; t += STEP) {
+						int tick = t;
+						context.runOnClient(mc -> {
+							RustApostleRenderer.previewStyle = style;
+							RustApostleRenderer.previewMove = move;
+							RustApostleRenderer.previewTicks = tick;
+						});
+						context.waitTicks(1);
+						shot(context, prefix + move.id + "_" + String.format(java.util.Locale.ROOT, "%02d", tick));
+					}
 				}
 			}
+			context.runOnClient(mc -> life.shizune.mistinn.client.path.ApostleRenderState.folder = "apostle/");
 			context.runOnClient(mc -> {
 				RustApostleRenderer.previewMove = null;
 				RustApostleRenderer.previewStyle = null;
