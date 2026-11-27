@@ -1,6 +1,7 @@
 package life.shizune.mistinn.test;
 
 import java.util.List;
+import life.shizune.mistinn.client.guide.GuideContents;
 import life.shizune.mistinn.client.guide.HunterGuideScreen;
 import life.shizune.mistinn.registry.MistinnItems;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
@@ -34,6 +35,14 @@ public final class MistinnGuidePagesTest implements FabricClientGameTest {
 					check(rows <= HunterGuideScreen.PAGE_ROWS,
 						code + " page " + page + " runs to " + rows + " rows, past the " + HunterGuideScreen.PAGE_ROWS + " a page holds");
 				}
+			}
+			// the contents hold every chapter: each on a line of its own, none down over the link beneath
+			java.util.Set<String> lines = new java.util.HashSet<>();
+			for (int i = 0; i < GuideContents.CHAPTERS.size(); i++) {
+				check(GuideContents.CHAPTERS.get(i) <= MistinnItems.GUIDE_PAGES, "chapter " + i + " starts past the last page");
+				double[] at = GuideContents.line(0, 0, i);
+				check(lines.add((int) at[0] + "," + (int) at[1]), "contents line " + i + " lies over another");
+				check(at[1] + 4.0 < GuideContents.LINK_Y - 4, "contents line " + i + " runs down over the link");
 			}
 		});
 	}
