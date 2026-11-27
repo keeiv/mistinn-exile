@@ -135,7 +135,8 @@ public final class WeaponSwings {
 	}
 
 	public static void thirdPersonItem(final Clip clip, final float p, final PoseStack pose) {
-		turnInHand(pose, clip.at("third_person.item_x", p));
+		// turned about the fist, and about its own length so a blow swept across leads with the edge
+		turnInHand(pose, clip.at("third_person.item_x", p), clip.at("third_person.item_roll", p));
 	}
 
 	/**
