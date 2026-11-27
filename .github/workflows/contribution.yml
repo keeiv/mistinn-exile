@@ -1,0 +1,107 @@
+name: Contribution
+
+# The checks every pull request must pass besides the build (see CONTRIBUTING.md). They only read
+# the pull request through the API: nothing from it is checked out or run.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  art:
+    name: Art review
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            // the developers and the core team review their own art
+            if (['OWNER', 'MEMBER', 'COLLABORATOR'].includes(pr.author_association)) {
+              core.info(`${pr.user.login} is on the team: no art review needed`);
+              return;
+            }
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner, repo: context.repo.repo, pull_number: pr.number, per_page: 100,
+            });
+            const art = files.map(f => f.filename).filter(name =>
+              /^src\/[^/]+\/resources\/assets\/[^/]+\/(textures|models|sounds|blockstates|items|particles)\//.test(name)
+              || /\.(png|jpe?g|gif|ogg|wav|mp3|bbmodel)$/i.test(name));
+            if (art.length === 0) {
+              core.info('No art in this pull request');
+              return;
+            }
+            const labels = pr.labels.map(l => l.name);
+            if (labels.includes('art-approved')) {
+              core.info(`Art reviewed and approved:\n${art.join('\n')}`);
+              return;
+            }
+            core.setFailed(`This pull request carries art, which the developers and the core team review by hand `
+              + `before it can be merged (they label it art-approved). If the art is not approved, it is taken out and `
+              + `the code alone is merged. The art:\n${art.join('\n')}`);
+
+  ai:
+    name: AI disclosure
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (['OWNER', 'MEMBER', 'COLLABORATOR'].includes(pr.author_association)) {
+              core.info(`${pr.user.login} is on the team`);
+              return;
+            }
+            const body = pr.body || '';
+            const used = /-\s*\[[xX]\]\s*(有使用 AI|Used AI)/.test(body);
+            const none = /-\s*\[[xX]\]\s*(沒有使用 AI|No AI)/.test(body);
+            if (used === none) {
+              core.setFailed('Tick exactly one box under "AI 輔助 / AI assistance" in the pull request description: '
+                + 'whether AI helped write this change or not.');
+              return;
+            }
+            core.info(used ? 'AI assistance declared' : 'No AI declared');
+
+  coauthors:
+    name: Co-authors
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const commits = await github.paginate(github.rest.pulls.listCommits, {
+              owner: context.repo.owner, repo: context.repo.repo, pull_number: pr.number, per_page: 100,
+            });
+            const wrong = [];
+            for (const commit of commits) {
+              const trailers = [...commit.commit.message.matchAll(/^co-?authored-?by:\s*(.*?)\s*<([^>]*)>\s*$/gim)];
+              for (const [, name, email] of trailers) {
+                // a co-author is a person: named by their GitHub noreply address, on an account that is a user
+                const address = /^(?:\d+\+)?([A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)@users\.noreply\.github\.com$/i.exec(email);
+                let person = false;
+                if (address) {
+                  try {
+                    const { data } = await github.rest.users.getByUsername({ username: address[1] });
+                    person = data.type === 'User';
+                  } catch (error) {
+                    person = false;
+                  }
+                }
+                if (!person) {
+                  wrong.push(`${commit.sha.slice(0, 7)}: ${name} <${email}>`);
+                }
+              }
+            }
+            if (wrong.length > 0) {
+              core.setFailed('Every co-author line must name a person, by their GitHub noreply address '
+                + '(ID+login@users.noreply.github.com). AI tools are never co-authors. Fix these commits:\n' + wrong.join('\n'));
+              return;
+            }
+            core.info('Co-authors are all people');
