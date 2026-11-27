@@ -44,6 +44,8 @@ public final class StoryScript {
 	public static final Card UNANSWERED = new Card("unanswered", 4, "");
 	/** Chapter 2 opens after the bell at night: a road of salt cairns toward the sea. */
 	public static final Card SALT_ROAD = new Card("salt_road", 3, "story.mistinn.chapter.2");
+	/** Chapter 2 ends at the last cairn, by the sea: the road stops, the tower ahead, three tags in the pocket. */
+	public static final Card ROAD_END = new Card("road_end", 3, "");
 	/** Chapter 3 opens at the fog-bell station. */
 	public static final Card BELL_STATION = new Card("bell_station", 3, "story.mistinn.chapter.3");
 	/** Chapter 3 ends: the great bell rung, and the station answering from beyond the fog. */
@@ -81,7 +83,8 @@ public final class StoryScript {
 	public static final Card PATH_SEA = new Card("path_sea", 3, "path.mistinn.chapter.5");
 
 	private static final Map<String, Card> CARDS = Map.ofEntries(Map.entry(DROP.id(), DROP), Map.entry(LIGHTHOUSE.id(), LIGHTHOUSE),
-		Map.entry(UNANSWERED.id(), UNANSWERED), Map.entry(SALT_ROAD.id(), SALT_ROAD), Map.entry(BELL_STATION.id(), BELL_STATION),
+		Map.entry(UNANSWERED.id(), UNANSWERED), Map.entry(SALT_ROAD.id(), SALT_ROAD), Map.entry(ROAD_END.id(), ROAD_END),
+		Map.entry(BELL_STATION.id(), BELL_STATION),
 		Map.entry(ANSWER.id(), ANSWER), Map.entry(SALT_WORKS.id(), SALT_WORKS), Map.entry(STOPPED.id(), STOPPED), Map.entry(THE_CALL.id(), THE_CALL),
 		Map.entry(ANCHOR.id(), ANCHOR), Map.entry(INN.id(), INN), Map.entry(PATH_FIELDS.id(), PATH_FIELDS), Map.entry(PATH_RECORD.id(), PATH_RECORD),
 		Map.entry(PATH_SEA.id(), PATH_SEA), Map.entry(LAMP_LIT.id(), LAMP_LIT),
