@@ -30,6 +30,7 @@ public abstract class AvatarRollMixin {
 	@Inject(method = "extractRenderState(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;F)V", at = @At("TAIL"))
 	private void mistinn$rollState(final Avatar entity, final AvatarRenderState state, final float partialTicks, final CallbackInfo ci) {
 		state.setData(RollClient.KEY, RollClient.sample(entity.getId()));
+		state.setData(life.shizune.mistinn.client.combat.ParryClient.KEY, life.shizune.mistinn.client.combat.ParryClient.sample(entity.getId()));
 		int mask = entity.getAttachedOrElse(life.shizune.mistinn.registry.MistinnAttachments.WORN_MASK, -1);
 		state.setData(life.shizune.mistinn.client.gear.MaskLayer.KEY, mask >= 0 ? mask : null);
 		int pack = entity.getAttachedOrElse(life.shizune.mistinn.registry.MistinnAttachments.WORN_BACKPACK, -1);
@@ -62,7 +63,7 @@ public abstract class AvatarRollMixin {
 			state.hasRedOverlay = false;
 		}
 		state.setData(life.shizune.mistinn.client.view.RunPose.KEY, death == null && execution == null && down == null && !dragging && state.getData(RollClient.KEY) == null
-			? life.shizune.mistinn.client.view.RunPose.sample(entity) : null);
+			&& state.getData(life.shizune.mistinn.client.combat.ParryClient.KEY) == null ? life.shizune.mistinn.client.view.RunPose.sample(entity) : null);
 		// through their own eyes: nothing worn on the head is drawn, nor what a hand holds up in front of the eye
 		boolean own = OwnBody.inWorldPass() && entity == net.minecraft.client.Minecraft.getInstance().player && OwnBody.active();
 		state.setData(OwnBody.KEY, own ? Boolean.TRUE : null);

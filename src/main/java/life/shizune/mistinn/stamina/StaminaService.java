@@ -84,6 +84,11 @@ public final class StaminaService {
 		DELAY.put(player.getUUID(), left <= 0.0F ? SPENT_DELAY : REGEN_DELAY);
 	}
 
+	/** Gives back {@code amount}, up to the ceiling; unlike spending, it does not hold recovery back. */
+	public static void restore(final ServerPlayer player, final float amount) {
+		set(player, get(player) + amount);
+	}
+
 	/** Whether the hunter has at least {@code cost} to spend (rolls need the full price). */
 	public static boolean has(final Player player, final float cost) {
 		return get(player) >= cost;

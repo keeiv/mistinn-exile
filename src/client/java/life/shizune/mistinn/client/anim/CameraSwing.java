@@ -91,6 +91,12 @@ public final class CameraSwing {
 		heavyHit = true;
 	}
 
+	/** The local hunter's guard met a blow: a sharp jolt for a parry, a lighter one for a block. */
+	public static void met(final boolean parried) {
+		hitAt = System.nanoTime();
+		heavyHit = parried;
+	}
+
 	/** Adds the swing and jolt to the view; called while vanilla tilts the view for damage. */
 	public static void apply(final PoseStack pose, final float partialTicks) {
 		Minecraft mc = Minecraft.getInstance();
