@@ -176,6 +176,7 @@ public final class SnufferScare {
 				if (kind && ticks >= STILLNESS) {
 					// it has looked at them: it says its thanks, and the scene goes on to its end as scenes do
 					LedgerClient.ledger().see("scare.snuffer");
+					witnessed();
 					forget();
 					return false;
 				}
@@ -183,6 +184,7 @@ public final class SnufferScare {
 					next(Phase.FACE);
 					// remembered before anything else can happen: it is never shown twice
 					LedgerClient.ledger().see("scare.snuffer");
+					witnessed();
 					Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(MistinnSounds.SCARE_STING, 1.0F, 1.0F));
 				}
 			}
@@ -206,6 +208,14 @@ public final class SnufferScare {
 	private static void next(final Phase to) {
 		phase = to;
 		ticks = 0;
+	}
+
+	/** Marks this world as the one where it was seen: here, the next to fall will know (see {@link Haunting#WITNESSED}). */
+	private static void witnessed() {
+		String world = LedgerClient.world();
+		if (world != null) {
+			LedgerClient.ledger().firstIn(world, Haunting.WITNESSED);
+		}
 	}
 
 	/** The scene closed some other way (the world left): nothing more. */

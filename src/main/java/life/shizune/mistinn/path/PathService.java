@@ -544,9 +544,10 @@ public final class PathService {
 		if (line.stage() == Step.ENDED) {
 			return Component.translatable("path.mistinn.kin.ended", name(line.walker()));
 		}
-		// with many gone, the settlement begins to notice something about whoever walks the way now
-		if (line.fallen().size() >= UNEASY && random.nextInt(3) == 0) {
-			return Component.translatable("path.mistinn.kin.uneasy." + random.nextInt(UNEASY_LINES), name(line.walker()), name(line.fallen().getLast()));
+		// with others gone, the settlement begins to notice something about whoever walks the way now
+		List<Component> noticed = noticed(player, line, random);
+		if (!noticed.isEmpty() && random.nextInt(3) == 0) {
+			return noticed.get(random.nextInt(noticed.size()));
 		}
 		int said = random.nextInt(KIN);
 		if (line.fallen().isEmpty() && REMEMBERING.contains(said)) {
@@ -555,6 +556,55 @@ public final class PathService {
 		}
 		Component last = line.fallen().isEmpty() ? Component.empty() : name(line.fallen().getLast());
 		return Component.translatable("path.mistinn.kin." + said, name(line.walker()), last);
+	}
+
+	/** How many must have fallen before the settlement sees the walker hold the spear as the last one did. */
+	public static final int NOTICE_GRIP = 1;
+	/** ...before it sees the walker know what only the fallen could have known. */
+	public static final int NOTICE_KNEW = 3;
+	/** ...before it sees the walker go at what the fallen were afraid of, and is sorry for them. */
+	public static final int NOTICE_AFRAID = 6;
+
+	/**
+	 * What the settlement has noticed about whoever walks the way now. The one walking it is new, but what they know is
+	 * not: the bestiary and the skills go on from walker to walker, and the settlement sees it in them. It does not know
+	 * why. It takes it for the fallen one's courage, or their teaching.
+	 */
+	public static List<Component> noticed(final ServerPlayer player, final Line line, final net.minecraft.util.RandomSource random) {
+		int fallen = line.fallen().size();
+		List<Component> said = new ArrayList<>();
+		if (fallen == 0) {
+			return said;
+		}
+		Component walker = name(line.walker());
+		Component last = name(line.fallen().getLast());
+		if (fallen >= NOTICE_GRIP) {
+			said.add(Component.translatable("path.mistinn.kin.notice.grip", walker, last));
+		}
+		if (fallen >= NOTICE_KNEW) {
+			life.shizune.mistinn.bestiary.Bestiary.Record record = life.shizune.mistinn.bestiary.BestiaryService.get(player);
+			List<life.shizune.mistinn.bestiary.Bestiary.Entry> known = new ArrayList<>();
+			for (life.shizune.mistinn.bestiary.Bestiary.Entry entry : life.shizune.mistinn.bestiary.Bestiary.ENTRIES) {
+				if (life.shizune.mistinn.bestiary.Bestiary.knows(record, entry, life.shizune.mistinn.bestiary.Bestiary.Detail.TELL)) {
+					known.add(entry);
+				}
+			}
+			if (!known.isEmpty()) {
+				said.add(Component.translatable("path.mistinn.kin.notice.knew", walker, last, known.get(random.nextInt(known.size())).type().getDescription()));
+			}
+			if (life.shizune.mistinn.skill.SkillService.get(player).has(life.shizune.mistinn.skill.SkillTree.ROOT)) {
+				said.add(Component.translatable("path.mistinn.kin.notice.slide", walker, last));
+			}
+		}
+		if (fallen >= UNEASY) {
+			for (int i = 0; i < UNEASY_LINES; i++) {
+				said.add(Component.translatable("path.mistinn.kin.uneasy." + i, walker, last));
+			}
+		}
+		if (fallen >= NOTICE_AFRAID) {
+			said.add(Component.translatable("path.mistinn.kin.notice.afraid", walker, last));
+		}
+		return said;
 	}
 
 	/** The name of the one walking the way now, or of one who did. */

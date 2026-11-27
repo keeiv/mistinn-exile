@@ -17,6 +17,11 @@ import net.minecraft.resources.Identifier;
  */
 public final class Haunting {
 	private static final String[] SUFFIX = {"", "again", "record", "wrong", "after"};
+	/**
+	 * What the ledger marks in the world where the Snuffer was seen to look out. In that world only, a line with a
+	 * {@code .witnessed} version of its own reads that instead, whatever the stage or the hunter's leaning.
+	 */
+	public static final String WITNESSED = "scare.witnessed";
 	private static final Map<Identifier, Boolean> PICTURES = new HashMap<>();
 
 	private Haunting() {
@@ -36,6 +41,11 @@ public final class Haunting {
 		if (base.startsWith("path.mistinn.")) {
 			String tone = ledger.kindPath() ? ".kind" : ledger.cruelPath() ? ".cruel" : null;
 			return tone != null && language.has(base + tone) ? base + tone : base;
+		}
+		// where it was seen, the next of them to fall knows it was
+		String world = LedgerClient.world();
+		if (world != null && ledger.happenedIn(world, WITNESSED) && language.has(base + ".witnessed")) {
+			return base + ".witnessed";
 		}
 		// a hunter who let others live reads the kind version, once they have been down before
 		if (stage != Ledger.Stage.FIRST && ledger.kindStory()) {

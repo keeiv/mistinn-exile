@@ -14,6 +14,8 @@
 A souls-like Minecraft Java mod: salt for currency, residue where you fall, golden bells to rest at,<br>
 damage by body part, gear in seven tiers, a grid inventory inspired by extraction shooters, and a keeper atop a lighthouse.
 
+<sub>Content note: this mod has a few frightening moments; they can be turned off in Mistinn Settings on the title screen.</sub>
+
 [![CI](https://github.com/keeiv/mistinn-exile/actions/workflows/ci.yml/badge.svg)](https://github.com/keeiv/mistinn-exile/actions/workflows/ci.yml)
 ![Minecraft](https://img.shields.io/badge/minecraft-26.3-62B47A)
 ![Fabric](https://img.shields.io/badge/fabric_loader-0.20.1-DBD0B4)

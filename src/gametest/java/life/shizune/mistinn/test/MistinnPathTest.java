@@ -149,6 +149,9 @@ public final class MistinnPathTest implements FabricClientGameTest {
 				PathService.Line line = PathService.line(server);
 				check(line.fallen().equals(List.of(0)) && line.walker() == 1, "the first has fallen, the second walks: " + line);
 				check(line.stage() == PathService.Step.LIGHT, "from where the way had come");
+				// with one gone, the settlement sees only that the second holds the spear as the first did
+				List<String> noticed = keys(PathService.noticed(player(server), line, net.minecraft.util.RandomSource.create(1L)));
+				check(noticed.equals(List.of("path.mistinn.kin.notice.grip")), "the settlement notices the grip, and nothing more yet: " + noticed);
 				Settlements.Settlement home = Settlements.of(server, line.domain());
 				check(near(player(server), home.hub(), 6.0), "the successor sets out from the hub: " + player(server).blockPosition());
 				check(player(server).getInventory().countItem(MistinnItems.WEAPONS.get(WeaponStyle.THRUST).get(WeaponMaterial.STONE)) >= 1, "with a spear of their own");
@@ -282,6 +285,25 @@ public final class MistinnPathTest implements FabricClientGameTest {
 				}
 				server.overworld().setAttached(PathService.LINE,
 					new PathService.Line(line.domain(), List.copyOf(eleven), PathService.PEOPLE - 1, PathService.Step.LIGHT.ordinal(), line.tide()));
+				// what the walkers before learned has stayed with whoever walks now, and the settlement sees it
+				ServerPlayer player = player(server);
+				life.shizune.mistinn.bestiary.Bestiary.Entry lizard = life.shizune.mistinn.bestiary.Bestiary.of(life.shizune.mistinn.registry.MistinnEntities.CRYSTAL_LIZARD);
+				player.setAttached(life.shizune.mistinn.registry.MistinnAttachments.BESTIARY,
+					life.shizune.mistinn.bestiary.BestiaryService.get(player).with(lizard.id(), life.shizune.mistinn.bestiary.Bestiary.TELL_KILLS));
+				player.setAttached(life.shizune.mistinn.registry.MistinnAttachments.SKILLS,
+					life.shizune.mistinn.skill.SkillService.get(player).with(life.shizune.mistinn.skill.SkillTree.ROOT));
+				List<net.minecraft.network.chat.Component> noticed = PathService.noticed(player, PathService.line(server), net.minecraft.util.RandomSource.create(1L));
+				List<String> keys = keys(noticed);
+				check(keys.containsAll(List.of("path.mistinn.kin.notice.grip", "path.mistinn.kin.notice.knew", "path.mistinn.kin.notice.slide",
+					"path.mistinn.kin.notice.afraid", "path.mistinn.kin.uneasy.0")), "with most gone, the settlement has noticed all of it: " + keys);
+				net.minecraft.network.chat.Component knew = noticed.get(keys.indexOf("path.mistinn.kin.notice.knew"));
+				check(((net.minecraft.network.chat.contents.TranslatableContents) knew.getContents()).getArgs()[2] instanceof net.minecraft.network.chat.Component creature
+					&& creature.getString().equals(lizard.type().getDescription().getString()), "the creature only the fallen had fought, by name: " + knew.getString());
+				boolean spoken = false;
+				for (int i = 0; i < 40 && !spoken; i++) {
+					spoken = keys(List.of(PathService.kin(player, net.minecraft.util.RandomSource.create(i)))).getFirst().startsWith("path.mistinn.kin.notice.");
+				}
+				check(spoken, "and now and then says so");
 			});
 			die(context, world);
 			world.getServer().runOnServer(server -> {
@@ -340,6 +362,10 @@ public final class MistinnPathTest implements FabricClientGameTest {
 			}
 		}
 		return null;
+	}
+
+	private static List<String> keys(final List<net.minecraft.network.chat.Component> said) {
+		return said.stream().map(line -> ((net.minecraft.network.chat.contents.TranslatableContents) line.getContents()).getKey()).toList();
 	}
 
 	private static PathService.Step stage(final TestSingleplayerContext world) {
