@@ -83,7 +83,12 @@ public final class WorldMap {
 	}
 
 	private static Place landmark(final String id, final int[] mark, final int[] ground, final int[] box) {
-		return new Place(id, id, Kind.LANDMARK, mark[0], mark[1], ground[0], ground[1], box[0], box[1], box[2], box[3], -2, List.of(), null, true);
+		return landmark(id, mark, ground, box, List.of());
+	}
+
+	/** A landmark whose strip opens on story cards (those seen on this computer), as a stop's does. */
+	private static Place landmark(final String id, final int[] mark, final int[] ground, final int[] box, final List<String> cards) {
+		return new Place(id, id, Kind.LANDMARK, mark[0], mark[1], ground[0], ground[1], box[0], box[1], box[2], box[3], -2, cards, null, true);
 	}
 
 	private static int[] at(final int x, final int y) {
@@ -116,6 +121,8 @@ public final class WorldMap {
 		places.add(landmark("anchor_wreck", at(600, 780), at(604, 796), box(588, 783, 613, 799)));
 		places.add(landmark("watchpost", at(522, 895), at(522, 928), box(514, 898, 530, 930)));
 		places.add(landmark("ruined_station", at(404, 961), at(404, 974), box(391, 964, 417, 977)));
+		// far inland, 1200 to 3200 blocks from the coast: the crystal highland, and the tillers' way's cards once seen
+		places.add(landmark("terra", at(590, 906), at(588, 995), box(536, 908, 639, 1000), List.of("path_fields", "path_record", "path_sea")));
 		places.add(landmark("end_island", at(428, 140), at(315, 171), box(199, 36, 425, 198)));
 		places.add(landmark("nether_portal", at(529, 1229), at(529, 1273), box(514, 1232, 545, 1274)));
 		places.add(landmark("nether_fortress", at(128, 1132), at(275, 1214), box(115, 1135, 431, 1227)));
