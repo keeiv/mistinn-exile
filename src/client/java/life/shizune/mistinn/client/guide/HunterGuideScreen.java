@@ -95,6 +95,8 @@ public class HunterGuideScreen extends Screen {
 	private int spread;
 	/** Whether the pages' contents are open instead of a spread. */
 	private boolean contents;
+	/** Which spread of the contents is open, when they run over more than one. */
+	private int contentsSpread;
 	/** The crafting pages' open spread: the contents and the first recipe, then two recipes at a time. */
 	private int recipeSpread;
 	private @Nullable String armed;
@@ -130,6 +132,16 @@ public class HunterGuideScreen extends Screen {
 	public double[] contentsLink() {
 		int[] at = GuideContents.link(this.font, this.left(), this.top());
 		return new double[] {at[0] + at[2] / 2.0, at[1] + at[3] / 2.0};
+	}
+
+	/** Which spread of the contents is open (0: the first). */
+	public int contentsSpread() {
+		return this.contentsSpread;
+	}
+
+	/** Centre of the previous-page arrow, in GUI pixels. */
+	public double[] previousPage() {
+		return new double[] {this.left() + 16 + 9.0, this.top() + 176 + 6.0};
 	}
 
 	/** Centre of the contents' line for the chapter starting on this page, in GUI pixels. */
@@ -275,11 +287,25 @@ public class HunterGuideScreen extends Screen {
 			int[] link = GuideContents.link(this.font, x, y);
 			if (inside(mx, my, link[0], link[1], link[2], link[3])) {
 				this.contents = !this.contents;
+				if (this.contents) {
+					// open on the spread that lists the chapter being read
+					this.contentsSpread = GuideContents.spreadOf(GuideContents.chapterOf(this.spread * 2 + 1));
+				}
 				click(SoundEvents.BOOK_PAGE_TURN);
 				return true;
 			}
 			if (this.contents) {
-				int chapter = GuideContents.at(x, y, mx, my);
+				if (this.contentsSpread > 0 && inside(mx, my, x + 16, y + 176, 18, 12)) {
+					this.contentsSpread--;
+					click(SoundEvents.BOOK_PAGE_TURN);
+					return true;
+				}
+				if (this.contentsSpread < GuideContents.spreads() - 1 && inside(mx, my, x + W - 34, y + 176, 18, 12)) {
+					this.contentsSpread++;
+					click(SoundEvents.BOOK_PAGE_TURN);
+					return true;
+				}
+				int chapter = GuideContents.at(x, y, this.contentsSpread, mx, my);
 				if (chapter >= 0 && GuideContents.CHAPTERS.get(chapter) <= MistinnItems.GUIDE_PAGES) {
 					this.spread = (GuideContents.CHAPTERS.get(chapter) - 1) / 2;
 					this.contents = false;
@@ -395,7 +421,8 @@ public class HunterGuideScreen extends Screen {
 
 	private void pages(final GuiGraphicsExtractor g, final int x, final int y, final int mouseX, final int mouseY) {
 		if (this.contents) {
-			GuideContents.draw(g, this.font, x, y, mouseX, mouseY);
+			GuideContents.draw(g, this.font, x, y, this.contentsSpread, GuideContents.chapterOf(this.spread * 2 + 1), mouseX, mouseY);
+			this.arrows(g, x, y, mouseX, mouseY, this.contentsSpread > 0, this.contentsSpread < GuideContents.spreads() - 1);
 			GuideContents.drawLink(g, this.font, x, y, mouseX, mouseY);
 			return;
 		}
@@ -413,15 +440,21 @@ public class HunterGuideScreen extends Screen {
 			String number = String.valueOf(page);
 			g.text(this.font, number, px + 64 - this.font.width(number) / 2, y + 180, FADED, false);
 		}
-		if (this.spread > 0) {
+		this.arrows(g, x, y, mouseX, mouseY, this.spread > 0, this.spread < spreads() - 1);
+		GuideContents.drawLink(g, this.font, x, y, mouseX, mouseY);
+	}
+
+	/** The page-turning arrows, each only where there is somewhere to turn to. */
+	private void arrows(final GuiGraphicsExtractor g, final int x, final int y, final int mouseX, final int mouseY, final boolean back,
+		final boolean forward) {
+		if (back) {
 			boolean hover = inside(mouseX, mouseY, x + 16, y + 176, 18, 12);
 			g.blit(RenderPipelines.GUI_TEXTURED, ARROWS, x + 16, y + 176, 0.0F, hover ? 12 : 0, 18, 12, 36, 24);
 		}
-		if (this.spread < spreads() - 1) {
+		if (forward) {
 			boolean hover = inside(mouseX, mouseY, x + W - 34, y + 176, 18, 12);
 			g.blit(RenderPipelines.GUI_TEXTURED, ARROWS, x + W - 34, y + 176, 18.0F, hover ? 12 : 0, 18, 12, 36, 24);
 		}
-		GuideContents.drawLink(g, this.font, x, y, mouseX, mouseY);
 	}
 
 	private void stats(final GuiGraphicsExtractor g, final int x, final int y) {
