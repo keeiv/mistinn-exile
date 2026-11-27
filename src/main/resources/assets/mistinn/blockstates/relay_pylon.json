@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "lit=false,part=base": {
+      "model": "mistinn:block/relay_base"
+    },
+    "lit=true,part=base": {
+      "model": "mistinn:block/relay_base_lit"
+    },
+    "lit=false,part=mast": {
+      "model": "mistinn:block/relay_mast"
+    },
+    "lit=true,part=mast": {
+      "model": "mistinn:block/relay_mast_lit"
+    },
+    "lit=false,part=head": {
+      "model": "mistinn:block/relay_head"
+    },
+    "lit=true,part=head": {
+      "model": "mistinn:block/relay_head_lit"
+    }
+  }
+}

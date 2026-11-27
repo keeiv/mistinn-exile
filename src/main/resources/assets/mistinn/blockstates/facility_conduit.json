@@ -1,16 +1,28 @@
 {
   "variants": {
-    "axis=y": {
+    "axis=x,lit=false": {
       "model": "mistinn:block/facility_conduit"
     },
-    "axis=x": {
+    "axis=z,lit=false": {
+      "model": "mistinn:block/facility_conduit",
+      "y": 90
+    },
+    "axis=y,lit=false": {
       "model": "mistinn:block/facility_conduit",
       "x": 90,
       "y": 90
     },
-    "axis=z": {
-      "model": "mistinn:block/facility_conduit",
-      "x": 90
+    "axis=x,lit=true": {
+      "model": "mistinn:block/facility_conduit_lit"
+    },
+    "axis=z,lit=true": {
+      "model": "mistinn:block/facility_conduit_lit",
+      "y": 90
+    },
+    "axis=y,lit=true": {
+      "model": "mistinn:block/facility_conduit_lit",
+      "x": 90,
+      "y": 90
     }
   }
 }
