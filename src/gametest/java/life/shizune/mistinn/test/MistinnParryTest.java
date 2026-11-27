@@ -85,6 +85,7 @@ public final class MistinnParryTest implements FabricClientGameTest {
 			goneDown(context, world, arena);
 			bareHanded(context, world, arena);
 			keeper(context, world, arena);
+			onlyWithinReach(context, world, arena);
 			pictures(context, world, arena);
 		}
 	}
@@ -220,6 +221,29 @@ public final class MistinnParryTest implements FabricClientGameTest {
 		context.runOnClient(mc -> {
 			ParryClient.preview = -1.0F;
 			mc.options.setCameraType(CameraType.FIRST_PERSON);
+		});
+	}
+
+	/** Only a blow struck at arm's length meets the guard: not a keeper's blow from across the floor, nor thorns. */
+	private static void onlyWithinReach(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos arena) {
+		stand(context, world, arena);
+		int far = spawn(world, arena, MistinnEntities.SNUFFER, 8.0, 180.0F);
+		int near = spawn(world, arena, EntityTypes.ZOMBIE, 2.0, 180.0F);
+		context.waitTicks(2);
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			ServerLevel level = server.overworld();
+			Mob keeper = mob(server, far);
+			Mob zombie = mob(server, near);
+			check(ParryService.raise(player), "the guard goes up");
+			int met = ParryService.perfects + ParryService.blocks;
+			int poise = ((Keeper) keeper).poise();
+			player.hurtServer(level, keeper.damageSources().mobAttack(keeper), 4.0F);
+			check(ParryService.perfects + ParryService.blocks == met, "a keeper's blow from across the floor meets no guard");
+			check(((Keeper) keeper).poise() == poise, "and wears nothing of its balance");
+			player.setInvulnerableTime(0);
+			player.hurtServer(level, zombie.damageSources().thorns(zombie), 2.0F);
+			check(ParryService.perfects + ParryService.blocks == met, "nor do thorns");
 		});
 	}
 

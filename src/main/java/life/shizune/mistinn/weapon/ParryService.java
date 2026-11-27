@@ -21,6 +21,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
@@ -32,8 +33,8 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
- * 格擋: the hunter raises their weapon across the body for a moment. A melee blow from in front
- * that lands in the guard's first few ticks is parried: it is turned aside whole, the attacker
+ * 格擋: the hunter raises their weapon across the body for a moment. A melee blow from in front,
+ * struck at arm's length, that lands in the guard's first few ticks is parried: it is turned aside whole, the attacker
  * rocks back on its heels and some of the stamina comes back. Later in the guard the blow is only
  * blocked, half of it coming through. A great foe's blow is never turned aside whole: a parry
  * takes seven tenths off it and, on a keeper, wears at its balance as a full heavy blow does.
@@ -57,6 +58,8 @@ public final class ParryService {
 	public static final float GREAT = 0.3F;
 	/** How nearly in front of the hunter the attacker must stand (the cosine of the guard's half-arc). */
 	public static final double FRONT = 0.25;
+	/** How far apart, body edge to body edge, a blow may be struck from and still be met: arm's length and a lunge. */
+	public static final double REACH = 3.0;
 
 	/** What a guard met, for the watchers' animation. */
 	public static final int RAISED = 0;
@@ -131,16 +134,18 @@ public final class ParryService {
 			return null;
 		}
 		int held = held(player);
-		if (held < 0 || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || source.is(DamageTypeTags.IS_PROJECTILE)
-			|| source.is(DamageTypeTags.IS_EXPLOSION)) {
+		if (held < 0 || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || !melee(source)) {
 			return null;
 		}
-		// a melee blow: struck by the one who means it, not thrown or shot
+		// struck by the one who means it, at arm's length: a keeper's wave or charge from across the floor is no blow to meet
 		if (!(source.getDirectEntity() instanceof LivingEntity attacker) || source.getEntity() != attacker) {
 			return null;
 		}
 		Vec3 look = player.getLookAngle().multiply(1.0, 0.0, 1.0);
 		Vec3 toward = attacker.position().subtract(player.position()).multiply(1.0, 0.0, 1.0);
+		if (toward.length() - (attacker.getBbWidth() + player.getBbWidth()) / 2.0 > REACH) {
+			return null;
+		}
 		if (look.lengthSqr() < 1.0E-6 || toward.lengthSqr() < 1.0E-6 || look.normalize().dot(toward.normalize()) < FRONT) {
 			return null;
 		}
@@ -182,6 +187,11 @@ public final class ParryService {
 		} finally {
 			passing = false;
 		}
+	}
+
+	/** A blow of hand or weapon: a creature's or a hunter's attack, not thorns, a beam, a shot or a blast. */
+	private static boolean melee(final DamageSource source) {
+		return source.is(DamageTypes.MOB_ATTACK) || source.is(DamageTypes.MOB_ATTACK_NO_AGGRO) || source.is(DamageTypes.PLAYER_ATTACK);
 	}
 
 	/** Test hook: the hunter's guard went up this many ticks ago. */
