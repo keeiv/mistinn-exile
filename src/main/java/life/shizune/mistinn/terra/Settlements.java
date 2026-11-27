@@ -9,6 +9,10 @@ import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.achievement.AchievementService;
 import life.shizune.mistinn.block.CrystalSproutBlock;
 import life.shizune.mistinn.block.HubCoreBlock;
+import life.shizune.mistinn.block.ConduitBlock;
+import life.shizune.mistinn.block.HubSpireBlock;
+import life.shizune.mistinn.block.RefineryBlock;
+import life.shizune.mistinn.block.RelayPylonBlock;
 import life.shizune.mistinn.domain.Domain;
 import life.shizune.mistinn.domain.DomainService;
 import life.shizune.mistinn.registry.MistinnBlocks;
@@ -55,6 +59,8 @@ import org.jspecify.annotations.Nullable;
 public final class Settlements {
 	/** How many crystal cores wake a hub. */
 	public static final int CORES = 3;
+	/** How many blocks tall a relay pylon stands, base and head included. */
+	public static final int PYLON = 7;
 	/** The deck's radius, and the ground cleared round it. */
 	public static final int DECK = 11;
 	public static final int CLEAR = 14;
@@ -203,7 +209,8 @@ public final class Settlements {
 		}
 		workshop(level, along(site, turn + Math.PI / 3.0, 7), deck, site);
 		field(level, site, deck, turn + Math.PI);
-		crates(level, along(site, turn + Math.PI * 5.0 / 3.0, 8), deck);
+		level.setBlock(along(site, turn + Math.PI * 5.0 / 3.0, 7).atY(deck + 1), MistinnBlocks.REFINERY.defaultBlockState(), FLAGS);
+		crates(level, along(site, turn + Math.PI * 5.0 / 3.0, 10), deck);
 		people(level, site, deck);
 		return new Settlement(domain.id(), site.atY(deck), deck, site.atY(deck + 1), false, 0L);
 	}
@@ -272,21 +279,17 @@ public final class Settlements {
 			}
 		}
 		level.setBlock(site.atY(deck + 1), MistinnBlocks.HUB_CORE.defaultBlockState(), FLAGS);
-		level.setBlock(site.atY(deck + 2), MistinnBlocks.FACILITY_LAMP.defaultBlockState(), FLAGS);
-		for (int[] corner : new int[][] {{2, 2}, {2, -2}, {-2, 2}, {-2, -2}}) {
-			BlockPos post = site.offset(corner[0], 0, corner[1]);
-			level.setBlock(post.atY(deck + 1), MistinnBlocks.FACILITY_FRAME.defaultBlockState(), FLAGS);
-			level.setBlock(post.atY(deck + 2), MistinnBlocks.FACILITY_LAMP.defaultBlockState(), FLAGS);
-		}
+		level.setBlock(site.atY(deck + 2), MistinnBlocks.HUB_SPIRE.defaultBlockState(), FLAGS);
 	}
 
 	/** A relay pylon out on the deck, and a conduit running from it in towards the hub. */
 	private static void pylon(final ServerLevel level, final BlockPos site, final int deck, final double angle) {
 		BlockPos foot = along(site, angle, 8);
-		for (int y = 1; y <= 7; y++) {
-			level.setBlock(foot.atY(deck + y), MistinnBlocks.FACILITY_FRAME.defaultBlockState(), FLAGS);
+		// a base on its four struts, the lattice mast, and the head with its crossarms and emitter
+		for (int y = 1; y <= PYLON; y++) {
+			RelayPylonBlock.Part part = y == 1 ? RelayPylonBlock.Part.BASE : y == PYLON ? RelayPylonBlock.Part.HEAD : RelayPylonBlock.Part.MAST;
+			level.setBlock(foot.atY(deck + y), MistinnBlocks.RELAY_PYLON.defaultBlockState().setValue(RelayPylonBlock.PART, part), FLAGS);
 		}
-		level.setBlock(foot.atY(deck + 8), MistinnBlocks.FACILITY_LAMP.defaultBlockState(), FLAGS);
 		for (int r = 7; r >= 3; r--) {
 			BlockPos cell = along(site, angle, r).atY(deck + 1);
 			BlockPos next = along(site, angle, r - 1);
@@ -387,6 +390,7 @@ public final class Settlements {
 			all.set(i, settlement.lit(level.getGameTime()));
 			write(server, new Ledger(all, ledger.skipped()));
 			level.setBlock(hub, level.getBlockState(hub).setValue(HubCoreBlock.LIT, true), Block.UPDATE_ALL);
+			wake(level, hub);
 			level.sendParticles(ParticleTypes.END_ROD, hub.getX() + 0.5, hub.getY() + 1.0, hub.getZ() + 0.5, 60, 0.6, 1.2, 0.6, 0.06);
 			level.playSound(null, hub, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 2.0F, 1.2F);
 			level.playSound(null, hub, SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 2.0F, 0.8F);
@@ -397,6 +401,22 @@ public final class Settlements {
 			return true;
 		}
 		return false;
+	}
+
+	/** The hub woken: its spire, the relay pylons, their cables and the refinery light too. */
+	private static void wake(final ServerLevel level, final BlockPos hub) {
+		for (BlockPos at : BlockPos.betweenClosed(hub.offset(-DECK, 0, -DECK), hub.offset(DECK, PYLON + 1, DECK))) {
+			BlockState state = level.getBlockState(at);
+			if (state.is(MistinnBlocks.FACILITY_CONDUIT) && !state.getValue(ConduitBlock.LIT)) {
+				level.setBlock(at, state.setValue(ConduitBlock.LIT, true), Block.UPDATE_ALL);
+			} else if (state.is(MistinnBlocks.REFINERY) && !state.getValue(RefineryBlock.LIT)) {
+				level.setBlock(at, state.setValue(RefineryBlock.LIT, true), Block.UPDATE_ALL);
+			} else if (state.is(MistinnBlocks.HUB_SPIRE) && !state.getValue(HubSpireBlock.LIT)) {
+				level.setBlock(at, state.setValue(HubSpireBlock.LIT, true), Block.UPDATE_ALL);
+			} else if (state.is(MistinnBlocks.RELAY_PYLON) && !state.getValue(RelayPylonBlock.LIT)) {
+				level.setBlock(at, state.setValue(RelayPylonBlock.LIT, true), Block.UPDATE_ALL);
+			}
+		}
 	}
 
 	/** For tests: the settlement under a highland built now, wherever the ground stands. */

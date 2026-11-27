@@ -34,6 +34,9 @@
     "mistinn:vein_crystal_ore",
     "mistinn:vein_stone",
     "mistinn:vein_stone_bricks",
-    "mistinn:vein_stone_polished"
+    "mistinn:vein_stone_polished",
+    "mistinn:hub_spire",
+    "mistinn:relay_pylon",
+    "mistinn:refinery"
   ]
 }

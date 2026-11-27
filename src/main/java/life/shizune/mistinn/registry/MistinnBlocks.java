@@ -232,15 +232,25 @@ public final class MistinnBlocks {
 	public static final Block FACILITY_DECK_SLAB = register("facility_deck_slab", net.minecraft.world.level.block.SlabBlock::new, facility());
 	public static final Block FACILITY_PANEL = register("facility_panel", Block::new, facility());
 	public static final Block FACILITY_FRAME = register("facility_frame", Block::new, facility().noOcclusion());
-	public static final Block FACILITY_CONDUIT = register("facility_conduit", net.minecraft.world.level.block.RotatedPillarBlock::new, facility().noOcclusion());
+	public static final Block FACILITY_CONDUIT = register("facility_conduit", life.shizune.mistinn.block.ConduitBlock::new, facility().noOcclusion()
+		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.ConduitBlock.LIT) ? 4 : 0));
 	public static final Block FACILITY_LAMP = register("facility_lamp", Block::new, facility().lightLevel(state -> 13));
 	public static final Block FACILITY_CRATE = register("facility_crate", Block::new, facility());
 	public static final Block FACILITY_GLASS = register("facility_glass", life.shizune.mistinn.block.FacilityGlassBlock::new, facility()
 		.sound(SoundType.GLASS).noOcclusion().isViewBlocking((state, level, pos, box) -> false));
 	public static final Block HAZARD_STRIPE = register("hazard_stripe", Block::new, facility());
 	/** 樞紐核心: the heart of a settlement; woken with crystal cores, it makes the settlement a homestead. */
-	public static final Block HUB_CORE = register("hub_core", life.shizune.mistinn.block.HubCoreBlock::new, facility()
+	public static final Block HUB_CORE = register("hub_core", life.shizune.mistinn.block.HubCoreBlock::new, facility().noOcclusion()
 		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.HubCoreBlock.LIT) ? 14 : 3));
+	/** 樞紐尖塔: the finned spire over a hub core, crowned with a crystal that lights with it. */
+	public static final Block HUB_SPIRE = register("hub_spire", life.shizune.mistinn.block.HubSpireBlock::new, facility().noOcclusion()
+		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.HubSpireBlock.LIT) ? 12 : 2));
+	/** 晶煉爐: the settlement's crystal refinery; its crystal band lights with the hub. */
+	public static final Block REFINERY = register("refinery", life.shizune.mistinn.block.RefineryBlock::new, facility().noOcclusion()
+		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.RefineryBlock.LIT) ? 8 : 0));
+	/** 中繼塔: a relay pylon, stood in a base, a lattice mast and a head; its crystal light wakes with the hub. */
+	public static final Block RELAY_PYLON = register("relay_pylon", life.shizune.mistinn.block.RelayPylonBlock::new, facility().noOcclusion()
+		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.RelayPylonBlock.LIT) ? 9 : 1));
 
 	private MistinnBlocks() {
 	}

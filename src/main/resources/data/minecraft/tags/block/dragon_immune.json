@@ -10,6 +10,9 @@
     "mistinn:facility_crate",
     "mistinn:facility_glass",
     "mistinn:hazard_stripe",
-    "mistinn:hub_core"
+    "mistinn:hub_core",
+    "mistinn:hub_spire",
+    "mistinn:relay_pylon",
+    "mistinn:refinery"
   ]
 }

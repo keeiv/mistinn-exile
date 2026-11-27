@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "mistinn:block/refinery"
+    },
+    "lit=true": {
+      "model": "mistinn:block/refinery_lit"
+    }
+  }
+}

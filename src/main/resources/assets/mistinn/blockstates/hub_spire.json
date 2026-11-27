@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "mistinn:block/hub_spire"
+    },
+    "lit=true": {
+      "model": "mistinn:block/hub_spire_lit"
+    }
+  }
+}

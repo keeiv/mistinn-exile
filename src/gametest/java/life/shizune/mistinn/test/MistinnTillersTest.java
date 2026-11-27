@@ -79,14 +79,15 @@ public final class MistinnTillersTest implements FabricClientGameTest {
 				// a blast at the top of a pylon, well above the people: lamp and truss stand
 				BlockPos lamp = null;
 				for (BlockPos at : BlockPos.betweenClosed(hub.offset(-9, 6, -9), hub.offset(9, 8, 9))) {
-					if (level.getBlockState(at).is(MistinnBlocks.FACILITY_LAMP)) {
+					if (level.getBlockState(at).is(MistinnBlocks.RELAY_PYLON)
+						&& level.getBlockState(at).getValue(life.shizune.mistinn.block.RelayPylonBlock.PART) == life.shizune.mistinn.block.RelayPylonBlock.Part.HEAD) {
 						lamp = at.immutable();
 						break;
 					}
 				}
-				check(lamp != null, "a pylon's lamp to blow at");
+				check(lamp != null, "a pylon's head to blow at");
 				level.explode(null, lamp.getX() + 0.5, lamp.getY() + 0.5, lamp.getZ() + 0.5, 4.0F, Level.ExplosionInteraction.TNT);
-				check(level.getBlockState(lamp).is(MistinnBlocks.FACILITY_LAMP) && level.getBlockState(lamp.below()).is(MistinnBlocks.FACILITY_FRAME),
+				check(level.getBlockState(lamp).is(MistinnBlocks.RELAY_PYLON) && level.getBlockState(lamp.below()).is(MistinnBlocks.RELAY_PYLON),
 					"nor blown up");
 				// the keeper of trade
 				Tiller elder = people.stream().filter(t -> t.role() == Tiller.Role.ELDER).findFirst().orElseThrow();
