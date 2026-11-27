@@ -16,7 +16,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class KeeperMusicMixin {
 	@Inject(method = "getSituationalMusic", at = @At("HEAD"), cancellable = true)
 	private void mistinn$keeperFight(final CallbackInfoReturnable<Music> cir) {
-		Music fight = life.shizune.mistinn.client.story.StoryCardScreen.music();
+		Music fight = life.shizune.mistinn.client.title.ContentWarningScreen.music();
+		if (fight == null) {
+			fight = life.shizune.mistinn.client.story.StoryCardScreen.music();
+		}
 		if (fight == null) {
 			fight = life.shizune.mistinn.client.path.PathClient.music();
 		}

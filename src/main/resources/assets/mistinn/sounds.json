@@ -806,6 +806,14 @@
       }
     ]
   },
+  "music.content_warning": {
+    "sounds": [
+      {
+        "name": "mistinn:music/content_warning",
+        "stream": true
+      }
+    ]
+  },
   "music.inn_morning": {
     "sounds": [
       {

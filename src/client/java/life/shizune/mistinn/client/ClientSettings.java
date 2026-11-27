@@ -15,6 +15,8 @@ public final class ClientSettings {
 	public static final String SWING_CAMERA = "swing_camera";
 	/** Whether the frightening parts are shown: the faces, the stings. */
 	public static final String SCARES = "scares";
+	/** The version of the mod whose content warning this machine has answered. */
+	public static final String WARNED_VERSION = "warned_version";
 
 	private static final Path CONFIG = FabricLoader.getInstance().getConfigDir().resolve("mistinn-client.properties");
 	private static Properties properties;
@@ -29,7 +31,25 @@ public final class ClientSettings {
 
 	/** Sets a switch, and keeps it. */
 	public static void set(final String key, final boolean on) {
-		load().setProperty(key, Boolean.toString(on));
+		put(key, Boolean.toString(on));
+	}
+
+	/** A setting's text, or null if never set. */
+	public static @org.jspecify.annotations.Nullable String get(final String key) {
+		return load().getProperty(key);
+	}
+
+	/** Sets a setting's text (null forgets it), and keeps it. */
+	public static void put(final String key, final @org.jspecify.annotations.Nullable String value) {
+		if (value == null) {
+			load().remove(key);
+		} else {
+			load().setProperty(key, value);
+		}
+		save();
+	}
+
+	private static void save() {
 		try {
 			Files.createDirectories(CONFIG.getParent());
 			try (var out = Files.newBufferedWriter(CONFIG)) {
