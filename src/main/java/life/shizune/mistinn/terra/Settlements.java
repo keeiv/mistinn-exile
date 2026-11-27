@@ -387,7 +387,7 @@ public final class Settlements {
 		}
 	}
 
-	private static BlockPos along(final BlockPos from, final double angle, final double distance) {
+	static BlockPos along(final BlockPos from, final double angle, final double distance) {
 		return new BlockPos(from.getX() + (int) Math.round(Math.cos(angle) * distance), from.getY(), from.getZ() + (int) Math.round(Math.sin(angle) * distance));
 	}
 
