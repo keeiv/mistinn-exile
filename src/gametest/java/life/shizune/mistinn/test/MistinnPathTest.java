@@ -77,6 +77,13 @@ public final class MistinnPathTest implements FabricClientGameTest {
 				check(crown == null || !crown.out(), "the crown elder sleeps on, though the hub is near its heart");
 			});
 			check(context.computeOnClient(mc -> mc.player.getAttached(PathService.VIEW) != null), "the client is told of the way");
+			String[] firstLook = new String[1];
+			firstLook[0] = context.computeOnClient(mc -> mc.player.getSkin().body().texturePath().getPath());
+			check(firstLook[0].contains("tiller"), "the hunter wears a tiller's clothes: " + firstLook[0]);
+			context.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
+			context.waitTicks(10);
+			context.takeScreenshot("path-look");
+			context.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
 			world.getConnection().waitForChunksRender();
 			context.waitTicks(40);
 			context.takeScreenshot("path-start");
@@ -100,6 +107,8 @@ public final class MistinnPathTest implements FabricClientGameTest {
 			});
 			context.waitTicks(20);
 			check(context.computeOnClient(mc -> mc.player.getAttached(PathService.VIEW).fallen() == 1), "the panel counts the fallen");
+			String nextLook = context.computeOnClient(mc -> mc.player.getSkin().body().texturePath().getPath());
+			check(nextLook.contains("tiller") && !nextLook.equals(firstLook[0]), "and the successor is plainly someone else: " + nextLook);
 			context.takeScreenshot("path-fallen");
 
 			// the way comes to the sea: out past the highland, on a beach
@@ -126,6 +135,7 @@ public final class MistinnPathTest implements FabricClientGameTest {
 				life.shizune.mistinn.achievement.Achievement.SEA_SEEN)), "and the sea is remembered");
 			context.waitFor(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.path.PathEndScreen end && end.sea(), 300);
 			context.waitTicks(130);
+			check(context.computeOnClient(mc -> mc.getSituationalMusic() == life.shizune.mistinn.client.path.PathClient.END), "the end has its own music");
 			context.takeScreenshot("path-sea-end");
 			context.runOnClient(mc -> ((life.shizune.mistinn.client.path.PathEndScreen) mc.gui.screen()).advance());
 			context.waitTicks(2);

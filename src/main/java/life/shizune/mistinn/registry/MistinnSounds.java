@@ -200,6 +200,8 @@ public final class MistinnSounds {
 	public static final SoundEvent MUSIC_RIFT = register("music.rift");
 	public static final SoundEvent MUSIC_RIFT_SCAR = register("music.rift_scar");
 	public static final SoundEvent MUSIC_ELDER = register("music.elder");
+	/** Under the path of longing's end, seen or cut. */
+	public static final SoundEvent MUSIC_PATH_END = register("music.path_end");
 	/** The highland air, and crystal touching crystal somewhere near. */
 	public static final SoundEvent AMBIENT_TERRA_LOOP = register("ambient.terra.loop");
 	public static final SoundEvent AMBIENT_TERRA_ADDITIONS = register("ambient.terra.additions");
