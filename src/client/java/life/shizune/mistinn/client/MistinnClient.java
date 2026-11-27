@@ -78,6 +78,7 @@ public class MistinnClient implements ClientModInitializer {
 		life.shizune.mistinn.weapon.WeaponItem.releasedOnClient = life.shizune.mistinn.client.anim.HeavyClient::released;
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			life.shizune.mistinn.client.anim.HeavyClient.forgetAll();
+			life.shizune.mistinn.client.combat.ParryClient.forgetAll();
 		});
 		life.shizune.mistinn.achievement.AchievementService.clientHas = life.shizune.mistinn.client.achievement.ClientAchievements::has;
 		life.shizune.mistinn.weapon.HeavyService.clientBusy = life.shizune.mistinn.client.move.RollClient::busy;
@@ -88,6 +89,12 @@ public class MistinnClient implements ClientModInitializer {
 				life.shizune.mistinn.client.medical.TreatmentClient.received(payload);
 				life.shizune.mistinn.client.medical.TreatmentSounds.received(payload);
 			});
+		// the guard: the weapon across the body for a moment, to parry a blow just as it lands
+		KeyMapping parry = KeyMappingHelper.registerKeyMapping(
+			new KeyMapping("key.mistinn.parry", InputConstants.KEY_Z, CATEGORY)
+		);
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.weapon.ParryService.GuardPayload.TYPE,
+			(payload, context) -> life.shizune.mistinn.client.combat.ParryClient.received(payload));
 		KeyMapping journal = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.mistinn.journal", InputConstants.KEY_K, CATEGORY)
 		);
@@ -225,6 +232,7 @@ public class MistinnClient implements ClientModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(life.shizune.mistinn.client.terra.ZoneTitle::tick);
 		ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
 			life.shizune.mistinn.client.move.RollClient.tick(minecraft, roll);
+			life.shizune.mistinn.client.combat.ParryClient.tick(minecraft, parry);
 			life.shizune.mistinn.client.medical.TreatmentClient.tick(minecraft);
 			life.shizune.mistinn.client.medical.TreatmentSounds.tick(minecraft);
 			life.shizune.mistinn.client.music.KeeperMusic.tick(minecraft);

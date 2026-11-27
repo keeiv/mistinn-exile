@@ -89,13 +89,14 @@ public final class OwnBody {
 			&& life.shizune.mistinn.client.training.DropCinematic.view(mc, 1.0F) == null;
 	}
 
-	/** Whether the hands have work in front of the eye now. */
+	/** Whether the hands have work in front of the eye now (the guard is work in front of it). */
 	private static boolean working(final Minecraft mc, final LocalPlayer player) {
 		if (life.shizune.mistinn.client.medical.TreatmentClient.sample(player.getId()) != null) {
 			// a wound is treated with the hands up in front of the eye; a plate is mended on the body, in sight below it
 			return life.shizune.mistinn.client.medical.TreatmentClient.inHands(player) != null;
 		}
 		return player.isSwinging() || player.isUsingItem() || HeavyClient.sample(player, 1.0F) != null
+			|| life.shizune.mistinn.client.combat.ParryClient.sample(player.getId()) != null
 			|| (mc.gameMode != null && mc.gameMode.isDestroying());
 	}
 

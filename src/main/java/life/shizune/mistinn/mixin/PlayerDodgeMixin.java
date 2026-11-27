@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Blows pass through a hunter in the middle of a roll; the void and /kill do not. */
+/** Blows pass through a hunter in the middle of a roll, and meet a raised guard; the void and /kill do not. */
 @Mixin(Player.class)
 public abstract class PlayerDodgeMixin {
 	@Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
@@ -21,6 +21,14 @@ public abstract class PlayerDodgeMixin {
 				life.shizune.mistinn.training.TrainingService.dodged(hunter);
 			}
 			cir.setReturnValue(false);
+			return;
+		}
+		// a guard raised against the blow: parried whole, or blocked in part
+		if ((Object) this instanceof net.minecraft.server.level.ServerPlayer hunter) {
+			Boolean met = life.shizune.mistinn.weapon.ParryService.meet(hunter, level, source, damage);
+			if (met != null) {
+				cir.setReturnValue(met);
+			}
 		}
 	}
 }

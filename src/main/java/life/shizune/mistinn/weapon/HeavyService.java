@@ -550,7 +550,7 @@ public final class HeavyService {
 	}
 
 	/** Knocks a target along (x, z) as vanilla knockback does, its resistance taken off. */
-	private static void shove(final LivingEntity target, final double x, final double z, final double strength) {
+	static void shove(final LivingEntity target, final double x, final double z, final double strength) {
 		double push = strength * (1.0 - target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
 		if (push <= 0.0) {
 			return;
