@@ -8,6 +8,8 @@ import org.jspecify.annotations.Nullable;
 /** The client's ledger: read once, kept up to date as the server tells what happens. */
 public final class LedgerClient {
 	private static @Nullable Ledger ledger;
+	/** The world the hunter is in now, as the server named it, or null. */
+	private static @Nullable String world;
 
 	private LedgerClient() {
 	}
@@ -25,6 +27,11 @@ public final class LedgerClient {
 		ledger = Ledger.load(file);
 	}
 
+	/** The world the hunter is in now, or null before the server has named it. */
+	public static @Nullable String world() {
+		return world;
+	}
+
 	public static void register() {
 		// written out now and then, and when the hunter leaves the world or the game, not on every word from the server
 		net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
@@ -33,6 +40,7 @@ public final class LedgerClient {
 			}
 		});
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler, mc) -> {
+			world = null;
 			if (ledger != null) {
 				ledger.flush();
 			}
@@ -44,6 +52,7 @@ public final class LedgerClient {
 		});
 		ClientPlayNetworking.registerGlobalReceiver(LedgerService.WorldPayload.TYPE, (payload, context) -> {
 			ledger().world(payload.world(), payload.mode());
+			world = payload.world();
 			// the server may know which way this hunter leans, for what the tillers say
 			if (ClientPlayNetworking.canSend(LedgerService.TonePayload.TYPE)) {
 				ClientPlayNetworking.send(new LedgerService.TonePayload(ledger().tone()));

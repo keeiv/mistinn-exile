@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import life.shizune.mistinn.Mistinn;
 import net.fabricmc.loader.api.FabricLoader;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 冊子: what this game remembers of its hunter, kept in the game's own folder and not in any world, so it is
@@ -137,6 +138,23 @@ public final class Ledger {
 		}
 		this.counts.merge(event, 1, (a, b) -> a < Integer.MAX_VALUE ? a + b : a);
 		this.dirty = true;
+	}
+
+	/**
+	 * Whether this happens for the first time in that world, marking it so: for what the client itself keeps (the
+	 * hunter's own voice), not what a server tells.
+	 */
+	public boolean firstIn(final String world, final String what) {
+		if (!worldId(world) || this.once.size() >= MOST_ONCE || !this.once.add(world + ":" + what)) {
+			return false;
+		}
+		this.dirty = true;
+		return true;
+	}
+
+	/** The kind of world this one is, as it was told, or null. */
+	public @Nullable String mode(final String world) {
+		return this.worlds.get(world);
 	}
 
 	/** How many times this has happened. */
