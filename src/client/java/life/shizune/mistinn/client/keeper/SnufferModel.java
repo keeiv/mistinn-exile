@@ -222,6 +222,12 @@ public class SnufferModel extends HumanoidModel<SnufferRenderState> {
 		this.head.xRot += 0.12F + this.body.xRot * 0.4F + Mth.cos(phase * 2.0F - 0.6F) * 0.07F * speed;
 		this.head.zRot += Mth.sin(state.ageInTicks * 0.07F) * 0.05F * (1.0F - speed) + Mth.sin(phase - 0.6F) * 0.08F * speed;
 		this.head.zRot += Mth.clamp(-state.turnSpeed * 0.02F, -0.3F, 0.3F);
+		if (state.watch > 0.0F) {
+			// the head comes round to the view, further than a neck should go, and tips a little to one side
+			this.head.yRot = Mth.lerp(state.watch, this.head.yRot, state.watchYaw * Mth.DEG_TO_RAD);
+			this.head.xRot = Mth.lerp(state.watch, this.head.xRot, state.watchPitch * Mth.DEG_TO_RAD);
+			this.head.zRot = Mth.lerp(state.watch, this.head.zRot, 0.22F);
+		}
 	}
 
 	/** The spear sits in the claws, at the end of the long arm. */

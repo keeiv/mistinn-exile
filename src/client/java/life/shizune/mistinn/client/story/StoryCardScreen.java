@@ -1,6 +1,5 @@
 package life.shizune.mistinn.client.story;
 
-import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.story.StoryScript;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -34,13 +33,13 @@ public class StoryCardScreen extends Screen {
 	public StoryCardScreen(final StoryScript.Card card) {
 		super(Component.translatable(card.title().isEmpty() ? card.line(0) : card.title()));
 		this.card = card;
-		this.image = Mistinn.id(card.image());
+		this.image = life.shizune.mistinn.client.ledger.Haunting.picture(card.id());
 		// the world map on the title screen opens the places this card has led to
 		life.shizune.mistinn.client.worldmap.SeenStory.saw(card.id());
 	}
 
 	private String lineText() {
-		return Component.translatable(this.card.line(this.line)).getString();
+		return life.shizune.mistinn.client.ledger.Haunting.text(this.card.line(this.line)).getString();
 	}
 
 	private int typed() {

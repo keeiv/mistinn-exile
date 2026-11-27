@@ -53,6 +53,25 @@ public class SnufferRenderer extends HumanoidMobRenderer<Snuffer, SnufferRenderS
 		state.turnSpeed = net.minecraft.util.Mth.wrapDegrees(entity.yBodyRot - entity.yBodyRotO);
 		// the model already is the lantern
 		state.headItem.clear();
+		// the one time it looks back: in the silence it turns its back on the view; then its head alone comes round
+		// to the view (not to the hunter), all the way
+		float away = life.shizune.mistinn.client.ledger.SnufferScare.away(entity.getId(), partialTicks);
+		state.watch = life.shizune.mistinn.client.ledger.SnufferScare.turned(entity.getId(), partialTicks);
+		net.minecraft.world.phys.Vec3 eye = away > 0.0F ? life.shizune.mistinn.client.ledger.SnufferScare.eye(partialTicks) : null;
+		if (eye != null) {
+			net.minecraft.world.phys.Vec3 from = entity.getEyePosition(partialTicks);
+			double dx = eye.x - from.x;
+			double dy = eye.y - from.y;
+			double dz = eye.z - from.z;
+			float toView = (float) Math.toDegrees(Math.atan2(-dx, dz));
+			state.bodyRot = net.minecraft.util.Mth.rotLerp(away, state.bodyRot, toView + 180.0F);
+			state.yRot = net.minecraft.util.Mth.rotLerp(away, state.yRot, 0.0F);
+			// all the way round, over the left shoulder
+			state.watchYaw = 180.0F - Math.abs(net.minecraft.util.Mth.wrapDegrees(toView + 180.0F - state.bodyRot));
+			state.watchPitch = (float) -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)));
+		} else {
+			state.watch = 0.0F;
+		}
 	}
 
 	/** The whole body sinks into the slam's crouch and the stagger's hunch. */
