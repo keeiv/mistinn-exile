@@ -542,7 +542,9 @@ public final class PathService {
 			return null;
 		}
 		if (line.stage() == Step.ENDED) {
-			return Component.translatable("path.mistinn.kin.ended", name(line.walker()));
+			// after the sea, now and then, word of the elder, whose grandfather walked into the fog and never came back
+			return random.nextInt(2) == 0 ? Component.translatable("path.mistinn.kin.ended.elder")
+				: Component.translatable("path.mistinn.kin.ended", name(line.walker()));
 		}
 		// with others gone, the settlement begins to notice something about whoever walks the way now
 		List<Component> noticed = noticed(player, line, random);
