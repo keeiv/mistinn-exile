@@ -152,6 +152,11 @@ public final class Ledger {
 		return true;
 	}
 
+	/** Whether this has already happened in that world (as {@link #firstIn} marked it). */
+	public boolean happenedIn(final String world, final String what) {
+		return this.once.contains(world + ":" + what);
+	}
+
 	/** The kind of world this one is, as it was told, or null. */
 	public @Nullable String mode(final String world) {
 		return this.worlds.get(world);

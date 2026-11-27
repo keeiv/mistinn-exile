@@ -81,6 +81,13 @@ public final class MistinnLedgerTest implements FabricClientGameTest {
 		check(again.drops() == 4 && again.count("death") == 3 && again.count("x".repeat(5000)) == 0, "only what could happen is written down");
 		again.see("scare.snuffer");
 		check(again.stage() == Ledger.Stage.AFTER && Ledger.load(file).seen("scare.snuffer"), "once seen, it is over, and remembered");
+		// and where it was seen is kept with that world, and no other
+		again.firstIn("00000000-0000-4000-8000-000000000005", life.shizune.mistinn.client.ledger.Haunting.WITNESSED);
+		again.flush();
+		Ledger read = Ledger.load(file);
+		check(read.happenedIn("00000000-0000-4000-8000-000000000005", life.shizune.mistinn.client.ledger.Haunting.WITNESSED)
+			&& !read.happenedIn("00000000-0000-4000-8000-000000000003", life.shizune.mistinn.client.ledger.Haunting.WITNESSED),
+			"the world where it was seen is remembered, and only that one");
 	}
 
 	private static Ledger ledger(final ClientGameTestContext context) {

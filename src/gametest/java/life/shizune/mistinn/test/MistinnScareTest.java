@@ -128,6 +128,11 @@ public final class MistinnScareTest implements FabricClientGameTest {
 				"the next time, its last words are only its last words");
 			check(context.computeOnClient(mc -> Haunting.picture("drop").getPath().endsWith("drop.png")), "and the drop card is as it was");
 			check(context.computeOnClient(mc -> Haunting.key("story.mistinn.card.drop.3")).endsWith(".after"), "but for one more notch on the tag");
+			// in this world, though, the next of them to fall knows what was seen
+			check(context.computeOnClient(mc -> Haunting.key("story.mistinn.radio.sunken_bell_end.0")).endsWith(".witnessed"),
+				"in the world where it looked out, the bell's ringer knows");
+			check(context.computeOnClient(mc -> Haunting.key("story.mistinn.radio.sunken_bell_end.1")).equals("story.mistinn.radio.sunken_bell_end.1"),
+				"and says only that");
 			context.runOnClient(mc -> StoryClient.skip());
 		}
 	}

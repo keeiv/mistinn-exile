@@ -14,6 +14,8 @@
 一款魂系的 Minecraft Java 模組：以鹽為貨幣、死亡化為殘香、在金鐘旁歇息，<br>
 四肢分開計算的傷害、七個品級的裝備、參考撤離射擊遊戲的格子背包，以及守在燈塔頂的燈守。
 
+<sub>內容提醒：本模組含少量驚嚇演出，可以在主選單的「霧岸設定」裡關閉。</sub>
+
 [![CI](https://github.com/keeiv/mistinn-exile/actions/workflows/ci.yml/badge.svg)](https://github.com/keeiv/mistinn-exile/actions/workflows/ci.yml)
 ![Minecraft](https://img.shields.io/badge/minecraft-26.3-62B47A)
 ![Fabric](https://img.shields.io/badge/fabric_loader-0.20.1-DBD0B4)
