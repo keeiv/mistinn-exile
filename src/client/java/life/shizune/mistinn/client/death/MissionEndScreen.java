@@ -24,6 +24,11 @@ import org.jspecify.annotations.Nullable;
  * to the death scene; then the world dims behind it, the words come up in red, the cause, and a
  * line from Rust Anchor that does not hide its disappointment, typed out. Under the two choices,
  * a heart run through by a knife; after an execution, a heart bitten open, and the word for it in the cause in crimson.
+ * <p>
+ * That line is the station as the hunter carries it in their head, the voice they trained to: no radio sends it down
+ * (the radio only receives). In a world whose story ended at the Mist Inn's fire the voice has gone quiet; what is
+ * left is the hunter's own thought, and getting up is going back, not back to a mission.
+ * <p>
  * It is a {@link DeathScreen}, so the game and other mods still know it for one.
  */
 public class MissionEndScreen extends DeathScreen {
@@ -37,6 +42,8 @@ public class MissionEndScreen extends DeathScreen {
 	private static final int LINES = 4;
 	/** On the tillers' way: how many last thoughts a fallen tiller may have. */
 	public static final int PATH_LINES = 8;
+	/** After the Mist Inn's ending: how many thoughts of their own the hunter may have. */
+	public static final int HOME_LINES = 6;
 	/** Offsets down the column from its top. */
 	private static final int CAUSE_AT = 36;
 	private static final int QUOTE_AT = 52;
@@ -49,6 +56,8 @@ public class MissionEndScreen extends DeathScreen {
 	private final Component quote;
 	/** On the tillers' way (not as the thirteenth): a tiller fell, not a hunter. */
 	private final boolean path;
+	/** This world's story ended at the Mist Inn's fire: the station's voice is gone from the hunter's head. */
+	private final boolean home;
 	/** What going on means now, on the tillers' way: the next one walking, or what is left when no one is. */
 	private final String onward;
 	private boolean shown;
@@ -65,10 +74,19 @@ public class MissionEndScreen extends DeathScreen {
 		String kind = DeathScene.cause().name().toLowerCase(java.util.Locale.ROOT);
 		life.shizune.mistinn.path.PathService.View view = player.getAttached(life.shizune.mistinn.path.PathService.VIEW);
 		this.path = view != null && !life.shizune.mistinn.path.Thirteenth.stitched(player);
-		// a tiller's last thought is their own: the one who moved them is gone from it
+		this.home = !this.path && wentHome(player);
+		// a tiller's last thought is their own: the one who moved them is gone from it; so is the hunter's, once home
 		this.quote = this.path ? Component.translatable("death.mistinn.quote.path." + player.getRandom().nextInt(PATH_LINES))
+			: this.home ? Component.translatable("death.mistinn.quote.home." + player.getRandom().nextInt(HOME_LINES))
 			: Component.translatable("death.mistinn.quote." + kind + "." + player.getRandom().nextInt(LINES));
-		this.onward = !this.path ? "death.mistinn.return" : onward(view);
+		this.onward = this.path ? onward(view) : this.home ? "death.mistinn.return.home" : "death.mistinn.return";
+	}
+
+	/** Whether this world's story ended at the Mist Inn's fire: the story is over, and its last call was the inn's. */
+	private static boolean wentHome(final LocalPlayer player) {
+		life.shizune.mistinn.story.StoryProgress progress = player.getAttached(life.shizune.mistinn.story.StoryService.PROGRESS);
+		return progress != null && progress.step() == life.shizune.mistinn.story.StoryStep.ENDED
+			&& progress.heard().contains(life.shizune.mistinn.story.StoryScript.INN_END);
 	}
 
 	/**
@@ -208,7 +226,7 @@ public class MissionEndScreen extends DeathScreen {
 		int top = this.top();
 
 		// 任務終止, large and red
-		Component title = Component.translatable(this.path ? "death.mistinn.title.path" : "death.mistinn.title");
+		Component title = Component.translatable(this.path ? "death.mistinn.title.path" : this.home ? "death.mistinn.title.home" : "death.mistinn.title");
 		Matrix3x2fStack pose = g.pose();
 		pose.pushMatrix();
 		pose.translate(cx, top);

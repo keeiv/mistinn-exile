@@ -58,7 +58,7 @@ public class RustApostle extends PathfinderMob {
 	/** Ticks between their mutterings. */
 	public static final int MUTTER = 240;
 	/** How many things they say to themself, round and round. */
-	public static final int MUTTERINGS = 12;
+	public static final int MUTTERINGS = 13;
 	/** How near they come before they draw. */
 	public static final double DRAWS_AT = 13.0;
 
