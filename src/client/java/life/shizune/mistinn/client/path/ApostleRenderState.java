@@ -21,10 +21,13 @@ public class ApostleRenderState extends HumanoidRenderState {
 	/** Whose skin they wear: the looker's own. */
 	public PlayerSkin skin = DefaultPlayerSkin.getDefaultSkin();
 	/** The weapon's tracks, as a hunter's own blows have them ({@code third_person.*}). */
-	public static final String[] ARMS = {"arm_x", "arm_y", "arm_z", "other_x", "other_y", "other_z", "body_y", "body_x", "front_leg", "back_leg", "item_x", "grip"};
+	public static final String[] ARMS = {"arm_x", "arm_y", "arm_z", "other_x", "other_y", "other_z", "body_y", "body_x", "front_leg", "back_leg", "item_x", "grip",
+		"item_roll"};
 	/** Where the weapon's turn and the grip sit among {@link #ARMS}. */
 	public static final int ITEM = 10;
 	public static final int GRIP = 11;
+	/** The weapon turned about its own length, so a cut leads with the edge rather than the flat. */
+	public static final int ROLL = 12;
 	/** The rest of the body ({@code limbs.*}). */
 	public static final String[] LIMBS = {"head_x", "head_y", "body_z", "right_leg_z", "left_leg_z"};
 	/** The whole body ({@code root.*}). */
@@ -76,6 +79,9 @@ public class ApostleRenderState extends HumanoidRenderState {
 			this.arms[ITEM] = clip.at("third_person.item_x", p);
 		} else if (clip != null && clip.has("third_person.item_dx")) {
 			this.arms[ITEM] += clip.at("third_person.item_dx", p);
+		}
+		if (clip != null && clip.has("third_person.item_roll")) {
+			this.arms[ROLL] = clip.at("third_person.item_roll", p);
 		}
 		for (int i = 0; i < LIMBS.length; i++) {
 			this.limbs[i] = blend(stance, breath, clip, p, w, "limbs." + LIMBS[i]);

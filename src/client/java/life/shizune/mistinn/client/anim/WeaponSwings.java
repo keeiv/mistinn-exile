@@ -19,6 +19,10 @@ import net.minecraft.util.Mth;
  * is 1 for the right arm and -1 for the left; it mirrors every sideways value.
  */
 public final class WeaponSwings {
+	/** The middle of the fist, from where a held item is placed: two pixels back toward the palm, one up the arm. */
+	private static final float GRIP_Y = -2.0F / 16.0F;
+	private static final float GRIP_Z = 1.0F / 16.0F;
+
 	/**
 	 * For the animation sheet and motion reel tests only: when 0 or more, every swing is drawn
 	 * frozen at this progress instead of its real one.
@@ -131,10 +135,30 @@ public final class WeaponSwings {
 	}
 
 	public static void thirdPersonItem(final Clip clip, final float p, final PoseStack pose) {
-		float tilt = clip.at("third_person.item_x", p);
-		if (tilt != 0.0F) {
-			pose.rotateDegrees(Axis.XP, tilt);
+		turnInHand(pose, clip.at("third_person.item_x", p));
+	}
+
+	/**
+	 * Turns a held item in the hand (degrees about the hand's x axis) about the middle of the fist, where its grip is,
+	 * so the hilt stays in the hand however far it turns. The item is placed from a point two pixels in front of the
+	 * palm; turning about that point swings the hilt out of the hand.
+	 */
+	public static void turnInHand(final PoseStack pose, final float degrees) {
+		turnInHand(pose, degrees, 0.0F);
+	}
+
+	/**
+	 * {@link #turnInHand(PoseStack, float)}, and the weapon turned about its own length by {@code roll} degrees: a held
+	 * weapon is flat, its flat to the side, so a cut swept across leads with the flat unless the wrist turns it.
+	 */
+	public static void turnInHand(final PoseStack pose, final float degrees, final float roll) {
+		if (degrees == 0.0F && roll == 0.0F) {
+			return;
 		}
+		pose.translate(0.0F, GRIP_Y, GRIP_Z);
+		pose.rotateDegrees(Axis.XP, degrees);
+		pose.rotateDegrees(Axis.YP, roll);
+		pose.translate(0.0F, -GRIP_Y, -GRIP_Z);
 	}
 
 	/**
