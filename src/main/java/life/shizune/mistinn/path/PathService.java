@@ -93,17 +93,22 @@ public final class PathService {
 
 	/**
 	 * The way of this world: the highland it starts from, who has fallen on it (by their names'
-	 * numbers), who walks it now, how far it has come, and the night the tide was last called on
-	 * the homestead.
+	 * numbers), who walks it now, how far it has come, the night the tide was last called on the
+	 * homestead, and whose strength the walker took up at a memorial (-1: none yet).
 	 */
-	public record Line(int domain, List<Integer> fallen, int walker, int step, long tide) {
+	public record Line(int domain, List<Integer> fallen, int walker, int step, long tide, int legacy) {
 		public static final Codec<Line> CODEC = RecordCodecBuilder.create(i -> i.group(
 			Codec.INT.fieldOf("domain").forGetter(Line::domain),
 			Codec.INT.listOf().optionalFieldOf("fallen", List.of()).forGetter(Line::fallen),
 			Codec.INT.optionalFieldOf("walker", 0).forGetter(Line::walker),
 			Codec.INT.optionalFieldOf("step", 0).forGetter(Line::step),
-			Codec.LONG.optionalFieldOf("tide", -1L).forGetter(Line::tide)
+			Codec.LONG.optionalFieldOf("tide", -1L).forGetter(Line::tide),
+			Codec.INT.optionalFieldOf("legacy", -1).forGetter(Line::legacy)
 		).apply(i, Line::new));
+
+		public Line(final int domain, final List<Integer> fallen, final int walker, final int step, final long tide) {
+			this(domain, fallen, walker, step, tide, -1);
+		}
 
 		public Step stage() {
 			return Step.values()[Math.min(this.step, Step.values().length - 1)];
@@ -114,26 +119,35 @@ public final class PathService {
 		}
 
 		Line at(final Step next) {
-			return new Line(this.domain, this.fallen, this.walker, next.ordinal(), this.tide);
+			return new Line(this.domain, this.fallen, this.walker, next.ordinal(), this.tide, this.legacy);
 		}
 
 		Line from(final int home) {
-			return new Line(home, this.fallen, this.walker, this.step, this.tide);
+			return new Line(home, this.fallen, this.walker, this.step, this.tide, this.legacy);
 		}
 
 		Line called(final long night) {
-			return new Line(this.domain, this.fallen, this.walker, this.step, night);
+			return new Line(this.domain, this.fallen, this.walker, this.step, night, this.legacy);
 		}
 
 		Line lost(final List<Integer> all, final int next, final Step stage) {
-			return new Line(this.domain, List.copyOf(all), next, stage.ordinal(), this.tide);
+			// a new walker has taken up no one's strength yet
+			return new Line(this.domain, List.copyOf(all), next, stage.ordinal(), this.tide, -1);
+		}
+
+		Line taking(final int fallenWalker) {
+			return new Line(this.domain, this.fallen, this.walker, this.step, this.tide, fallenWalker);
 		}
 	}
 
-	/** What a hunter's client is told of the way: its step, how many have fallen, and whose turn it is. */
-	public record View(int step, int fallen, int walker) {
+	/**
+	 * What a hunter's client is told of the way: its step, how many have fallen, whose turn it is,
+	 * the walker's strength and flaw, and the strength taken up at a memorial (-1: none).
+	 */
+	public record View(int step, int fallen, int walker, int strength, int flaw, int legacy) {
 		public static final StreamCodec<io.netty.buffer.ByteBuf, View> STREAM_CODEC = StreamCodec.composite(
-			ByteBufCodecs.VAR_INT, View::step, ByteBufCodecs.VAR_INT, View::fallen, ByteBufCodecs.VAR_INT, View::walker, View::new);
+			ByteBufCodecs.VAR_INT, View::step, ByteBufCodecs.VAR_INT, View::fallen, ByteBufCodecs.VAR_INT, View::walker,
+			ByteBufCodecs.VAR_INT, View::strength, ByteBufCodecs.VAR_INT, View::flaw, ByteBufCodecs.INT, View::legacy, View::new);
 
 		public Step stage() {
 			return Step.values()[Math.min(this.step, Step.values().length - 1)];
@@ -182,6 +196,16 @@ public final class PathService {
 		PayloadTypeRegistry.clientboundPlay().register(EndPayload.TYPE, EndPayload.CODEC);
 		ServerLifecycleEvents.SERVER_STARTED.register(PathService::begin);
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> joined(handler.getPlayer()));
+		// kneeling at a memorial (sneaking, using it) takes up the fallen one's strength
+		net.fabricmc.fabric.api.event.player.UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+			if (!(player instanceof ServerPlayer hunter) || !hunter.isShiftKeyDown() || hand != net.minecraft.world.InteractionHand.MAIN_HAND
+				|| !active(hunter.level().getServer())
+				|| !(level.getBlockEntity(hit.getBlockPos()) instanceof net.minecraft.world.level.block.entity.SignBlockEntity sign)) {
+				return net.minecraft.world.InteractionResult.PASS;
+			}
+			int fallen = memorialOf(sign);
+			return fallen >= 0 && inherit(hunter, fallen) ? net.minecraft.world.InteractionResult.SUCCESS : net.minecraft.world.InteractionResult.PASS;
+		});
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			if (server.getTickCount() % 20 == 0 && active(server)) {
 				tick(server);
@@ -241,7 +265,64 @@ public final class PathService {
 	}
 
 	private static void show(final ServerPlayer player, final Line line) {
-		player.setAttached(VIEW, new View(line.step(), line.fallen().size(), line.walker()));
+		long seed = PathTraits.seed(player, line);
+		int legacy = line.legacy() >= 0 ? PathTraits.strength(seed, line.legacy()).ordinal() : -1;
+		player.setAttached(VIEW, new View(line.step(), line.fallen().size(), line.walker(), PathTraits.strength(seed, line.walker()).ordinal(),
+			PathTraits.flaw(seed, line.walker()).ordinal(), legacy));
+		// who the hunter is now: their strength, flaw and any strength taken up (nothing, once the way is cut)
+		if (line.stage() == Step.CUT) {
+			PathTraits.strip(player);
+		} else {
+			PathTraits.apply(player, line);
+		}
+	}
+
+	/**
+	 * A walker kneels at the memorial of one who fell before them and takes up that one's strength:
+	 * once in a walker's life, and not a strength they already have. False when the way is not
+	 * walked here or the name is not one of the fallen.
+	 */
+	public static boolean inherit(final ServerPlayer hunter, final int fallenWalker) {
+		MinecraftServer server = hunter.level().getServer();
+		Line line = active(server) ? line(server) : null;
+		if (line == null || line.over() || !line.fallen().contains(fallenWalker)) {
+			return false;
+		}
+		long seed = PathTraits.seed(hunter, line);
+		PathTraits.Strength theirs = PathTraits.strength(seed, fallenWalker);
+		if (line.legacy() >= 0) {
+			hunter.sendSystemMessage(Component.translatable("path.mistinn.inherit.already", name(line.legacy()),
+				PathTraits.strength(seed, line.legacy()).title()).withStyle(ChatFormatting.GRAY), true);
+			return true;
+		}
+		if (theirs == PathTraits.strength(seed, line.walker())) {
+			hunter.sendSystemMessage(Component.translatable("path.mistinn.inherit.same", name(fallenWalker), theirs.title())
+				.withStyle(ChatFormatting.GRAY), true);
+			return true;
+		}
+		set(server, line.taking(fallenWalker));
+		ServerLevel level = hunter.level();
+		level.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL, hunter.getX(), hunter.getY() + 1.0, hunter.getZ(), 16, 0.4, 0.6, 0.4, 0.02);
+		level.playSound(null, hunter.blockPosition(), SoundEvents.SOUL_ESCAPE.value(), SoundSource.PLAYERS, 1.0F, 0.8F);
+		for (ServerPlayer each : server.getPlayerList().getPlayers()) {
+			each.sendSystemMessage(Component.translatable("path.mistinn.inherit", name(line.walker()), name(fallenWalker), theirs.title())
+				.withStyle(ChatFormatting.AQUA));
+		}
+		return true;
+	}
+
+	/** Whose memorial a sign is: the fallen walker its name belongs to, or -1. */
+	public static int memorialOf(final net.minecraft.world.level.block.entity.SignBlockEntity sign) {
+		var lines = sign.getText(net.minecraft.world.level.block.entity.SignTextSlot.FRONT).getMessages(false);
+		if (lines.size() > 1 && lines.get(1).getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents words
+			&& words.getKey().startsWith("path.mistinn.name.")) {
+			try {
+				return Integer.parseInt(words.getKey().substring("path.mistinn.name.".length()));
+			} catch (NumberFormatException e) {
+				return -1;
+			}
+		}
+		return -1;
 	}
 
 	/** The world starts: the way begins at the highland nearest the world's spawn. */
@@ -301,6 +382,13 @@ public final class PathService {
 		Line line = line(server);
 		if (line == null) {
 			return;
+		}
+		if (!line.over()) {
+			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+				if (player.isAlive() && player.getAttachedOrElse(PLACED, false)) {
+					PathTraits.darkness(player, line);
+				}
+			}
 		}
 		ServerLevel level = server.overworld();
 		List<ServerPlayer> everyone = server.getPlayerList().getPlayers();

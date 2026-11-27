@@ -110,6 +110,8 @@ public class PathJournalScreen extends Screen {
 		}
 		ry += 8;
 		if (now != PathService.Step.CUT) {
+			g.text(font, PathHud.traits(view), rx, ry, DIM, false);
+			ry += 12;
 			for (FormattedCharSequence row : font.split(Component.translatable("path.mistinn.journal.walker", PathService.name(view.walker()),
 				PathService.PEOPLE - view.fallen()), rw)) {
 				g.text(font, row, rx, ry, TEXT, false);
