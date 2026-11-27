@@ -758,10 +758,10 @@ public class WorldMapScreen extends Screen {
 		List<String> cards = cards(place);
 		StoryScript.Card shownCard = cards.isEmpty() ? null : StoryScript.card(cards.get(Math.min(this.card, cards.size() - 1)));
 		g.fill(pic[0] - 1, pic[1] - 1, pic[0] + pic[2] + 1, pic[1] + pic[3] + 1, 0xFF1C1E24);
-		if (shownCard != null) {
+		if (shownCard != null && life.shizune.mistinn.client.ledger.Haunting.shown(shownCard.id())) {
 			g.blit(RenderPipelines.GUI_TEXTURED, Mistinn.id(shownCard.image()), pic[0], pic[1], 0.0F, 0.0F, pic[2], pic[3], CARD_W, CARD_H, CARD_W, CARD_H);
 		} else {
-			// no card for this place (or none seen yet): the map itself, close up
+			// no card for this place (or none seen yet, or its picture not shown at this content level): the map itself, close up
 			int cw = 160;
 			int ch = 90;
 			int cx = Mth.clamp((place.x0() + place.x1()) / 2 - cw / 2, 0, WorldMap.W - cw);

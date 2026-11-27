@@ -45,7 +45,8 @@ public final class MistinnLightTest implements FabricClientGameTest {
 		try {
 			Map<String, String> zh = context.computeOnClient(mc -> read(mc, "zh_tw"));
 			Map<String, String> en = context.computeOnClient(mc -> read(mc, "en_us"));
-			Map<String, String> shown = context.computeOnClient(mc -> read(mc, mc.options.languageCode));
+			// the language the game has loaded (a test before may have changed the setting without reloading): told by a name
+			Map<String, String> shown = context.computeOnClient(mc -> Language.getInstance().getOrDefault(NAME).equals(zh.get(NAME)) ? zh : en);
 			int gentle = 0;
 			for (String key : zh.keySet()) {
 				String base = key.endsWith(LIGHT) ? key.substring(0, key.length() - LIGHT.length()) : null;
@@ -60,12 +61,13 @@ public final class MistinnLightTest implements FabricClientGameTest {
 			check(gentle >= 6, "the heavy story lines have gentle versions (" + gentle + ")");
 
 			context.runOnClient(mc -> ContentLevel.set(ContentLevel.LIGHT));
-			check(context.computeOnClient(mc -> Language.getInstance().getOrDefault(QUOTE)).equals(shown.get(QUOTE + LIGHT)),
-				"at Gentle a heavy line reads its gentle version");
+			String told = context.computeOnClient(mc -> Language.getInstance().getOrDefault(QUOTE));
+			check(told.equals(shown.get(QUOTE + LIGHT)), "at Gentle a heavy line reads its gentle version (" + told + ")");
 			check(context.computeOnClient(mc -> Language.getInstance().getOrDefault(NAME)).equals(shown.get(NAME)), "and names stay as written");
 			check(context.computeOnClient(mc -> Language.getInstance().getOrDefault("settings.mistinn.content")).equals(shown.get("settings.mistinn.content")),
 				"the settings keep their own words (the level's name is not the setting's)");
-			check(context.computeOnClient(mc -> Haunting.picture(HEAVY_PICTURE) == null), "a heavy story picture is left out");
+			check(context.computeOnClient(mc -> Haunting.picture(HEAVY_PICTURE) == null && !Haunting.shown(HEAVY_PICTURE)),
+				"a heavy story picture is left out, on its card and on the world map");
 			check(context.computeOnClient(mc -> Haunting.picture("stopped") != null && Haunting.picture("thirteen_end") != null),
 				"the other pictures stay, sad ones included");
 			context.runOnClient(mc -> mc.gui.setScreen(new StoryCardScreen(StoryScript.PATH_STITCHED, null)));
@@ -78,7 +80,7 @@ public final class MistinnLightTest implements FabricClientGameTest {
 				context.runOnClient(mc -> ContentLevel.set(level));
 				check(context.computeOnClient(mc -> Language.getInstance().getOrDefault(QUOTE)).equals(shown.get(QUOTE)),
 					"at " + level.id + " the line is as written");
-				check(context.computeOnClient(mc -> Haunting.picture(HEAVY_PICTURE) != null), "and the picture is shown");
+				check(context.computeOnClient(mc -> Haunting.picture(HEAVY_PICTURE) != null && Haunting.shown(HEAVY_PICTURE)), "and the picture is shown");
 			}
 
 			context.runOnClient(mc -> ContentLevel.set(ContentLevel.LIGHT));
