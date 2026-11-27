@@ -37,9 +37,11 @@ public class PathHud implements HudElement {
 		Component objective = Component.translatable(step.key());
 		Component hint = Component.translatable(step.key() + ".hint");
 		Component fallen = Component.translatable("path.mistinn.hud.walker", view.fallen(), PathService.PEOPLE, PathService.name(view.walker()));
+		Component traits = traits(view);
 		var hintRows = font.split(hint, WIDTH);
-		int width = Math.max(Math.max(font.width(chapter), font.width(objective)), Math.max(Math.min(font.width(hint), WIDTH), font.width(fallen))) + 14;
-		int height = 42 + hintRows.size() * 10;
+		int width = Math.max(Math.max(Math.max(font.width(chapter), font.width(objective)), Math.max(Math.min(font.width(hint), WIDTH), font.width(fallen))),
+			font.width(traits)) + 14;
+		int height = 52 + hintRows.size() * 10;
 		int x = MARGIN;
 		int y = MARGIN;
 		g.fill(x, y, x + width, y + height, 0x90080A0E);
@@ -55,5 +57,20 @@ public class PathHud implements HudElement {
 		}
 		ty += 2;
 		g.text(font, fallen, x + 7, ty, FALLEN, false);
+		ty += 10;
+		g.text(font, traits, x + 7, ty, HINT, false);
+	}
+
+	/** The walker's strength and flaw, and a strength taken up at a memorial. */
+	public static Component traits(final PathService.View view) {
+		if (view.strength() < 0 || view.flaw() < 0) {
+			return Component.empty();
+		}
+		net.minecraft.network.chat.MutableComponent line = Component.translatable("path.mistinn.hud.traits",
+			life.shizune.mistinn.path.PathTraits.Strength.values()[view.strength()].title(), life.shizune.mistinn.path.PathTraits.Flaw.values()[view.flaw()].title());
+		if (view.legacy() >= 0) {
+			line.append(Component.translatable("path.mistinn.hud.legacy", life.shizune.mistinn.path.PathTraits.Strength.values()[view.legacy()].title()));
+		}
+		return line;
 	}
 }

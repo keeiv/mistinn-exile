@@ -95,6 +95,19 @@ public final class MistinnPathTest implements FabricClientGameTest {
 			String[] firstLook = new String[1];
 			firstLook[0] = context.computeOnClient(mc -> mc.player.getSkin().body().texturePath().getPath());
 			check(firstLook[0].contains("tiller"), "the hunter wears a tiller's clothes: " + firstLook[0]);
+			// each tiller is someone: a strength and a flaw, worn on the body and shown on the panel
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				PathService.Line line = PathService.line(server);
+				long seed = life.shizune.mistinn.path.PathTraits.seed(player, line);
+				life.shizune.mistinn.path.PathTraits.Strength strength = life.shizune.mistinn.path.PathTraits.strength(seed, 0);
+				check(strength == life.shizune.mistinn.path.PathTraits.Strength.NIGHT_EYED || life.shizune.mistinn.path.PathTraits.carries(player),
+					"the first tiller's strength is on them: " + strength);
+				check(strength == life.shizune.mistinn.path.PathTraits.strength(seed, 0)
+					&& life.shizune.mistinn.path.PathTraits.flaw(seed, 0) == life.shizune.mistinn.path.PathTraits.flaw(seed, 0), "the same tiller, the same every time");
+			});
+			check(context.computeOnClient(mc -> mc.player.getAttached(PathService.VIEW).strength() >= 0 && mc.player.getAttached(PathService.VIEW).flaw() >= 0),
+				"and the panel knows them");
 			context.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
 			context.waitTicks(10);
 			context.takeScreenshot("path-look");
@@ -150,6 +163,25 @@ public final class MistinnPathTest implements FabricClientGameTest {
 			});
 			context.waitTicks(20);
 			check(context.computeOnClient(mc -> mc.player.getAttached(PathService.VIEW).fallen() == 1), "the panel counts the fallen");
+			// kneeling at the first one's memorial, the second takes up their strength, once
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				Settlements.Settlement home = Settlements.of(server, PathService.line(server).domain());
+				net.minecraft.core.BlockPos stone = memorial(server, home, 0);
+				check(server.overworld().getBlockEntity(stone) instanceof net.minecraft.world.level.block.entity.SignBlockEntity sign && PathService.memorialOf(sign) == 0,
+					"the memorial names the first to fall");
+				long seed = life.shizune.mistinn.path.PathTraits.seed(player, PathService.line(server));
+				boolean differs = life.shizune.mistinn.path.PathTraits.strength(seed, 0) != life.shizune.mistinn.path.PathTraits.strength(seed, 1);
+				check(PathService.inherit(player, 0), "the second kneels at it");
+				check(PathService.line(server).legacy() == (differs ? 0 : -1), "and takes up the first one's strength (unless it is already theirs): "
+					+ PathService.line(server).legacy());
+				check(!PathService.inherit(player, 5), "no one's strength comes from a name that has not fallen");
+			});
+			context.waitTicks(5);
+			check(context.computeOnClient(mc -> {
+				PathService.View view = mc.player.getAttached(PathService.VIEW);
+				return view.walker() == 1 && view.strength() >= 0;
+			}), "the panel shows the second tiller's own");
 			String nextLook = context.computeOnClient(mc -> mc.player.getSkin().body().texturePath().getPath());
 			check(nextLook.contains("tiller") && !nextLook.equals(firstLook[0]), "and the successor is plainly someone else: " + nextLook);
 			context.takeScreenshot("path-fallen");
