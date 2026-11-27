@@ -20,6 +20,8 @@ public final class PathClient {
 	public static final int DELAY = 70;
 
 	private static PathService.@Nullable EndPayload waiting;
+	/** The end, held back while the sea's card is up. */
+	private static PathService.@Nullable EndPayload after;
 	private static int wait;
 
 	private PathClient() {
@@ -39,11 +41,18 @@ public final class PathClient {
 	}
 
 	private static void tick(final Minecraft mc) {
-		if (waiting == null) {
-			return;
-		}
 		if (mc.player == null) {
 			waiting = null;
+			after = null;
+			return;
+		}
+		if (after != null && mc.gui.screen() == null) {
+			PathService.EndPayload end = after;
+			after = null;
+			mc.gui.setScreen(new PathEndScreen(end.sea(), end.fallen(), end.walker()));
+			return;
+		}
+		if (waiting == null) {
 			return;
 		}
 		if (--wait > 0 || mc.gui.screen() != null) {
@@ -51,6 +60,12 @@ public final class PathClient {
 		}
 		PathService.EndPayload end = waiting;
 		waiting = null;
+		if (end.sea()) {
+			// the sea's picture first, then the names
+			after = end;
+			mc.gui.setScreen(new life.shizune.mistinn.client.story.StoryCardScreen(life.shizune.mistinn.story.StoryScript.PATH_SEA));
+			return;
+		}
 		mc.gui.setScreen(new PathEndScreen(end.sea(), end.fallen(), end.walker()));
 	}
 }

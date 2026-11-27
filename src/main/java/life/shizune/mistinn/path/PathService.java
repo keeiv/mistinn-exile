@@ -337,7 +337,7 @@ public final class PathService {
 				player.setAttached(PLACED, true);
 				kit(player);
 				if (!line.over()) {
-					chapter(player, line.stage(), line);
+					chapter(player, line.stage(), line, life.shizune.mistinn.story.StoryScript.PATH_FIELDS.id());
 				}
 			}
 			if (line.over() && !player.getAttachedOrElse(SAW_END, false)) {
@@ -364,7 +364,8 @@ public final class PathService {
 				if (next == Step.ENDED) {
 					seaReached(each, advanced);
 				} else {
-					chapter(each, next, advanced);
+					// out of the broken tower comes the ancestors' tablet
+					chapter(each, next, advanced, next == Step.SIEGE ? life.shizune.mistinn.story.StoryScript.PATH_RECORD.id() : null);
 				}
 			}
 			return;
@@ -438,10 +439,15 @@ public final class PathService {
 	}
 
 	/** A chapter opens: its title, and a few lines of what it is. */
-	private static void chapter(final ServerPlayer player, final Step step, final Line line) {
-		player.connection.send(new ClientboundSetTitlesAnimationPacket(15, 70, 30));
-		player.connection.send(new ClientboundSetTitleTextPacket(Component.translatable("path.mistinn.title." + step.chapter)));
-		player.connection.send(new ClientboundSetSubtitleTextPacket(Component.translatable(step.key())));
+	private static void chapter(final ServerPlayer player, final Step step, final Line line, final @Nullable String card) {
+		if (card != null) {
+			// a story card in place of the title: it covers the screen, and the panel shows the chapter after
+			ServerPlayNetworking.send(player, new life.shizune.mistinn.story.StoryService.CardPayload(card));
+		} else {
+			player.connection.send(new ClientboundSetTitlesAnimationPacket(15, 70, 30));
+			player.connection.send(new ClientboundSetTitleTextPacket(Component.translatable("path.mistinn.title." + step.chapter)));
+			player.connection.send(new ClientboundSetSubtitleTextPacket(Component.translatable(step.key())));
+		}
 		for (int i = 0; i < 2; i++) {
 			player.sendSystemMessage(Component.translatable("path.mistinn.tell." + step.id + "." + i, name(line.walker())).withStyle(ChatFormatting.GRAY,
 				ChatFormatting.ITALIC));

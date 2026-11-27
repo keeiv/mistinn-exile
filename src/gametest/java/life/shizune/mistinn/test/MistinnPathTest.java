@@ -77,6 +77,11 @@ public final class MistinnPathTest implements FabricClientGameTest {
 				check(crown == null || !crown.out(), "the crown elder sleeps on, though the hub is near its heart");
 			});
 			check(context.computeOnClient(mc -> mc.player.getAttached(PathService.VIEW) != null), "the client is told of the way");
+			// the prologue opens on its card: a tiller at the field's edge, looking at the fog
+			context.waitFor(mc -> card(mc, "path.mistinn.chapter.0"), 200);
+			context.waitTicks(60);
+			context.takeScreenshot("path-card-fields");
+			closeCard(context);
 			String[] firstLook = new String[1];
 			firstLook[0] = context.computeOnClient(mc -> mc.player.getSkin().body().texturePath().getPath());
 			check(firstLook[0].contains("tiller"), "the hunter wears a tiller's clothes: " + firstLook[0]);
@@ -105,6 +110,10 @@ public final class MistinnPathTest implements FabricClientGameTest {
 			check(stage(world) == PathService.Step.RUIN, "a ruin opened long before still waits for its chapter: " + stage(world));
 			context.waitTicks(PathService.PACE);
 			check(stage(world) == PathService.Step.SIEGE, "and then counts: " + stage(world));
+			context.waitFor(mc -> card(mc, "path.mistinn.chapter.2"), 200);
+			context.waitTicks(60);
+			context.takeScreenshot("path-card-record");
+			closeCard(context);
 			world.getServer().runOnServer(server -> {
 				PathService.Line line = PathService.line(server);
 				server.overworld().setAttached(PathService.LINE,
@@ -142,6 +151,8 @@ public final class MistinnPathTest implements FabricClientGameTest {
 				check(player(server).getAttachedOrElse(PathService.PLACED, false)
 					&& near(player(server), Settlements.of(server, line.domain()).hub(), 6.0), "and the hunter is by the hub again: " + player(server).blockPosition());
 			});
+			context.waitFor(mc -> card(mc, "path.mistinn.chapter.0"), 200);
+			closeCard(context);
 
 			// the way comes to the sea: out past the highland, on a beach
 			int[] shore = new int[3];
@@ -165,7 +176,12 @@ public final class MistinnPathTest implements FabricClientGameTest {
 			check(stage(world) == PathService.Step.ENDED, "a beach past the highland ends the way: " + stage(world));
 			check(world.getServer().computeOnServer(server -> life.shizune.mistinn.achievement.AchievementService.has(player(server),
 				life.shizune.mistinn.achievement.Achievement.SEA_SEEN)), "and the sea is remembered");
-			context.waitFor(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.path.PathEndScreen end && end.sea(), 300);
+			// the sea's card first, then the names
+			context.waitFor(mc -> card(mc, "path.mistinn.chapter.5"), 300);
+			context.waitTicks(60);
+			context.takeScreenshot("path-card-sea");
+			closeCard(context);
+			context.waitFor(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.path.PathEndScreen end && end.sea(), 100);
 			context.waitTicks(130);
 			check(context.computeOnClient(mc -> mc.getSituationalMusic() == life.shizune.mistinn.client.path.PathClient.END), "the end has its own music");
 			context.takeScreenshot("path-sea-end");
@@ -212,6 +228,16 @@ public final class MistinnPathTest implements FabricClientGameTest {
 		context.runOnClient(mc -> mc.player.respawn());
 		context.waitFor(mc -> mc.player != null && mc.player.isAlive(), 200);
 		context.waitTicks(10);
+	}
+
+	private static boolean card(final net.minecraft.client.Minecraft mc, final String title) {
+		return mc.gui.screen() instanceof life.shizune.mistinn.client.story.StoryCardScreen screen
+			&& screen.getTitle().getString().equals(net.minecraft.network.chat.Component.translatable(title).getString());
+	}
+
+	private static void closeCard(final ClientGameTestContext context) {
+		context.runOnClient(mc -> mc.gui.screen().onClose());
+		context.waitTicks(5);
 	}
 
 	private static PathService.Step stage(final TestSingleplayerContext world) {
