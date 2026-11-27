@@ -201,7 +201,7 @@ public class RustApostle extends PathfinderMob {
 			hitter.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.SLOWNESS, 24, 3));
 			Vec3 push = hitter.position().subtract(this.position()).multiply(1.0, 0.0, 1.0).normalize().scale(0.7);
 			hitter.setDeltaMovement(push.x, 0.2, push.z);
-			hitter.needsSync = true;
+			hitter.syncVelocity = true;
 			this.begin(ApostleMove.RIPOSTE);
 			return false;
 		}
@@ -437,7 +437,7 @@ public class RustApostle extends PathfinderMob {
 			if (impulse.tick() == t) {
 				Vec3 push = forward.scale(impulse.forward()).add(right.scale(impulse.side()));
 				this.setDeltaMovement(push.x, impulse.up() > 0.0 ? impulse.up() : this.getDeltaMovement().y, push.z);
-				this.needsSync = true;
+				this.syncVelocity = true;
 			}
 		}
 		switch (current) {
@@ -535,7 +535,7 @@ public class RustApostle extends PathfinderMob {
 			double reach = Math.min(Math.max(to.length() - 1.6, 0.0), 9.0);
 			Vec3 run = forward.scale(reach / (ApostleMove.LEAP_DOWN - ApostleMove.LEAP_OFF) * 1.18);
 			this.setDeltaMovement(run.x, 0.56, run.z);
-			this.needsSync = true;
+			this.syncVelocity = true;
 			level.playSound(null, this.blockPosition(), SoundEvents.BREEZE_JUMP, SoundSource.HOSTILE, 1.0F, 0.8F);
 			level.sendParticles(ParticleTypes.CLOUD, this.getX(), this.getY() + 0.1, this.getZ(), 10, 0.3, 0.05, 0.3, 0.02);
 		}
@@ -600,10 +600,10 @@ public class RustApostle extends PathfinderMob {
 		away = away.lengthSqr() < 1.0E-4 ? Vec3.directionFromRotation(0.0F, this.getYRot()) : away.normalize();
 		if (knockback > 0.0) {
 			target.setDeltaMovement(away.x * knockback, 0.3, away.z * knockback);
-			target.needsSync = true;
+			target.syncVelocity = true;
 		} else if (pull > 0.0) {
 			target.setDeltaMovement(-away.x * pull, 0.1, -away.z * pull);
-			target.needsSync = true;
+			target.syncVelocity = true;
 		}
 	}
 

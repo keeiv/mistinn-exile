@@ -30,6 +30,9 @@ public class ApostleRenderState extends HumanoidRenderState {
 	/** The whole body ({@code root.*}). */
 	public static final String[] ROOT = {"x", "y", "z", "yaw", "roll", "pitch"};
 
+	/** Where the clips are read from; the reel may point it at another take to compare. */
+	public static String folder = "apostle/";
+
 	/** The move, or null between moves. */
 	public @Nullable ApostleMove move;
 	/** Ticks into the move, with the frame's part tick. */
@@ -48,8 +51,8 @@ public class ApostleRenderState extends HumanoidRenderState {
 
 	/** Works the pose out: the stance, breathing, with the move over it. */
 	public void pose() {
-		Clip stance = this.style == null ? null : Clip.find(this.drawn ? "apostle/ready_" + this.style.id : "apostle/carry");
-		Clip clip = this.move == null ? null : Clip.find("apostle/" + this.move.id);
+		Clip stance = this.style == null ? null : Clip.find(this.drawn ? folder + "ready_" + this.style.id : folder + "carry");
+		Clip clip = this.move == null ? null : Clip.find(folder + this.move.id);
 		this.posed = stance != null || clip != null;
 		java.util.Arrays.fill(this.root, 0.0F);
 		if (!this.posed) {
