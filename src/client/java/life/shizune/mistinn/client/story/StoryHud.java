@@ -21,10 +21,18 @@ public class StoryHud implements HudElement {
 	private static final int OBJECTIVE = 0xFFEDE6D8;
 	private static final int HINT = 0xFF9A948A;
 	private static final int FLASH = 0xFFE0A050;
+	/** Where the panel ended this frame (just the margin when none was drawn): what is shown under it starts there. */
+	private static int bottom = MARGIN - 4;
+
+	/** The bottom of the objective's panel as last drawn, for what goes under it. */
+	public static int bottom() {
+		return bottom;
+	}
 
 	@Override
 	public void extractRenderState(final GuiGraphicsExtractor g, final DeltaTracker deltaTracker) {
 		Minecraft mc = Minecraft.getInstance();
+		bottom = MARGIN - 4;
 		if (mc.player == null || mc.gui.screen() != null || mc.getDebugOverlay().showDebugScreen()) {
 			return;
 		}
@@ -58,6 +66,7 @@ public class StoryHud implements HudElement {
 		float glow = fresh ? Mth.clamp(flash / 20.0F, 0.0F, 1.0F) : 0.0F;
 		g.fill(x, y, x + width, y + height, 0x90080A0E);
 		g.fill(x, y, x + 2, y + height, fresh ? FLASH : 0xFF6B5B3A);
+		bottom = y + height;
 		int ty = y + 5;
 		if (fresh) {
 			// "new objective", pulsing as it fades
