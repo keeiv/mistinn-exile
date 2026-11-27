@@ -60,6 +60,17 @@ When you change things:
 | fallen | the tillers who fell, in the order they fell; when twelve have fallen the way is cut |
 | sea / `seaReached()` | out of the highland, the sea seen: the way is walked (ended) |
 
+## Horror and heavy content
+
+> [!CAUTION]
+> **Adding gore, suicide or jump scares without reason is strictly forbidden. Such content with no reason and no context will not be accepted.**
+
+The horror, death and heavy themes in this work each have a place and a reason in the story. If your contribution includes such content:
+
+- Say in the pull request where it comes in the story, why it must be there, and how it fits what is already established.
+- Jump scares and sudden images or sounds must all be turned off by the Scares switch in Mistinn Settings.
+- Suicide and self-harm appear only where the story truly needs them: never describing methods or details, and never glorifying them.
+
 ## Using AI tools
 
 **AI-assisted programming is allowed**, on these terms:
