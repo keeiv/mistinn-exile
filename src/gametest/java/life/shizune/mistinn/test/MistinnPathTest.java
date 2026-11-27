@@ -76,6 +76,15 @@ public final class MistinnPathTest implements FabricClientGameTest {
 				check(!RustAnchorFood.applies(player), "a tiller's food does not go damp");
 				life.shizune.mistinn.terra.Elders.Crown crown = life.shizune.mistinn.terra.Elders.crown(server, home.domain());
 				check(crown == null || !crown.out(), "the crown elder sleeps on, though the hub is near its heart");
+				// the settlement's people are kin, and speak of the way
+				net.minecraft.network.chat.Component said = PathService.kin(player, net.minecraft.util.RandomSource.create(1L));
+				check(said != null && said.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents words
+					&& words.getKey().startsWith("path.mistinn.kin."), "the settlement's people speak of the way: " + said);
+				for (int i = 0; i < 40; i++) {
+					String key = ((net.minecraft.network.chat.contents.TranslatableContents) PathService.kin(player, net.minecraft.util.RandomSource.create(i))
+						.getContents()).getKey();
+					check(!key.equals("path.mistinn.kin.3") && !key.equals("path.mistinn.kin.4"), "and remember no one before anyone has fallen: " + key);
+				}
 			});
 			check(context.computeOnClient(mc -> mc.player.getAttached(PathService.VIEW) != null), "the client is told of the way");
 			// the prologue opens on its card: a tiller at the field's edge, looking at the fog
