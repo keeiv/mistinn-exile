@@ -153,6 +153,13 @@ public final class MistinnPathTest implements FabricClientGameTest {
 			String nextLook = context.computeOnClient(mc -> mc.player.getSkin().body().texturePath().getPath());
 			check(nextLook.contains("tiller") && !nextLook.equals(firstLook[0]), "and the successor is plainly someone else: " + nextLook);
 			context.takeScreenshot("path-fallen");
+			// K opens the way's record here: the chapters, and the names of the fallen
+			check(context.computeOnClient(mc -> life.shizune.mistinn.client.path.PathClient.journal(mc) instanceof life.shizune.mistinn.client.path.PathJournalScreen),
+				"the journal key opens the way's record");
+			context.runOnClient(mc -> mc.gui.setScreen(life.shizune.mistinn.client.path.PathClient.journal(mc)));
+			context.waitTicks(10);
+			context.takeScreenshot("path-journal");
+			context.runOnClient(mc -> mc.gui.setScreen(null));
 			// look out from the hub along the memorials
 			world.getServer().runOnServer(server -> {
 				Settlements.Settlement home = Settlements.of(server, PathService.line(server).domain());
