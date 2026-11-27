@@ -37,6 +37,13 @@ public final class Ledger {
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final Set<String> HUNTER_WORLDS = Set.of("story", "free", "training");
+	/** The kinds of world there are. */
+	private static final Set<String> MODES = Set.of("story", "free", "training", "path");
+	/** The things a server may tell; nothing else is written down. */
+	private static final java.util.regex.Pattern EVENTS = java.util.regex.Pattern.compile("death|ending[.](anchor|inn)|path[.](fallen[.]([0-9]|1[01])|cut|sea|sea[.]whole)");
+	/** The most worlds, and once-in-a-world events, the ledger keeps: a server cannot make it grow without end. */
+	private static final int MOST_WORLDS = 4096;
+	private static final int MOST_ONCE = 65536;
 
 	/** World id to the kind of world it is. */
 	private Map<String, String> worlds = new HashMap<>();
@@ -48,6 +55,8 @@ public final class Ledger {
 	private Set<String> seen = new HashSet<>();
 
 	private transient Path file;
+	/** Changed since it was last written. */
+	private transient boolean dirty;
 
 	/** Where the ledger is kept: the game's folder, unless a test points it elsewhere. */
 	public static Path defaultFile() {
@@ -76,7 +85,15 @@ public final class Ledger {
 		return ledger;
 	}
 
+	/** Writes the ledger out if it has changed since it was last written. */
+	public void flush() {
+		if (this.dirty) {
+			this.save();
+		}
+	}
+
 	private void save() {
+		this.dirty = false;
 		if (this.file == null) {
 			return;
 		}
@@ -90,20 +107,35 @@ public final class Ledger {
 		}
 	}
 
-	/** The hunter came into a world: a drop, the first time. */
-	public void world(final String world, final String mode) {
-		if (this.worlds.putIfAbsent(world, mode) == null) {
-			this.save();
+	/** Whether a world id is one a world could have: a UUID, nothing else. */
+	private static boolean worldId(final String world) {
+		try {
+			return world.length() == 36 && java.util.UUID.fromString(world) != null;
+		} catch (IllegalArgumentException e) {
+			return false;
 		}
 	}
 
-	/** Something happened to the hunter in a world; {@code once}: only its first time there is counted. */
-	public void event(final String world, final String event, final boolean once) {
-		if (once && !this.once.add(world + ":" + event)) {
+	/** The hunter came into a world: a drop, the first time. Anything that is not a world is not written down. */
+	public void world(final String world, final String mode) {
+		if (!worldId(world) || !MODES.contains(mode) || this.worlds.size() >= MOST_WORLDS && !this.worlds.containsKey(world)) {
 			return;
 		}
-		this.counts.merge(event, 1, Integer::sum);
-		this.save();
+		if (this.worlds.putIfAbsent(world, mode) == null) {
+			this.dirty = true;
+		}
+	}
+
+	/** Something happened to the hunter in a world; {@code once}: only its first time there is counted. Only the known things are kept. */
+	public void event(final String world, final String event, final boolean once) {
+		if (!worldId(world) || !EVENTS.matcher(event).matches()) {
+			return;
+		}
+		if (once && (this.once.size() >= MOST_ONCE || !this.once.add(world + ":" + event))) {
+			return;
+		}
+		this.counts.merge(event, 1, (a, b) -> a < Integer.MAX_VALUE ? a + b : a);
+		this.dirty = true;
 	}
 
 	/** How many times this has happened. */
@@ -140,7 +172,7 @@ public final class Ledger {
 		return this.seen.contains(what);
 	}
 
-	/** Remembers that this has been shown. */
+	/** Remembers that this has been shown (written at once: it must not be shown again). */
 	public void see(final String what) {
 		if (this.seen.add(what)) {
 			this.save();

@@ -67,12 +67,18 @@ public final class MistinnLedgerTest implements FabricClientGameTest {
 		Ledger again = Ledger.load(file);
 		check(again.drops() == 2 && again.count("death") == 3 && again.count("ending.anchor") == 1 && again.fallen(3) == 1,
 			"read again, the ledger has kept it all");
-		again.world("third", "story");
+		again.world("00000000-0000-4000-8000-000000000003", "story");
 		check(again.stage() == Ledger.Stage.RECORD, "three drops: still the record");
-		again.world("fourth", "path");
+		again.world("00000000-0000-4000-8000-000000000004", "path");
 		check(again.drops() == 3, "a tillers' world is no drop of the hunter's");
-		again.world("fifth", "training");
+		again.world("00000000-0000-4000-8000-000000000005", "training");
 		check(again.stage() == Ledger.Stage.WRONG, "four drops and an ending behind them: this time it is wrong");
+		// what a server cannot make it write down: worlds that are no world, things that never happen, kinds that do not exist
+		again.world("not-a-world", "story");
+		again.world("00000000-0000-4000-8000-000000000006", "anything");
+		again.event("00000000-0000-4000-8000-000000000003", "x".repeat(5000), false);
+		again.event("not-a-world", "death", false);
+		check(again.drops() == 4 && again.count("death") == 3 && again.count("x".repeat(5000)) == 0, "only what could happen is written down");
 		again.see("scare.snuffer");
 		check(again.stage() == Ledger.Stage.AFTER && Ledger.load(file).seen("scare.snuffer"), "once seen, it is over, and remembered");
 	}

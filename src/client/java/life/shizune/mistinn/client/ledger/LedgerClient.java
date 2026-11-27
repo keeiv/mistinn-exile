@@ -26,6 +26,22 @@ public final class LedgerClient {
 	}
 
 	public static void register() {
+		// written out now and then, and when the hunter leaves the world or the game, not on every word from the server
+		net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
+			if (ledger != null && mc.level != null && mc.level.getGameTime() % 100L == 0L) {
+				ledger.flush();
+			}
+		});
+		net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler, mc) -> {
+			if (ledger != null) {
+				ledger.flush();
+			}
+		});
+		net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.CLIENT_STOPPING.register(mc -> {
+			if (ledger != null) {
+				ledger.flush();
+			}
+		});
 		ClientPlayNetworking.registerGlobalReceiver(LedgerService.WorldPayload.TYPE, (payload, context) -> ledger().world(payload.world(), payload.mode()));
 		ClientPlayNetworking.registerGlobalReceiver(LedgerService.EventPayload.TYPE,
 			(payload, context) -> ledger().event(payload.world(), payload.event(), payload.once()));
