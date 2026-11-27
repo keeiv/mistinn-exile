@@ -1,13 +1,8 @@
 package life.shizune.mistinn.client.ledger;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import life.shizune.mistinn.Mistinn;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -22,28 +17,14 @@ import net.minecraft.resources.Identifier;
  */
 public final class Haunting {
 	private static final String[] SUFFIX = {"", "again", "record", "wrong", "after"};
-	private static final Path CONFIG = FabricLoader.getInstance().getConfigDir().resolve("mistinn-client.properties");
 	private static final Map<Identifier, Boolean> PICTURES = new HashMap<>();
-	private static Boolean scares;
 
 	private Haunting() {
 	}
 
 	/** Whether the frightening parts are shown (the client's setting "scares", on unless set off). */
 	public static boolean scares() {
-		if (scares == null) {
-			scares = true;
-			if (Files.isRegularFile(CONFIG)) {
-				Properties properties = new Properties();
-				try (var in = Files.newBufferedReader(CONFIG)) {
-					properties.load(in);
-					scares = !"false".equalsIgnoreCase(properties.getProperty("scares", "true"));
-				} catch (IOException ignored) {
-					scares = true;
-				}
-			}
-		}
-		return scares;
+		return life.shizune.mistinn.client.ClientSettings.on(life.shizune.mistinn.client.ClientSettings.SCARES);
 	}
 
 	/** The version of this line the hunter reads now. */

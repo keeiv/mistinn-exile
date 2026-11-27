@@ -84,7 +84,7 @@ public class MistinnTitleScreen extends TitleScreen {
 		int x = Math.max(24, this.width / 14);
 		int w = 150;
 		int step = 22;
-		int entries = FabricLoader.getInstance().isModLoaded("modmenu") ? 6 : 5;
+		int entries = FabricLoader.getInstance().isModLoaded("modmenu") ? 7 : 6;
 		// on a short screen the whole block moves up, so the last entry clears the language and accessibility icons
 		this.lift = Math.max(0, this.height / 2 - 6 + (entries - 1) * step + 20 - (this.height - 40));
 		int y = this.height / 2 - 6 - this.lift;
@@ -100,6 +100,7 @@ public class MistinnTitleScreen extends TitleScreen {
 			this.add(new MenuButton(x, y += step, w, Component.translatable("menu.mistinn.mods"), this::openModMenu));
 		}
 		this.add(new MenuButton(x, y += step, w, Component.translatable("menu.options"), () -> this.minecraft.gui.setScreen(new OptionsScreen(this, this.minecraft.options))));
+		this.add(new MenuButton(x, y += step, w, Component.translatable("menu.mistinn.settings"), () -> this.minecraft.gui.setScreen(new MistinnSettingsScreen(this))));
 		this.add(new MenuButton(x, y + step, w, Component.translatable("menu.quit"), () -> this.minecraft.stop()));
 
 		this.addRenderableWidget(CommonButtons.language(20, b -> this.minecraft.gui.setScreen(new LanguageSelectScreen(this, this.minecraft.options, this.minecraft.getLanguageManager())), true))
