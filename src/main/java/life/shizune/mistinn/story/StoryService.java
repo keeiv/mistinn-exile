@@ -781,6 +781,8 @@ public final class StoryService {
 		// the answer: a pod, already on its way down inland
 		ensureWorks(server);
 		List<ServerPlayer> team = advanceTeam(player, StoryStep.POD);
+		// no one ordered it: the hunter says, to themself, why they rang
+		play(player, team, StoryScript.RANG, -1, "");
 		// long after, far out over the fog and high up, three tolls
 		Vec3 away = bell.subtract(Vec3.atCenterOf(road.bellStation())).multiply(1.0, 0.0, 1.0);
 		Vec3 far = player.position().add(away.lengthSqr() < 1.0 ? new Vec3(0.0, 0.0, 48.0) : away.normalize().scale(48.0)).add(0.0, 30.0, 0.0);

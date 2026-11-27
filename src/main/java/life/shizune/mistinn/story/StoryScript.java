@@ -110,6 +110,8 @@ public final class StoryScript {
 	public static final String TAG_3 = "tag_3";
 	/** The Sunken Bell's last words as it falls. */
 	public static final String SUNKEN_BELL_END = "sunken_bell_end";
+	/** The great bell rung, by no one's order: what the hunter wanted by it. */
+	public static final String RANG = "rang";
 	/** The pod that answered the bell: empty, and its radio calling. */
 	public static final String SUPPLY_CALL = "supply_call";
 	/** What the man at the wheel says when it stops. */
@@ -129,12 +131,13 @@ public final class StoryScript {
 	private static final Map<String, List<String>> SPEAKERS = Map.ofEntries(
 		Map.entry(FIRST_CALL, List.of(HELM, HELM, HELM, HELM, HELM, HELM, HELM, HELM, HELM)),
 		Map.entry(SNUFFER_END, List.of(SNUFFER, SNUFFER, SNUFFER, SNUFFER)),
-		Map.entry(NO_ANSWER, List.of(NARRATION, NARRATION, NARRATION)),
+		Map.entry(NO_ANSWER, List.of(NARRATION, NARRATION, NARRATION, APOSTLE)),
 		Map.entry(NIGHT_TOLL, List.of(NARRATION, NARRATION, NARRATION, APOSTLE)),
 		Map.entry(TAG_1, List.of(TAG_3388)),
 		Map.entry(TAG_2, List.of(TAG_3401, TAG_3401)),
 		Map.entry(TAG_3, List.of(TAG_3409, TAG_3409, TAG_3409)),
 		Map.entry(SUNKEN_BELL_END, List.of(SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL)),
+		Map.entry(RANG, List.of(APOSTLE)),
 		Map.entry(SUPPLY_CALL, List.of(NARRATION, NARRATION, HELM, HELM, HELM, HELM, HELM, HELM, HELM)),
 		Map.entry(RUST_WHEEL_END, List.of(RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, APOSTLE)),
 		Map.entry(STATION_CALL, List.of(HELM, HELM, HELM, NARRATION, TAG_3401, TAG_3401, TAG_3401, TAG_3401, HELM, APOSTLE)),
@@ -167,7 +170,7 @@ public final class StoryScript {
 
 	/** Every sequence, in the order the story reaches them: for the journal. */
 	public static List<String> sequences() {
-		return List.of(FIRST_CALL, SNUFFER_END, NO_ANSWER, NIGHT_TOLL, TAG_1, TAG_2, TAG_3, SUNKEN_BELL_END, SUPPLY_CALL, RUST_WHEEL_END, STATION_CALL,
+		return List.of(FIRST_CALL, SNUFFER_END, NO_ANSWER, NIGHT_TOLL, TAG_1, TAG_2, TAG_3, SUNKEN_BELL_END, RANG, SUPPLY_CALL, RUST_WHEEL_END, STATION_CALL,
 			ANCHOR_END, INN_END);
 	}
 }

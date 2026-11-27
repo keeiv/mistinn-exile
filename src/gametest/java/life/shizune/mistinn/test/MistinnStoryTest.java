@@ -322,7 +322,7 @@ public class MistinnStoryTest implements FabricClientGameTest {
 		context.waitFor(mc -> mc.gui.screen() == null, 100);
 		context.runOnClient(mc -> mc.gui.setScreen(new JournalScreen()));
 		context.waitTicks(5);
-		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 8), "the journal heard every sequence of the three chapters");
+		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 9), "the journal heard every sequence of the three chapters, and why the bell was rung");
 		context.takeScreenshot("story-journal-chapter-3");
 		context.runOnClient(mc -> mc.gui.setScreen(null));
 
@@ -397,7 +397,7 @@ public class MistinnStoryTest implements FabricClientGameTest {
 		context.waitFor(mc -> mc.gui.screen() == null, 100);
 		context.runOnClient(mc -> mc.gui.setScreen(new JournalScreen()));
 		context.waitTicks(5);
-		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 10), "the journal heard every sequence of the four chapters");
+		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 11), "the journal heard every sequence of the four chapters");
 		context.takeScreenshot("story-journal-chapter-4");
 		context.runOnClient(mc -> mc.gui.setScreen(null));
 
@@ -477,7 +477,7 @@ public class MistinnStoryTest implements FabricClientGameTest {
 		check(world.getServer().computeOnServer(server -> player(server).getMainHandItem().is(MistinnItems.RUST_GOD_SALT)), "after the ending the station takes no salt");
 		context.runOnClient(mc -> mc.gui.setScreen(new JournalScreen()));
 		context.waitTicks(5);
-		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 12), "the journal heard every sequence, the ending's too");
+		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 13), "the journal heard every sequence, the ending's too");
 		context.takeScreenshot("story-journal-chapter-5");
 		context.runOnClient(mc -> mc.gui.setScreen(null));
 		// home now: falling, the station's voice is gone from the hunter's head, and getting up is going back
