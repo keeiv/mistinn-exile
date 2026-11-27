@@ -53,6 +53,7 @@ When you change things:
 | elder / crown | the crown elder, the dragon keeping the highland's heart and letting no one leave |
 | drake | a crystal drake |
 | siege | a crystal tide: lizards swarming a woken homestead by night |
+| commission / keeper / trust | one of Terra's commissions; the keeper who gives them (the elder, or the tiller who keeps the board when it is gone); the tillers' trust in the hunters (one for the whole world) |
 | squall | a crystal squall, a storm of crystal grit over the highland |
 | rift / herald / hound | a sky rift, a rift herald, a rift hound |
 | path / line | the Path of Longing and how far it has come |

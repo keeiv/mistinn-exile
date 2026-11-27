@@ -81,7 +81,9 @@ public enum Achievement {
 	/** 又回到晶田: out on the tillers' way again, having walked it to an end in another world. */
 	PATH_AGAIN("path_again", 0),
 	/** 似曾相識: known by a tiller, in a world that is not the way, as one who walked it. */
-	TILLERS_KNOWN("tillers_known", 0);
+	TILLERS_KNOWN("tillers_known", 0),
+	/** 受託: a commission of the tillers done. */
+	COMMISSION_DONE("commission_done", 200);
 
 	public final String id;
 	public final int reward;

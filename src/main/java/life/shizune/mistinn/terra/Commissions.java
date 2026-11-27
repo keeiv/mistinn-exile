@@ -499,6 +499,7 @@ public final class Commissions {
 		player.removeAttached(TAKEN);
 		Commission commission = taken.commission();
 		SaltService.add(player, commission.salt());
+		life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.COMMISSION_DONE);
 		if (commission.cores() > 0) {
 			ItemStack cores = new ItemStack(MistinnItems.CRYSTAL_CORE, commission.cores());
 			if (!player.getInventory().add(cores)) {

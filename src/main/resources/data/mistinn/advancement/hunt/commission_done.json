@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/homestead",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.commission_done.desc"
+		},
+		"icon": {
+			"id": "minecraft:paper"
+		},
+		"title": {
+			"translate": "achievement.mistinn.commission_done"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}
