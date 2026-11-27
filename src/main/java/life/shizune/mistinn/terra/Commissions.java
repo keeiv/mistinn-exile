@@ -178,6 +178,81 @@ public final class Commissions {
 				expire(server);
 			}
 		});
+		net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.clientboundPlay().register(BoardPayload.TYPE, BoardPayload.CODEC);
+		net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.serverboundPlay().register(AskPayload.TYPE, AskPayload.CODEC);
+		net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.registerGlobalReceiver(AskPayload.TYPE,
+			(payload, context) -> ask(context.player(), payload));
+	}
+
+	// ── the board, on the hunter's screen ─────────────────────────
+
+	/** The keeper's board, sent to the hunter who asked: who keeps it, what is on it, the trust, and whether it trades too. */
+	public record BoardPayload(int keeper, int domain, List<Commission> offers, int trust, boolean trades) implements net.minecraft.network.protocol.common.custom.CustomPacketPayload {
+		public static final Type<BoardPayload> TYPE = new Type<>(Mistinn.id("commission_board"));
+		public static final StreamCodec<ByteBuf, BoardPayload> CODEC = StreamCodec.composite(
+			ByteBufCodecs.VAR_INT, BoardPayload::keeper,
+			ByteBufCodecs.VAR_INT, BoardPayload::domain,
+			Commission.STREAM_CODEC.apply(ByteBufCodecs.list(BOARD + 1)), BoardPayload::offers,
+			ByteBufCodecs.VAR_INT, BoardPayload::trust,
+			ByteBufCodecs.BOOL, BoardPayload::trades,
+			BoardPayload::new);
+
+		@Override
+		public Type<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> type() {
+			return TYPE;
+		}
+	}
+
+	/** What the hunter asks of the keeper from the screen: take one, let theirs go, hand in, or trade. */
+	public record AskPayload(int keeper, String action, String commission) implements net.minecraft.network.protocol.common.custom.CustomPacketPayload {
+		public static final Type<AskPayload> TYPE = new Type<>(Mistinn.id("commission_ask"));
+		public static final StreamCodec<ByteBuf, AskPayload> CODEC = StreamCodec.composite(
+			ByteBufCodecs.VAR_INT, AskPayload::keeper,
+			ByteBufCodecs.stringUtf8(16), AskPayload::action,
+			ByteBufCodecs.stringUtf8(32), AskPayload::commission,
+			AskPayload::new);
+
+		@Override
+		public Type<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> type() {
+			return TYPE;
+		}
+	}
+
+	/** Shows the hunter the keeper's board (as they right-click it, and after each thing asked). */
+	public static void open(final ServerPlayer hunter, final Tiller keeper) {
+		Settlements.Settlement home = asking(hunter, keeper);
+		if (home == null) {
+			return;
+		}
+		MinecraftServer server = hunter.level().getServer();
+		net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(hunter, new BoardPayload(keeper.getId(), home.domain(),
+			board(server, home.domain()).offers(), trust(server), keeper.role() == Tiller.Role.ELDER));
+	}
+
+	/** What the screen asked, decided here as if asked in person. */
+	private static void ask(final ServerPlayer hunter, final AskPayload payload) {
+		if (!(hunter.level().getEntity(payload.keeper()) instanceof Tiller keeper)) {
+			return;
+		}
+		Result result = switch (payload.action()) {
+			case "take" -> take(hunter, keeper, payload.commission());
+			case "abandon" -> abandon(hunter);
+			case "hand" -> handIn(hunter, keeper);
+			case "trade" -> {
+				if (asking(hunter, keeper) != null && keeper.role() == Tiller.Role.ELDER) {
+					keeper.trade(hunter);
+				}
+				yield null;
+			}
+			default -> null;
+		};
+		if (result == null) {
+			return;
+		}
+		if (result != Result.DONE) {
+			hunter.sendSystemMessage(Component.translatable(result.key()).withStyle(ChatFormatting.GRAY), true);
+		}
+		open(hunter, keeper);
 	}
 
 	// ── the world's state ─────────────────────────────────────────

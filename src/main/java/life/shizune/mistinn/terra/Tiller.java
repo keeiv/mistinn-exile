@@ -206,9 +206,11 @@ public class Tiller extends PathfinderMob implements Merchant {
 		if (!this.level().isClientSide()) {
 			if (this.holdsAgainst(player)) {
 				player.sendSystemMessage(Component.translatable("message.mistinn.tiller.wronged").withStyle(ChatFormatting.GRAY));
+			} else if (player instanceof net.minecraft.server.level.ServerPlayer hunter && Commissions.keeps(this) != null) {
+				// the keeper of a woken homestead's board: its commissions first, its wares a button away
+				Commissions.open(hunter, this);
 			} else if (this.role() == Role.ELDER) {
-				this.trading = player;
-				this.openTradingScreen(player, this.getDisplayName(), 1);
+				this.trade(player);
 			} else {
 				String line = this.line(player);
 				boolean pressing = line.endsWith(".squall") || line.endsWith(".siege");
@@ -219,6 +221,14 @@ public class Tiller extends PathfinderMob implements Merchant {
 			}
 		}
 		return InteractionResult.SUCCESS;
+	}
+
+	/** Opens this one's wares to a hunter. */
+	public void trade(final Player player) {
+		if (this.trading == null && this.isAlive()) {
+			this.trading = player;
+			this.openTradingScreen(player, this.getDisplayName(), 1);
+		}
 	}
 
 	/** How many things each of them has to say, besides what the moment calls for. */
