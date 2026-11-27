@@ -472,6 +472,24 @@ public class MistinnStoryTest implements FabricClientGameTest {
 		check(world.getServer().computeOnServer(server -> StoryService.get(player(server)).heard().size() == 12), "the journal heard every sequence, the ending's too");
 		context.takeScreenshot("story-journal-chapter-5");
 		context.runOnClient(mc -> mc.gui.setScreen(null));
+		// home now: falling, the station's voice is gone from the hunter's head, and getting up is going back
+		String[] fell = fall(context, world);
+		check(fell[0].startsWith("death.mistinn.quote.home.") && fell[1].equals("death.mistinn.return.home"),
+			"after the Mist Inn the death screen is the hunter's own: " + fell[0] + " / " + fell[1]);
+	}
+
+	/** Falls once, reads the death screen's line and its first choice, and gets up again. */
+	private static String[] fall(final ClientGameTestContext context, final TestSingleplayerContext world) {
+		world.getServer().runCommand("kill @a");
+		context.waitFor(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.death.MissionEndScreen, 400);
+		context.waitFor(mc -> life.shizune.mistinn.client.death.DeathScene.seconds() > life.shizune.mistinn.client.death.DeathScene.SCREEN + 1.8F, 400);
+		context.waitTicks(5);
+		String[] seen = context.computeOnClient(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.death.MissionEndScreen end
+			? new String[] {end.quoteKey(), end.onwardKey()} : new String[] {String.valueOf(mc.gui.screen()), ""});
+		context.runOnClient(mc -> mc.player.respawn());
+		context.waitFor(mc -> mc.player != null && mc.player.isAlive(), 200);
+		context.waitTicks(10);
+		return seen;
 	}
 
 	/** The other ending, in a world of its own: chapter 5 reached at once, and the salt sent up from the drop station's radio. */
@@ -518,6 +536,10 @@ public class MistinnStoryTest implements FabricClientGameTest {
 				check(!StoryService.burn(player, inn.hearth(), salt), "after the ending the Mist Inn's fire takes no salt");
 				check(server.overworld().getBlockState(inn.hearth()).is(net.minecraft.world.level.block.Blocks.CAMPFIRE), "and stays as it was");
 			});
+			// the anchor fed: nothing changed, and the station's voice is still the one the hunter hears falling
+			String[] fell = fall(context, world);
+			check(!fell[0].startsWith("death.mistinn.quote.home.") && fell[1].equals("death.mistinn.return"),
+				"after The Anchor the death screen is still the station's: " + fell[0] + " / " + fell[1]);
 		}
 	}
 
