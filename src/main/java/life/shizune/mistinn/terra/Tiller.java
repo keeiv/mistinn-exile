@@ -268,12 +268,30 @@ public class Tiller extends PathfinderMob implements Merchant {
 		return this.trading;
 	}
 
+	/** Whether the wares this one deals in were drawn up with the tillers' trust high enough for the better ones. */
+	private boolean trusted;
+
 	@Override
 	public MerchantOffers getOffers() {
-		if (this.offers == null) {
+		boolean trusted = this.level() instanceof net.minecraft.server.level.ServerLevel level && Commissions.trust(level.getServer()) >= Commissions.WARES;
+		if (this.offers == null || trusted && !this.trusted) {
 			this.offers = offers();
+			if (trusted) {
+				// the hunters have done what was asked: the keeper of trade brings out what it keeps back
+				this.offers.addAll(trustedOffers());
+			}
+			this.trusted = trusted;
 		}
 		return this.offers;
+	}
+
+	/** What the keeper of trade brings out once the tillers trust the hunters. */
+	static MerchantOffers trustedOffers() {
+		MerchantOffers list = new MerchantOffers();
+		list.add(deal(new ItemCost(MistinnItems.CRYSTAL_DUST, 20), new ItemStack(MistinnItems.CRYSTAL_CORE)));
+		list.add(deal(new ItemCost(MistinnItems.CRYSTAL_CORE, 4), new ItemStack(MistinnItems.gearOfTier(5).getFirst())));
+		list.add(deal(new ItemCost(MistinnItems.CRYSTAL_DUST, 6), new ItemStack(MistinnItems.FLARE, 2)));
+		return list;
 	}
 
 	/** What the keeper of trade deals in: crystal for their wares, rift crystal bought for their own. */

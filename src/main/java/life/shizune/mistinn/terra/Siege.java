@@ -183,7 +183,10 @@ public final class Siege {
 				// each night is weighed once, as it falls
 				watch = new Watch(home.domain(), night, 0, 0L, List.of(), 0L);
 				set(server, watch);
-				if (!AUTOMATED && allowed(level, home) && !near(level, home.hub(), NEAR).isEmpty() && level.getRandom().nextFloat() < chance(server)) {
+				List<ServerPlayer> there = near(level, home.hub(), NEAR);
+				// a hunter who took its guard brings the tide that night; otherwise it may come, as it will
+				boolean called = Commissions.guarding(there, home.domain());
+				if (allowed(level, home) && !there.isEmpty() && (called || !AUTOMATED && level.getRandom().nextFloat() < chance(server))) {
 					begin(level, home, WARNING);
 				}
 			}
@@ -353,6 +356,7 @@ public final class Siege {
 		for (ServerPlayer player : near(level, hub, THANKS)) {
 			SaltService.add(player, SALT * times);
 			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.AchievementService.SIEGE_HELD);
+			Commissions.held(player, home.domain());
 			player.spawnAtLocation(level, new ItemStack(MistinnItems.CRYSTAL_CORE, times));
 			player.sendSystemMessage(Component.translatable("message.mistinn.siege.held", SALT * times).withStyle(ChatFormatting.GOLD));
 		}
