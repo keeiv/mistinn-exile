@@ -806,6 +806,14 @@
       }
     ]
   },
+  "music.inn_morning": {
+    "sounds": [
+      {
+        "name": "mistinn:music/inn_morning",
+        "stream": true
+      }
+    ]
+  },
   "music.path_end": {
     "sounds": [
       {
