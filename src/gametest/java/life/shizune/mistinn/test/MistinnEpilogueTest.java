@@ -100,7 +100,7 @@ public final class MistinnEpilogueTest implements FabricClientGameTest {
 				check(!player.getInventory().hasAnyMatching(stack -> stack.is(MistinnItems.SALT) || stack.is(MistinnItems.SALT_BOMB)),
 					"none is left");
 			});
-			check(StoryScript.sequence(StoryScript.ANCHOR_END).size() == 5, "and the station says so");
+			check(StoryScript.sequence(StoryScript.ANCHOR_END).size() == 6, "and the station says so");
 		}
 	}
 

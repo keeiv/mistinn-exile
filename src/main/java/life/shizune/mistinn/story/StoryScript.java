@@ -59,7 +59,7 @@ public final class StoryScript {
 	/** The ending Mist Inn: no pod comes down again, and the inn's lamp stays lit. */
 	public static final Card INN = new Card("inn", 3, "");
 	/** After the inn: the soup, the wall of tags, the name, the morning. */
-	public static final Card INN_HEARTH = new Card("inn_hearth", 4, "");
+	public static final Card INN_HEARTH = new Card("inn_hearth", 5, "");
 	public static final Card INN_WALL = new Card("inn_wall", 5, "");
 	public static final Card INN_NAME = new Card("inn_name", 5, "");
 	public static final Card INN_DAWN = new Card("inn_dawn", 6, "");
@@ -127,16 +127,16 @@ public final class StoryScript {
 		Map.entry(FIRST_CALL, List.of(HELM, HELM, HELM, HELM, HELM, HELM, HELM, HELM, HELM)),
 		Map.entry(SNUFFER_END, List.of(SNUFFER, SNUFFER, SNUFFER, SNUFFER)),
 		Map.entry(NO_ANSWER, List.of(NARRATION, NARRATION, NARRATION)),
-		Map.entry(NIGHT_TOLL, List.of(NARRATION, NARRATION, NARRATION)),
+		Map.entry(NIGHT_TOLL, List.of(NARRATION, NARRATION, NARRATION, APOSTLE)),
 		Map.entry(TAG_1, List.of(TAG_3388)),
 		Map.entry(TAG_2, List.of(TAG_3401, TAG_3401)),
-		Map.entry(TAG_3, List.of(TAG_3409, TAG_3409)),
+		Map.entry(TAG_3, List.of(TAG_3409, TAG_3409, TAG_3409)),
 		Map.entry(SUNKEN_BELL_END, List.of(SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL, SUNKEN_BELL)),
 		Map.entry(SUPPLY_CALL, List.of(NARRATION, NARRATION, HELM, HELM, HELM, HELM, HELM, HELM, HELM)),
-		Map.entry(RUST_WHEEL_END, List.of(RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL)),
-		Map.entry(STATION_CALL, List.of(HELM, HELM, HELM, NARRATION, TAG_3401, TAG_3401, TAG_3401, TAG_3401, HELM)),
-		Map.entry(ANCHOR_END, List.of(NARRATION, HELM, HELM, HELM, NARRATION)),
-		Map.entry(INN_END, List.of(NARRATION, TAG_3401, NARRATION, NARRATION))
+		Map.entry(RUST_WHEEL_END, List.of(RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, APOSTLE)),
+		Map.entry(STATION_CALL, List.of(HELM, HELM, HELM, NARRATION, TAG_3401, TAG_3401, TAG_3401, TAG_3401, HELM, APOSTLE)),
+		Map.entry(ANCHOR_END, List.of(NARRATION, HELM, HELM, HELM, APOSTLE, NARRATION)),
+		Map.entry(INN_END, List.of(NARRATION, APOSTLE, TAG_3401, NARRATION, NARRATION))
 	);
 
 	private StoryScript() {
