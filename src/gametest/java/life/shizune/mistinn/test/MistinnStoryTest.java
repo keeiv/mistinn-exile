@@ -458,7 +458,11 @@ public class MistinnStoryTest implements FabricClientGameTest {
 		context.waitFor(mc -> mc.gui.screen() instanceof StoryCardScreen, 400);
 		context.waitTicks(80);
 		context.takeScreenshot("story-card-inn");
-		context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+		// the inn's last pages come one after another: Esc goes on to the next, until the morning is done
+		for (int page = 0; page < 6 && context.computeOnClient(mc -> mc.gui.screen() instanceof StoryCardScreen); page++) {
+			context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+			context.waitTicks(5);
+		}
 		context.waitFor(mc -> mc.gui.screen() == null, 100);
 		// the other way is shut now
 		useRadio(world, new ItemStack(MistinnItems.RUST_GOD_SALT));
