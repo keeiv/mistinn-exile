@@ -11,15 +11,15 @@ import net.minecraft.network.chat.Component;
  * The guide's contents: a link between the page-turning arrows opens it; the chapters, each by its
  * first page's own title and its page number, down both pages; a click on one turns to it.
  */
-final class GuideContents {
+public final class GuideContents {
 	/** The page each chapter starts on. */
-	static final List<Integer> CHAPTERS = List.of(1, 2, 4, 6, 7, 9, 10, 12, 17, 19, 22, 25, 28, 29, 30, 32, 33, 34, 35, 36, 37, 39, 41, 43, 45, 47, 48, 49, 50, 51, 52);
+	public static final List<Integer> CHAPTERS = List.of(1, 2, 4, 6, 7, 9, 10, 12, 17, 19, 22, 25, 28, 29, 30, 32, 33, 34, 35, 36, 37, 39, 41, 43, 45, 47, 48, 49, 50, 51, 52, 53);
 	/** Down each page: how many lines, from where, how far apart. */
-	private static final int PER_PAGE = 14;
-	private static final int TOP = 30;
-	private static final int ROW = 10;
+	private static final int PER_PAGE = 16;
+	private static final int TOP = 28;
+	private static final int ROW = 9;
 	/** The link: its middle along the arrows' line. */
-	private static final int LINK_Y = 180;
+	public static final int LINK_Y = 180;
 
 	private GuideContents() {
 	}
@@ -41,7 +41,7 @@ final class GuideContents {
 	}
 
 	/** Centre of a chapter's line. */
-	static double[] line(final int left, final int top, final int index) {
+	public static double[] line(final int left, final int top, final int index) {
 		int side = index / PER_PAGE;
 		int row = index % PER_PAGE;
 		int px = left + (side == 0 ? 20 : 172);
