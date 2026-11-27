@@ -78,7 +78,7 @@ public final class StationTalkScreen extends Screen {
 			if (!language.has(key)) {
 				break;
 			}
-			lines.add(language.getOrDefault(key));
+			lines.add(language.getOrDefault(life.shizune.mistinn.client.ledger.Haunting.key(key)));
 		}
 		return lines;
 	}

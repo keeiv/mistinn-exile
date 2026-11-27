@@ -58,6 +58,8 @@ public final class StoryScript {
 	public static final Card ANCHOR = new Card("anchor", 4, "");
 	/** The ending Mist Inn: no pod comes down again, and the inn's lamp stays lit. */
 	public static final Card INN = new Card("inn", 4, "");
+	/** The lamp room, lit, with no one in it. */
+	public static final Card LAMP_LIT = new Card("lamp_lit", 1, "");
 	/** The path of longing: a tiller at the field's edge, looking at the fog. */
 	public static final Card PATH_FIELDS = new Card("path_fields", 3, "path.mistinn.chapter.0");
 	/** The path of longing: the ancestors' tablet in the broken tower. */
@@ -69,7 +71,7 @@ public final class StoryScript {
 		Map.entry(UNANSWERED.id(), UNANSWERED), Map.entry(SALT_ROAD.id(), SALT_ROAD), Map.entry(BELL_STATION.id(), BELL_STATION),
 		Map.entry(ANSWER.id(), ANSWER), Map.entry(SALT_WORKS.id(), SALT_WORKS), Map.entry(STOPPED.id(), STOPPED), Map.entry(THE_CALL.id(), THE_CALL),
 		Map.entry(ANCHOR.id(), ANCHOR), Map.entry(INN.id(), INN), Map.entry(PATH_FIELDS.id(), PATH_FIELDS), Map.entry(PATH_RECORD.id(), PATH_RECORD),
-		Map.entry(PATH_SEA.id(), PATH_SEA));
+		Map.entry(PATH_SEA.id(), PATH_SEA), Map.entry(LAMP_LIT.id(), LAMP_LIT));
 
 	// ── Sequences ────────────────────────────────────────────────────
 	/** Helm's first call over the mended radio. */

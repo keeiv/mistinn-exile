@@ -799,6 +799,13 @@
       }
     ]
   },
+  "scare.sting": {
+    "sounds": [
+      {
+        "name": "mistinn:scare/sting"
+      }
+    ]
+  },
   "music.path_end": {
     "sounds": [
       {

@@ -16,4 +16,8 @@ public class SnufferRenderState extends HumanoidRenderState {
 	public float idleTicks;
 	/** How fast the body is turning, degrees per tick: the lantern swings out against it. */
 	public float turnSpeed;
+	/** How far its head has turned to the view (0 to 1), and to where: yaw from its body and pitch, in degrees. */
+	public float watch;
+	public float watchYaw;
+	public float watchPitch;
 }

@@ -37,6 +37,8 @@ public class SceneScreen extends Screen {
 	/** The direction (degrees) the view first stands in from the entity: a little aside of the hunter. */
 	private float baseYaw = Float.NaN;
 	private Vec3 target = Vec3.ZERO;
+	/** Where the orbit stopped (in ticks), or NaN while it circles. */
+	private float held = Float.NaN;
 
 	public SceneScreen(final int focus) {
 		super(Component.empty());
@@ -66,6 +68,10 @@ public class SceneScreen extends Screen {
 	@Override
 	public void removed() {
 		current = null;
+		// skipped before its last words were over: the wrong does not happen this time
+		if (life.shizune.mistinn.client.ledger.SnufferScare.phase() == life.shizune.mistinn.client.ledger.SnufferScare.Phase.WORDS) {
+			life.shizune.mistinn.client.ledger.SnufferScare.forget();
+		}
 		Minecraft mc = Minecraft.getInstance();
 		if (this.camera != null) {
 			mc.options.setCameraType(this.camera);
@@ -106,12 +112,26 @@ public class SceneScreen extends Screen {
 		if (Float.isNaN(this.baseYaw)) {
 			return null;
 		}
-		// the orbit gathers pace over its first second and a half instead of starting at speed
-		float time = this.ticks + partial;
+		// the orbit gathers pace over its first second and a half instead of starting at speed; the one time it looks back,
+		// the view stops where it is
+		if (life.shizune.mistinn.client.ledger.SnufferScare.viewHeld(StoryClient.lineIndex())) {
+			if (Float.isNaN(this.held)) {
+				this.held = this.ticks + partial;
+			}
+		} else {
+			this.held = Float.NaN;
+		}
+		float time = Float.isNaN(this.held) ? this.ticks + partial : this.held;
 		float ramp = 30.0F;
 		float travelled = time < ramp ? time * time * time / (ramp * ramp) - time * time * time * time / (2.0F * ramp * ramp * ramp) : time - ramp / 2.0F;
 		double angle = Math.toRadians(this.baseYaw + travelled * ORBIT);
 		Vec3 wanted = this.target.add(Math.cos(angle) * DISTANCE, RISE, Math.sin(angle) * DISTANCE);
+		// the one time it looks back, the view comes in close to its head
+		float closing = life.shizune.mistinn.client.ledger.SnufferScare.closing(partial);
+		if (closing > 0.0F) {
+			float c = closing * closing * (3.0F - 2.0F * closing);
+			wanted = wanted.lerp(this.head(), 0.62 * c);
+		}
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null || mc.player == null) {
 			return wanted;
@@ -121,9 +141,17 @@ public class SceneScreen extends Screen {
 		return wall.getType() == HitResult.Type.MISS ? wanted : wall.getLocation().lerp(this.target, 0.14);
 	}
 
-	/** What the view looks at. */
+	/** What the view looks at: the entity's middle, or its head as the view comes in to it. */
 	public Vec3 target() {
-		return this.target;
+		float closing = life.shizune.mistinn.client.ledger.SnufferScare.closing(Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false));
+		return closing > 0.0F ? this.target.lerp(this.head(), Math.min(1.0F, closing * 1.5F)) : this.target;
+	}
+
+	/** The head of the entity the scene holds on. */
+	private Vec3 head() {
+		Minecraft mc = Minecraft.getInstance();
+		Entity entity = mc.level == null ? null : mc.level.getEntity(this.focus);
+		return entity == null ? this.target : entity.getEyePosition();
 	}
 
 	@Override
@@ -141,6 +169,20 @@ public class SceneScreen extends Screen {
 		if (close >= 1.0F) {
 			Subtitles.draw(g, this.width, this.height - bar / 2, false);
 		}
+		// the one time it looks back: its face over everything for a moment, then dark
+		switch (life.shizune.mistinn.client.ledger.SnufferScare.phase()) {
+			case FACE -> g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, life.shizune.mistinn.client.ledger.SnufferScare.FACE_PICTURE, 0, 0, 0.0F, 0.0F,
+				this.width, this.height, 320, 180, 320, 180);
+			case DARK -> g.fill(0, 0, this.width, this.height, 0xFF000000);
+			default -> {
+			}
+		}
+	}
+
+	@Override
+	public boolean shouldCloseOnEsc() {
+		// after its last words, Esc does nothing
+		return !life.shizune.mistinn.client.ledger.SnufferScare.holding(StoryClient.lineIndex());
 	}
 
 	@Override

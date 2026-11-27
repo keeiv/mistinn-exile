@@ -9,7 +9,6 @@ import life.shizune.mistinn.story.StoryService;
 import life.shizune.mistinn.story.StoryStep;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import org.jspecify.annotations.Nullable;
 
@@ -43,7 +42,8 @@ public final class StoryClient {
 	}
 
 	private static void start(final StoryService.LinesPayload payload) {
-		playing = new Playing(StoryScript.sequence(payload.sequence()), payload.focus(), payload.cardAfter());
+		// the Snuffer's last words may go on, when the ledger has gone wrong
+		playing = new Playing(life.shizune.mistinn.client.ledger.SnufferScare.lines(payload.sequence(), payload.focus()), payload.focus(), payload.cardAfter());
 		line = 0;
 		lineTicks = 0;
 		if (payload.focus() >= 0) {
@@ -82,8 +82,24 @@ public final class StoryClient {
 
 	/** How long a line stays: typed out, then held long enough to read. */
 	private static int lineLength(final StoryScript.Line current) {
-		int chars = Component.translatable(current.key()).getString().length();
-		return Math.round((chars / TYPE_SPEED + 1.6F + chars * 0.045F) * 20.0F);
+		int chars = life.shizune.mistinn.client.ledger.Haunting.text(current.key()).getString().length();
+		return life.shizune.mistinn.client.ledger.SnufferScare.length(current.key(), Math.round((chars / TYPE_SPEED + 1.6F + chars * 0.045F) * 20.0F));
+	}
+
+	/** Whether the line on screen is all typed out. */
+	private static boolean typed() {
+		StoryScript.Line current = line();
+		return current != null && lineTicks >= Math.round(life.shizune.mistinn.client.ledger.Haunting.text(current.key()).getString().length() / TYPE_SPEED * 20.0F);
+	}
+
+	/** Which line of the playing sequence is on screen. */
+	public static int lineIndex() {
+		return line;
+	}
+
+	/** Test hook: plays a sequence as if the server had sent it. */
+	public static void play(final String sequence, final int focus, final String cardAfter) {
+		start(new StoryService.LinesPayload(sequence, focus, cardAfter));
 	}
 
 	/** Skips the rest of the line being typed, or on to the next line. */
@@ -92,7 +108,7 @@ public final class StoryClient {
 		if (current == null) {
 			return;
 		}
-		int chars = Component.translatable(current.key()).getString().length();
+		int chars = life.shizune.mistinn.client.ledger.Haunting.text(current.key()).getString().length();
 		int typed = Math.round(chars / TYPE_SPEED * 20.0F);
 		if (lineTicks < typed) {
 			lineTicks = typed;
@@ -113,6 +129,7 @@ public final class StoryClient {
 		if (mc.player == null) {
 			playing = null;
 			CARDS.clear();
+			life.shizune.mistinn.client.ledger.SnufferScare.forget();
 			lastStep = null;
 			return;
 		}
@@ -125,6 +142,18 @@ public final class StoryClient {
 		lastStep = step;
 		if (flash > 0) {
 			flash--;
+		}
+		StoryScript.Line shown = line();
+		if (life.shizune.mistinn.client.ledger.SnufferScare.tick(playing != null && line >= StoryScript.sequence(StoryScript.SNUFFER_END).size(),
+			shown != null && life.shizune.mistinn.client.ledger.SnufferScare.COUNT.equals(shown.key()), typed())
+			&& playing != null) {
+			// it has looked back: the scene ends, and the lamp room is shown
+			line = playing.lines().size();
+			CARDS.add(life.shizune.mistinn.client.ledger.SnufferScare.CARD);
+			if (mc.gui.screen() instanceof SceneScreen) {
+				mc.gui.setScreen(null);
+			}
+			playing = null;
 		}
 		if (playing != null) {
 			StoryScript.Line current = line();

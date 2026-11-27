@@ -30,7 +30,7 @@ public final class Subtitles {
 		Minecraft mc = Minecraft.getInstance();
 		Font font = mc.font;
 		float partial = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
-		String full = Component.translatable(line.key()).getString();
+		String full = life.shizune.mistinn.client.ledger.Haunting.text(line.key()).getString();
 		int shown = Mth.clamp((int) (StoryClient.lineSeconds(partial) * StoryClient.TYPE_SPEED), 0, full.length());
 		boolean narration = StoryScript.NARRATION.equals(line.speaker());
 		var wrapped = font.split(Component.literal(full), Math.min(MAX_WIDTH, width - 40));

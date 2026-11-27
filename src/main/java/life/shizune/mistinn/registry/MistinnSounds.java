@@ -192,6 +192,8 @@ public final class MistinnSounds {
 	public static final SoundEvent AMBIENT_SHORE_MIST = register("ambient.shore_mist");
 	public static final SoundEvent MUSIC_KEEPER = register("music.keeper");
 	public static final SoundEvent MUSIC_KEEPER_TURN = register("music.keeper_turn");
+	/** A blow, a clang and a shriek, then a ringing that dies away: heard once. */
+	public static final SoundEvent SCARE_STING = register("scare.sting");
 	public static final SoundEvent MUSIC_KEEPER_DARK = register("music.keeper_dark");
 	/** The sea fight: drums, low strings and brass, from the ship's first sighting to the last pirate gone. */
 	public static final SoundEvent MUSIC_NAVAL = register("music.naval");
