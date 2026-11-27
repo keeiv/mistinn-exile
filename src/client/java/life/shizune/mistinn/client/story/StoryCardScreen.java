@@ -9,12 +9,12 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 
 /**
  * A story card: a pixel-art picture on black, the chapter's name above it, and beneath it one
- * line at a time, typed out. A click shows the rest of the line, then the next; Esc skips the card.
+ * line at a time, typed out. A click shows the rest of the line, then the next; Esc skips the card. A card whose
+ * picture is not shown at this content level is its words alone, in the middle of the screen.
  */
 public class StoryCardScreen extends Screen {
 	/** The pictures are drawn at 320 by 180. */
@@ -27,7 +27,7 @@ public class StoryCardScreen extends Screen {
 	private final StoryScript.Card card;
 	/** The card that comes on when this one is done, or null. */
 	private final StoryScript.@org.jspecify.annotations.Nullable Card then;
-	private final Identifier image;
+	private final @org.jspecify.annotations.Nullable Identifier image;
 	private int line;
 	private int lineTicks;
 	private int ticks;
@@ -116,7 +116,7 @@ public class StoryCardScreen extends Screen {
 		// the largest whole scale that leaves room for the title and two lines of text
 		int scale = Math.max(1, Math.min((this.width - 24) / ART_W, (this.height - 70) / ART_H));
 		int w = ART_W * scale;
-		int h = ART_H * scale;
+		int h = this.image == null ? 0 : ART_H * scale;
 		int x = (this.width - w) / 2;
 		int y = Math.max(22, (this.height - h - 48) / 2);
 		// the picture surfaces out of the dark and settles a few pixels up; the title follows it
@@ -124,7 +124,9 @@ public class StoryCardScreen extends Screen {
 		float fade = Mth.clamp(time / 24.0F, 0.0F, 1.0F);
 		float rise = 1.0F - life.shizune.mistinn.client.anim.Motion.outCubic(time / 30.0F);
 		int tint = Math.max(4, (int) (255 * fade * fade * (3.0F - 2.0F * fade))) << 24 | 0xFFFFFF;
-		g.blit(RenderPipelines.GUI_TEXTURED, this.image, x, y + Math.round(6.0F * rise), 0.0F, 0.0F, w, h, ART_W, ART_H, ART_W, ART_H, tint);
+		if (this.image != null) {
+			g.blit(RenderPipelines.GUI_TEXTURED, this.image, x, y + Math.round(6.0F * rise), 0.0F, 0.0F, w, h, ART_W, ART_H, ART_W, ART_H, tint);
+		}
 
 		if (!this.card.title().isEmpty()) {
 			Component title = Component.translatable(this.card.title());
@@ -137,19 +139,13 @@ public class StoryCardScreen extends Screen {
 			String full = this.lineText();
 			String shown = full.substring(0, Mth.clamp(this.typed(), 0, full.length()));
 			int ty = y + h + 12;
-			// wrap on the full line so the text does not jump as it types
-			var rows = font.split(Component.literal(full), Math.min(w, this.width - 40));
+			// wrap on the full line so the text does not jump as it types (no line begins with a closing mark)
 			int used = 0;
-			for (FormattedCharSequence row : rows) {
-				int[] count = {0};
-				row.accept((index, style, codePoint) -> {
-					count[0] += Character.charCount(codePoint);
-					return true;
-				});
-				String rowText = full.substring(Math.min(used, full.length()), Math.min(used + count[0], full.length()));
-				String part = shown.length() > used ? shown.substring(used, Math.min(shown.length(), used + count[0])) : "";
+			for (String rowText : life.shizune.mistinn.client.text.LineBreak.lines(font, full, Math.min(w, this.width - 40))) {
+				int count = rowText.length();
+				String part = shown.length() > used ? shown.substring(used, Math.min(shown.length(), used + count)) : "";
 				g.text(font, part, (this.width - font.width(rowText)) / 2, ty, TEXT, true);
-				used += count[0];
+				used += count;
 				while (used < full.length() && full.charAt(used) == ' ') {
 					used++;
 				}

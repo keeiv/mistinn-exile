@@ -54,6 +54,23 @@ public final class MistinnContentWarningTest implements FabricClientGameTest {
 			context.getInput().pressKey(InputConstants.KEY_ESCAPE);
 			context.waitTicks(5);
 			check(context.computeOnClient(mc -> mc.gui.screen() instanceof ContentWarningScreen), "Esc does not dismiss it");
+			// no line of the warning begins with a closing mark (a lone 。 on a line of its own), at any width it is shown at
+			check(context.computeOnClient(mc -> {
+				for (String key : java.util.List.of("warning.mistinn.lead", "warning.mistinn.age", "warning.mistinn.item.0", "warning.mistinn.item.1",
+					"warning.mistinn.item.2", "warning.mistinn.kept", "warning.mistinn.advice", "warning.mistinn.choose", "settings.mistinn.level.light.about")) {
+					String text = net.minecraft.locale.Language.getInstance().getOrDefault(key);
+					for (int width = 150; width <= 420; width++) {
+						java.util.List<String> rows = life.shizune.mistinn.client.text.LineBreak.lines(mc.font, text, width);
+						for (String row : rows.subList(1, rows.size())) {
+							if (!row.isEmpty() && life.shizune.mistinn.client.text.LineBreak.closing(row.charAt(0))) {
+								System.out.println("[mistinn warning] " + key + " at " + width + ": " + row);
+								return false;
+							}
+						}
+					}
+				}
+				return true;
+			}), "no line of the warning begins with a closing mark");
 			// as most players see it (1920x1080), then the test window, then the smallest the game allows
 			sizes(context, "zh");
 			if (Boolean.getBoolean("mistinn.warningclip")) {
