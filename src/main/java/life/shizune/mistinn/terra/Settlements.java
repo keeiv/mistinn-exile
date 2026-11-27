@@ -13,6 +13,7 @@ import life.shizune.mistinn.block.ConduitBlock;
 import life.shizune.mistinn.block.HubSpireBlock;
 import life.shizune.mistinn.block.RefineryBlock;
 import life.shizune.mistinn.block.RelayPylonBlock;
+import life.shizune.mistinn.block.RoofVentBlock;
 import life.shizune.mistinn.domain.Domain;
 import life.shizune.mistinn.domain.DomainService;
 import life.shizune.mistinn.registry.MistinnBlocks;
@@ -39,9 +40,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
-import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.jspecify.annotations.Nullable;
@@ -323,11 +322,20 @@ public final class Settlements {
 					}
 					level.setBlock(at, state, FLAGS);
 				}
-				level.setBlock(middle.offset(dx, 0, dz).atY(deck + 4), MistinnBlocks.FACILITY_DECK_SLAB.defaultBlockState().setValue(SlabBlock.TYPE, SlabType.BOTTOM), FLAGS);
+				// a flat roof of deck plates, edged, with the fan unit standing on it
+				boolean rim = Math.abs(dx) == 2 || Math.abs(dz) == 2;
+				level.setBlock(middle.offset(dx, 0, dz).atY(deck + 4), (rim ? MistinnBlocks.FACILITY_DECK_EDGE : MistinnBlocks.FACILITY_DECK).defaultBlockState(), FLAGS);
 			}
 		}
 		level.setBlock(middle.offset(-door.getStepX(), 0, -door.getStepZ()).atY(deck + 1), MistinnBlocks.FACILITY_CRATE.defaultBlockState(), FLAGS);
 		level.setBlock(middle.atY(deck + 3), MistinnBlocks.FACILITY_LAMP.defaultBlockState(), FLAGS);
+		level.setBlock(middle.offset(-door.getStepX(), 0, -door.getStepZ()).atY(deck + 5), MistinnBlocks.ROOF_VENT.defaultBlockState(), FLAGS);
+		// hazard plates on the deck before the doorway
+		BlockPos step = middle.offset(door.getStepX() * 3, 0, door.getStepZ() * 3);
+		Direction side = door.getClockWise();
+		for (int s = -1; s <= 1; s++) {
+			level.setBlock(step.offset(side.getStepX() * s, 0, side.getStepZ() * s).atY(deck), MistinnBlocks.HAZARD_STRIPE.defaultBlockState(), FLAGS);
+		}
 	}
 
 	/** The crystal field: three rows of farmland round a water channel, planted with sprouts, edged in stone. */
@@ -403,12 +411,14 @@ public final class Settlements {
 		return false;
 	}
 
-	/** The hub woken: its spire, the relay pylons, their cables and the refinery light too. */
+	/** The hub woken: its spire, the relay pylons, their cables, the refinery and the workshop's fan light too. */
 	private static void wake(final ServerLevel level, final BlockPos hub) {
 		for (BlockPos at : BlockPos.betweenClosed(hub.offset(-DECK, 0, -DECK), hub.offset(DECK, PYLON + 1, DECK))) {
 			BlockState state = level.getBlockState(at);
 			if (state.is(MistinnBlocks.FACILITY_CONDUIT) && !state.getValue(ConduitBlock.LIT)) {
 				level.setBlock(at, state.setValue(ConduitBlock.LIT, true), Block.UPDATE_ALL);
+			} else if (state.is(MistinnBlocks.ROOF_VENT) && !state.getValue(RoofVentBlock.LIT)) {
+				level.setBlock(at, state.setValue(RoofVentBlock.LIT, true), Block.UPDATE_ALL);
 			} else if (state.is(MistinnBlocks.REFINERY) && !state.getValue(RefineryBlock.LIT)) {
 				level.setBlock(at, state.setValue(RefineryBlock.LIT, true), Block.UPDATE_ALL);
 			} else if (state.is(MistinnBlocks.HUB_SPIRE) && !state.getValue(HubSpireBlock.LIT)) {

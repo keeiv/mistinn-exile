@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "mistinn:block/roof_vent"
+    },
+    "lit=true": {
+      "model": "mistinn:block/roof_vent_lit"
+    }
+  }
+}

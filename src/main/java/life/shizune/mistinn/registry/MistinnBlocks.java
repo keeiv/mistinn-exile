@@ -248,6 +248,9 @@ public final class MistinnBlocks {
 	/** 晶煉爐: the settlement's crystal refinery; its crystal band lights with the hub. */
 	public static final Block REFINERY = register("refinery", life.shizune.mistinn.block.RefineryBlock::new, facility().noOcclusion()
 		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.RefineryBlock.LIT) ? 8 : 0));
+	/** 屋頂風扇: the fan unit on a workshop's roof; its crystal strip lights with the hub. */
+	public static final Block ROOF_VENT = register("roof_vent", life.shizune.mistinn.block.RoofVentBlock::new, facility().noOcclusion()
+		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.RoofVentBlock.LIT) ? 6 : 0));
 	/** 中繼塔: a relay pylon, stood in a base, a lattice mast and a head; its crystal light wakes with the hub. */
 	public static final Block RELAY_PYLON = register("relay_pylon", life.shizune.mistinn.block.RelayPylonBlock::new, facility().noOcclusion()
 		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.RelayPylonBlock.LIT) ? 9 : 1));
