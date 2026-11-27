@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/first_kill",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.bestiary_full.desc"
+		},
+		"icon": {
+			"id": "mistinn:hunter_guide"
+		},
+		"title": {
+			"translate": "achievement.mistinn.bestiary_full"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

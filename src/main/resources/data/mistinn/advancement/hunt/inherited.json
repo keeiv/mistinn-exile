@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/tab_path",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.inherited.desc"
+		},
+		"icon": {
+			"id": "minecraft:oak_sign"
+		},
+		"title": {
+			"translate": "achievement.mistinn.inherited"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

@@ -110,12 +110,17 @@ public final class ThrowService {
 		level.playSound(null, at.x, at.y, at.z, SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 1.2F, 0.6F);
 		level.playSound(null, at.x, at.y, at.z, SoundEvents.SAND_BREAK, SoundSource.PLAYERS, 1.5F, 0.8F);
 		DamageSource source = thrown != null ? level.damageSources().thrown(thrown, thrower) : level.damageSources().generic();
+		int rocked = 0;
 		for (Mob mob : level.getEntitiesOfClass(Mob.class, new AABB(at, at).inflate(BURST),
 			m -> m.isAlive() && m instanceof Enemy && !CrystalLizard.companion(m) && m.position().distanceTo(at) <= BURST)) {
+			rocked++;
 			WindupService.interrupt(mob);
 			Vec3 away = mob.position().subtract(at).multiply(1.0, 0.0, 1.0);
 			StaggerService.stagger(mob, StaggerService.TICKS, away.lengthSqr() < 1.0E-4 ? new Vec3(0.0, 0.0, 1.0) : away.normalize());
 			mob.hurtServer(level, source, BURST_DAMAGE);
+		}
+		if (rocked >= 3 && thrower instanceof net.minecraft.server.level.ServerPlayer hunter) {
+			life.shizune.mistinn.achievement.AchievementService.grant(hunter, life.shizune.mistinn.achievement.Achievement.SALT_BOMB_THREE);
 		}
 		NoiseService.hear(level, at, BURST_HEARD);
 	}

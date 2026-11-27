@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/rift_sealed",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.camp_barrel.desc"
+		},
+		"icon": {
+			"id": "minecraft:campfire"
+		},
+		"title": {
+			"translate": "achievement.mistinn.camp_barrel"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

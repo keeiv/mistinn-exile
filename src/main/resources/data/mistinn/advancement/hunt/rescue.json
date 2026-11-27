@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/tab_survival",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.rescue.desc"
+		},
+		"icon": {
+			"id": "mistinn:tourniquet"
+		},
+		"title": {
+			"translate": "achievement.mistinn.rescue"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

@@ -301,6 +301,7 @@ public final class PathService {
 			return true;
 		}
 		set(server, line.taking(fallenWalker));
+		life.shizune.mistinn.achievement.AchievementService.grant(hunter, life.shizune.mistinn.achievement.Achievement.INHERITED);
 		ServerLevel level = hunter.level();
 		level.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL, hunter.getX(), hunter.getY() + 1.0, hunter.getZ(), 16, 0.4, 0.6, 0.4, 0.02);
 		level.playSound(null, hunter.blockPosition(), SoundEvents.SOUL_ESCAPE.value(), SoundSource.PLAYERS, 1.0F, 0.8F);

@@ -87,6 +87,7 @@ public final class BestiaryService {
 	private static void record(final ServerPlayer player, final Bestiary.Entry entry, final Bestiary.Record next) {
 		Bestiary.Record was = get(player);
 		player.setAttached(MistinnAttachments.BESTIARY, next);
+		full(player, next);
 		Component name = entry.type().getDescription();
 		for (Bestiary.Detail detail : Bestiary.Detail.values()) {
 			if (Bestiary.knows(next, entry, detail) && !Bestiary.knows(was, entry, detail)) {
@@ -94,6 +95,13 @@ public final class BestiaryService {
 				player.sendOverlayMessage(Component.translatable("message.mistinn.bestiary." + latest(next, entry).name().toLowerCase(java.util.Locale.ROOT), name));
 				return;
 			}
+		}
+	}
+
+	/** 博物: every creature the bestiary lists has crossed the hunter's path. */
+	private static void full(final ServerPlayer player, final Bestiary.Record record) {
+		if (Bestiary.ENTRIES.stream().allMatch(each -> record.seen(each.id()))) {
+			AchievementService.grant(player, Achievement.BESTIARY_FULL);
 		}
 	}
 

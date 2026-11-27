@@ -59,7 +59,27 @@ public final class MistinnBestiaryTest implements FabricClientGameTest {
 			});
 			hunted(context, world);
 			theGuide(context, world);
+			naturalist(world);
 		}
+	}
+
+	/** 博物: the last creature the bestiary lacks, met, fills it. */
+	private static void naturalist(final TestSingleplayerContext world) {
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			Bestiary.Entry skeleton = Bestiary.of(EntityTypes.SKELETON);
+			Bestiary.Record allBut = Bestiary.Record.EMPTY;
+			for (Bestiary.Entry entry : Bestiary.ENTRIES) {
+				if (entry != skeleton) {
+					allBut = allBut.with(entry.id(), 0);
+				}
+			}
+			player.setAttached(life.shizune.mistinn.registry.MistinnAttachments.BESTIARY, allBut);
+			AchievementService.clear(player);
+			check(!AchievementService.has(player, Achievement.BESTIARY_FULL), "one creature short is not yet every one");
+			BestiaryService.met(player, spawn(server.overworld(), player, EntityTypes.SKELETON));
+			check(AchievementService.has(player, Achievement.BESTIARY_FULL), "the last one met fills the bestiary: naturalist");
+		});
 	}
 
 	private static void hunted(final ClientGameTestContext context, final TestSingleplayerContext world) {

@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/tab_survival",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.supply_drop.desc"
+		},
+		"icon": {
+			"id": "minecraft:barrel"
+		},
+		"title": {
+			"translate": "achievement.mistinn.supply_drop"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

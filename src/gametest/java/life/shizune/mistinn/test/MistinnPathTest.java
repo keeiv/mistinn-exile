@@ -176,6 +176,7 @@ public final class MistinnPathTest implements FabricClientGameTest {
 				long seed = life.shizune.mistinn.path.PathTraits.seed(player, PathService.line(server));
 				boolean differs = life.shizune.mistinn.path.PathTraits.strength(seed, 0) != life.shizune.mistinn.path.PathTraits.strength(seed, 1);
 				check(PathService.inherit(player, 0), "the second kneels at it");
+				check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.INHERITED), "and taking it up is remembered");
 				check(PathService.line(server).legacy() == (differs ? 0 : -1), "and takes up the first one's strength (unless it is already theirs): "
 					+ PathService.line(server).legacy());
 				check(!PathService.inherit(player, 5), "no one's strength comes from a name that has not fallen");

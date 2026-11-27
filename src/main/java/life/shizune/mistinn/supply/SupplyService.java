@@ -321,6 +321,10 @@ public final class SupplyService {
 		}
 		ServerLevel level = player.level().getServer().overworld();
 		boolean there = level.isLoaded(drop.at()) && level.getBlockEntity(drop.at()) instanceof BarrelBlockEntity barrel && !barrel.isEmpty();
+		if (now <= drop.until() && level.isLoaded(drop.at()) && !there) {
+			// the crate emptied before it was taken back: what the station sent down reached a hunter
+			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.SUPPLY_DROP);
+		}
 		if (now > drop.until() || level.isLoaded(drop.at()) && !there) {
 			player.removeAttached(DROP);
 			return;

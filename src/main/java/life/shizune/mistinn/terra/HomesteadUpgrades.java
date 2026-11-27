@@ -36,6 +36,8 @@ public final class HomesteadUpgrades {
 	/** The cores each step takes. */
 	public static final int[] COSTS = {3, 5, 8};
 	public static final int TOP = COSTS.length;
+	/** How near the hub a hunter shares in a homestead's last step. */
+	private static final double GROWN_SHARE = 32.0;
 	/** Grit sent each morning at the first step and from the second on, and how much the hub holds at the most. */
 	public static final int TRIBUTE = 3;
 	public static final int TRIBUTE_MORE = 5;
@@ -144,6 +146,10 @@ public final class HomesteadUpgrades {
 		}
 		for (ServerPlayer player : level.players()) {
 			player.sendSystemMessage(Component.translatable("message.mistinn.hub.grew." + next, hunter.getDisplayName()).withStyle(ChatFormatting.AQUA));
+			// fully grown: the one who offered the cores, and every hunter at the hub with them
+			if (next >= TOP && (player == hunter || player.distanceToSqr(net.minecraft.world.phys.Vec3.atCenterOf(hub)) <= GROWN_SHARE * GROWN_SHARE)) {
+				life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.HOMESTEAD_GROWN);
+			}
 		}
 		return true;
 	}

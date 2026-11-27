@@ -51,7 +51,27 @@ public enum Achievement {
 	REVIVE_LIMB("revive_limb", 150),
 	BELL("bell", 50),
 	RESIDUE("residue", 100),
-	RICH("rich", 0);
+	RICH("rich", 0),
+	/** 看穿: a blow parried the moment it lands. */
+	PARRY_PERFECT("parry_perfect", 200),
+	/** 博物: every creature of the guide's bestiary met. */
+	BESTIARY_FULL("bestiary_full", 800),
+	/** 鹽霰: three or more rocked back by one salt bomb. */
+	SALT_BOMB_THREE("salt_bomb_three", 200),
+	/** 拉一把: a downed teammate got back on their feet. */
+	RESCUE("rescue", 300),
+	/** 站上的回禮: a supply drop collected. */
+	SUPPLY_DROP("supply_drop", 150),
+	/** 整裝: a whole light or heavy set of one tier worn. */
+	FULL_SET("full_set", 300),
+	/** 留下的木桶: a lost camp's barrel opened. */
+	CAMP_BARREL("camp_barrel", 200),
+	/** 晶田豐收: a homestead grown to its third step. */
+	HOMESTEAD_GROWN("homestead_grown", 800),
+	/** 歸途: from one homestead to another by the map. */
+	TRAVEL("travel", 200),
+	/** 接過: a fallen tiller's strength taken up. */
+	INHERITED("inherited", 300);
 
 	public final String id;
 	public final int reward;

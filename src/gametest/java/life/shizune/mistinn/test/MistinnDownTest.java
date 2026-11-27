@@ -172,6 +172,7 @@ public final class MistinnDownTest implements FabricClientGameTest {
 		check(DownService.isDown(mate) && DownService.get(mate).progress() == DownService.RESCUE_TICKS - 1, "not a tick early");
 		DownService.tick(mate);
 		check(!DownService.isDown(mate), "ten seconds bring them back");
+		check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.RESCUE), "and the one who helped them up is remembered for it");
 	}
 
 	private static void walkingAwayBreaksTheRescueOff(final MinecraftServer server) {

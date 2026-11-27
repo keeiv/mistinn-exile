@@ -67,8 +67,15 @@ public final class MistinnThrowablesTest implements FabricClientGameTest {
 				ThrowService.land(level, ThrowService.Kind.SALT_BOMB, at, floor[0].offset(1, 0, 6), null, player);
 				check(StaggerService.staggered(near) && near.getHealth() < near.getMaxHealth(), "the near one is rocked back and hurt");
 				check(!StaggerService.staggered(far) && far.getHealth() == far.getMaxHealth(), "the far one is untouched");
+				check(!life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.SALT_BOMB_THREE), "one rocked back is not yet salt hail");
 				near.discard();
 				far.discard();
+				// three at once: salt hail
+				java.util.List<Zombie> three = java.util.List.of(zombie(level, floor[0].offset(2, 0, 6)), zombie(level, floor[0].offset(0, 0, 6)),
+					zombie(level, floor[0].offset(1, 0, 7)));
+				ThrowService.land(level, ThrowService.Kind.SALT_BOMB, at, floor[0].offset(1, 0, 6), null, player);
+				check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.SALT_BOMB_THREE), "three rocked back by one bomb is salt hail");
+				three.forEach(Zombie::discard);
 			});
 
 			// a flare: light where it lies, the creatures in reach shown, and out when it has burned

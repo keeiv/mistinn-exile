@@ -157,6 +157,7 @@ public final class ParryService {
 		Vec3 at = player.getEyePosition().add(toward.normalize().scale(0.7)).add(0.0, -0.35, 0.0);
 		if (perfect) {
 			perfects++;
+			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.PARRY_PERFECT);
 			StaminaService.restore(player, REFUND);
 			if (attacker instanceof life.shizune.mistinn.keeper.Keeper keeper) {
 				keeper.takeHeavyBlow(level);

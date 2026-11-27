@@ -109,6 +109,7 @@ public final class MistinnParryTest implements FabricClientGameTest {
 			int perfects = ParryService.perfects;
 			WindupService.land((ServerLevel) mob.level(), mob, player);
 			check(ParryService.perfects == perfects + 1, "the blow is turned aside");
+			check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.PARRY_PERFECT), "and the moment is remembered: read it");
 			check(player.getHealth() == health && BodyService.get(player).total() == body, "and nothing of it is taken");
 			check(StaggerService.staggered(mob), "the zombie rocks back on its heels");
 			check(StaminaService.get(player) == Math.min(StaminaService.max(player), before - ParryService.COST + ParryService.REFUND),
