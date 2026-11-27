@@ -84,11 +84,20 @@ public final class Haunting {
 	}
 
 	/**
-	 * The picture of a story card as the hunter sees it now. The pictures that have gone wrong (a figure in the fog, someone
-	 * at the lamp room's window, the fallen standing watching) are a staged turn of the fourth wall: with scares off the
-	 * card keeps its own picture, or its kind one.
+	 * The story pictures that are heavy in the first sense CONTRIBUTING gives (the dead, or a wound, seen plainly): at the
+	 * lightest content level their cards are words alone.
 	 */
-	public static Identifier picture(final String card) {
+	private static final java.util.Set<String> HEAVY = java.util.Set.of("path_stitched");
+
+	/**
+	 * The picture of a story card as the hunter sees it now, or null for none. The pictures that have gone wrong (a figure
+	 * in the fog, someone at the lamp room's window, the fallen standing watching) are a staged turn of the fourth wall:
+	 * with scares off the card keeps its own picture, or its kind one. At the lightest level a heavy picture is not shown.
+	 */
+	public static @org.jspecify.annotations.Nullable Identifier picture(final String card) {
+		if (life.shizune.mistinn.client.ContentLevel.light() && HEAVY.contains(card)) {
+			return null;
+		}
 		Ledger ledger = LedgerClient.ledger();
 		Ledger.Stage stage = scares() ? ledger.stage() : Ledger.Stage.FIRST;
 		String tone = card.startsWith("path_") ? (ledger.kindPath() ? "kind" : ledger.cruelPath() && scares() ? "cruel" : null)

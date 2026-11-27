@@ -113,17 +113,17 @@ public class ContentWarningScreen extends Screen {
 		this.panelW = Math.max(220, Math.min(MAX_WIDTH, this.width - 8));
 		int textW = this.panelW - 2 * PAD;
 		this.lead.clear();
-		this.lead.addAll(font.split(Component.translatable("warning.mistinn.lead"), textW));
+		this.lead.addAll(life.shizune.mistinn.client.text.LineBreak.split(font, Component.translatable("warning.mistinn.lead"), textW));
 		this.age.clear();
-		this.age.addAll(font.split(Component.translatable("warning.mistinn.age"), textW));
+		this.age.addAll(life.shizune.mistinn.client.text.LineBreak.split(font, Component.translatable("warning.mistinn.age"), textW));
 		this.items.clear();
 		for (int i = 0; i < 3; i++) {
-			this.items.add(font.split(Component.translatable("warning.mistinn.item." + i), textW - BULLET));
+			this.items.add(life.shizune.mistinn.client.text.LineBreak.split(font, Component.translatable("warning.mistinn.item." + i), textW - BULLET));
 		}
 		this.kept.clear();
-		this.kept.addAll(font.split(Component.translatable("warning.mistinn.kept"), textW));
+		this.kept.addAll(life.shizune.mistinn.client.text.LineBreak.split(font, Component.translatable("warning.mistinn.kept"), textW));
 		this.advice.clear();
-		this.advice.addAll(font.split(Component.translatable("warning.mistinn.advice"), textW));
+		this.advice.addAll(life.shizune.mistinn.client.text.LineBreak.split(font, Component.translatable("warning.mistinn.advice"), textW));
 
 		int y = TEXT_Y;
 		y += this.lead.size() * LINE + 5;
@@ -239,7 +239,7 @@ public class ContentWarningScreen extends Screen {
 			}
 		}
 		int row = this.choiceY + BUTTON_H + 4;
-		for (FormattedCharSequence line : font.split(about, w - 2 * PAD).stream().limit(2).toList()) {
+		for (FormattedCharSequence line : life.shizune.mistinn.client.text.LineBreak.split(font, about, w - 2 * PAD).stream().limit(2).toList()) {
 			g.text(font, line, PAD, row, fade(DIM, alpha), false);
 			row += LINE;
 		}

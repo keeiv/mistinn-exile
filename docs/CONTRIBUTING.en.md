@@ -69,8 +69,26 @@ The horror, death and heavy themes in this work each have a place and a reason i
 
 - Say in the pull request where it comes in the story, why it must be there, and how it fits what is already established.
 - Jump scares and sudden images or sounds must all keep to the content level in Mistinn Settings: none of them at Standard or Gentle.
-- New frightening words come with a gentle version (the same key with `.light`), used at Gentle.
+- Heavy lines in the story come with a gentle version, and heavy story pictures go on the list left out at Gentle (see "What counts as heavy" below).
 - Suicide and self-harm appear only where the story truly needs them: never describing methods or details, and never glorifying them.
+
+### What counts as heavy
+
+Whether a part of the story is heavy depends on what the reader sees and feels, not on the words it uses. Words like corpse, bone, coffin, slay or death are not heavy in themselves; a name like 憧憬的屍之道 (the Path of Longing) reads as a slightly over-the-top title, not as something heavy.
+
+Three things are heavy:
+
+1. **Death and wounds seen plainly**: the dead, blood and flesh, wounds, or the dead being handled, written or drawn so the reader can picture them.
+2. **Staying inside someone giving themselves up**: a person harming or ending themselves, or giving up on living, with the telling left there and never turning.
+3. **Fear coming for the reader**: something closing in, watching, remembering you, with no way out.
+
+Not heavy: names and titles, game terms (execution, fracture, bleeding, necrosis), grief and missing someone, simply saying that someone died, and turns of the fourth wall made with warmth or a joke.
+
+Gentle deals only with the parts of the story (story cards, the radio, the quotes on the death screen) that are one of these three:
+
+- **Lines**: a gentle version under the same key with `.light`. The fact stays and the eye moves off it: say what happened, not what it looked like; the fourth wall stays, told so it does not frighten.
+- **Pictures**: story pictures of the first kind are not shown at Gentle; the card keeps only its words. The list is `HEAVY` in `Haunting`.
+- **Never changed**: the names of items, creatures, places, chapters, modes and achievements, item text, the bestiary and the guide.
 
 ## Using AI tools
 
