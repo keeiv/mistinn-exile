@@ -148,6 +148,7 @@ public final class MistinnItems {
 	public static final Item RELAY_PYLON = block("relay_pylon", MistinnBlocks.RELAY_PYLON, new Item.Properties());
 	public static final Item REFINERY = block("refinery", MistinnBlocks.REFINERY, new Item.Properties());
 	public static final Item ROOF_VENT = block("roof_vent", MistinnBlocks.ROOF_VENT, new Item.Properties());
+	public static final Item WORKSHOP_WALL = block("workshop_wall", MistinnBlocks.WORKSHOP_WALL, new Item.Properties());
 	/** 晶屑: crystal grit, from the veins, the crop and the crystal dragons. */
 	public static final Item CRYSTAL_DUST = register("crystal_dust", Item::new, new Item.Properties());
 	/** 晶核: the heart of a crystal dragon. */

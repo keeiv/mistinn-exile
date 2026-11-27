@@ -14,6 +14,7 @@ import life.shizune.mistinn.block.HubSpireBlock;
 import life.shizune.mistinn.block.RefineryBlock;
 import life.shizune.mistinn.block.RelayPylonBlock;
 import life.shizune.mistinn.block.RoofVentBlock;
+import life.shizune.mistinn.block.WorkshopWallBlock;
 import life.shizune.mistinn.domain.Domain;
 import life.shizune.mistinn.domain.DomainService;
 import life.shizune.mistinn.registry.MistinnBlocks;
@@ -299,7 +300,7 @@ public final class Settlements {
 		}
 	}
 
-	/** A small workshop of panels with a window in each wall, its doorway facing the hub, roofed with deck plates. */
+	/** A small workshop: panelled walls on corner posts, a window in each wall, the doorway facing the hub under a canopy, a flat roof. */
 	private static void workshop(final ServerLevel level, final BlockPos middle, final int deck, final BlockPos site) {
 		Direction door = Direction.getApproximateNearest(site.getX() - middle.getX(), 0, site.getZ() - middle.getZ());
 		for (int dx = -2; dx <= 2; dx++) {
@@ -312,12 +313,15 @@ public final class Settlements {
 						boolean doorway = dx == door.getStepX() * 2 && dz == door.getStepZ() * 2;
 						boolean window = y == 2 && (Math.abs(dx) == 2 && dz == 0 || Math.abs(dz) == 2 && dx == 0);
 						boolean corner = Math.abs(dx) == 2 && Math.abs(dz) == 2;
+						// each piece shows its detail on the side it faces: outward
+						Direction face = Math.abs(dz) == 2 ? (dz > 0 ? Direction.SOUTH : Direction.NORTH) : (dx > 0 ? Direction.EAST : Direction.WEST);
+						WorkshopWallBlock.Part part = corner ? WorkshopWallBlock.Part.CORNER : doorway ? WorkshopWallBlock.Part.LINTEL
+							: window ? WorkshopWallBlock.Part.WINDOW : WorkshopWallBlock.Part.WALL;
 						if (doorway && y <= 2) {
 							state = Blocks.AIR.defaultBlockState();
-						} else if (window && !doorway) {
-							state = MistinnBlocks.FACILITY_GLASS.defaultBlockState();
 						} else {
-							state = (corner ? MistinnBlocks.FACILITY_FRAME : MistinnBlocks.FACILITY_PANEL).defaultBlockState();
+							state = MistinnBlocks.WORKSHOP_WALL.defaultBlockState().setValue(WorkshopWallBlock.FACING, doorway ? door : face)
+								.setValue(WorkshopWallBlock.PART, part);
 						}
 					}
 					level.setBlock(at, state, FLAGS);
@@ -417,6 +421,8 @@ public final class Settlements {
 			BlockState state = level.getBlockState(at);
 			if (state.is(MistinnBlocks.FACILITY_CONDUIT) && !state.getValue(ConduitBlock.LIT)) {
 				level.setBlock(at, state.setValue(ConduitBlock.LIT, true), Block.UPDATE_ALL);
+			} else if (state.is(MistinnBlocks.WORKSHOP_WALL) && !state.getValue(WorkshopWallBlock.LIT)) {
+				level.setBlock(at, state.setValue(WorkshopWallBlock.LIT, true), Block.UPDATE_ALL);
 			} else if (state.is(MistinnBlocks.ROOF_VENT) && !state.getValue(RoofVentBlock.LIT)) {
 				level.setBlock(at, state.setValue(RoofVentBlock.LIT, true), Block.UPDATE_ALL);
 			} else if (state.is(MistinnBlocks.REFINERY) && !state.getValue(RefineryBlock.LIT)) {

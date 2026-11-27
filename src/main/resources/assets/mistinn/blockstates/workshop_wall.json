@@ -1,0 +1,124 @@
+{
+  "variants": {
+    "facing=north,lit=false,part=wall": {
+      "model": "mistinn:block/workshop_wall"
+    },
+    "facing=north,lit=true,part=wall": {
+      "model": "mistinn:block/workshop_wall_lit"
+    },
+    "facing=north,lit=false,part=window": {
+      "model": "mistinn:block/workshop_window"
+    },
+    "facing=north,lit=true,part=window": {
+      "model": "mistinn:block/workshop_window_lit"
+    },
+    "facing=north,lit=false,part=corner": {
+      "model": "mistinn:block/workshop_corner"
+    },
+    "facing=north,lit=true,part=corner": {
+      "model": "mistinn:block/workshop_corner_lit"
+    },
+    "facing=north,lit=false,part=lintel": {
+      "model": "mistinn:block/workshop_lintel"
+    },
+    "facing=north,lit=true,part=lintel": {
+      "model": "mistinn:block/workshop_lintel_lit"
+    },
+    "facing=east,lit=false,part=wall": {
+      "model": "mistinn:block/workshop_wall",
+      "y": 90
+    },
+    "facing=east,lit=true,part=wall": {
+      "model": "mistinn:block/workshop_wall_lit",
+      "y": 90
+    },
+    "facing=east,lit=false,part=window": {
+      "model": "mistinn:block/workshop_window",
+      "y": 90
+    },
+    "facing=east,lit=true,part=window": {
+      "model": "mistinn:block/workshop_window_lit",
+      "y": 90
+    },
+    "facing=east,lit=false,part=corner": {
+      "model": "mistinn:block/workshop_corner",
+      "y": 90
+    },
+    "facing=east,lit=true,part=corner": {
+      "model": "mistinn:block/workshop_corner_lit",
+      "y": 90
+    },
+    "facing=east,lit=false,part=lintel": {
+      "model": "mistinn:block/workshop_lintel",
+      "y": 90
+    },
+    "facing=east,lit=true,part=lintel": {
+      "model": "mistinn:block/workshop_lintel_lit",
+      "y": 90
+    },
+    "facing=south,lit=false,part=wall": {
+      "model": "mistinn:block/workshop_wall",
+      "y": 180
+    },
+    "facing=south,lit=true,part=wall": {
+      "model": "mistinn:block/workshop_wall_lit",
+      "y": 180
+    },
+    "facing=south,lit=false,part=window": {
+      "model": "mistinn:block/workshop_window",
+      "y": 180
+    },
+    "facing=south,lit=true,part=window": {
+      "model": "mistinn:block/workshop_window_lit",
+      "y": 180
+    },
+    "facing=south,lit=false,part=corner": {
+      "model": "mistinn:block/workshop_corner",
+      "y": 180
+    },
+    "facing=south,lit=true,part=corner": {
+      "model": "mistinn:block/workshop_corner_lit",
+      "y": 180
+    },
+    "facing=south,lit=false,part=lintel": {
+      "model": "mistinn:block/workshop_lintel",
+      "y": 180
+    },
+    "facing=south,lit=true,part=lintel": {
+      "model": "mistinn:block/workshop_lintel_lit",
+      "y": 180
+    },
+    "facing=west,lit=false,part=wall": {
+      "model": "mistinn:block/workshop_wall",
+      "y": 270
+    },
+    "facing=west,lit=true,part=wall": {
+      "model": "mistinn:block/workshop_wall_lit",
+      "y": 270
+    },
+    "facing=west,lit=false,part=window": {
+      "model": "mistinn:block/workshop_window",
+      "y": 270
+    },
+    "facing=west,lit=true,part=window": {
+      "model": "mistinn:block/workshop_window_lit",
+      "y": 270
+    },
+    "facing=west,lit=false,part=corner": {
+      "model": "mistinn:block/workshop_corner",
+      "y": 270
+    },
+    "facing=west,lit=true,part=corner": {
+      "model": "mistinn:block/workshop_corner_lit",
+      "y": 270
+    },
+    "facing=west,lit=false,part=lintel": {
+      "model": "mistinn:block/workshop_lintel",
+      "y": 270
+    },
+    "facing=west,lit=true,part=lintel": {
+      "model": "mistinn:block/workshop_lintel_lit",
+      "y": 270
+    }
+  }
+}

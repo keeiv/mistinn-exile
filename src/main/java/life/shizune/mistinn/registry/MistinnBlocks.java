@@ -251,6 +251,10 @@ public final class MistinnBlocks {
 	/** 屋頂風扇: the fan unit on a workshop's roof; its crystal strip lights with the hub. */
 	public static final Block ROOF_VENT = register("roof_vent", life.shizune.mistinn.block.RoofVentBlock::new, facility().noOcclusion()
 		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.RoofVentBlock.LIT) ? 6 : 0));
+	/** 工坊牆: a piece of a workshop's walls (panel, window, corner post or the lintel over the door). */
+	public static final Block WORKSHOP_WALL = register("workshop_wall", life.shizune.mistinn.block.WorkshopWallBlock::new, facility()
+		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.WorkshopWallBlock.LIT)
+			&& state.getValue(life.shizune.mistinn.block.WorkshopWallBlock.PART) != life.shizune.mistinn.block.WorkshopWallBlock.Part.WALL ? 7 : 0));
 	/** 中繼塔: a relay pylon, stood in a base, a lattice mast and a head; its crystal light wakes with the hub. */
 	public static final Block RELAY_PYLON = register("relay_pylon", life.shizune.mistinn.block.RelayPylonBlock::new, facility().noOcclusion()
 		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.RelayPylonBlock.LIT) ? 9 : 1));
