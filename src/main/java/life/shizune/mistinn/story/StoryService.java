@@ -720,7 +720,8 @@ public final class StoryService {
 		}
 		tag.set(DataComponents.LORE, new ItemLore(lore));
 		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.CHAIN_BREAK, SoundSource.PLAYERS, 0.6F, 1.3F);
-		List<ServerPlayer> team = advanceTeam(player, cairn + 1 < StoryStep.CAIRNS.size() ? StoryStep.CAIRNS.get(cairn + 1) : StoryStep.BELL_STATION);
+		boolean last = cairn + 1 >= StoryStep.CAIRNS.size();
+		List<ServerPlayer> team = advanceTeam(player, last ? StoryStep.BELL_STATION : StoryStep.CAIRNS.get(cairn + 1));
 		// every hunter of the team keeps a copy of the tag and what it says
 		for (ServerPlayer hunter : concat(player, team)) {
 			ItemStack copy = tag.copy();
@@ -728,7 +729,8 @@ public final class StoryService {
 				hunter.drop(copy, false, net.minecraft.util.Prediction.SERVER_ONLY);
 			}
 		}
-		play(player, team, sequence, -1, "");
+		// the last cairn stands by the sea: the road ends there, and so does chapter 2
+		play(player, team, sequence, -1, last ? StoryScript.ROAD_END.id() : "");
 	}
 
 	/** The Sunken Bell fell: everyone near it who was after it hears its last words, then is told to ring the bell. */

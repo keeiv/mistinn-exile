@@ -236,6 +236,14 @@ public class MistinnStoryTest implements FabricClientGameTest {
 			}
 			context.runOnClient(mc -> StoryClient.skip());
 		}
+		// the road ends at the sea, and with it chapter 2: its last card comes after the last tag's words
+		context.waitFor(mc -> mc.gui.screen() instanceof StoryCardScreen, 400);
+		check(context.computeOnClient(mc -> mc.gui.screen() instanceof StoryCardScreen card && card.cardId().equals(StoryScript.ROAD_END.id())),
+			"the last cairn closes chapter 2 with its card: " + context.computeOnClient(mc -> String.valueOf(mc.gui.screen())));
+		context.waitTicks(80);
+		context.takeScreenshot("story-card-road-end");
+		context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+		context.waitFor(mc -> mc.gui.screen() == null, 100);
 		world.getServer().runOnServer(server -> {
 			java.util.List<ItemStack> tags = new java.util.ArrayList<>();
 			for (int slot = 0; slot < player(server).getInventory().getContainerSize(); slot++) {
