@@ -32,6 +32,10 @@ public final class InnerVoice {
 			SAID.clear();
 			return;
 		}
+		if (Boolean.getBoolean("mistinn.photo")) {
+			// the website's pictures are of the world, not of what No. 3412 is thinking
+			return;
+		}
 		String mode = LedgerClient.ledger().mode(world);
 		// the tillers on their way think their own thoughts; a training ground is not the zone
 		if (!"story".equals(mode) && !"free".equals(mode) || mc.player.hasAttached(PathService.VIEW) || !mc.player.isAlive() || mc.player.isSpectator()) {
