@@ -527,6 +527,9 @@ public final class PathService {
 
 	/** How many things the settlement's people say to the one walking the way, and of those, the ones that remember the last to fall. */
 	public static final int KIN = 6;
+	/** How many must have fallen before the settlement grows uneasy about the walker; and how many such things it says. */
+	public static final int UNEASY = 4;
+	public static final int UNEASY_LINES = 3;
 	private static final java.util.Set<Integer> REMEMBERING = java.util.Set.of(3, 4);
 
 	/**
@@ -540,6 +543,10 @@ public final class PathService {
 		}
 		if (line.stage() == Step.ENDED) {
 			return Component.translatable("path.mistinn.kin.ended", name(line.walker()));
+		}
+		// with many gone, the settlement begins to notice something about whoever walks the way now
+		if (line.fallen().size() >= UNEASY && random.nextInt(3) == 0) {
+			return Component.translatable("path.mistinn.kin.uneasy." + random.nextInt(UNEASY_LINES), name(line.walker()), name(line.fallen().getLast()));
 		}
 		int said = random.nextInt(KIN);
 		if (line.fallen().isEmpty() && REMEMBERING.contains(said)) {

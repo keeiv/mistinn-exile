@@ -117,6 +117,9 @@ public class MistinnClient implements ClientModInitializer {
 		// the team's beacons over the places they mark, under the minimap and the rest
 		HudElementRegistry.addLast(Mistinn.id("markers"), new life.shizune.mistinn.client.team.MarkerClient());
 		HudElementRegistry.addLast(Mistinn.id("pings"), new life.shizune.mistinn.client.team.PingClient());
+		HudElementRegistry.addLast(Mistinn.id("thoughts"), new life.shizune.mistinn.client.path.Thoughts());
+		ClientTickEvents.END_CLIENT_TICK.register(life.shizune.mistinn.client.path.Thoughts::tick);
+		ClientTickEvents.END_CLIENT_TICK.register(life.shizune.mistinn.client.path.InnerVoice::tick);
 		HudElementRegistry.addLast(Mistinn.id("minimap"), new MinimapHud());
 		// the quick-use wheel round the crosshair while its key is held
 		HudElementRegistry.addLast(Mistinn.id("quick_wheel"), new life.shizune.mistinn.client.grid.QuickWheel());
@@ -231,6 +234,7 @@ public class MistinnClient implements ClientModInitializer {
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> TierText.decorate(stack, lines));
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> life.shizune.mistinn.client.combat.WeaponText.decorate(stack, lines));
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> life.shizune.mistinn.client.combat.RustAnchorWeaponText.decorate(stack, lines));
+		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> life.shizune.mistinn.client.path.PsycheText.decorate(stack, lines));
 
 		ClientTickEvents.END_CLIENT_TICK.register(life.shizune.mistinn.client.terra.ZoneTitle::tick);
 		ClientTickEvents.END_CLIENT_TICK.register(life.shizune.mistinn.client.path.ThirteenthClient::tick);

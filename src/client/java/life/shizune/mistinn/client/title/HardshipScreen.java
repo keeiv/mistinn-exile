@@ -53,6 +53,8 @@ public class HardshipScreen extends Screen {
 		for (Hardship hardship : Hardship.values()) {
 			this.rulesLines = Math.max(this.rulesLines, this.font.split(rules(hardship), this.rowWidth - 2 * PAD).size());
 		}
+		// a line under the rules for what No. 3412 says to themself
+		this.rulesLines++;
 		int total = 22 + CARD_H + PAD + this.rulesBoxHeight() + 22;
 		this.top = Math.max(4, (this.height - total) / 2);
 		int y = this.top + 22;
@@ -144,6 +146,9 @@ public class HardshipScreen extends Screen {
 				g.text(this.font, part, this.left + PAD, line, 0xFFC8C0B0, false);
 				line += LINE;
 			}
+			// what No. 3412 says to themself about it, in the box's corner
+			Component voice = Component.translatable("hardship.mistinn." + shown.id + ".voice").withStyle(net.minecraft.ChatFormatting.ITALIC);
+			g.text(this.font, voice, this.left + this.rowWidth - PAD - this.font.width(voice), boxY + boxHeight - PAD - 8, 0xFF9A948A, false);
 		}
 		Component hint = Component.translatable("hardship.mistinn.hint", Component.translatable("mode.mistinn." + this.mode.id));
 		g.text(this.font, hint, (this.width - this.font.width(hint)) / 2, boxY + boxHeight + 10, 0xFF8E887C, false);
