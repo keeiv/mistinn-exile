@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,lit=false": {
+      "model": "mistinn:block/workbench"
+    },
+    "facing=north,lit=true": {
+      "model": "mistinn:block/workbench_lit"
+    },
+    "facing=east,lit=false": {
+      "model": "mistinn:block/workbench",
+      "y": 90
+    },
+    "facing=east,lit=true": {
+      "model": "mistinn:block/workbench_lit",
+      "y": 90
+    },
+    "facing=south,lit=false": {
+      "model": "mistinn:block/workbench",
+      "y": 180
+    },
+    "facing=south,lit=true": {
+      "model": "mistinn:block/workbench_lit",
+      "y": 180
+    },
+    "facing=west,lit=false": {
+      "model": "mistinn:block/workbench",
+      "y": 270
+    },
+    "facing=west,lit=true": {
+      "model": "mistinn:block/workbench_lit",
+      "y": 270
+    }
+  }
+}
