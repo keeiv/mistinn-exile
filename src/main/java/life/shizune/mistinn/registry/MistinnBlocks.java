@@ -255,6 +255,9 @@ public final class MistinnBlocks {
 	public static final Block WORKSHOP_WALL = register("workshop_wall", life.shizune.mistinn.block.WorkshopWallBlock::new, facility()
 		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.WorkshopWallBlock.LIT)
 			&& state.getValue(life.shizune.mistinn.block.WorkshopWallBlock.PART) != life.shizune.mistinn.block.WorkshopWallBlock.Part.WALL ? 7 : 0));
+	/** 工作台: the bench in a homestead's workshop, where worn gear is mended for crystal grit. */
+	public static final Block WORKBENCH = register("workbench", life.shizune.mistinn.block.WorkbenchBlock::new, facility().noOcclusion()
+		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.WorkbenchBlock.LIT) ? 6 : 0));
 	/** 中繼塔: a relay pylon, stood in a base, a lattice mast and a head; its crystal light wakes with the hub. */
 	public static final Block RELAY_PYLON = register("relay_pylon", life.shizune.mistinn.block.RelayPylonBlock::new, facility().noOcclusion()
 		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.RelayPylonBlock.LIT) ? 9 : 1));

@@ -95,6 +95,7 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.terra.Squall.register();
 		life.shizune.mistinn.terra.Siege.register();
 		life.shizune.mistinn.terra.HomesteadUpgrades.register();
+		life.shizune.mistinn.terra.HomesteadWorks.register();
 		life.shizune.mistinn.domain.FindCommands.register();
 		life.shizune.mistinn.path.PathService.register();
 		life.shizune.mistinn.terra.TerraShaper.watchRuins();

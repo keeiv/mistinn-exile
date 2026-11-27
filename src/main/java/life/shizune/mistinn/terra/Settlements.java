@@ -14,6 +14,7 @@ import life.shizune.mistinn.block.HubSpireBlock;
 import life.shizune.mistinn.block.RefineryBlock;
 import life.shizune.mistinn.block.RelayPylonBlock;
 import life.shizune.mistinn.block.RoofVentBlock;
+import life.shizune.mistinn.block.WorkbenchBlock;
 import life.shizune.mistinn.block.WorkshopWallBlock;
 import life.shizune.mistinn.domain.Domain;
 import life.shizune.mistinn.domain.DomainService;
@@ -331,7 +332,9 @@ public final class Settlements {
 				level.setBlock(middle.offset(dx, 0, dz).atY(deck + 4), (rim ? MistinnBlocks.FACILITY_DECK_EDGE : MistinnBlocks.FACILITY_DECK).defaultBlockState(), FLAGS);
 			}
 		}
-		level.setBlock(middle.offset(-door.getStepX(), 0, -door.getStepZ()).atY(deck + 1), MistinnBlocks.FACILITY_CRATE.defaultBlockState(), FLAGS);
+		// the bench at the back, facing the doorway
+		level.setBlock(middle.offset(-door.getStepX(), 0, -door.getStepZ()).atY(deck + 1),
+			MistinnBlocks.WORKBENCH.defaultBlockState().setValue(WorkbenchBlock.FACING, door), FLAGS);
 		level.setBlock(middle.atY(deck + 3), MistinnBlocks.FACILITY_LAMP.defaultBlockState(), FLAGS);
 		level.setBlock(middle.offset(-door.getStepX(), 0, -door.getStepZ()).atY(deck + 5), MistinnBlocks.ROOF_VENT.defaultBlockState(), FLAGS);
 		// hazard plates on the deck before the doorway
@@ -421,6 +424,8 @@ public final class Settlements {
 			BlockState state = level.getBlockState(at);
 			if (state.is(MistinnBlocks.FACILITY_CONDUIT) && !state.getValue(ConduitBlock.LIT)) {
 				level.setBlock(at, state.setValue(ConduitBlock.LIT, true), Block.UPDATE_ALL);
+			} else if (state.is(MistinnBlocks.WORKBENCH) && !state.getValue(WorkbenchBlock.LIT)) {
+				level.setBlock(at, state.setValue(WorkbenchBlock.LIT, true), Block.UPDATE_ALL);
 			} else if (state.is(MistinnBlocks.WORKSHOP_WALL) && !state.getValue(WorkshopWallBlock.LIT)) {
 				level.setBlock(at, state.setValue(WorkshopWallBlock.LIT, true), Block.UPDATE_ALL);
 			} else if (state.is(MistinnBlocks.ROOF_VENT) && !state.getValue(RoofVentBlock.LIT)) {
