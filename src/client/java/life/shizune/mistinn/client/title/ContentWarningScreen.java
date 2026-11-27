@@ -3,6 +3,7 @@ package life.shizune.mistinn.client.title;
 import java.util.ArrayList;
 import java.util.List;
 import life.shizune.mistinn.Mistinn;
+import life.shizune.mistinn.client.ContentLevel;
 import life.shizune.mistinn.registry.MistinnSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -24,7 +25,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * 內容警告: shown on black before the title screen, the first time a version runs (see {@link ContentWarning}). It is
  * dressed like an anti-cheat system's alert: one plain dialog, a header bar, the bell drawn in red line, the warning,
- * and the one choice it asks for (the scares, off or on). Until it is answered a warm music box plays, and a few small
+ * and the one choice it asks for (the content level: full, normal or light). Until it is answered a warm music box plays, and a few small
  * creatures of the shore keep the bell company on either side of the title, so it reads as care, not as the horror
  * begun. Esc does not dismiss it, and for its first moment it takes no input. On a small window the whole dialog is
  * drawn smaller, its two choices with it, at a size that keeps the font's pixels whole where it can.
@@ -98,10 +99,12 @@ public class ContentWarningScreen extends Screen {
 		int y = this.top + Math.round(this.choiceY * this.scale);
 		int h = Math.round(BUTTON_H * this.scale);
 		int w = Math.round(this.buttonW * this.scale);
-		int off = this.left + Math.round(this.buttonX * this.scale);
-		int on = this.left + Math.round((this.buttonX + this.buttonW + BUTTON_GAP) * this.scale);
-		this.choices.add(this.addRenderableWidget(new Choice(off, y, w, h, Component.translatable("warning.mistinn.off"), () -> this.answer(false))));
-		this.choices.add(this.addRenderableWidget(new Choice(on, y, w, h, Component.translatable("warning.mistinn.on"), () -> this.answer(true))));
+		ContentLevel[] levels = ContentLevel.values();
+		for (int i = 0; i < levels.length; i++) {
+			ContentLevel level = levels[i];
+			int x = this.left + Math.round((this.buttonX + i * (this.buttonW + BUTTON_GAP)) * this.scale);
+			this.choices.add(this.addRenderableWidget(new Choice(x, y, w, h, level, () -> this.answer(level))));
+		}
 	}
 
 	/** Wraps the text to the dialog's width and works out its height, then the scale that fits it on screen. */
@@ -132,11 +135,12 @@ public class ContentWarningScreen extends Screen {
 		y += this.kept.size() * LINE + 4;
 		y += this.advice.size() * LINE + 8;
 		this.choiceY = y;
-		this.panelH = y + BUTTON_H + 10;
+		// under the choices, up to two lines on what the one under the pointer means
+		this.panelH = y + BUTTON_H + 4 + 2 * LINE + 6;
 		// the choice row: what it switches on the left, the two choices filling the rest
 		int label = font.width(Component.translatable("warning.mistinn.choice")) + 12;
 		this.buttonX = PAD + label;
-		this.buttonW = (textW - label - BUTTON_GAP) / 2;
+		this.buttonW = (textW - label - 2 * BUTTON_GAP) / 3;
 
 		float fit = Math.min(1.0F, Math.min((this.height - 8) / (float) this.panelH, (this.width - 8) / (float) this.panelW));
 		// keep the font's pixels whole: a step of the GUI scale, unless that would shrink it by far more than it needs
@@ -147,8 +151,8 @@ public class ContentWarningScreen extends Screen {
 		this.top = Math.round((this.height - this.panelH * this.scale) / 2.0F);
 	}
 
-	private void answer(final boolean scares) {
-		ContentWarning.answer(scares);
+	private void answer(final ContentLevel level) {
+		ContentWarning.answer(level);
 		if (this.minecraft != null) {
 			this.minecraft.getMusicManager().stopPlaying(MUSIC);
 		}
@@ -227,6 +231,18 @@ public class ContentWarningScreen extends Screen {
 		// what the two choices switch, beside them
 		Component choice = Component.translatable("warning.mistinn.choice");
 		g.text(font, choice, PAD, this.choiceY + (BUTTON_H - 8) / 2, fade(HEADER_TEXT, alpha), false);
+		// what the choice under the pointer means (or, with none, a word on choosing)
+		Component about = Component.translatable("warning.mistinn.choose");
+		for (Choice each : this.choices) {
+			if (each.isHoveredOrFocused()) {
+				about = Component.translatable(each.level.about());
+			}
+		}
+		int row = this.choiceY + BUTTON_H + 4;
+		for (FormattedCharSequence line : font.split(about, w - 2 * PAD).stream().limit(2).toList()) {
+			g.text(font, line, PAD, row, fade(DIM, alpha), false);
+			row += LINE;
+		}
 		pose.popMatrix();
 	}
 
@@ -291,7 +307,7 @@ public class ContentWarningScreen extends Screen {
 		return (((argb >>> 24) * alpha / 255) << 24) | (argb & 0xFFFFFF);
 	}
 
-	/** For the client game test: the screen-space centre of choice 0 (off) or 1 (on). */
+	/** For the client game test: the screen-space centre of choice 0 (full), 1 (normal) or 2 (light). */
 	public double[] choiceCentre(final int index) {
 		Choice choice = this.choices.get(index);
 		return new double[] {choice.getX() + choice.getWidth() / 2.0, choice.getY() + choice.getHeight() / 2.0};
@@ -304,7 +320,7 @@ public class ContentWarningScreen extends Screen {
 				return false;
 			}
 		}
-		return this.choices.size() == 2;
+		return this.choices.size() == ContentLevel.values().length;
 	}
 
 	/** For the client game test: the scale the dialog is drawn at. */
@@ -315,9 +331,11 @@ public class ContentWarningScreen extends Screen {
 	/** A choice: a plain framed button, its border red under the pointer, dim until the warning is ready. */
 	private final class Choice extends AbstractButton {
 		private final Runnable action;
+		private final ContentLevel level;
 
-		Choice(final int x, final int y, final int width, final int height, final Component message, final Runnable action) {
-			super(x, y, width, height, message);
+		Choice(final int x, final int y, final int width, final int height, final ContentLevel level, final Runnable action) {
+			super(x, y, width, height, Component.translatable(level.key()));
+			this.level = level;
 			this.action = action;
 		}
 

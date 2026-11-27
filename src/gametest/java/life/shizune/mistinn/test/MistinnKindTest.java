@@ -106,9 +106,10 @@ public final class MistinnKindTest implements FabricClientGameTest {
 			});
 
 			// nothing goes around the scares setting: with it off, not even the thanks comes
-			context.runOnClient(mc -> life.shizune.mistinn.client.ClientSettings.set(life.shizune.mistinn.client.ClientSettings.SCARES, false));
-			check(context.computeOnClient(mc -> !SnufferScare.due()), "with scares off the Snuffer does not look back, even to thank them");
-			context.runOnClient(mc -> life.shizune.mistinn.client.ClientSettings.set(life.shizune.mistinn.client.ClientSettings.SCARES, true));
+			context.runOnClient(mc -> life.shizune.mistinn.client.ContentLevel.set(life.shizune.mistinn.client.ContentLevel.NORMAL));
+			check(context.computeOnClient(mc -> !SnufferScare.due() && SnufferScare.wordsDue()),
+				"below full content the Snuffer does not look back, even to thank them; its words alone come");
+			context.runOnClient(mc -> life.shizune.mistinn.client.ContentLevel.set(life.shizune.mistinn.client.ContentLevel.FULL));
 			check(context.computeOnClient(mc -> SnufferScare.due()), "with scares on it does");
 
 			// the Snuffer looks back to thank them

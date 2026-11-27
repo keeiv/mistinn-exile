@@ -37,9 +37,9 @@ public final class ContentWarning {
 		return due(ClientSettings.get(ClientSettings.WARNED_VERSION), version());
 	}
 
-	/** The warning answered: the scares on or off, and this version remembered as warned. */
-	public static void answer(final boolean scares) {
-		ClientSettings.set(ClientSettings.SCARES, scares);
+	/** The warning answered: the content level chosen, and this version remembered as warned. */
+	public static void answer(final life.shizune.mistinn.client.ContentLevel level) {
+		life.shizune.mistinn.client.ContentLevel.set(level);
 		ClientSettings.put(ClientSettings.WARNED_VERSION, version());
 	}
 

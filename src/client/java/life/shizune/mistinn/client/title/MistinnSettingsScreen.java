@@ -1,6 +1,7 @@
 package life.shizune.mistinn.client.title;
 
 import life.shizune.mistinn.client.ClientSettings;
+import life.shizune.mistinn.client.ContentLevel;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
@@ -9,7 +10,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.CommonComponents;
 
-/** 霧岸設定: the hunter's own switches for this mod: whether it may frighten them, and whether the camera swings. */
+/** 霧岸設定: the hunter's own switches for this mod: how much of the horror they want, and whether the camera swings. */
 public class MistinnSettingsScreen extends Screen {
 	private static final int W = 220;
 	private final Screen parent;
@@ -23,7 +24,10 @@ public class MistinnSettingsScreen extends Screen {
 	protected void init() {
 		int x = (this.width - W) / 2;
 		int y = this.height / 2 - 40;
-		this.addRenderableWidget(switchFor(ClientSettings.SCARES, "settings.mistinn.scares", x, y));
+		this.addRenderableWidget(CycleButton.builder((ContentLevel level) -> Component.translatable(level.key()), ContentLevel.current())
+			.withValues(ContentLevel.values())
+			.withTooltip(level -> Tooltip.create(Component.translatable(level.about())))
+			.create(x, y, W, 20, Component.translatable("settings.mistinn.content"), (button, level) -> ContentLevel.set(level)));
 		this.addRenderableWidget(switchFor(ClientSettings.SWING_CAMERA, "settings.mistinn.swing_camera", x, y + 26));
 		this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, b -> this.onClose()).bounds(x, y + 64, W, 20).build());
 	}

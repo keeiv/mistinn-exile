@@ -68,7 +68,8 @@ When you change things:
 The horror, death and heavy themes in this work each have a place and a reason in the story. If your contribution includes such content:
 
 - Say in the pull request where it comes in the story, why it must be there, and how it fits what is already established.
-- Jump scares and sudden images or sounds must all be turned off by the Scares switch in Mistinn Settings.
+- Jump scares and sudden images or sounds must all keep to the content level in Mistinn Settings: none of them at Standard or Gentle.
+- New frightening words come with a gentle version (the same key with `.light`), used at Gentle.
 - Suicide and self-harm appear only where the story truly needs them: never describing methods or details, and never glorifying them.
 
 ## Using AI tools

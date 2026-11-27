@@ -27,9 +27,9 @@ public final class Haunting {
 	private Haunting() {
 	}
 
-	/** Whether the frightening parts are shown (the client's setting "scares", on unless set off). */
+	/** Whether the frightening pictures and sounds are shown: only at full content. */
 	public static boolean scares() {
-		return life.shizune.mistinn.client.ClientSettings.on(life.shizune.mistinn.client.ClientSettings.SCARES);
+		return life.shizune.mistinn.client.ContentLevel.scenes();
 	}
 
 	/** The sounds that frighten, which a client with scares off leaves out: the sting, and the thirteenth's scream. */
