@@ -137,6 +137,7 @@
 | | |
 | --- | --- |
 | ![倒下的地方留下墓碑，右上角的小地圖標出陣亡點](docs/images/gravestone.jpg) | ![夜色裡在金鐘旁歇息](docs/images/golden-bell.jpg) |
+| ![正午的泰拉高地：雲梯谷裡的晶耕族聚落，甲板廣場、樞紐尖塔、三座中繼塔與工坊，遠處的天空有晶龍盤旋](docs/images/terra-settlement.jpg) | ![夜裡點亮的家園：樞紐、中繼塔與工坊的晶光，甲板邊的晶田與晶能砲台](docs/images/terra-homestead-night.jpg) |
 
 ### 武器
 

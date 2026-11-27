@@ -422,7 +422,83 @@ public class MistinnPhotoTest implements FabricClientGameTest {
 				shot(context, "grid-inventory", false);
 				context.setScreen(() -> null);
 			}
+
+			if (wants("terra")) {
+				terra(context, world, spawn);
+			}
 		}
+	}
+
+	/**
+	 * A crystal tillers' settlement on its own highland, well away from the station: woken and grown to its second
+	 * step (its turrets up), seen whole at noon with the tillers at the field, and again at night, lit, with the
+	 * tillers in the workshop.
+	 */
+	private static void terra(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos spawn) {
+		world.getServer().runCommand("time set 6000");
+		// the world's own highland nearest the station, whose ground comes up as Terra when it is first made
+		life.shizune.mistinn.domain.Domain highland = world.getServer().computeOnServer(server -> life.shizune.mistinn.domain.DomainService
+			.of(server, life.shizune.mistinn.domain.Domain.Kind.TERRA).stream()
+			.min(java.util.Comparator.comparingDouble(d -> d.centre().distSqr(spawn))).orElse(null));
+		if (highland == null) {
+			throw new AssertionError("the world has no Terra highland to photograph");
+		}
+		int domain = highland.id();
+		BlockPos site = life.shizune.mistinn.terra.Settlements.site(highland).atY(spawn.getY());
+		frame(context, world, site.offset(0, 90, 0), site, true);
+		life.shizune.mistinn.terra.Settlements.Settlement[] built = new life.shizune.mistinn.terra.Settlements.Settlement[1];
+		for (int i = 0; i < 150 && built[0] == null; i++) {
+			context.waitTicks(20);
+			built[0] = world.getServer().computeOnServer(server -> life.shizune.mistinn.terra.Settlements.of(server, domain));
+		}
+		if (built[0] == null) {
+			String why = world.getServer().computeOnServer(server -> {
+				ServerLevel level = server.overworld();
+				StringBuilder out = new StringBuilder(" skipped=" + life.shizune.mistinn.terra.Settlements.ledger(server).skipped().contains(domain)
+					+ " centre=" + highland.centre().toShortString() + " radius=" + highland.radius() + " site=" + site.toShortString()
+					+ " player=" + player(server).blockPosition().toShortString());
+				for (int cx = (site.getX() - 15) >> 4; cx <= (site.getX() + 15) >> 4; cx++) {
+					for (int cz = (site.getZ() - 15) >> 4; cz <= (site.getZ() + 15) >> 4; cz++) {
+						out.append(" [").append(cx).append(',').append(cz).append(" loaded=").append(level.getChunkSource().getChunkNow(cx, cz) != null)
+							.append(" worked=").append(life.shizune.mistinn.domain.DomainService.worked(server, domain, new net.minecraft.world.level.ChunkPos(cx, cz))).append(']');
+					}
+				}
+				for (int cx = (site.getX() - 15) >> 4; cx <= (site.getX() + 15) >> 4; cx++) {
+					for (int cz = (site.getZ() - 15) >> 4; cz <= (site.getZ() + 15) >> 4; cz++) {
+						var chunk = level.getChunkSource().getChunkNow(cx, cz);
+						if (chunk != null) {
+							for (var entry : chunk.getBlockEntities().entrySet()) {
+								BlockPos at = entry.getKey();
+								if (Math.hypot(at.getX() - site.getX(), at.getZ() - site.getZ()) <= 15) {
+									out.append(" BE ").append(net.minecraft.core.registries.BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(entry.getValue().getType()))
+										.append('@').append(at.toShortString()).append(' ').append(level.getBlockState(at).getBlock());
+								}
+							}
+						}
+					}
+				}
+				return out.toString();
+			});
+			throw new AssertionError("the settlement for the photos was never built:" + why);
+		}
+		BlockPos hub = built[0].hub();
+		world.getServer().runOnServer(server -> {
+			ServerPlayer player = player(server);
+			ItemStack held = player.getMainHandItem().copy();
+			player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(MistinnItems.CRYSTAL_CORE, 64));
+			life.shizune.mistinn.terra.Settlements.light(server.overworld(), hub, player);
+			life.shizune.mistinn.terra.HomesteadUpgrades.offer(server.overworld(), hub, player, player.getMainHandItem());
+			life.shizune.mistinn.terra.HomesteadUpgrades.offer(server.overworld(), hub, player, player.getMainHandItem());
+			player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, held);
+		});
+		// the whole settlement at noon, from above the field
+		frame(context, world, hub.offset(-15, 10, 17), hub.offset(0, 1, 0), true);
+		shot(context, "terra-settlement", true);
+		// at night, lit, from beside the workshop
+		world.getServer().runCommand("time set 18000");
+		frame(context, world, hub.offset(13, 4, -11), hub.offset(0, 2, 0), false);
+		context.waitTicks(200);
+		shot(context, "terra-homestead-night", true);
 	}
 
 	/**

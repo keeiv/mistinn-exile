@@ -122,6 +122,10 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Stats and skills | Bring back a keeper's rust god salt to learn the **slide**, the first major skill, on the guide's skills page; after that, salt buys strength, speed, constitution and intellect a point at a time. See [Stats and skills](#stats-and-skills). |
 | Languages | Traditional Chinese and English. |
 
+| | |
+| --- | --- |
+| ![A Terra highland at noon: a crystal tillers' settlement in Cloudstair Valley, its deck plaza, hub spire, three relay pylons and workshop, a crystal drake circling far off](images/terra-settlement.jpg) | ![The homestead woken, at night: the hub, the pylons and the workshop alight with crystal, the crystal field and a turret at the deck's edge](images/terra-homestead-night.jpg) |
+
 ### Weapons
 
 Each of the six branches has its own swing, footprint and feel; the material sets damage, durability and tier.
