@@ -231,6 +231,9 @@ public final class MistinnThirteenTest implements FabricClientGameTest {
 	 * hunter a little off to the side, so the camera behind it sees them. When {@code tend}, it is made whole again
 	 * each time. Returns how much of its strength is left.
 	 */
+	// where the thirteenth stands its ground while the hunter fights it
+	private static net.minecraft.world.phys.@org.jspecify.annotations.Nullable Vec3 ground;
+
 	private static float step(final ClientGameTestContext context, final TestSingleplayerContext world, final int hunterId, final boolean tend) {
 		context.waitTicks(4);
 		float left = world.getServer().computeOnServer(server -> {
@@ -241,6 +244,12 @@ public final class MistinnThirteenTest implements FabricClientGameTest {
 				player.swing(InteractionHand.MAIN_HAND, player.getMainHandItem().getAttackAnimation(), true);
 				if (player.distanceTo(hunter) < 4.0F) {
 					player.attack(hunter);
+				}
+				// it holds its ground: knocked back (its blows push the one they hit), it steps back to where it stood
+				if (ground == null) {
+					ground = player.position();
+				} else if (player.position().distanceTo(ground) > 2.0) {
+					player.teleportTo(server.overworld(), ground.x, ground.y, ground.z, java.util.Set.of(), player.getYRot(), player.getXRot(), false);
 				}
 				if (tend) {
 					life.shizune.mistinn.body.BodyService.restoreAll(player);
