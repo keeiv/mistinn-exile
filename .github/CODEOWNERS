@@ -1,0 +1,10 @@
+# Art from outside the team is reviewed by hand (see CONTRIBUTING.md): these paths ask the team
+# for a review whenever a pull request touches them.
+/src/main/resources/assets/mistinn/textures/ @keeiv
+/src/main/resources/assets/mistinn/models/ @keeiv
+/src/main/resources/assets/mistinn/sounds/ @keeiv
+/src/main/resources/assets/mistinn/blockstates/ @keeiv
+/src/main/resources/assets/mistinn/items/ @keeiv
+/assets/ @keeiv
+/docs/images/ @keeiv
+/.github/ @keeiv

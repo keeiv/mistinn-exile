@@ -1,0 +1,43 @@
+name: Contribution labels
+
+# Labels outside pull requests for the team: art waiting for review, and no linked issue (looked at
+# later, never blocked). It runs with write access, so it must only read the pull request through
+# the API: it never checks out or runs anything from it.
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  label:
+    name: Label
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (['OWNER', 'MEMBER', 'COLLABORATOR'].includes(pr.author_association)) {
+              return;
+            }
+            const target = { owner: context.repo.owner, repo: context.repo.repo, issue_number: pr.number };
+            const labels = pr.labels.map(l => l.name);
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner, repo: context.repo.repo, pull_number: pr.number, per_page: 100,
+            });
+            const art = files.some(f =>
+              /^src\/[^/]+\/resources\/assets\/[^/]+\/(textures|models|sounds|blockstates|items|particles)\//.test(f.filename)
+              || /\.(png|jpe?g|gif|ogg|wav|mp3|bbmodel)$/i.test(f.filename));
+            if (art && !labels.includes('needs-art-review') && !labels.includes('art-approved')) {
+              await github.rest.issues.addLabels({ ...target, labels: ['needs-art-review'] });
+            }
+            const linked = /(#\d+|\/issues\/\d+)/.test(pr.body || '');
+            if (!linked && !labels.includes('no-linked-issue')) {
+              await github.rest.issues.addLabels({ ...target, labels: ['no-linked-issue'] });
+            } else if (linked && labels.includes('no-linked-issue')) {
+              await github.rest.issues.removeLabel({ ...target, name: 'no-linked-issue' });
+            }
