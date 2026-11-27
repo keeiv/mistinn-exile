@@ -397,8 +397,9 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		check(gainedElder == 1000, "and pays 1000: " + gainedElder);
 		// the elder stunned against stone, a siege held, an alpha brought down (MistinnCrystalElderTest, MistinnSiegeTest and MistinnRiftHoundTest earn them)
 		String[] terra = {AchievementService.ELDER_STUNNED, AchievementService.SIEGE_HELD, AchievementService.ALPHA_SLAIN,
-			AchievementService.LIZARD_TAMED, AchievementService.RUIN_OPENED, AchievementService.RIFT_CALLED, AchievementService.SEA_SEEN};
-		int[] pays = {300, 600, 400, 200, 300, 300, 2000};
+			AchievementService.LIZARD_TAMED, AchievementService.RUIN_OPENED, AchievementService.RIFT_CALLED, AchievementService.SEA_SEEN,
+			AchievementService.TWELVE_SLAIN, AchievementService.XIRANG, AchievementService.THE_LAND};
+		int[] pays = {300, 600, 400, 200, 300, 300, 2000, 12, 3000, 1500};
 		for (int i = 0; i < terra.length; i++) {
 			String id = terra[i];
 			int beforeEach = world.getServer().computeOnServer(server -> SaltService.get(player(server)));

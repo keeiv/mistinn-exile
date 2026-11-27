@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/sea_seen",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": true,
+		"description": {
+			"translate": "achievement.mistinn.xirang.desc"
+		},
+		"icon": {
+			"id": "minecraft:moss_block"
+		},
+		"title": {
+			"translate": "achievement.mistinn.xirang"
+		},
+		"frame": "challenge"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

@@ -510,6 +510,7 @@ public final class PathService {
 				each.connection.send(new ClientboundSetSubtitleTextPacket(Component.translatable("path.mistinn.cut.sub", lost)));
 				each.sendSystemMessage(roll(cut).withStyle(ChatFormatting.GRAY));
 				each.setAttached(SAW_END, true);
+				AchievementService.grant(each, Achievement.TWELVE_SLAIN);
 				ServerPlayNetworking.send(each, new EndPayload(false, cut.fallen(), cut.walker()));
 			}
 			return;
@@ -541,9 +542,25 @@ public final class PathService {
 		player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.0F, 0.7F);
 		if (!player.isSpectator()) {
 			AchievementService.grant(player, Achievement.SEA_SEEN);
+			Achievement honour = seaHonour(line);
+			if (AchievementService.grant(player, honour) && honour == Achievement.THE_LAND) {
+				// how many became the land the way was walked on
+				player.sendSystemMessage(land(line.fallen().size()).copy().withStyle(ChatFormatting.GOLD));
+			}
 		}
 		player.setAttached(SAW_END, true);
 		ServerPlayNetworking.send(player, new EndPayload(true, line.fallen(), line.walker()));
+	}
+
+	/** What reaching the sea is remembered as: with no one fallen, 息壤 (the earth that grows of itself); else 大地, the fallen become the land. */
+	public static Achievement seaHonour(final Line line) {
+		return line.fallen().isEmpty() ? Achievement.XIRANG : Achievement.THE_LAND;
+	}
+
+	/** 大地, in words that weigh how many it took: one, a few, half the settlement, nearly all of it. */
+	public static Component land(final int fallen) {
+		String weight = fallen <= 1 ? "one" : fallen <= 4 ? "few" : fallen <= 8 ? "half" : "most";
+		return Component.translatable("achievement.mistinn.the_land.desc." + weight, fallen);
 	}
 
 	/** The names of those who fell on the way, in the order they fell. */

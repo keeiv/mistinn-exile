@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/homestead",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": true,
+		"description": {
+			"translate": "achievement.mistinn.twelve_slain.desc"
+		},
+		"icon": {
+			"id": "minecraft:skeleton_skull"
+		},
+		"title": {
+			"translate": "achievement.mistinn.twelve_slain"
+		},
+		"frame": "task"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}
