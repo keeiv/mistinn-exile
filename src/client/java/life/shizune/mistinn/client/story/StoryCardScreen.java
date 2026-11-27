@@ -60,6 +60,16 @@ public class StoryCardScreen extends Screen {
 		this.lineTicks++;
 	}
 
+	/** The cards of the inn ending, and the morning's music under them. */
+	private static final java.util.Set<String> MORNING = java.util.Set.of("inn", "inn_hearth", "inn_wall", "inn_name", "inn_dawn");
+	private static final net.minecraft.sounds.Music MORNING_MUSIC = new net.minecraft.sounds.Music(
+		net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(life.shizune.mistinn.registry.MistinnSounds.MUSIC_INN_MORNING), 0, 0, true);
+
+	/** The music under the card on screen, or null: the morning under the inn ending's pages. */
+	public static net.minecraft.sounds.@org.jspecify.annotations.Nullable Music music() {
+		return net.minecraft.client.Minecraft.getInstance().gui.screen() instanceof StoryCardScreen card && MORNING.contains(card.cardId()) ? MORNING_MUSIC : null;
+	}
+
 	/** Which card this is. */
 	public String cardId() {
 		return this.card.id();

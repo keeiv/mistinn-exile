@@ -204,6 +204,8 @@ public final class MistinnSounds {
 	public static final SoundEvent MUSIC_ELDER = register("music.elder");
 	/** Under the path of longing's end, seen or cut. */
 	public static final SoundEvent MUSIC_PATH_END = register("music.path_end");
+	/** Under the Mist Inn ending's last pages: the morning. */
+	public static final SoundEvent MUSIC_INN_MORNING = register("music.inn_morning");
 	/** The highland air, and crystal touching crystal somewhere near. */
 	public static final SoundEvent AMBIENT_TERRA_LOOP = register("ambient.terra.loop");
 	public static final SoundEvent AMBIENT_TERRA_ADDITIONS = register("ambient.terra.additions");

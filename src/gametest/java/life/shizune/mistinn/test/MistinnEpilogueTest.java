@@ -51,6 +51,7 @@ public final class MistinnEpilogueTest implements FabricClientGameTest {
 				}
 				if (cards.isEmpty() || !cards.getLast().equals(id)) {
 					cards.add(id);
+					check(context.computeOnClient(mc -> StoryCardScreen.music() != null), "the morning's music plays under " + id);
 					context.waitTicks(40);
 					shot(context, "epilogue-" + cards.size() + "-" + id);
 				}
@@ -62,6 +63,7 @@ public final class MistinnEpilogueTest implements FabricClientGameTest {
 				});
 			}
 			check(cards.equals(List.of("inn", "inn_hearth", "inn_wall", "inn_name", "inn_dawn")), "the inn's ending goes on into the morning: " + cards);
+			check(context.computeOnClient(mc -> StoryCardScreen.music() == null), "and once the pages are done, the morning's music stops");
 			String name = context.computeOnClient(mc -> mc.getUser().getName());
 			check(text(context, () -> Haunting.text("story.mistinn.card.inn_name.2").getString()).contains(name), "the name carved is the hunter's own");
 			check(text(context, () -> Haunting.text("story.mistinn.card.inn_dawn.4").getString()).contains(name), "and called up the stairs in the morning");
