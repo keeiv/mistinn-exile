@@ -2,12 +2,7 @@ package life.shizune.mistinn.client.anim;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Properties;
 import life.shizune.mistinn.weapon.WeaponStyle;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
@@ -21,9 +16,6 @@ import net.minecraft.world.entity.HumanoidArm;
  * Hunters can turn the swing motion off; the setting is kept in the config folder.
  */
 public final class CameraSwing {
-	private static final Path CONFIG = FabricLoader.getInstance().getConfigDir().resolve("mistinn-client.properties");
-	private static boolean enabled = true;
-	private static boolean loaded;
 	/** Time of the last hit, for the jolt. */
 	private static long hitAt = Long.MIN_VALUE;
 	/** Whether the coming jolt is a heavy blow's. */
@@ -33,39 +25,11 @@ public final class CameraSwing {
 	}
 
 	public static boolean enabled() {
-		load();
-		return enabled;
+		return life.shizune.mistinn.client.ClientSettings.on(life.shizune.mistinn.client.ClientSettings.SWING_CAMERA);
 	}
 
 	public static void toggle() {
-		load();
-		enabled = !enabled;
-		Properties properties = new Properties();
-		properties.setProperty("swing_camera", Boolean.toString(enabled));
-		try {
-			Files.createDirectories(CONFIG.getParent());
-			try (var out = Files.newBufferedWriter(CONFIG)) {
-				properties.store(out, "Mistinn: Exile client settings");
-			}
-		} catch (IOException ignored) {
-			// the setting still holds for this session
-		}
-	}
-
-	private static void load() {
-		if (loaded) {
-			return;
-		}
-		loaded = true;
-		if (Files.isRegularFile(CONFIG)) {
-			Properties properties = new Properties();
-			try (var in = Files.newBufferedReader(CONFIG)) {
-				properties.load(in);
-				enabled = Boolean.parseBoolean(properties.getProperty("swing_camera", "true"));
-			} catch (IOException ignored) {
-				enabled = true;
-			}
-		}
+		life.shizune.mistinn.client.ClientSettings.set(life.shizune.mistinn.client.ClientSettings.SWING_CAMERA, !enabled());
 	}
 
 	/**
