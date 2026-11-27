@@ -76,7 +76,7 @@ public final class StoryScript {
 	/** The path of longing: a tiller at the field's edge, looking at the fog. */
 	public static final Card PATH_FIELDS = new Card("path_fields", 3, "path.mistinn.chapter.0");
 	/** The path of longing: the ancestors' tablet in the broken tower. */
-	public static final Card PATH_RECORD = new Card("path_record", 3, "path.mistinn.chapter.2");
+	public static final Card PATH_RECORD = new Card("path_record", 4, "path.mistinn.chapter.2");
 	/** The path of longing: the sea, at last. */
 	public static final Card PATH_SEA = new Card("path_sea", 3, "path.mistinn.chapter.5");
 

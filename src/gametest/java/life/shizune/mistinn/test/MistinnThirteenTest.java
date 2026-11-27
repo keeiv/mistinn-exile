@@ -200,7 +200,9 @@ public final class MistinnThirteenTest implements FabricClientGameTest {
 			context.waitTicks(3);
 			check(context.computeOnClient(mc -> ((ThirteenthClient.Death) mc.gui.screen()).showing()), "its face, too close");
 			shot(context, "thirteen-4-face");
-			context.waitTicks(ThirteenthClient.FACE_TICKS + 4);
+			// in the dark after it, the twelve, let go
+			context.waitTicks(ThirteenthClient.FACE_TICKS + 30);
+			check(context.computeOnClient(mc -> mc.gui.screen() instanceof ThirteenthClient.Death death && !death.showing()), "then dark");
 			shot(context, "thirteen-5-dark");
 			context.waitFor(mc -> mc.player != null && mc.player.isAlive() && !(mc.gui.screen() instanceof ThirteenthClient.Death), 400);
 

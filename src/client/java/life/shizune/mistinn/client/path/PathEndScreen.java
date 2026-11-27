@@ -26,6 +26,10 @@ public class PathEndScreen extends Screen {
 	private static final int TEXT = 0xFFEDE6D8;
 	private static final int NAME = 0xFFC9D6DA;
 	private static final int HINT = 0xFF8A9298;
+	/** At the sea: the one who moved them, leaving (or not); then the walker, alone in their own head. */
+	private static final int VOICE = 0xFFE8B04A;
+	private static final float VOICE_AT = 4.6F;
+	private static final float OWN_AT = 7.0F;
 
 	private final boolean sea;
 	private final List<Integer> fallen;
@@ -52,7 +56,7 @@ public class PathEndScreen extends Screen {
 	/** When everything has come up: the last name, then the closing line. */
 	private float whole() {
 		// at the sea, what they wanted comes up after the rest
-		return NAMES + this.fallen.size() * EACH + (this.sea ? 3.0F : 1.2F);
+		return NAMES + this.fallen.size() * EACH + (this.sea ? OWN_AT + 0.8F : 1.2F);
 	}
 
 	/** Shows everything at once, or, everything shown, closes. */
@@ -177,11 +181,32 @@ public class PathEndScreen extends Screen {
 					y += 11;
 				}
 			}
+			// and then the voice that moved them all the way here says its last, and is gone; what is left is theirs
+			if (this.sea) {
+				y += 14;
+				y = this.thought(g, font, t, "path.mistinn.end.voice", VOICE_AT, VOICE, y);
+				this.thought(g, font, t, "path.mistinn.end.own", OWN_AT, NAME, y + 4);
+			}
 		}
 		if (t >= this.whole()) {
 			Component hint = Component.translatable("path.mistinn.end.hint");
 			g.text(font, hint, this.width - font.width(hint) - 8, this.height - 14, HINT, false);
 		}
+	}
+
+	/** A thought at the end, in this hunter's version, fading in at {@code at} seconds after the names; the next line's y. */
+	private int thought(final GuiGraphicsExtractor g, final Font font, final float t, final String base, final float at, final int colour, final int y) {
+		int alpha = fade(t, NAMES + this.fallen.size() * EACH + at);
+		Component words = Component.translatable(life.shizune.mistinn.client.ledger.Haunting.key(base));
+		if (alpha <= 0 || words.getString().isBlank()) {
+			return y;
+		}
+		int line = y;
+		for (var part : font.split(words.copy().withStyle(net.minecraft.ChatFormatting.ITALIC), Math.min(320, this.width - 40))) {
+			g.text(font, part, (this.width - font.width(part)) / 2, line, alpha << 24 | (colour & 0xFFFFFF), true);
+			line += 11;
+		}
+		return line;
 	}
 
 	private List<List<Integer>> rows(final Font font) {
