@@ -82,6 +82,15 @@ if (project.hasProperty("warningClip")) {
 	}
 }
 
+// Opening clip (-PintroClip): the opening's test keeps every thirtieth of a second of both cards, for a clip.
+if (project.hasProperty("introClip")) {
+	loom.runs.configureEach {
+		if (name == "clientGameTest") {
+			vmArg "-Dmistinn.introclip=true"
+		}
+	}
+}
+
 // Clip report (-PclipReport): the finisher overlap test only measures and writes its report, without failing.
 if (project.hasProperty("clipReport")) {
 	loom.runs.configureEach {

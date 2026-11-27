@@ -16,6 +16,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class KeeperMusicMixin {
 	@Inject(method = "getSituationalMusic", at = @At("HEAD"), cancellable = true)
 	private void mistinn$keeperFight(final CallbackInfoReturnable<Music> cir) {
+		// the opening is silent: no title music under the studio's marks
+		if (life.shizune.mistinn.client.title.IntroScreen.showing()) {
+			cir.setReturnValue(null);
+			return;
+		}
 		Music fight = life.shizune.mistinn.client.title.ContentWarningScreen.music();
 		if (fight == null) {
 			fight = life.shizune.mistinn.client.story.StoryCardScreen.music();
