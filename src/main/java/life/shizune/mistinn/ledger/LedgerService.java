@@ -48,9 +48,23 @@ public final class LedgerService {
 		return !KNOWN.add(player.getUUID());
 	}
 
-	/** Test hook: the hunter's tone, as if their client had told it. */
+	/** Tone bits: the story's end reached, and the tillers' way walked to an end, in another world than this. */
+	public static final int ENDED_ELSEWHERE = 16;
+	public static final int WALKED_ELSEWHERE = 32;
+
+	/**
+	 * The hunter's tone, as their client told it (also the test hook). A hunter who reached the story's end in another
+	 * world and is in a story now, or walked the way to an end in another and is on it now, has come again.
+	 */
 	public static void setTone(final ServerPlayer player, final int tone) {
-		TONES.put(player.getUUID(), tone & 15);
+		TONES.put(player.getUUID(), tone & 63);
+		life.shizune.mistinn.story.WorldMode mode = life.shizune.mistinn.story.WorldMode.of(player.level().getServer());
+		if ((tone & ENDED_ELSEWHERE) != 0 && mode == life.shizune.mistinn.story.WorldMode.STORY) {
+			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.DROPPED_AGAIN);
+		}
+		if ((tone & WALKED_ELSEWHERE) != 0 && mode == life.shizune.mistinn.story.WorldMode.PATH) {
+			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.PATH_AGAIN);
+		}
 	}
 
 	/** This world's id, given now if it has none. */

@@ -228,6 +228,19 @@ public final class Ledger {
 		return (this.kindStory() ? 1 : 0) | (this.kindPath() ? 2 : 0) | (this.cruelPath() ? 4 : 0) | (this.cruelStory() ? 8 : 0);
 	}
 
+	/**
+	 * The leaning, and what the hunter has done in other worlds than this one: 16 reached the story's end, 32 walked the
+	 * tillers' way to its end (the sea, or the way cut). Never this world's own: coming back to it is not doing it again.
+	 */
+	public int tone(final String world) {
+		return this.tone() | (this.elsewhere(world, "ending.") ? 16 : 0) | (this.elsewhere(world, "path.sea") || this.elsewhere(world, "path.cut") ? 32 : 0);
+	}
+
+	/** Whether something beginning so happened in a world other than this one. */
+	private boolean elsewhere(final String world, final String event) {
+		return this.once.stream().anyMatch(each -> !each.startsWith(world + ":") && each.substring(each.indexOf(':') + 1).startsWith(event));
+	}
+
 	/** How far the story has gone wrong. */
 	public Stage stage() {
 		if (this.seen("scare.snuffer")) {
