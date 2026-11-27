@@ -607,6 +607,7 @@
   "path.mistinn.sea.sub": "這條路上倒下了 %s 個人",
   "path.mistinn.sea.line": "%s 站在岸邊。浪一陣一陣地來，原來海是這個樣子。",
   "path.mistinn.roll": "倒下的人：",
+  "path.mistinn.memorial": "第 %s 位倒下",
   "path.mistinn.hud.walker": "倒下的人 %1$s／%2$s · 你是「%3$s」",
   "path.mistinn.end.none": "這條路上，沒有人倒下",
   "path.mistinn.end.sea": "%s 替他們看見了海。",

@@ -5,6 +5,7 @@ import java.util.List;
 import life.shizune.mistinn.client.title.ModeSelectScreen;
 import life.shizune.mistinn.food.RustAnchorFood;
 import life.shizune.mistinn.hardship.Hardship;
+import life.shizune.mistinn.path.PathMemorials;
 import life.shizune.mistinn.path.PathService;
 import life.shizune.mistinn.registry.MistinnItems;
 import life.shizune.mistinn.story.WorldMode;
@@ -130,12 +131,30 @@ public final class MistinnPathTest implements FabricClientGameTest {
 				check(near(player(server), home.hub(), 6.0), "the successor sets out from the hub: " + player(server).blockPosition());
 				check(player(server).getInventory().countItem(MistinnItems.WEAPONS.get(WeaponStyle.THRUST).get(WeaponMaterial.STONE)) >= 1, "with a spear of their own");
 				check(player(server).gameMode() != GameType.SPECTATOR, "and walks it");
+				// the way, laid in stone: the fallen one's name on a memorial, out past the deck toward the highland's edge
+				net.minecraft.core.BlockPos stone = memorial(server, home, 0);
+				check(stone != null && server.overworld().getBlockState(stone).is(net.minecraft.world.level.block.Blocks.PALE_OAK_SIGN),
+					"the fallen one's name stands on a memorial sign outside the homestead");
+				double[] way = PathMemorials.outward(home, life.shizune.mistinn.domain.DomainService.get(server, line.domain()));
+				double out = (stone.getX() - home.hub().getX()) * way[0] + (stone.getZ() - home.hub().getZ()) * way[1];
+				check(out >= Settlements.CLEAR, "past the deck, out toward the highland's edge: " + out);
 			});
 			context.waitTicks(20);
 			check(context.computeOnClient(mc -> mc.player.getAttached(PathService.VIEW).fallen() == 1), "the panel counts the fallen");
 			String nextLook = context.computeOnClient(mc -> mc.player.getSkin().body().texturePath().getPath());
 			check(nextLook.contains("tiller") && !nextLook.equals(firstLook[0]), "and the successor is plainly someone else: " + nextLook);
 			context.takeScreenshot("path-fallen");
+			// look out from the hub along the memorials
+			world.getServer().runOnServer(server -> {
+				Settlements.Settlement home = Settlements.of(server, PathService.line(server).domain());
+				double[] way = PathMemorials.outward(home, life.shizune.mistinn.domain.DomainService.get(server, home.domain()));
+				float yaw = (float) Math.toDegrees(Math.atan2(-way[0], way[1]));
+				net.minecraft.core.BlockPos from = home.hub().offset((int) Math.round(way[0] * (Settlements.CLEAR - 4)), 0, (int) Math.round(way[1] * (Settlements.CLEAR - 4)));
+				player(server).teleportTo(server.overworld(), from.getX() + 0.5, home.deck() + 1.0, from.getZ() + 0.5, java.util.Set.of(), yaw, 12.0F, true);
+			});
+			world.getConnection().waitForChunksRender();
+			context.waitTicks(20);
+			context.takeScreenshot("path-memorial");
 
 			// a fall before ever reaching the homestead is no one's: the way is as it was, and the hunter is brought to it again
 			// (in one go: the tick would bring an unplaced hunter to the hub before a later kill)
@@ -238,6 +257,22 @@ public final class MistinnPathTest implements FabricClientGameTest {
 	private static void closeCard(final ClientGameTestContext context) {
 		context.runOnClient(mc -> mc.gui.screen().onClose());
 		context.waitTicks(5);
+	}
+
+	/** Where the memorial of the {@code index}th to fall stands: a sign near the homestead bearing their name. */
+	private static net.minecraft.core.@org.jspecify.annotations.Nullable BlockPos memorial(final MinecraftServer server, final Settlements.Settlement home, final int index) {
+		String name = PathService.name(PathService.line(server).fallen().get(index)).getString();
+		for (int cx = (home.hub().getX() >> 4) - 4; cx <= (home.hub().getX() >> 4) + 4; cx++) {
+			for (int cz = (home.hub().getZ() >> 4) - 4; cz <= (home.hub().getZ() >> 4) + 4; cz++) {
+				for (var entity : server.overworld().getChunk(cx, cz).getBlockEntities().values()) {
+					if (entity instanceof net.minecraft.world.level.block.entity.SignBlockEntity sign
+						&& sign.getText(net.minecraft.world.level.block.entity.SignTextSlot.FRONT).getMessages(false).get(1).getString().equals(name)) {
+						return entity.getBlockPos();
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	private static PathService.Step stage(final TestSingleplayerContext world) {
