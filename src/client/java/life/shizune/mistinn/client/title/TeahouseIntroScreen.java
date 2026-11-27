@@ -11,7 +11,7 @@ import org.joml.Matrix3x2fStack;
  * The opening's first card: the MoriTeahouse emblem, the four-pointed star thrust through a tilted ring, as the studio's
  * site draws it. The ring's far half is drawn in from the left; the star comes down into place, turning upright as it
  * comes; the ring's near half is drawn across in front of it from the right, so the star goes through the ring; a soft
- * light behind, then the name under it; then all of it fades.
+ * light behind; then the emblem moves aside and the name comes in to its right; then all of it fades.
  */
 public class TeahouseIntroScreen extends IntroScreen {
 	private static final Identifier RING_BACK = Mistinn.id("textures/gui/intro/teahouse_ring_back.png");
@@ -20,8 +20,11 @@ public class TeahouseIntroScreen extends IntroScreen {
 	private static final Identifier GLOW = Mistinn.id("textures/gui/intro/teahouse_glow.png");
 	private static final Identifier WORDMARK = Mistinn.id("textures/gui/intro/teahouse_wordmark.png");
 	private static final int EMBLEM = 256;
-	private static final int WORD_W = 401;
-	private static final int WORD_H = 54;
+	private static final int WORD_W = 597;
+	private static final int WORD_H = 77;
+	/** The name's height (its texture, padding and all) against the emblem's, and the space between them. */
+	private static final float WORD_SCALE = 0.25F;
+	private static final float GAP = 0.04F;
 
 	public TeahouseIntroScreen(final Runnable next) {
 		super(Component.literal("MoriTeahouse"), next);
@@ -34,10 +37,17 @@ public class TeahouseIntroScreen extends IntroScreen {
 
 	@Override
 	protected void draw(final GuiGraphicsExtractor g, final float t, final float fade) {
-		float size = Math.min(oneToOne(EMBLEM), this.height * 0.42F);
-		float cx = this.width / 2.0F;
-		float cy = this.height / 2.0F - size * 0.14F;
-		float left = cx - size / 2.0F;
+		// the lockup: the emblem, and the name to its right; the emblem forms alone in the middle, then moves aside for it
+		float size = Math.min(Math.min(oneToOne(EMBLEM), this.height * 0.42F), this.width * 0.85F / (1.0F + GAP + WORD_SCALE * WORD_W / WORD_H));
+		float wordH = size * WORD_SCALE;
+		float wordW = wordH * WORD_W / WORD_H;
+		float lockup = size + size * GAP + wordW;
+		float name = ease(t, 2.0F, 0.8F);
+		float lockupLeft = this.width / 2.0F - lockup / 2.0F;
+		float centred = this.width / 2.0F - size / 2.0F;
+		float left = centred + (lockupLeft - centred) * name;
+		float cx = left + size / 2.0F;
+		float cy = this.height / 2.0F;
 		float top = cy - size / 2.0F;
 		int side = Math.round(size);
 
@@ -73,12 +83,10 @@ public class TeahouseIntroScreen extends IntroScreen {
 			image(g, RING_FRONT, left, top, side, side, EMBLEM, EMBLEM, Math.min(1.0F, front * 1.5F) * fade);
 			g.disableScissor();
 		}
-		// the name, rising a little into place
-		float name = ease(t, 2.0F, 0.8F);
+		// the name, coming in from the right beside the emblem as it moves aside
 		if (name > 0.0F) {
-			float h = size * 0.2F;
-			float w = h * WORD_W / WORD_H;
-			image(g, WORDMARK, cx - w / 2.0F, top + size * 1.04F + (1.0F - name) * 6.0F, Math.round(w), Math.round(h), WORD_W, WORD_H, name * fade);
+			float x = lockupLeft + size + size * GAP + (1.0F - name) * 10.0F;
+			image(g, WORDMARK, x, cy - wordH / 2.0F, Math.round(wordW), Math.round(wordH), WORD_W, WORD_H, name * fade);
 		}
 	}
 
