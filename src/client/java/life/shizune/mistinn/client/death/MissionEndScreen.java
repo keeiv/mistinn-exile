@@ -35,6 +35,8 @@ public class MissionEndScreen extends DeathScreen {
 	public static final int CRIMSON = 0xB3121F;
 	/** How many lines each cause has to choose from. */
 	private static final int LINES = 4;
+	/** On the tillers' way: how many last thoughts a fallen tiller may have. */
+	public static final int PATH_LINES = 8;
 	/** Offsets down the column from its top. */
 	private static final int CAUSE_AT = 36;
 	private static final int QUOTE_AT = 52;
@@ -45,6 +47,10 @@ public class MissionEndScreen extends DeathScreen {
 	private final boolean hardcore;
 	private final LocalPlayer player;
 	private final Component quote;
+	/** On the tillers' way (not as the thirteenth): a tiller fell, not a hunter. */
+	private final boolean path;
+	/** What going on means now, on the tillers' way: the next one walking, or what is left when no one is. */
+	private final String onward;
 	private boolean shown;
 	/** Where in its beat the drawn heart was last tick; negative before the first. */
 	private float beatPhase = -1.0F;
@@ -57,7 +63,26 @@ public class MissionEndScreen extends DeathScreen {
 		DeathScene.begin(player);
 		this.cause = DeathScene.cause() == DeathScene.Cause.EXECUTION ? executed(cause) : cause;
 		String kind = DeathScene.cause().name().toLowerCase(java.util.Locale.ROOT);
-		this.quote = Component.translatable("death.mistinn.quote." + kind + "." + player.getRandom().nextInt(LINES));
+		life.shizune.mistinn.path.PathService.View view = player.getAttached(life.shizune.mistinn.path.PathService.VIEW);
+		this.path = view != null && !life.shizune.mistinn.path.Thirteenth.stitched(player);
+		// a tiller's last thought is their own: the one who moved them is gone from it
+		this.quote = this.path ? Component.translatable("death.mistinn.quote.path." + player.getRandom().nextInt(PATH_LINES))
+			: Component.translatable("death.mistinn.quote." + kind + "." + player.getRandom().nextInt(LINES));
+		this.onward = !this.path ? "death.mistinn.return" : onward(view);
+	}
+
+	/**
+	 * The way's "go on", as it is now: after the sea, back home; with the last of the twelve gone, not stopping (where
+	 * the twelve will be stitched) or watching the way end; otherwise, the next one taking it up.
+	 */
+	private static String onward(final life.shizune.mistinn.path.PathService.View view) {
+		if (view.stage() == life.shizune.mistinn.path.PathService.Step.ENDED) {
+			return "death.mistinn.return.path.home";
+		}
+		if (view.fallen() + 1 >= life.shizune.mistinn.path.PathService.PEOPLE) {
+			return life.shizune.mistinn.client.ledger.LedgerClient.ledger().cruelStory() ? "death.mistinn.return.path.last" : "death.mistinn.return.path.watch";
+		}
+		return "death.mistinn.return.path";
 	}
 
 	/**
@@ -98,17 +123,26 @@ public class MissionEndScreen extends DeathScreen {
 		int x = this.width / 2 - w / 2;
 		int y = this.top() + CHOICES_AT;
 		this.choices.clear();
-		this.choices.add(this.addRenderableWidget(new Choice(x, y, w, Component.translatable("death.mistinn.return"), () -> {
+		this.choices.add(this.addRenderableWidget(new Choice(x, y, w, Component.translatable(this.onward), () -> {
 			this.player.respawn();
 			DeathScene.end();
 		})));
-		this.choices.add(this.addRenderableWidget(new Choice(x, y + 22, w, Component.translatable("death.mistinn.rest"), this::rest)));
+		this.choices.add(this.addRenderableWidget(new Choice(x, y + 22, w, Component.translatable(this.path ? "death.mistinn.rest.path" : "death.mistinn.rest"), this::rest)));
 	}
 
 	/** For the client game test: the centre of a choice (0 return, 1 rest), in GUI pixels. */
 	public double[] choiceCentre(final int index) {
 		Choice choice = this.choices.get(index);
 		return new double[] {choice.getX() + choice.getWidth() / 2.0, choice.getY() + choice.getHeight() / 2.0};
+	}
+
+	/** For the client game test: the keys of the last line shown and of the first choice. */
+	public String quoteKey() {
+		return ((net.minecraft.network.chat.contents.TranslatableContents) this.quote.getContents()).getKey();
+	}
+
+	public String onwardKey() {
+		return this.onward;
 	}
 
 	/** Back to the title screen, saving the world. */
@@ -174,7 +208,7 @@ public class MissionEndScreen extends DeathScreen {
 		int top = this.top();
 
 		// 任務終止, large and red
-		Component title = Component.translatable("death.mistinn.title");
+		Component title = Component.translatable(this.path ? "death.mistinn.title.path" : "death.mistinn.title");
 		Matrix3x2fStack pose = g.pose();
 		pose.pushMatrix();
 		pose.translate(cx, top);

@@ -268,6 +268,11 @@ public final class MistinnPathTest implements FabricClientGameTest {
 			context.waitTicks(130);
 			check(context.computeOnClient(mc -> mc.getSituationalMusic() == life.shizune.mistinn.client.path.PathClient.END), "the end has its own music");
 			context.takeScreenshot("path-sea-end");
+			// the rest comes up at a click: the voice that moved them, leaving, and then only the walker's own
+			context.runOnClient(mc -> ((life.shizune.mistinn.client.path.PathEndScreen) mc.gui.screen()).advance());
+			context.waitTicks(20);
+			context.takeScreenshot("path-sea-end-own");
+			check(context.computeOnClient(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.path.PathEndScreen), "a first click shows the rest of the end");
 			context.runOnClient(mc -> ((life.shizune.mistinn.client.path.PathEndScreen) mc.gui.screen()).advance());
 			context.waitTicks(2);
 			check(context.computeOnClient(mc -> mc.gui.screen() == null), "the end closes once all of it has come up");
@@ -332,6 +337,11 @@ public final class MistinnPathTest implements FabricClientGameTest {
 		context.waitFor(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.death.MissionEndScreen, 400);
 		context.waitFor(mc -> life.shizune.mistinn.client.death.DeathScene.seconds() > life.shizune.mistinn.client.death.DeathScene.SCREEN + 1.8F, 400);
 		context.waitTicks(5);
+		// a tiller fell, not a hunter: their own last thought, and going on means the next of them
+		check(context.computeOnClient(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.death.MissionEndScreen end
+			&& end.quoteKey().startsWith("death.mistinn.quote.path.") && end.onwardKey().startsWith("death.mistinn.return.path")),
+			"the death screen is a tiller's: " + context.computeOnClient(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.death.MissionEndScreen end
+				? end.quoteKey() + " / " + end.onwardKey() : String.valueOf(mc.gui.screen())));
 		// the mission-end screen's own button is pressed in the hardship test; here only what follows matters
 		context.runOnClient(mc -> mc.player.respawn());
 		context.waitFor(mc -> mc.player != null && mc.player.isAlive(), 200);

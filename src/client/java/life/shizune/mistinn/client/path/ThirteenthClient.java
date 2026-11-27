@@ -21,7 +21,9 @@ public final class ThirteenthClient {
 	public static final Identifier FACE = Mistinn.id("textures/gui/story/stitched_face.png");
 	/** Ticks the face is up; ticks of dark before the hunter wakes. */
 	public static final int FACE_TICKS = 12;
-	public static final int DARK_TICKS = 50;
+	public static final int DARK_TICKS = 80;
+	/** In the dark, after the face: what the twelve say, let go at last. */
+	public static final String REST = "path.mistinn.thirteen.rest";
 	private static boolean was;
 
 	private ThirteenthClient() {
@@ -110,6 +112,14 @@ public final class ThirteenthClient {
 				int w = Math.round(320 * scale);
 				int h = Math.round(180 * scale);
 				g.blit(RenderPipelines.GUI_TEXTURED, FACE, (this.width - w) / 2, (this.height - h) / 2, 0.0F, 0.0F, w, h, 320, 180, 320, 180);
+			} else {
+				// in the dark, faint, the twelve: they can stop now
+				int dark = this.ticks - (this.face ? FACE_TICKS : 0);
+				int alpha = Math.round(200 * net.minecraft.util.Mth.clamp(Math.min((dark - 14) / 16.0F, (DARK_TICKS - 6 - dark) / 14.0F), 0.0F, 1.0F));
+				if (alpha >= 5) {
+					Component words = Component.translatable(REST);
+					g.text(this.font, words, (this.width - this.font.width(words)) / 2, this.height / 2 - 4, alpha << 24 | 0xC9D6DA, false);
+				}
 			}
 		}
 	}
