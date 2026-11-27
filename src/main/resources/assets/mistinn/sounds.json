@@ -799,6 +799,14 @@
       }
     ]
   },
+  "music.path_end": {
+    "sounds": [
+      {
+        "name": "mistinn:music/path_end",
+        "stream": true
+      }
+    ]
+  },
   "music.rift_scar": {
     "sounds": [
       {

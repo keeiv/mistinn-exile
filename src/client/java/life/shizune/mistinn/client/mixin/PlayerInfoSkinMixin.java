@@ -10,7 +10,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** A player who sent their own skin wears it, wherever the game asks the player list for skins. */
+/**
+ * A player who sent their own skin wears it, wherever the game asks the player list for skins;
+ * on the path of longing, everyone wears a crystal tiller's clothes instead.
+ */
 @Mixin(PlayerInfo.class)
 public abstract class PlayerInfoSkinMixin {
 	@Shadow
@@ -18,6 +21,11 @@ public abstract class PlayerInfoSkinMixin {
 
 	@Inject(method = "getSkin", at = @At("HEAD"), cancellable = true)
 	private void mistinn$sentSkin(final CallbackInfoReturnable<PlayerSkin> cir) {
+		PlayerSkin tiller = life.shizune.mistinn.client.path.PathSkins.skin(getProfile().id());
+		if (tiller != null) {
+			cir.setReturnValue(tiller);
+			return;
+		}
 		PlayerSkin sent = SyncedSkins.get(getProfile().id());
 		if (sent != null) {
 			cir.setReturnValue(sent);
