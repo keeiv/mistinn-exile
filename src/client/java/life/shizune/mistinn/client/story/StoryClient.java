@@ -43,7 +43,8 @@ public final class StoryClient {
 
 	private static void start(final StoryService.LinesPayload payload) {
 		// the Snuffer's last words may go on, when the ledger has gone wrong
-		playing = new Playing(life.shizune.mistinn.client.ledger.SnufferScare.lines(payload.sequence(), payload.focus()), payload.focus(), payload.cardAfter());
+		List<StoryScript.Line> lines = life.shizune.mistinn.client.ledger.SnufferScare.lines(payload.sequence(), payload.focus());
+		playing = new Playing(lines, payload.focus(), life.shizune.mistinn.client.ledger.SnufferScare.cardAfter(payload.sequence(), payload.cardAfter()));
 		line = 0;
 		lineTicks = 0;
 		if (payload.focus() >= 0) {
@@ -145,7 +146,8 @@ public final class StoryClient {
 		}
 		StoryScript.Line shown = line();
 		if (life.shizune.mistinn.client.ledger.SnufferScare.tick(playing != null && line >= StoryScript.sequence(StoryScript.SNUFFER_END).size(),
-			shown != null && life.shizune.mistinn.client.ledger.SnufferScare.COUNT.equals(shown.key()), typed())
+			shown != null && (life.shizune.mistinn.client.ledger.SnufferScare.COUNT.equals(shown.key()) || life.shizune.mistinn.client.ledger.SnufferScare.KEPT.equals(shown.key())),
+			typed())
 			&& playing != null) {
 			// it has looked back: the scene ends, and the lamp room is shown
 			line = playing.lines().size();
@@ -154,6 +156,11 @@ public final class StoryClient {
 				mc.gui.setScreen(null);
 			}
 			playing = null;
+		}
+		if (playing != null && shown != null && life.shizune.mistinn.client.ledger.SnufferScare.KEPT.equals(shown.key())
+			&& life.shizune.mistinn.client.ledger.SnufferScare.phase() == life.shizune.mistinn.client.ledger.SnufferScare.Phase.NONE) {
+			line++;
+			lineTicks = 0;
 		}
 		if (playing != null) {
 			StoryScript.Line current = line();

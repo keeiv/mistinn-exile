@@ -183,6 +183,9 @@ public final class DownService {
 		if (!isDown(player)) {
 			return;
 		}
+		if (by != null && by != player) {
+			life.shizune.mistinn.ledger.LedgerService.tell(by, "revive", false);
+		}
 		player.removeAttached(DOWN);
 		unhold(player);
 		Body body = BodyService.get(player);

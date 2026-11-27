@@ -40,7 +40,7 @@ public final class Ledger {
 	/** The kinds of world there are. */
 	private static final Set<String> MODES = Set.of("story", "free", "training", "path");
 	/** The things a server may tell; nothing else is written down. */
-	private static final java.util.regex.Pattern EVENTS = java.util.regex.Pattern.compile("death|ending[.](anchor|inn)|path[.](fallen[.]([0-9]|1[01])|cut|sea|sea[.]whole)");
+	private static final java.util.regex.Pattern EVENTS = java.util.regex.Pattern.compile("death|revive|tiller[.]wronged|ending[.](anchor|inn)|path[.](fallen[.]([0-9]|1[01])|cut|sea|sea[.]whole)");
 	/** The most worlds, and once-in-a-world events, the ledger keeps: a server cannot make it grow without end. */
 	private static final int MOST_WORLDS = 4096;
 	private static final int MOST_ONCE = 65536;
@@ -177,6 +177,26 @@ public final class Ledger {
 		if (this.seen.add(what)) {
 			this.save();
 		}
+	}
+
+	/** Whether this hunter, sent down, chose to let others live: the salt burned in the inn more often than sent up. */
+	public boolean kindStory() {
+		return this.count("ending.inn") > this.count("ending.anchor");
+	}
+
+	/** Whether, on the tillers' way, they brought everyone to the sea at least once, and as often as they let the way be cut. */
+	public boolean kindPath() {
+		return this.count("path.sea.whole") >= 1 && this.count("path.sea.whole") >= this.count("path.cut");
+	}
+
+	/** Whether, on the tillers' way, they let the whole settlement fall more often than they brought everyone through. */
+	public boolean cruelPath() {
+		return this.count("path.cut") > this.count("path.sea.whole");
+	}
+
+	/** The hunter's leaning, as the server may know it: 1 kind in the story, 2 kind on the way, 4 cruel on the way. */
+	public int tone() {
+		return (this.kindStory() ? 1 : 0) | (this.kindPath() ? 2 : 0) | (this.cruelPath() ? 4 : 0);
 	}
 
 	/** How far the story has gone wrong. */
