@@ -408,8 +408,11 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 		// the elder stunned against stone, a siege held, an alpha brought down (MistinnCrystalElderTest, MistinnSiegeTest and MistinnRiftHoundTest earn them)
 		String[] terra = {AchievementService.ELDER_STUNNED, AchievementService.SIEGE_HELD, AchievementService.ALPHA_SLAIN,
 			AchievementService.LIZARD_TAMED, AchievementService.RUIN_OPENED, AchievementService.RIFT_CALLED, AchievementService.SEA_SEEN,
-			AchievementService.TWELVE_SLAIN, AchievementService.THIRTEEN_SLAIN, AchievementService.XIRANG, AchievementService.THE_LAND};
-		int[] pays = {300, 600, 400, 200, 300, 300, 2000, 12, 13, 3000, 1500};
+			AchievementService.TWELVE_SLAIN, AchievementService.THIRTEEN_SLAIN, AchievementService.XIRANG, AchievementService.THE_LAND,
+			// earned in play by their own tests: the parry, throwables, bestiary, down, supply, gear lines, rift camps, homestead and path tests
+			Achievement.PARRY_PERFECT.id, Achievement.SALT_BOMB_THREE.id, Achievement.BESTIARY_FULL.id, Achievement.RESCUE.id, Achievement.SUPPLY_DROP.id,
+			Achievement.FULL_SET.id, Achievement.CAMP_BARREL.id, Achievement.HOMESTEAD_GROWN.id, Achievement.TRAVEL.id, Achievement.INHERITED.id};
+		int[] pays = {300, 600, 400, 200, 300, 300, 2000, 12, 13, 3000, 1500, 200, 200, 800, 300, 150, 300, 200, 800, 200, 300};
 		for (int i = 0; i < terra.length; i++) {
 			String id = terra[i];
 			int beforeEach = world.getServer().computeOnServer(server -> SaltService.get(player(server)));

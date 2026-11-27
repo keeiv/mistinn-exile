@@ -85,7 +85,9 @@ public final class MistinnHomesteadUpgradesTest implements FabricClientGameTest 
 				check(after == wardens + 1, "and a second warden comes: " + wardens + " -> " + after);
 
 				// the third: the way home rests half as long, the thanks are doubled
+				check(!life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.HOMESTEAD_GROWN), "two steps are not yet full fields");
 				check(HomesteadUpgrades.offer(level, hub, player, cores), "eight more grow it a third time");
+				check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.HOMESTEAD_GROWN), "the third is full fields");
 				check(cores.getCount() == 4, "taking eight: " + cores.getCount());
 				check(HomesteadUpgrades.travelCooldown(server, home[0], HomesteadTravel.COOLDOWN) == HomesteadTravel.COOLDOWN / 2, "the way home rests half as long");
 				check(HomesteadUpgrades.thanks(server, home[0].domain()) == 2, "the thanks are doubled");

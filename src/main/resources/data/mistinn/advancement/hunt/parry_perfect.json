@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/perfect_roll",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.parry_perfect.desc"
+		},
+		"icon": {
+			"id": "minecraft:shield"
+		},
+		"title": {
+			"translate": "achievement.mistinn.parry_perfect"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

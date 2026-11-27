@@ -250,6 +250,20 @@ public final class AchievementService {
 		ApostleService.consider(player);
 	}
 
+	/** What is watched for rather than told: once a second, each hunter's gear, for a whole set worn. */
+	public static void register() {
+		net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(server -> {
+			if (server.getTickCount() % 20 != 0) {
+				return;
+			}
+			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+				if (!player.isSpectator() && life.shizune.mistinn.gear.GearBurden.set(player) != null) {
+					grant(player, Achievement.FULL_SET);
+				}
+			}
+		});
+	}
+
 	// ── What earns them ───────────────────────────────────────────
 
 	/** A creature brought down by this hunter, with what was in their hand. */

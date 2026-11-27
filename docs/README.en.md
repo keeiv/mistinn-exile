@@ -119,7 +119,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Flintlock and pistol | Taken from pirates (a captain always carries a pistol, a marksman now and then leaves a musket, the captain's chest may hold one). Hold use to raise and aim, let go to fire one paper cartridge; the musket reaches further and hits harder, the pistol comes up quicker. Paper cartridges: paper, gunpowder and an iron nugget make three; they are taken from the hotbar, the offhand, or the pockets, rig and backpack. |
 | Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: fifty-four pages on the world, the mission, the rules and what you hunt, the stats, the skill tree, the recipes, supply, the bestiary and the achievements. |
 | Bestiary | The guide's Bestiary bookmark keeps twenty creatures: the shore's, the three keepers, the pirates, the rift's, Terra's, and the zombies, skeletons, spiders, creepers and others found everywhere. Once one strikes you, you strike it or it winds up at you, its name, a picture that turns after the pointer, and what it is are written down; one brought down tells its **weakness**, five its **tell** (a boss such as a keeper, the crown elder or the rift herald tells everything at once). Hunters within 24 blocks share the count. Old worlds fill in the bosses already brought down from the achievements earned. |
-| Achievements | Forty-three of them (two hidden), from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer, the Sunken Bell and the Rust Wheel, taking a pirate ship, holding the shore, bringing down an elite of three affixes, the story's two endings, and the end of the Path of Longing. The game's toast shows at the top right and some salt is paid; they are kept on five tabs of the advancements screen: the hunt, the mist shore, survival, afar and the Path of Longing. See [Achievements](#achievements). |
+| Achievements | Fifty-three of them (two hidden), from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer, the Sunken Bell and the Rust Wheel, taking a pirate ship, holding the shore, bringing down an elite of three affixes, the story's two endings, and the end of the Path of Longing. The game's toast shows at the top right and some salt is paid; they are kept on five tabs of the advancements screen: the hunt, the mist shore, survival, afar and the Path of Longing. See [Achievements](#achievements). |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V, and two more lines beside them, light (helmet, armour, pack) and heavy (helmet, armour, rig, pack): see [Light and heavy lines](#light-and-heavy-lines); each with its own durability, protection, capacity, layout and a two-line story. |
@@ -530,12 +530,15 @@ Achievements are the game's own **advancements**: press `L` and the mod's achiev
 | Chosen | Land a special weapon's own heavy blow | 400 |
 | Close Shave | Roll through an attack | 150 |
 | Swept Away | Hit a monster with a slide | 150 |
+| Read It | Parry a blow at the very moment it lands (a perfect parry) | 200 |
 | First Skill | Learn the slide in the guide | 100 |
 | Mastery | Bring any stat to 5 | 300 |
 | All Round | At least 1 in all four stats | 200 |
 | Elite Hunter | Bring down an elite | 300 |
 | Triple Threat | Bring down an elite of three affixes | 900 |
 | Bounty Hunter | Bring down an elite the anchor station put a bounty on | 500 |
+| Salt Hail | Rock three or more monsters back with one salt bomb | 200 |
+| Naturalist | Fill the guide's bestiary with every creature in it | 800 |
 
 **The Mist Shore** (the lighthouses, the three keepers and the story's endings)
 
@@ -557,6 +560,9 @@ Achievements are the game's own **advancements**: press `L` and the mod's achiev
 | Steady Hands | Save a destroyed part with a surgery kit | 150 |
 | Salt Merchant | Carry 5000 salt | – |
 | Through the Fog Tide | Be there when a fog tide rises and hold out till dawn without falling once | 500 |
+| A Hand Up | Get a downed teammate back on their feet | 300 |
+| Sent Down | Collect a supply drop you ordered | 150 |
+| Fully Kitted | Wear a whole light or heavy set of one tier | 300 |
 
 **Afar** (the fog sea, the sky rifts and the Terra highland)
 
@@ -569,11 +575,14 @@ Achievements are the game's own **advancements**: press `L` and the mod's achiev
 | Sew the Sky Shut | Be under a sky rift when it is sealed | 600 |
 | Howl Silenced | Bring down a rift alpha | 400 |
 | Call the Sky Down | Tear a sky rift open with a beacon | 300 |
+| What They Left | Open the barrel left at a lost camp | 200 |
 | Shatter | Bring down a crystal drake | 400 |
 | The Crown | Bring down a crown elder | 1000 |
 | Homestead | Wake the hub of a crystal tillers' settlement | 500 |
 | Into the Spire | Be within 24 blocks when a crown elder's charge ends against stone and stuns it | 300 |
 | Fields Held | Hold a homestead against a crystal tide | 600 |
+| Full Fields | Grow a homestead to its third step (the one who gave the cores, and every hunter within 32 blocks of the hub) | 800 |
+| The Way Home | Travel from one homestead to another by the map | 200 |
 | A Lizard's Friend | Tame a crystal lizard with grit | 200 |
 | What Was Left | Open the chest in a vein ruin | 300 |
 
@@ -585,6 +594,7 @@ Achievements are the game's own **advancements**: press `L` and the mod's achiev
 | Xirang | Walk the Path of Longing to the sea with no one fallen on the way | 3000 |
 | The Land | Reach the sea on the Path of Longing over some of the fallen (its words weigh how many) | 1500 |
 | Twelve Slain | Let all twelve of the settlement fall on the Path of Longing. Having fun? | 12 |
+| Taken Up | Take up a fallen tiller's strength | 300 |
 
 ## Controls
 

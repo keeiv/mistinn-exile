@@ -97,12 +97,14 @@ public final class MistinnGearLinesTest implements FabricClientGameTest {
 				check(GearBurden.set(player) == Gear.Line.HEAVY && GearBurden.wounds(player) == 0.75F, "the whole heavy set turns a quarter of the wounds");
 				wear(player, "helmet_light_6", "armor_light_6", "backpack_light_6", null);
 			});
-			context.waitTicks(2);
+			// a second and more in a whole set: what is watched for once a second
+			context.waitTicks(25);
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = player(server);
 				AttributeInstance speed = player.getAttribute(Attributes.MOVEMENT_SPEED);
 				// the pieces' own 20% quieter and 15% easier, and the whole set's 15% and 10% more
 				check(GearBurden.set(player) == Gear.Line.LIGHT && GearBurden.wounds(player) == 1.0F, "a whole light set");
+				check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.FULL_SET), "a whole set worn a while is remembered: fully kitted");
 				check(Math.abs(GearBurden.noise(player) - 0.65F) < EPSILON, "the light set is a third quieter: " + GearBurden.noise(player));
 				check(Math.abs(GearBurden.stamina(player) - 1.25F) < EPSILON, "and stamina comes back a quarter faster: " + GearBurden.stamina(player));
 				check(weight(speed) == 0.0, "and weighs nothing: " + weight(speed));

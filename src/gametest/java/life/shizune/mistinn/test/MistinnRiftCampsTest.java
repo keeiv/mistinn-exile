@@ -77,6 +77,12 @@ public final class MistinnRiftCampsTest implements FabricClientGameTest {
 				BlockPos fire = pack.offset(-1, 0, 1);
 				check(level.getBlockState(fire).is(Blocks.CAMPFIRE) && !level.getBlockState(fire).getValue(CampfireBlock.LIT), "by a cold fire");
 				check(level.getBlockState(pack.offset(-3, 0, -1)).is(MistinnBlocks.CHARRED_LOG), "under a tent's charred frame");
+				// opened, it is what they left
+				check(!life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.CAMP_BARREL), "nothing found yet");
+				player.gameMode.useItemOn(player, level, net.minecraft.world.item.ItemStack.EMPTY, net.minecraft.world.InteractionHand.MAIN_HAND,
+					new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(pack), net.minecraft.core.Direction.UP, pack, false));
+				check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.CAMP_BARREL), "the pack opened is what they left");
+				player.closeContainer();
 
 				LootTable table = server.reloadableRegistries().getLootTable(RiftShaper.CAMP_LOOT);
 				LootParams params = new LootParams.Builder(level).withParameter(LootContextParams.ORIGIN, Vec3.ZERO).create(LootContextParamSets.CHEST);

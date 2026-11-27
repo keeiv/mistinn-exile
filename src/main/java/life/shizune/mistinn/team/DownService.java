@@ -185,6 +185,7 @@ public final class DownService {
 		}
 		if (by != null && by != player) {
 			life.shizune.mistinn.ledger.LedgerService.tell(by, "revive", false);
+			life.shizune.mistinn.achievement.AchievementService.grant(by, life.shizune.mistinn.achievement.Achievement.RESCUE);
 		}
 		player.removeAttached(DOWN);
 		unhold(player);

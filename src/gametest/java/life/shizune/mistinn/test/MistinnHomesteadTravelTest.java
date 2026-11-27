@@ -66,6 +66,7 @@ public final class MistinnHomesteadTravelTest implements FabricClientGameTest {
 				ServerPlayer player = player(server);
 				stand(server, home[0].hub().offset(3, 0, 0).atY(home[0].deck() + 1));
 				check(HomesteadTravel.ask(player, home[1].domain()) == HomesteadTravel.Result.GONE, "between homesteads the way is open");
+				check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.TRAVEL), "and the way home is remembered");
 				double there = Math.sqrt(player.distanceToSqr(net.minecraft.world.phys.Vec3.atCenterOf(home[1].hub())));
 				check(there < 6.0, "and the hunter is there: " + there);
 				check(HomesteadTravel.ask(player, home[0].domain()) == HomesteadTravel.Result.COOLING, "not again so soon");

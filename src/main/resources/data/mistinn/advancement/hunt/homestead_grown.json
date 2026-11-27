@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/homestead",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.homestead_grown.desc"
+		},
+		"icon": {
+			"id": "mistinn:hub_core"
+		},
+		"title": {
+			"translate": "achievement.mistinn.homestead_grown"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

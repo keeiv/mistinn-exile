@@ -122,6 +122,8 @@ public final class MistinnSupplyTest implements FabricClientGameTest {
 			});
 			context.waitTicks(25);
 			check(world.getServer().computeOnServer(server -> player(server).getAttached(SupplyService.DROP) == null), "an empty barrel is no longer marked");
+			check(world.getServer().computeOnServer(server -> life.shizune.mistinn.achievement.AchievementService.has(player(server),
+				life.shizune.mistinn.achievement.Achievement.SUPPLY_DROP)), "and what was sent down is remembered");
 
 			// from the guide: a click chooses, the second orders
 			world.getServer().runOnServer(server -> {
@@ -147,7 +149,9 @@ public final class MistinnSupplyTest implements FabricClientGameTest {
 				ServerPlayer player = player(server);
 				SupplyService.Order order = player.getAttached(SupplyService.ORDER);
 				check(order != null && order.offer().equals("flare"), "the second click orders the flares");
-				check(SaltService.get(player) == 940 - SupplyService.OFFERS.get(flare).price(), "and pays for them: " + SaltService.get(player));
+				// (the first drop collected paid its achievement's salt)
+				int had = 940 + life.shizune.mistinn.achievement.Achievement.SUPPLY_DROP.reward;
+				check(SaltService.get(player) == had - SupplyService.OFFERS.get(flare).price(), "and pays for them: " + SaltService.get(player));
 			});
 			context.waitTicks(5);
 			context.takeScreenshot(TestScreenshotOptions.of("guide-supply").disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("guide")));

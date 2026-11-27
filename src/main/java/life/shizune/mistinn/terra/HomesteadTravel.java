@@ -218,6 +218,7 @@ public final class HomesteadTravel {
 		level.playSound(null, at, SoundEvents.BEACON_POWER_SELECT, SoundSource.PLAYERS, 1.2F, 1.3F);
 		player.setAttached(READY_AT, level.getGameTime() + HomesteadUpgrades.travelCooldown(level.getServer(), target, COOLDOWN));
 		player.sendSystemMessage(Component.translatable("message.mistinn.travel.arrived").withStyle(ChatFormatting.AQUA), true);
+		life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.TRAVEL);
 	}
 
 	/** Whether the hunter has a homeward chip about them. */
