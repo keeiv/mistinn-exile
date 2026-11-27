@@ -17,6 +17,43 @@ Bug fixes, features, tests, art and documentation are welcome. Contributors use 
 
 Small fixes, balance tweaks and documentation can go straight to a PR. New dependencies, save-format changes (player data, backpack contents, block entities), new core systems and changes to established rules (the death penalty, tier colours, grid rules) need an issue first that explains the purpose, compatibility and how old saves migrate.
 
+## Know the world first
+
+The code here is written after the story. Names like `line.fallen()`, `line.walker()`, `home.lit()` and `seaReached()` are not arbitrary: each one stands for something in the world — the tillers who fell, the one walking the way now, a hub woken by three crystal cores, the moment the sea is seen. Reading only the code, it is easy to make a change that is right as code and wrong in the world: treating the fallen as a plain death counter, say, or lighting facilities in a homestead nobody has woken.
+
+So before contributing gameplay, story, creatures, structures or anything a player sees:
+
+- Read the README's sections on Story mode, Terra, the sky rifts and the Path of Longing, and the matching pages of the in-game hunter's guide.
+- Play the part you are changing: fight that boss, walk that chapter, wake that hub.
+- Check the glossary below for what a name you are touching means in the world.
+
+When you change things:
+
+- Name new classes, methods and variables with the world's words, not neutral stand-ins (do not rename `fallen` to `deaths` or `walker` to `currentPlayer`).
+- Write comments that explain *why* in the world's terms, so the next person can read what the code means in the story.
+- New story, lines and text must follow the established tone and setting, and must not borrow characters, lines, lyrics or names from other works.
+- When unsure about a piece of the setting, ask in an issue before writing it.
+
+| Word in the code | What it is in the world |
+|---|---|
+| hunter | a hunter, the player, dropped into the mist by Rust Anchor |
+| salt | salt, the world's currency; on death it becomes residue, left at a gravestone |
+| bell | a golden bell: ring it to rest and set your respawn |
+| keeper | a keeper, a boss holding a lighthouse or stronghold; the first is the Snuffer |
+| domain | a place of change: a Terra highland (TERRA) or a sky rift (RIFT) |
+| tiller | a crystal tiller, a native of the Terra highlands |
+| settlement / homestead | the tillers' settlement; once its hub is woken (`lit()`) it is every hunter's homestead |
+| hub / cores | the hub at the settlement's middle, woken by three crystal cores |
+| elder / crown | the crown elder, the dragon keeping the highland's heart and letting no one leave |
+| drake | a crystal drake |
+| siege | a crystal tide: lizards swarming a woken homestead by night |
+| squall | a crystal squall, a storm of crystal grit over the highland |
+| rift / herald / hound | a sky rift, a rift herald, a rift hound |
+| path / line | the Path of Longing and how far it has come |
+| walker | the tiller walking the way now (the next takes over each time one falls) |
+| fallen | the tillers who fell, in the order they fell; when twelve have fallen the way is cut |
+| sea / `seaReached()` | out of the highland, the sea seen: the way is walked (ended) |
+
 ## Using AI tools
 
 AI-assisted contributions are treated like hand-written ones; no label needed, and they are not rejected for it.
