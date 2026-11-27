@@ -105,6 +105,12 @@ public final class MistinnKindTest implements FabricClientGameTest {
 				check(!tiller.line(player).startsWith("message.mistinn.tiller.known"), "once");
 			});
 
+			// nothing goes around the scares setting: with it off, not even the thanks comes
+			context.runOnClient(mc -> life.shizune.mistinn.client.ClientSettings.set(life.shizune.mistinn.client.ClientSettings.SCARES, false));
+			check(context.computeOnClient(mc -> !SnufferScare.due()), "with scares off the Snuffer does not look back, even to thank them");
+			context.runOnClient(mc -> life.shizune.mistinn.client.ClientSettings.set(life.shizune.mistinn.client.ClientSettings.SCARES, true));
+			check(context.computeOnClient(mc -> SnufferScare.due()), "with scares on it does");
+
 			// the Snuffer looks back to thank them
 			context.runOnClient(mc -> StoryClient.play(StoryScript.SNUFFER_END, ids[0], ""));
 			check(context.computeOnClient(mc -> StoryClient.playing().lines().size()) == StoryScript.sequence(StoryScript.SNUFFER_END).size() + 3,

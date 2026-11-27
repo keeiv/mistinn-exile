@@ -23,7 +23,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -232,9 +231,13 @@ public final class Thirteenth {
 					SCREAMED.put(player.getUUID(), now);
 					ServerLevel level = player.level();
 					float pitch = 0.5F + player.getRandom().nextFloat() * 0.15F;
-					level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.GHAST_SCREAM, SoundSource.PLAYERS, 1.3F, pitch);
-					level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENDERMAN_SCREAM, SoundSource.PLAYERS, 1.0F, pitch - 0.1F);
-					level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ZOMBIE_VILLAGER_CURE, SoundSource.PLAYERS, 0.5F, 0.5F);
+					// its own sound events, so a hunter with scares off does not hear it (their client leaves it out)
+					level.playSound(null, player.getX(), player.getY(), player.getZ(), life.shizune.mistinn.registry.MistinnSounds.THIRTEENTH_SCREAM,
+						SoundSource.PLAYERS, 1.3F, pitch);
+					level.playSound(null, player.getX(), player.getY(), player.getZ(), life.shizune.mistinn.registry.MistinnSounds.THIRTEENTH_SCREAM_ECHO,
+						SoundSource.PLAYERS, 1.0F, pitch - 0.1F);
+					level.playSound(null, player.getX(), player.getY(), player.getZ(), life.shizune.mistinn.registry.MistinnSounds.THIRTEENTH_SCREAM_LOW,
+						SoundSource.PLAYERS, 0.5F, 0.5F);
 				}
 			}
 		});

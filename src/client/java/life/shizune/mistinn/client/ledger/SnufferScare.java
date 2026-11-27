@@ -55,12 +55,12 @@ public final class SnufferScare {
 	}
 
 	/**
-	 * Whether it is due: the ledger has reached it and it has not been seen. To a kind hunter it is no fright, and comes
-	 * with scares off too; to the rest it comes only with scares on.
+	 * Whether it is due: the ledger has reached it and it has not been seen, and the hunter has the scares on. Even the
+	 * kind hunter's version, which is no fright, is a staged turn of the fourth wall: nothing goes around the player's
+	 * scares setting, so with scares off it never comes at all.
 	 */
 	public static boolean due() {
-		Ledger ledger = LedgerClient.ledger();
-		return ledger.stage() == Ledger.Stage.WRONG && (ledger.kindStory() || Haunting.scares());
+		return LedgerClient.ledger().stage() == Ledger.Stage.WRONG && Haunting.scares();
 	}
 
 	/** The card after the scene: for a kind hunter it follows its thanks in the usual way. */

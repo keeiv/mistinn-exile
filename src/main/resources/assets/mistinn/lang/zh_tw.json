@@ -1542,6 +1542,8 @@
   "gui.mistinn.guide.node.click": "點一下選取",
   "gui.mistinn.guide.node.confirm": "再點一下學會",
   "subtitles.mistinn.ui.skill.unlock": "學會技能",
+  "subtitles.mistinn.scare.sting": "刺耳的尖響",
+  "subtitles.mistinn.entity.thirteenth.scream": "縫合的身體尖叫",
   "skill.mistinn.slide": "滑鏟",
   "skill.mistinn.slide.desc": "跑步時按蹲下，腳先著地滑行約五格，掃倒路上的怪物。",
   "skill.mistinn.minor.strength_1": "力量 I",
