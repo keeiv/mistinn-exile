@@ -18,6 +18,7 @@
 		"MobExecutionMixin",
 		"MobTargetsAccessor",
 		"MobWindupMixin",
+		"MobCryMixin",
 		"PlayerBodyMixin",
 		"PlayerCrawlMixin",
 		"PlayerDodgeMixin",

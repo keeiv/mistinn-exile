@@ -210,7 +210,7 @@ public final class PackService {
 	static boolean belongs(final Mob mob, final ServerPlayer hunter) {
 		EnemyRig rig = EnemyRig.of(mob.getType());
 		return mob.isAlive() && !mob.isNoAi() && mob.getTarget() == hunter && rig != null && rig.windupTicks() > 0
-			&& mob instanceof PathfinderMob && NoiseService.listens(mob) && !ExecutionService.holdsMob(mob)
+			&& mob instanceof PathfinderMob && NoiseService.listens(mob) && !ExecutionService.holdsMob(mob) && !RetreatGoal.retreating(mob)
 			&& mob.position().distanceTo(hunter.position()) <= RANGE;
 	}
 

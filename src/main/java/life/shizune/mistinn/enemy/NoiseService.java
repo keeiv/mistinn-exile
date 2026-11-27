@@ -108,6 +108,11 @@ public final class NoiseService {
 
 	/** Every listening creature in range with nothing to chase comes to look. */
 	public static int hear(final ServerLevel level, final Vec3 at, final double radius) {
+		return hear(level, at, radius, null);
+	}
+
+	/** As {@link #hear(ServerLevel, Vec3, double)}, telling {@code each} of every creature that comes. */
+	public static int hear(final ServerLevel level, final Vec3 at, final double radius, final java.util.function.@Nullable Consumer<Mob> each) {
 		long now = level.getGameTime();
 		int heard = 0;
 		for (Mob mob : level.getEntitiesOfClass(Mob.class, new AABB(at, at).inflate(radius), m -> m.isAlive() && !m.isNoAi() && listens(m))) {
@@ -117,6 +122,9 @@ public final class NoiseService {
 			// not exactly the spot: an ear gives a direction and a rough distance
 			Vec3 near = at.add((mob.getRandom().nextDouble() - 0.5) * 3.0, 0.0, (mob.getRandom().nextDouble() - 0.5) * 3.0);
 			HEARD.put(mob, new Heard(near, now, now + SEARCH));
+			if (each != null) {
+				each.accept(mob);
+			}
 			heard++;
 		}
 		return heard;
