@@ -69,6 +69,7 @@ public final class MistinnFacilitiesTest implements FabricClientGameTest {
 				}
 			});
 			check(world.getServer().computeOnServer(server -> count(server.overworld(), hub, MistinnBlocks.REFINERY)) == 1, "a refinery stands on the deck");
+			check(world.getServer().computeOnServer(server -> countHigh(server.overworld(), hub, MistinnBlocks.ROOF_VENT)) == 1, "and a fan on the workshop's roof");
 			check(world.getServer().computeOnServer(server -> {
 				for (BlockPos at : BlockPos.betweenClosed(hub.offset(-2, 0, -2), hub.offset(2, 1, 2))) {
 					if (server.overworld().getBlockState(at).is(MistinnBlocks.FACILITY_FRAME) || server.overworld().getBlockState(at).is(MistinnBlocks.FACILITY_LAMP)) {
@@ -109,6 +110,13 @@ public final class MistinnFacilitiesTest implements FabricClientGameTest {
 					}
 				}
 				check(refinery && cables, "the refinery and the cables light too");
+				boolean fan = false;
+				for (BlockPos at : BlockPos.betweenClosed(hub.offset(-Settlements.DECK, 0, -Settlements.DECK), hub.offset(Settlements.DECK, 6, Settlements.DECK))) {
+					if (level.getBlockState(at).is(MistinnBlocks.ROOF_VENT)) {
+						fan = level.getBlockState(at).getValue(life.shizune.mistinn.block.RoofVentBlock.LIT);
+					}
+				}
+				check(fan, "and the workshop's fan");
 			});
 			world.getServer().runCommand("time set 13200");
 			world.getConnection().waitForChunksRender();
@@ -123,6 +131,15 @@ public final class MistinnFacilitiesTest implements FabricClientGameTest {
 				return hub;
 			});
 			look(context, world, refinery.offset(hub.getX() > refinery.getX() ? 4 : -3, 1, hub.getZ() > refinery.getZ() ? 4 : -3), refinery, "refinery-dusk");
+			BlockPos fan = world.getServer().computeOnServer(server -> {
+				for (BlockPos at : BlockPos.betweenClosed(hub.offset(-Settlements.DECK, 0, -Settlements.DECK), hub.offset(Settlements.DECK, 6, Settlements.DECK))) {
+					if (server.overworld().getBlockState(at).is(MistinnBlocks.ROOF_VENT)) {
+						return at.immutable();
+					}
+				}
+				return hub;
+			});
+			look(context, world, fan.offset(hub.getX() > fan.getX() ? 6 : -6, 1, hub.getZ() > fan.getZ() ? 6 : -6), fan.below(2), "workshop-dusk");
 			context.runOnClient(mc -> {
 				if (mc.gui.hud.isHidden()) {
 					mc.gui.hud.toggle();
@@ -150,6 +167,16 @@ public final class MistinnFacilitiesTest implements FabricClientGameTest {
 	private static int count(final ServerLevel level, final BlockPos hub, final net.minecraft.world.level.block.Block block) {
 		int count = 0;
 		for (BlockPos at : BlockPos.betweenClosed(hub.offset(-Settlements.CLEAR, 0, -Settlements.CLEAR), hub.offset(Settlements.CLEAR, 2, Settlements.CLEAR))) {
+			if (level.getBlockState(at).is(block)) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	private static int countHigh(final ServerLevel level, final BlockPos hub, final net.minecraft.world.level.block.Block block) {
+		int count = 0;
+		for (BlockPos at : BlockPos.betweenClosed(hub.offset(-Settlements.CLEAR, 0, -Settlements.CLEAR), hub.offset(Settlements.CLEAR, 6, Settlements.CLEAR))) {
 			if (level.getBlockState(at).is(block)) {
 				count++;
 			}
