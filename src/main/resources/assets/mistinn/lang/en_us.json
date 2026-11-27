@@ -953,7 +953,7 @@
   "item.mistinn.rust_can.lore.1": "The seam has rusted. Best not to think about it.",
   "item.mistinn.damp_food": "Damp Food",
   "item.mistinn.damp_food.usage": "Eat it and your stomach never stretches as far again.",
-  "item.mistinn.damp_food.lore.1": "Food from outside: the moment it's in your hands, you feel it has spoiled. And so it has.",
+  "item.mistinn.damp_food.lore.1": "Food from outside: the moment it's in your hands, you feel it has spoiled.",
   "message.mistinn.food.damp": "The %s in your hands has gone damp.",
   "message.mistinn.food.spoiled": "Your stomach turns. You can't eat as much any more.",
   "message.mistinn.food.spoiled_floor": "Your stomach turns, but it can't get any worse.",
