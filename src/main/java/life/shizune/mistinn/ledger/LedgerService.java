@@ -30,7 +30,27 @@ public final class LedgerService {
 		.persistent(Codec.STRING)
 		.buildAndRegister(Mistinn.id("ledger_world"));
 
+	/** What each hunter's ledger says of them (its tone bits), as their client told it: only words depend on it. */
+	private static final java.util.Map<UUID, Integer> TONES = new java.util.concurrent.ConcurrentHashMap<>();
+	/** Hunters who have heard a tiller know them, in this world. */
+	private static final java.util.Set<UUID> KNOWN = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
 	private LedgerService() {
+	}
+
+	/** The hunter's tone, as their client told it (0 when it has not). */
+	public static int tone(final ServerPlayer player) {
+		return TONES.getOrDefault(player.getUUID(), 0);
+	}
+
+	/** Whether a tiller has already known this hunter in this world; marks it so. */
+	public static boolean knownOnce(final ServerPlayer player) {
+		return !KNOWN.add(player.getUUID());
+	}
+
+	/** Test hook: the hunter's tone, as if their client had told it. */
+	public static void setTone(final ServerPlayer player, final int tone) {
+		TONES.put(player.getUUID(), tone & 7);
 	}
 
 	/** This world's id, given now if it has none. */
@@ -60,6 +80,13 @@ public final class LedgerService {
 	public static void register() {
 		PayloadTypeRegistry.clientboundPlay().register(WorldPayload.TYPE, WorldPayload.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(EventPayload.TYPE, EventPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(TonePayload.TYPE, TonePayload.CODEC);
+		ServerPlayNetworking.registerGlobalReceiver(TonePayload.TYPE, (payload, context) -> setTone(context.player(), payload.tone()));
+		ServerPlayerEvents.LEAVE.register(player -> TONES.remove(player.getUUID()));
+		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+			TONES.clear();
+			KNOWN.clear();
+		});
 		// each world a hunter comes into is a drop in their ledger, of the world's kind
 		ServerPlayerEvents.JOIN.register(player -> {
 			MinecraftServer server = player.level().getServer();
@@ -73,6 +100,17 @@ public final class LedgerService {
 				tell(player, "death", false);
 			}
 		});
+	}
+
+	/** The client's word of its hunter's leaning (tone bits; only words depend on it). */
+	public record TonePayload(int tone) implements CustomPacketPayload {
+		public static final Type<TonePayload> TYPE = new Type<>(Mistinn.id("ledger_tone"));
+		public static final StreamCodec<ByteBuf, TonePayload> CODEC = ByteBufCodecs.VAR_INT.map(TonePayload::new, TonePayload::tone);
+
+		@Override
+		public Type<? extends CustomPacketPayload> type() {
+			return TYPE;
+		}
 	}
 
 	/** The world the hunter is in: its id and its kind. */

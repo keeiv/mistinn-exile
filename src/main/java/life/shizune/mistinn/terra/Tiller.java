@@ -179,6 +179,9 @@ public class Tiller extends PathfinderMob implements Merchant {
 	@Override
 	public boolean hurtServer(final ServerLevel level, final DamageSource source, final float amount) {
 		if (source.getEntity() instanceof Player hunter && !hunter.isCreative()) {
+			if (hunter instanceof net.minecraft.server.level.ServerPlayer wronging) {
+				life.shizune.mistinn.ledger.LedgerService.tell(wronging, "tiller.wronged", false);
+			}
 			// word goes round the settlement
 			long until = level.getGameTime() + GRUDGE;
 			for (Tiller other : level.getEntitiesOfClass(Tiller.class, new AABB(this.blockPosition()).inflate(HEARD))) {
@@ -233,6 +236,14 @@ public class Tiller extends PathfinderMob implements Merchant {
 			life.shizune.mistinn.domain.Domain domain = life.shizune.mistinn.domain.DomainService.at(this.level().getServer(), this.getX(), this.getZ());
 			if (domain != null && Siege.watch(this.level().getServer(), domain.id()).on()) {
 				return "message.mistinn.tiller.siege";
+			}
+		}
+		// one who walked the tillers' way is known to them, once in a hunter's world
+		if (player instanceof net.minecraft.server.level.ServerPlayer known && this.level().getServer() != null
+			&& life.shizune.mistinn.story.WorldMode.of(this.level().getServer()) != life.shizune.mistinn.story.WorldMode.PATH) {
+			int tone = life.shizune.mistinn.ledger.LedgerService.tone(known);
+			if ((tone & 6) != 0 && !life.shizune.mistinn.ledger.LedgerService.knownOnce(known)) {
+				return "message.mistinn.tiller.known." + ((tone & 2) != 0 ? "kind" : "cruel");
 			}
 		}
 		// at dusk and at night they speak of the day's end, half the time

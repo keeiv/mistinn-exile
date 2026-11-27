@@ -42,7 +42,13 @@ public final class LedgerClient {
 				ledger.flush();
 			}
 		});
-		ClientPlayNetworking.registerGlobalReceiver(LedgerService.WorldPayload.TYPE, (payload, context) -> ledger().world(payload.world(), payload.mode()));
+		ClientPlayNetworking.registerGlobalReceiver(LedgerService.WorldPayload.TYPE, (payload, context) -> {
+			ledger().world(payload.world(), payload.mode());
+			// the server may know which way this hunter leans, for what the tillers say
+			if (ClientPlayNetworking.canSend(LedgerService.TonePayload.TYPE)) {
+				ClientPlayNetworking.send(new LedgerService.TonePayload(ledger().tone()));
+			}
+		});
 		ClientPlayNetworking.registerGlobalReceiver(LedgerService.EventPayload.TYPE,
 			(payload, context) -> ledger().event(payload.world(), payload.event(), payload.once()));
 	}

@@ -48,8 +48,23 @@ public final class Haunting {
 
 	/** The version of this line the hunter reads now. */
 	public static String key(final String base) {
-		Ledger.Stage stage = LedgerClient.ledger().stage();
+		Ledger ledger = LedgerClient.ledger();
+		Ledger.Stage stage = ledger.stage();
 		Language language = Language.getInstance();
+		// the tillers' way answers how the hunter walked it, from the first time on
+		if (base.startsWith("path.mistinn.")) {
+			String tone = ledger.kindPath() ? ".kind" : ledger.cruelPath() ? ".cruel" : null;
+			return tone != null && language.has(base + tone) ? base + tone : base;
+		}
+		// a hunter who let others live reads the kind version, once they have been down before
+		if (stage != Ledger.Stage.FIRST && ledger.kindStory()) {
+			if (stage == Ledger.Stage.AFTER && language.has(base + ".after.kind")) {
+				return base + ".after.kind";
+			}
+			if (language.has(base + ".kind")) {
+				return base + ".kind";
+			}
+		}
 		if (stage == Ledger.Stage.AFTER) {
 			return language.has(base + ".after") ? base + ".after" : base;
 		}
@@ -70,7 +85,16 @@ public final class Haunting {
 
 	/** The picture of a story card as the hunter sees it now. */
 	public static Identifier picture(final String card) {
-		Ledger.Stage stage = LedgerClient.ledger().stage();
+		Ledger ledger = LedgerClient.ledger();
+		Ledger.Stage stage = ledger.stage();
+		String tone = card.startsWith("path_") ? (ledger.kindPath() ? "kind" : ledger.cruelPath() ? "cruel" : null)
+			: stage != Ledger.Stage.FIRST && ledger.kindStory() ? "kind" : null;
+		if (tone != null) {
+			Identifier toned = Mistinn.id("textures/gui/story/" + card + "_" + tone + ".png");
+			if (exists(toned)) {
+				return toned;
+			}
+		}
 		if (stage == Ledger.Stage.AFTER) {
 			Identifier after = Mistinn.id("textures/gui/story/" + card + "_after.png");
 			return exists(after) ? after : Mistinn.id("textures/gui/story/" + card + ".png");
