@@ -69,6 +69,13 @@ public final class MistinnAttachments {
 		.copyOnDeath()
 		.buildAndRegister(Mistinn.id("achievements"));
 
+	/** 獵物圖鑑: what the hunter has met and brought down. Kept through death, and known to the hunter's own client. */
+	public static final AttachmentType<life.shizune.mistinn.bestiary.Bestiary.Record> BESTIARY = AttachmentRegistry.<life.shizune.mistinn.bestiary.Bestiary.Record>builder()
+		.persistent(life.shizune.mistinn.bestiary.Bestiary.Record.CODEC)
+		.syncWith(life.shizune.mistinn.bestiary.Bestiary.Record.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
+		.copyOnDeath()
+		.buildAndRegister(Mistinn.id("bestiary"));
+
 	/** Health of each body part. Not copied on death: a respawned hunter is whole. */
 	public static final AttachmentType<Body> BODY = AttachmentRegistry.<Body>builder()
 		.persistent(Body.CODEC)

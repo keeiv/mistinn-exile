@@ -28,26 +28,32 @@ import net.minecraft.util.FormattedCharSequence;
 import org.jspecify.annotations.Nullable;
 
 /**
- * 追獵者手冊: an open field manual with six bookmarks. The guide's pages read as spreads; the
+ * 追獵者手冊: an open field manual with seven bookmarks. The guide's pages read as spreads; the
  * stats page shows what each stat does for the hunter now and what they carry to spend; the
  * skills page is the tree, where a node is bought with a second click; the crafting pages show
  * the recipes; the supply page is the anchor station's list, ordered from the same way; the
- * achievements page lists what the hunter has done, and what is still to do.
+ * bestiary keeps what the hunter knows of what they hunt; the achievements page lists what the hunter has done, and what is still to do.
  */
 public class HunterGuideScreen extends Screen {
-	/** The guide's four pages, by the tab that opens each. */
+	/** The guide's pages, by the bookmark that opens each. */
 	public enum Tab {
 		PAGES("gui.mistinn.guide.tab.pages"),
 		STATS("gui.mistinn.guide.tab.stats"),
 		SKILLS("gui.mistinn.guide.tab.skills"),
 		RECIPES("gui.mistinn.guide.tab.recipes"),
 		SUPPLY("gui.mistinn.guide.tab.supply"),
+		BESTIARY("gui.mistinn.guide.tab.bestiary"),
 		ACHIEVEMENTS("gui.mistinn.guide.tab.achievements");
 
 		final String key;
 
 		Tab(final String key) {
 			this.key = key;
+		}
+
+		/** The bookmark's label. */
+		public String key() {
+			return this.key;
 		}
 	}
 
@@ -56,7 +62,8 @@ public class HunterGuideScreen extends Screen {
 	public static final int PAGE_WIDTH = 128;
 	public static final int PAGE_ROWS = 16;
 	public static final int H = 200;
-	private static final int TAB_W = 52;
+	/** How wide a bookmark is: seven of them, just overlapping, run along the top edge. */
+	public static final int TAB_W = 46;
 	/** The bookmark texture is wider than a bookmark: it is drawn as its two ends. */
 	private static final int TABS_TEX_W = 64;
 	private static final int TAB_H = 20;
@@ -154,6 +161,26 @@ public class HunterGuideScreen extends Screen {
 		return this.font;
 	}
 
+	/** The bestiary's open list page. */
+	public int bestiaryPage() {
+		return GuideBestiaryPage.page();
+	}
+
+	/** The creature open on the bestiary's right page, or -1. */
+	public int bestiarySelected() {
+		return GuideBestiaryPage.selected();
+	}
+
+	/** Opens a creature's page in the bestiary (and the list page it is on). */
+	public void selectBestiary(final int index) {
+		GuideBestiaryPage.select(index);
+	}
+
+	/** Centre of a creature's line in the bestiary's list, in GUI pixels. */
+	public double[] bestiaryRow(final int index) {
+		return GuideBestiaryPage.rowCentre(this.left(), this.top(), index);
+	}
+
 	/** Centre of the next-page arrow, in GUI pixels. */
 	public double[] nextPage() {
 		return new double[] {this.left() + W - 34 + 9.0, this.top() + 176 + 6.0};
@@ -171,7 +198,7 @@ public class HunterGuideScreen extends Screen {
 
 	/** Centre of a tab, in GUI pixels. */
 	public double[] tabCentre(final Tab tab) {
-		// six bookmarks along the top edge, each just overlapping the next
+		// seven bookmarks along the top edge, each just overlapping the next
 		return new double[] {this.left() + 2 + tab.ordinal() * (TAB_W - 1) + TAB_W / 2.0, this.top() - TAB_H / 2.0};
 	}
 
@@ -239,6 +266,9 @@ public class HunterGuideScreen extends Screen {
 		if (this.tab == Tab.SUPPLY && GuideSupplyPage.clicked(this.left(), this.top(), mx, my)) {
 			return true;
 		}
+		if (this.tab == Tab.BESTIARY && GuideBestiaryPage.clicked(this.left(), this.top(), mx, my)) {
+			return true;
+		}
 		if (this.tab == Tab.PAGES) {
 			int x = this.left();
 			int y = this.top();
@@ -287,6 +317,11 @@ public class HunterGuideScreen extends Screen {
 			this.armed = null;
 		}
 		return super.mouseClicked(event, doubleClick);
+	}
+
+	/** A page turned or a line chosen, for the pages kept in their own classes. */
+	static void sound(final net.minecraft.sounds.SoundEvent sound) {
+		click(sound);
 	}
 
 	private static void click(final net.minecraft.sounds.SoundEvent sound) {
@@ -348,6 +383,7 @@ public class HunterGuideScreen extends Screen {
 			case SKILLS -> this.skills(g, x, y, mouseX, mouseY);
 			case RECIPES -> GuideRecipePages.draw(this, g, x, y, mouseX, mouseY);
 			case SUPPLY -> GuideSupplyPage.draw(this, g, x, y, mouseX, mouseY);
+			case BESTIARY -> GuideBestiaryPage.draw(this.font, g, x, y, mouseX, mouseY);
 			case ACHIEVEMENTS -> {
 			}
 		}

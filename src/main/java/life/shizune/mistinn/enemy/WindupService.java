@@ -121,6 +121,8 @@ public final class WindupService {
 			length += 3 + mob.getRandom().nextInt(5);
 		}
 		mob.setAttached(WINDUP, new Windup(level.getGameTime(), length, hunter.getId(), false));
+		// a blow wound up at the hunter: they have met this creature now
+		life.shizune.mistinn.bestiary.BestiaryService.met(hunter, mob);
 		START_DISTANCE.put(mob, flatDistance(mob, hunter));
 		ACTIVE.add(mob);
 		cry(level, mob);
