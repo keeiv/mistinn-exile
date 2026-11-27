@@ -109,6 +109,8 @@ public final class MistinnCommissionsTest implements FabricClientGameTest {
 				check(!player.hasAttached(Commissions.TAKEN), "two, and the hunt is done");
 				check(SaltService.get(player) - salt >= 80, "and paid: " + (SaltService.get(player) - salt));
 				check(Commissions.trust(server) == 1, "the tillers trust the hunters a little more");
+				check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.COMMISSION_DONE),
+					"the first commission done is remembered: entrusted");
 			});
 
 			// a delivery: part, then the rest, from the hand
