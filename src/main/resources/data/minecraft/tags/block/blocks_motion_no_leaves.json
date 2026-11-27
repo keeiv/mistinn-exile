@@ -38,6 +38,7 @@
     "mistinn:hub_spire",
     "mistinn:relay_pylon",
     "mistinn:refinery",
-    "mistinn:roof_vent"
+    "mistinn:roof_vent",
+    "mistinn:workshop_wall"
   ]
 }

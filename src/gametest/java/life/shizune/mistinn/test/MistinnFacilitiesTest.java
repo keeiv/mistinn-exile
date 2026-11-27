@@ -70,6 +70,17 @@ public final class MistinnFacilitiesTest implements FabricClientGameTest {
 			});
 			check(world.getServer().computeOnServer(server -> count(server.overworld(), hub, MistinnBlocks.REFINERY)) == 1, "a refinery stands on the deck");
 			check(world.getServer().computeOnServer(server -> countHigh(server.overworld(), hub, MistinnBlocks.ROOF_VENT)) == 1, "and a fan on the workshop's roof");
+			int[] parts = world.getServer().computeOnServer(server -> {
+				int[] seen = new int[life.shizune.mistinn.block.WorkshopWallBlock.Part.values().length];
+				for (BlockPos at : BlockPos.betweenClosed(hub.offset(-Settlements.CLEAR, 0, -Settlements.CLEAR), hub.offset(Settlements.CLEAR, 4, Settlements.CLEAR))) {
+					if (server.overworld().getBlockState(at).is(MistinnBlocks.WORKSHOP_WALL)) {
+						seen[server.overworld().getBlockState(at).getValue(life.shizune.mistinn.block.WorkshopWallBlock.PART).ordinal()]++;
+					}
+				}
+				return seen;
+			});
+			check(parts[2] == 12 && parts[1] == 3 && parts[3] == 1 && parts[0] == 30,
+				"the workshop: twelve corner pieces, three windows, the lintel and the panels: " + java.util.Arrays.toString(parts));
 			check(world.getServer().computeOnServer(server -> {
 				for (BlockPos at : BlockPos.betweenClosed(hub.offset(-2, 0, -2), hub.offset(2, 1, 2))) {
 					if (server.overworld().getBlockState(at).is(MistinnBlocks.FACILITY_FRAME) || server.overworld().getBlockState(at).is(MistinnBlocks.FACILITY_LAMP)) {
@@ -117,6 +128,13 @@ public final class MistinnFacilitiesTest implements FabricClientGameTest {
 					}
 				}
 				check(fan, "and the workshop's fan");
+				int dark = 0;
+				for (BlockPos at : BlockPos.betweenClosed(hub.offset(-Settlements.CLEAR, 0, -Settlements.CLEAR), hub.offset(Settlements.CLEAR, 4, Settlements.CLEAR))) {
+					if (level.getBlockState(at).is(MistinnBlocks.WORKSHOP_WALL) && !level.getBlockState(at).getValue(life.shizune.mistinn.block.WorkshopWallBlock.LIT)) {
+						dark++;
+					}
+				}
+				check(dark == 0, "and the workshop's windows and lights: " + dark + " dark");
 			});
 			world.getServer().runCommand("time set 13200");
 			world.getConnection().waitForChunksRender();
