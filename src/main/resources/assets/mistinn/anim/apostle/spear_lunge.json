@@ -1,0 +1,20 @@
+{"_comment":"長槍突進: coiled back side-on and sunk, the spear drawn right back (0-8); the body driven down its length, the free arm flung back (8-10, lands from 11); held (10-15); back into the stance (15-22).",
+"keys":[0.0,0.230769,0.307692,0.384615,0.576923,0.846154,1.0],
+"eases":["in_out_sine","in_cubic","out_quart","linear","in_out_sine","linear"],
+"length":26,"own":true,"hands":1,"two_handed":false,"pitch_follow":0.6,"third_person":{
+"arm_x":[-20,-30,-25,-92,-91,-20,-20],
+"arm_y":[10,40,40,-4,-4,10,10],
+"arm_z":[4,10,10,0,0,4,4],
+"back_leg":[14,20,20,34,34,14,14],
+"body_x":[3,-4,-4,20,20,3,3],
+"body_y":[36,70,75,-15,-15,36,36],
+"front_leg":[-14,-6,-6,-50,-50,-14,-14],
+"item_x":[-22,-30,-30,-92,-92,-22,-22],
+"other_x":[-56,-70,-70,30,30,-56,-56],
+"other_y":[30,40,40,0,0,30,30],
+"other_z":[0,0,0,-30,-30,0,0]},
+"limbs":{
+"head_y":[-14,-30,-30,0,0,-14,-14]},
+"root":{
+"pitch":[0,0,0,6,6,0,0],
+"y":[0,-0.15,-0.2,-0.25,-0.25,0,0]}}

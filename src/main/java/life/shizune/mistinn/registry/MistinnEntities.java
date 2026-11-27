@@ -63,7 +63,15 @@ public final class MistinnEntities {
 		.eyeHeight(1.62F)
 		.clientTrackingRange(10));
 
+	/** 3412．鏽錨使徒: the hunter as they are when no one moves them. */
+	public static final EntityType<life.shizune.mistinn.path.RustApostle> RUST_APOSTLE = register("rust_apostle",
+		EntityType.Builder.<life.shizune.mistinn.path.RustApostle>of(life.shizune.mistinn.path.RustApostle::new, MobCategory.MONSTER)
+		.sized(0.6F, 1.8F)
+		.eyeHeight(1.62F)
+		.clientTrackingRange(10));
+
 	/** 海盜: a sailor of the fog sea, in the player model. */
+
 	public static final EntityType<life.shizune.mistinn.naval.Pirate> PIRATE = register("pirate",
 		EntityType.Builder.<life.shizune.mistinn.naval.Pirate>of(life.shizune.mistinn.naval.Pirate::new, MobCategory.MONSTER)
 		.sized(0.6F, 1.8F)
@@ -162,6 +170,7 @@ public final class MistinnEntities {
 		FabricDefaultAttributeRegistry.register(LAMP_THRALL, LampThrall.createAttributes());
 		FabricDefaultAttributeRegistry.register(MIST_SHADE, MistShade.createAttributes());
 		FabricDefaultAttributeRegistry.register(PIRATE, life.shizune.mistinn.naval.Pirate.createAttributes());
+		FabricDefaultAttributeRegistry.register(RUST_APOSTLE, life.shizune.mistinn.path.RustApostle.createAttributes());
 		FabricDefaultAttributeRegistry.register(RIFT_WALKER, life.shizune.mistinn.rift.RiftWalker.createAttributes());
 		FabricDefaultAttributeRegistry.register(RIFT_HERALD, life.shizune.mistinn.rift.RiftHerald.createAttributes());
 		FabricDefaultAttributeRegistry.register(CRYSTAL_DRAKE, life.shizune.mistinn.terra.CrystalDrake.createAttributes());

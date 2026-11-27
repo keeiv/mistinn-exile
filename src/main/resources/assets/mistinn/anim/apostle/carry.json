@@ -1,0 +1,15 @@
+{"_comment":"垂刀: walking up, the blade carried low at the side, point back and down.",
+"keys":[0.0,0.5,1.0],
+"eases":["in_out_sine","in_out_sine"],
+"length":64,"pitch_follow":0.0,"third_person":{
+"arm_x":[8,8,8],
+"arm_y":[0,0,0],
+"arm_z":[6,6,6],
+"back_leg":[0,0,0],
+"body_x":[0,1,0],
+"body_y":[0,0,0],
+"front_leg":[0,0,0],
+"item_x":[200,200,200],
+"other_x":[0,0,0],
+"other_y":[0,0,0],
+"other_z":[-4,-4,-4]}}

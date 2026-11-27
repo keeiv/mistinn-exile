@@ -1,0 +1,12 @@
+{"_comment":"側步（左）: dips toward the side (0-2), a low hop with the legs carried that way (2-6), lands wide (6-12).",
+"keys":[0.0,0.166667,0.416667,0.75,1.0],
+"eases":["out_quad","out_cubic","in_quad","in_out_sine"],
+"length":12,"pitch_follow":0.0,"third_person":{
+"body_x":[8,8,4,10,4]},
+"limbs":{
+"body_z":[8,8,-5,0,0],
+"left_leg_z":[-4,-4,-16,-8,0],
+"right_leg_z":[-4,-4,-4,8,0]},
+"root":{
+"roll":[0,-4,3,0,0],
+"y":[0,-0.12,0.16,-0.1,0]}}

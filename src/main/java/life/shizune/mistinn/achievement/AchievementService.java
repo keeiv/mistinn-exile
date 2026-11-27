@@ -77,6 +77,7 @@ public final class AchievementService {
 	public static final String SEA_SEEN = "sea_seen";
 	/** The path of longing cut: all twelve fallen. */
 	public static final String TWELVE_SLAIN = "twelve_slain";
+	public static final String THIRTEEN_SLAIN = "thirteen_slain";
 	/** The sea reached with no one fallen on the way. */
 	public static final String XIRANG = "xirang";
 	/** The sea reached over some of the fallen. */

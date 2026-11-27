@@ -1,0 +1,20 @@
+{"_comment":"scythe stance, breathing.",
+"keys":[0.0,0.5,1.0],
+"eases":["in_out_sine","in_out_sine"],
+"length":64,"pitch_follow":0.0,"third_person":{
+"arm_x":[-32,-34,-32],
+"arm_y":[22,22,22],
+"arm_z":[6,6,6],
+"back_leg":[14,14,14],
+"body_x":[10,12,10],
+"body_y":[28,28,28],
+"front_leg":[-14,-14,-14],
+"grip":[1,1,1],
+"item_x":[-66,-66,-66],
+"other_x":[-50,-52,-50],
+"other_y":[0,0,0],
+"other_z":[0,0,0]},
+"limbs":{
+"head_x":[-6,-5,-6],
+"head_y":[-12,-12,-12]},
+"two_handed":true}

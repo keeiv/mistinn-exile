@@ -52,6 +52,11 @@ public class StoryCardScreen extends Screen {
 		this.lineTicks++;
 	}
 
+	/** Which card this is. */
+	public String cardId() {
+		return this.card.id();
+	}
+
 	/** Shows the rest of the line, or moves to the next; past the last line the card closes. */
 	public void advance() {
 		if (this.typed() < this.lineText().length()) {

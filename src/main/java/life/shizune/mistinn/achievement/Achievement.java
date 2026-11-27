@@ -44,6 +44,8 @@ public enum Achievement {
 	ENDING_INN(AchievementService.ENDING_INN, 2000),
 	SEA_SEEN(AchievementService.SEA_SEEN, 2000),
 	TWELVE_SLAIN(AchievementService.TWELVE_SLAIN, 12),
+	/** Hidden until earned. */
+	THIRTEEN_SLAIN(AchievementService.THIRTEEN_SLAIN, 13),
 	XIRANG(AchievementService.XIRANG, 3000),
 	THE_LAND(AchievementService.THE_LAND, 1500),
 	REVIVE_LIMB("revive_limb", 150),

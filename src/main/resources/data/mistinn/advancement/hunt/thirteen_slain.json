@@ -1,0 +1,27 @@
+{
+	"parent": "mistinn:hunt/twelve_slain",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.thirteen_slain.desc"
+		},
+		"icon": {
+			"id": "minecraft:wither_skeleton_skull"
+		},
+		"title": {
+			"translate": "achievement.mistinn.thirteen_slain"
+		},
+		"frame": "challenge",
+		"hidden": true
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

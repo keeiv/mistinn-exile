@@ -205,6 +205,8 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.terra.CrystalLizardRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.PIRATE,
 			life.shizune.mistinn.client.naval.PirateRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.RUST_APOSTLE,
+			life.shizune.mistinn.client.path.RustApostleRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.THROWN_TOOL,
 			net.minecraft.client.renderer.entity.ThrownItemRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.CANNON_SHOT,
@@ -231,6 +233,7 @@ public class MistinnClient implements ClientModInitializer {
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> life.shizune.mistinn.client.combat.RustAnchorWeaponText.decorate(stack, lines));
 
 		ClientTickEvents.END_CLIENT_TICK.register(life.shizune.mistinn.client.terra.ZoneTitle::tick);
+		ClientTickEvents.END_CLIENT_TICK.register(life.shizune.mistinn.client.path.ThirteenthClient::tick);
 		ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
 			life.shizune.mistinn.client.move.RollClient.tick(minecraft, roll);
 			life.shizune.mistinn.client.combat.ParryClient.tick(minecraft, parry);

@@ -298,6 +298,7 @@ public final class BodyService {
 		damage *= Hardship.of(player).damageTaken;
 		// and a little softer for the Rust Anchor's apostle
 		damage *= life.shizune.mistinn.achievement.ApostleService.taken(player);
+		damage *= life.shizune.mistinn.path.Thirteenth.taken(player);
 		player.causeFoodExhaustion(source.getFoodExhaustion());
 		// a heavy blow breaks off whatever the hunter was treating or mending
 		TreatmentService.hurt(player, damage);

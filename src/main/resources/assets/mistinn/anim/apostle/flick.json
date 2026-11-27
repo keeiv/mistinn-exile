@@ -1,0 +1,11 @@
+{"_comment":"甩刀: cocked (0-3), snapped down and out to the right with a glance (3-6), held (6-9), back into the stance (9-16).",
+"keys":[0.0,0.1875,0.375,0.5625,0.875,1.0],
+"eases":["out_quad","out_quart","linear","in_out_sine","linear"],
+"length":16,"pitch_follow":0.0,"third_person":{
+"arm_x":[-80,-80,-20,-24,-45,-45],
+"arm_y":[30,30,50,48,8,8],
+"arm_z":[10,10,40,38,4,4],
+"body_y":[-10,-10,-10,-10,14,14],
+"item_dx":[0,20,-70,-70,0,0]},
+"limbs":{
+"head_y":[15,15,15,15,0,0]}}
