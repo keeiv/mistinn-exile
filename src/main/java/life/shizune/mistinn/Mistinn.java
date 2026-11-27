@@ -106,6 +106,7 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.bestiary.BestiaryService.register();
 		life.shizune.mistinn.terra.TerraShaper.watchRuins();
 		life.shizune.mistinn.achievement.AchievementService.register();
+		life.shizune.mistinn.terra.Commissions.register();
 
 		// A fallen hunter leaves their salt as residue; a defeated creature gives salt.
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
@@ -116,6 +117,7 @@ public class Mistinn implements ModInitializer {
 				// a creature that dies of what a hunter's blow left it (the lantern's fire, a fall) is still their kill
 				SaltService.reward(killer, entity);
 				life.shizune.mistinn.bestiary.BestiaryService.killed(killer, entity);
+				life.shizune.mistinn.terra.Commissions.killed(killer, entity);
 				if (entity instanceof life.shizune.mistinn.naval.Pirate && source.is(life.shizune.mistinn.naval.GunShot.GUNSHOT)) {
 					life.shizune.mistinn.achievement.AchievementService.grant(killer, life.shizune.mistinn.achievement.AchievementService.SHARPSHOOTER);
 				}
