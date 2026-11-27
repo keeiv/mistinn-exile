@@ -75,6 +75,12 @@ public final class AchievementService {
 	public static final String ENDING_INN = "ending_inn";
 	/** The path of longing walked to the sea. */
 	public static final String SEA_SEEN = "sea_seen";
+	/** The path of longing cut: all twelve fallen. */
+	public static final String TWELVE_SLAIN = "twelve_slain";
+	/** The sea reached with no one fallen on the way. */
+	public static final String XIRANG = "xirang";
+	/** The sea reached over some of the fallen. */
+	public static final String THE_LAND = "the_land";
 	/** 鹽商: salt carried at once. */
 	public static final int RICH = 5000;
 	/** 百兵: one mark per weapon branch a creature was brought down with; each is a criterion of that advancement. */

@@ -1,0 +1,26 @@
+{
+	"parent": "mistinn:hunt/sea_seen",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": true,
+		"description": {
+			"translate": "achievement.mistinn.the_land.desc"
+		},
+		"icon": {
+			"id": "minecraft:rooted_dirt"
+		},
+		"title": {
+			"translate": "achievement.mistinn.the_land"
+		},
+		"frame": "goal"
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

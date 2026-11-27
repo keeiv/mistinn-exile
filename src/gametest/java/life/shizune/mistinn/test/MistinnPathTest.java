@@ -211,6 +211,19 @@ public final class MistinnPathTest implements FabricClientGameTest {
 			check(stage(world) == PathService.Step.ENDED, "a beach past the highland ends the way: " + stage(world));
 			check(world.getServer().computeOnServer(server -> life.shizune.mistinn.achievement.AchievementService.has(player(server),
 				life.shizune.mistinn.achievement.Achievement.SEA_SEEN)), "and the sea is remembered");
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				check(life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.THE_LAND)
+					&& !life.shizune.mistinn.achievement.AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.XIRANG),
+					"one fell on the way: the land, not the earth that grows of itself");
+				PathService.Line none = new PathService.Line(0, List.of(), 0, PathService.Step.ENDED.ordinal(), -1L);
+				check(PathService.seaHonour(none) == life.shizune.mistinn.achievement.Achievement.XIRANG, "with no one fallen, it is 息壤");
+				String[] weights = {"one", "few", "few", "few", "half", "half", "half", "half", "most", "most", "most"};
+				for (int fell = 1; fell <= 11; fell++) {
+					String key = ((net.minecraft.network.chat.contents.TranslatableContents) PathService.land(fell).getContents()).getKey();
+					check(key.endsWith("." + weights[fell - 1]), "大地 weighs " + fell + " fallen as " + weights[fell - 1] + ": " + key);
+				}
+			});
 			// the sea's card first, then the names
 			context.waitFor(mc -> card(mc, "path.mistinn.chapter.5"), 300);
 			context.waitTicks(60);
@@ -223,6 +236,10 @@ public final class MistinnPathTest implements FabricClientGameTest {
 			context.runOnClient(mc -> ((life.shizune.mistinn.client.path.PathEndScreen) mc.gui.screen()).advance());
 			context.waitTicks(2);
 			check(context.computeOnClient(mc -> mc.gui.screen() == null), "the end closes once all of it has come up");
+			context.runOnClient(mc -> mc.gui.setScreen(new net.minecraft.client.gui.screens.advancements.AdvancementsScreen(mc.player.connection.getAdvancements())));
+			context.waitTicks(20);
+			context.takeScreenshot("path-advancements");
+			context.runOnClient(mc -> mc.gui.setScreen(null));
 
 			// eleven down, the last falls: the way is cut
 			world.getServer().runOnServer(server -> {
@@ -239,6 +256,8 @@ public final class MistinnPathTest implements FabricClientGameTest {
 				PathService.Line line = PathService.line(server);
 				check(line.stage() == PathService.Step.CUT && line.fallen().size() == PathService.PEOPLE, "the twelfth falls and the way is cut: " + line);
 				check(player(server).gameMode() == GameType.SPECTATOR, "the world can only be watched");
+				check(life.shizune.mistinn.achievement.AchievementService.has(player(server), life.shizune.mistinn.achievement.Achievement.TWELVE_SLAIN),
+					"and all twelve fallen is remembered, mockingly");
 			});
 			// one who comes back to a cut way in survival is set to watching again
 			world.getServer().runCommand("gamemode survival @a");
