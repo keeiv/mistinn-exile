@@ -1,0 +1,7 @@
+{
+	"required": true,
+	"package": "life.shizune.mistinn.test.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": ["QuietSoundMixin", "QuietWindowMixin"],
+	"injectors": { "defaultRequire": 1 }
+}
