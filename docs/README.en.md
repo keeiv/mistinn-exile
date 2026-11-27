@@ -119,7 +119,7 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 | Flintlock and pistol | Taken from pirates (a captain always carries a pistol, a marksman now and then leaves a musket, the captain's chest may hold one). Hold use to raise and aim, let go to fire one paper cartridge; the musket reaches further and hits harder, the pistol comes up quicker. Paper cartridges: paper, gunpowder and an iron nugget make three; they are taken from the hotbar, the offhand, or the pockets, rig and backpack. |
 | Hunter's Guide | Placed in your hotbar the first time you join. A guide screen of its own: fifty-four pages on the world, the mission, the rules and what you hunt, the stats, the skill tree, the recipes, supply, the bestiary and the achievements. |
 | Bestiary | The guide's Bestiary bookmark keeps twenty creatures: the shore's, the three keepers, the pirates, the rift's, Terra's, and the zombies, skeletons, spiders, creepers and others found everywhere. Once one strikes you, you strike it or it winds up at you, its name, a picture that turns after the pointer, and what it is are written down; one brought down tells its **weakness**, five its **tell** (a boss such as a keeper, the crown elder or the rift herald tells everything at once). Hunters within 24 blocks share the count. Old worlds fill in the bosses already brought down from the achievements earned. |
-| Achievements | Fifty-six of them (two hidden), from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer, the Sunken Bell and the Rust Wheel, taking a pirate ship, holding the shore, bringing down an elite of three affixes, the story's two endings, and the end of the Path of Longing. The game's toast shows at the top right and some salt is paid; they are kept on five tabs of the advancements screen: the hunt, the mist shore, survival, afar and the Path of Longing. See [Achievements](#achievements). |
+| Achievements | Fifty-six of them (five hidden), from the first hunt, a monster down with each of the six branches and three hit by one heavy blow, to bringing down the Snuffer, the Sunken Bell and the Rust Wheel, taking a pirate ship, holding the shore, bringing down an elite of three affixes, the story's two endings, and the end of the Path of Longing. The game's toast shows at the top right and some salt is paid; they are kept on five tabs of the advancements screen: the hunt, the mist shore, survival, afar and the Path of Longing. See [Achievements](#achievements). |
 | World and structures | You always start at a broken or counterfeit drop station; drop stations, salt cairns, anchor wrecks and mist watchposts with supplies are scattered across the world. |
 | Tiers | N and I–VI; names show as "◆ name" in the tier colour, and inventory cells sit on the tier colour. |
 | Gear | A helmet, mask, body armour, chest rig and backpack per tier, plus leggings and boots from N to V, and two more lines beside them, light (helmet, armour, pack) and heavy (helmet, armour, rig, pack): see [Light and heavy lines](#light-and-heavy-lines); each with its own durability, protection, capacity, layout and a two-line story. |
@@ -517,7 +517,7 @@ A hunter starts growing once a keeper falls and its rust god salt comes home. Op
 | --- | --- |
 | ![The hunt's tab on the game's advancements screen: lines for hunting, elites, footwork and growth spread out from the anchor blade, earned ones lit; the mist shore, survival and afar tabs above](images/advancements-tab.png) | ![The game's toast at the top right, left of the minimap: the icon and the achievement's name](images/advancement-toast.png) |
 
-Achievements are the game's own **advancements**: press `L` and the mod's achievements are on five tabs: **the Hunt**, **the Mist Shore**, **Survival**, **Afar**, and **the Path of Longing**, which shows only in a world of the way or for a hunter who has walked it. The guide's deeds bookmark opens the hunt's tab. When you do something worth remembering, the game's toast shows at the top right (left of the minimap, so neither hides the other), a bell chimes and some salt is paid (the first time only); the chat tells everyone who earned what, as it does for the game's own advancements (hover the name for what it asks; `/gamerule show_advancement_messages false` turns it off). The Armory shows how many of the six weapon branches are done. Once More, Back to the Fields and Familiar are two-sided: once earned, their words read by what you chose across your worlds, and a hunter who let others live reads the kind side. Achievements are saved and kept through death; achievements in an older save are moved into the advancements when you enter the world, without paying their salt again; bringing down the Snuffer is also what the Snuffer's Hook asks for.
+Achievements are the game's own **advancements**: press `L` and the mod's achievements are on five tabs: **the Hunt**, **the Mist Shore**, **Survival**, **Afar**, and **the Path of Longing**, which shows only in a world of the way or for a hunter who has walked it. The guide's deeds bookmark opens the hunt's tab. When you do something worth remembering, the game's toast shows at the top right (left of the minimap, so neither hides the other), a bell chimes and some salt is paid (the first time only); the chat tells everyone who earned what, as it does for the game's own advancements (hover the name for what it asks; `/gamerule show_advancement_messages false` turns it off). The Armory shows how many of the six weapon branches are done. Three hidden ones are two-sided: once earned, their words read by what you chose across your worlds, and a hunter who let others live reads the kind side. Achievements are saved and kept through death; achievements in an older save are moved into the advancements when you enter the world, without paying their salt again; bringing down the Snuffer is also what the Snuffer's Hook asks for.
 
 **The Hunt** (weapons, footwork, stats and elites)
 
@@ -549,7 +549,7 @@ Achievements are the game's own **advancements**: press `L` and the mod's achiev
 | Rust Wheel Stopped | The Rust Wheel stops with you near | 1500 |
 | The Anchor | Send the Rust God's salt up | 2000 |
 | Mist Inn | Throw the Rust God's salt into the Mist Inn's fire | 2000 |
-| Once More | Be dropped again after reaching the story's end in another world (two-sided) | 300 |
+| Once More | Hidden and two-sided; how it is earned is not told | – |
 | Apostle of the Rust Anchor | Hidden; how it is earned is not told. Once earned, 8% less from every blow and 2 more in each of the four stats (past the cap) | 5000 |
 
 **Survival** (wounds, golden bells, residue and the fog tide)
@@ -580,7 +580,7 @@ Achievements are the game's own **advancements**: press `L` and the mod's achiev
 | Shatter | Bring down a crystal drake | 400 |
 | The Crown | Bring down a crown elder | 1000 |
 | Homestead | Wake the hub of a crystal tillers' settlement | 500 |
-| Familiar | Be known by a crystal tiller in a world that is not the Path of Longing (two-sided) | 200 |
+| Familiar | Hidden and two-sided; how it is earned is not told | – |
 | Into the Spire | Be within 24 blocks when a crown elder's charge ends against stone and stuns it | 300 |
 | Fields Held | Hold a homestead against a crystal tide | 600 |
 | Full Fields | Grow a homestead to its third step (the one who gave the cores, and every hunter within 32 blocks of the hub) | 800 |
@@ -597,7 +597,7 @@ Achievements are the game's own **advancements**: press `L` and the mod's achiev
 | The Land | Reach the sea on the Path of Longing over some of the fallen (its words weigh how many) | 1500 |
 | Twelve Slain | Let all twelve of the settlement fall on the Path of Longing. Having fun? | 12 |
 | Taken Up | Take up a fallen tiller's strength | 300 |
-| Back to the Fields | Set out on the Path of Longing again after walking it to an end in another world (two-sided) | 300 |
+| Back to the Fields | Hidden and two-sided; how it is earned is not told | – |
 
 ## Controls
 

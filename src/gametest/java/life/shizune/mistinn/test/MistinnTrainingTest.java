@@ -434,7 +434,9 @@ public class MistinnTrainingTest implements FabricClientGameTest {
 			check(player.gameMode() == GameType.SURVIVAL, "normal play starts in survival");
 			check((StoryService.get(player) != null) == (mode == WorldMode.STORY), "only Story starts the prologue");
 			check(SkillService.get(player).unlocked().isEmpty(), "what was learned for practice is taken back at the drop");
-			check(AchievementService.earned(player) == 0, "achievements earned in training do not count");
+			// (a hunter whose ledger has an ending in another world is told, as they board into a story, that it is once more)
+			int again = AchievementService.has(player, life.shizune.mistinn.achievement.Achievement.DROPPED_AGAIN) ? 1 : 0;
+			check(AchievementService.earned(player) == again, "achievements earned in training do not count");
 		});
 		if (mode == WorldMode.STORY) {
 			context.waitForScreen(StoryCardScreen.class);

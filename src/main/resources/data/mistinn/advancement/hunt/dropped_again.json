@@ -15,7 +15,8 @@
 		},
 		"title": {
 			"translate": "achievement.mistinn.dropped_again"
-		}
+		},
+		"hidden": true
 	},
 	"requirements": [
 		[

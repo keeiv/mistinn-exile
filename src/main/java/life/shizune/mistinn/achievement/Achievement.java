@@ -72,12 +72,16 @@ public enum Achievement {
 	TRAVEL("travel", 200),
 	/** 接過: a fallen tiller's strength taken up. */
 	INHERITED("inherited", 300),
-	/** 又一次: dropped into a story again, having reached its end in another world. Read by the hunter's ledger. */
-	DROPPED_AGAIN("dropped_again", 300),
-	/** 又回到晶田: out on the tillers' way again, having walked it to an end in another world. Read by the ledger. */
-	PATH_AGAIN("path_again", 300),
-	/** 似曾相識: known by a tiller, in a world that is not the way, as one who walked it. Read by the ledger. */
-	TILLERS_KNOWN("tillers_known", 200);
+	/**
+	 * 又一次: dropped into a story again, having reached its end in another world. The two-sided ones are hidden until
+	 * earned (the game remembering across worlds is not told before it shows), and pay no salt: they rest on what the
+	 * hunter's own client says of its ledger, so they are a keepsake, not a reward.
+	 */
+	DROPPED_AGAIN("dropped_again", 0),
+	/** 又回到晶田: out on the tillers' way again, having walked it to an end in another world. */
+	PATH_AGAIN("path_again", 0),
+	/** 似曾相識: known by a tiller, in a world that is not the way, as one who walked it. */
+	TILLERS_KNOWN("tillers_known", 0);
 
 	public final String id;
 	public final int reward;

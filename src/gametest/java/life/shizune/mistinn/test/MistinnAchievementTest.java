@@ -414,7 +414,7 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 			Achievement.FULL_SET.id, Achievement.CAMP_BARREL.id, Achievement.HOMESTEAD_GROWN.id, Achievement.TRAVEL.id, Achievement.INHERITED.id,
 			// the two-sided ones (the ledger and kind tests earn them as the game does)
 			Achievement.DROPPED_AGAIN.id, Achievement.PATH_AGAIN.id, Achievement.TILLERS_KNOWN.id};
-		int[] pays = {300, 600, 400, 200, 300, 300, 2000, 12, 13, 3000, 1500, 200, 200, 800, 300, 150, 300, 200, 800, 200, 300, 300, 300, 200};
+		int[] pays = {300, 600, 400, 200, 300, 300, 2000, 12, 13, 3000, 1500, 200, 200, 800, 300, 150, 300, 200, 800, 200, 300, 0, 0, 0};
 		for (int i = 0; i < terra.length; i++) {
 			String id = terra[i];
 			int beforeEach = world.getServer().computeOnServer(server -> SaltService.get(player(server)));

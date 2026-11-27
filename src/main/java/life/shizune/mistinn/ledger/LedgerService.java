@@ -30,8 +30,12 @@ public final class LedgerService {
 		.persistent(Codec.STRING)
 		.buildAndRegister(Mistinn.id("ledger_world"));
 
-	/** What each hunter's ledger says of them (its tone bits), as their client told it: only words depend on it. */
+	/**
+	 * What each hunter's ledger says of them (its tone bits), as their client told it: the words depend on it, and the
+	 * two-sided achievements, which pay nothing. It is heard once each time a hunter comes into the world.
+	 */
 	private static final java.util.Map<UUID, Integer> TONES = new java.util.concurrent.ConcurrentHashMap<>();
+	private static final java.util.Set<UUID> TOLD = java.util.concurrent.ConcurrentHashMap.newKeySet();
 	/** Hunters who have heard a tiller know them, in this world. */
 	private static final java.util.Set<UUID> KNOWN = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
@@ -58,6 +62,15 @@ public final class LedgerService {
 	 */
 	public static void setTone(final ServerPlayer player, final int tone) {
 		TONES.put(player.getUUID(), tone & 63);
+		again(player);
+	}
+
+	/**
+	 * Whether the hunter has come again, by what their client told: as it is told, and again when the world becomes
+	 * another kind in place (the training ground boarding into a story).
+	 */
+	public static void again(final ServerPlayer player) {
+		int tone = tone(player);
 		life.shizune.mistinn.story.WorldMode mode = life.shizune.mistinn.story.WorldMode.of(player.level().getServer());
 		if ((tone & ENDED_ELSEWHERE) != 0 && mode == life.shizune.mistinn.story.WorldMode.STORY) {
 			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.DROPPED_AGAIN);
@@ -95,10 +108,19 @@ public final class LedgerService {
 		PayloadTypeRegistry.clientboundPlay().register(WorldPayload.TYPE, WorldPayload.CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(EventPayload.TYPE, EventPayload.CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(TonePayload.TYPE, TonePayload.CODEC);
-		ServerPlayNetworking.registerGlobalReceiver(TonePayload.TYPE, (payload, context) -> setTone(context.player(), payload.tone()));
-		ServerPlayerEvents.LEAVE.register(player -> TONES.remove(player.getUUID()));
+		// heard once each time a hunter comes into the world (the handler runs on the server's own thread)
+		ServerPlayNetworking.registerGlobalReceiver(TonePayload.TYPE, (payload, context) -> {
+			if (TOLD.add(context.player().getUUID())) {
+				setTone(context.player(), payload.tone());
+			}
+		});
+		ServerPlayerEvents.LEAVE.register(player -> {
+			TONES.remove(player.getUUID());
+			TOLD.remove(player.getUUID());
+		});
 		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			TONES.clear();
+			TOLD.clear();
 			KNOWN.clear();
 		});
 		// each world a hunter comes into is a drop in their ledger, of the world's kind

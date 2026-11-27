@@ -78,8 +78,9 @@ public final class MistinnLedgerTest implements FabricClientGameTest {
 			// once more: in a story world, a hunter whose client says so has been dropped again
 			check(world.getServer().computeOnServer(server -> !AchievementService.has(player(server), Achievement.DROPPED_AGAIN)), "a world that is no story is no drop again");
 			world.getServer().runOnServer(server -> {
+				// what the client told as it came in, heard again as the world becomes a story in place
 				server.overworld().setAttached(WorldMode.ATTACHMENT, WorldMode.STORY);
-				LedgerService.setTone(player(server), LedgerService.tone(player(server)));
+				LedgerService.again(player(server));
 			});
 			check(world.getServer().computeOnServer(server -> AchievementService.has(player(server), Achievement.DROPPED_AGAIN)), "in a story, it is once more");
 			context.waitTicks(5);
