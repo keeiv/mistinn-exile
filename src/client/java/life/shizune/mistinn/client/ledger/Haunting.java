@@ -80,7 +80,7 @@ public final class Haunting {
 	/** The line as the hunter reads it now: with how many times they have been dropped, and how many have been sent down. */
 	public static Component text(final String base) {
 		Ledger ledger = LedgerClient.ledger();
-		return Component.translatable(key(base), ledger.drops(), ledger.sent());
+		return Component.translatable(key(base), ledger.drops(), ledger.sent(), net.minecraft.client.Minecraft.getInstance().getUser().getName());
 	}
 
 	/** The picture of a story card as the hunter sees it now. */

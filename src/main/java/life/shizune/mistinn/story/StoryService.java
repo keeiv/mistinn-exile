@@ -1096,6 +1096,10 @@ public final class StoryService {
 			}
 			later(220, () -> level.playSound(null, far.x, far.y, far.z, SoundEvents.CHAIN_BREAK, SoundSource.AMBIENT, 4.0F, 0.3F));
 		} else {
+			// the anchor is hungry: the salt they carry goes up with the rest
+			for (ServerPlayer hunter : concat(player, team)) {
+				confiscate(hunter);
+			}
 			play(player, team, StoryScript.ANCHOR_END, -1, StoryScript.ANCHOR.id());
 			// far off over the fog, the station's bell, three times: another pod is going down
 			Vec3 far = player.position().add(0.0, 30.0, -48.0);
@@ -1104,6 +1108,20 @@ public final class StoryService {
 			}
 		}
 		return true;
+	}
+
+	/** Takes every bit of salt a hunter carries, for the anchor. */
+	public static int confiscate(final ServerPlayer hunter) {
+		int taken = 0;
+		var inventory = hunter.getInventory();
+		for (int i = 0; i < inventory.getContainerSize(); i++) {
+			net.minecraft.world.item.ItemStack stack = inventory.getItem(i);
+			if (stack.is(MistinnItems.SALT) || stack.is(MistinnItems.SALT_BOMB) || stack.is(MistinnItems.RUST_GOD_SALT)) {
+				taken += stack.getCount();
+				inventory.setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
+			}
+		}
+		return taken;
 	}
 
 	private static List<ServerPlayer> concat(final ServerPlayer first, final List<ServerPlayer> rest) {

@@ -25,14 +25,22 @@ public class StoryCardScreen extends Screen {
 	private static final int HINT = 0xFF6E6A62;
 
 	private final StoryScript.Card card;
+	/** The card that comes on when this one is done, or null. */
+	private final StoryScript.@org.jspecify.annotations.Nullable Card then;
 	private final Identifier image;
 	private int line;
 	private int lineTicks;
 	private int ticks;
 
 	public StoryCardScreen(final StoryScript.Card card) {
+		this(card, StoryScript.follows(card.id()));
+	}
+
+	/** A card with another to come on after it. */
+	public StoryCardScreen(final StoryScript.Card card, final StoryScript.@org.jspecify.annotations.Nullable Card then) {
 		super(Component.translatable(card.title().isEmpty() ? card.line(0) : card.title()));
 		this.card = card;
+		this.then = then;
 		this.image = life.shizune.mistinn.client.ledger.Haunting.picture(card.id());
 		// the world map on the title screen opens the places this card has led to
 		life.shizune.mistinn.client.worldmap.SeenStory.saw(card.id());
@@ -140,6 +148,15 @@ public class StoryCardScreen extends Screen {
 		}
 		Component hint = Component.translatable("story.mistinn.card.continue").append("  ·  ").append(Component.translatable("story.mistinn.card.skip"));
 		g.text(font, hint, this.width - font.width(hint) - 8, this.height - 14, HINT, false);
+	}
+
+	@Override
+	public void onClose() {
+		if (this.then != null && this.minecraft != null) {
+			this.minecraft.gui.setScreen(new StoryCardScreen(this.then));
+			return;
+		}
+		super.onClose();
 	}
 
 	@Override

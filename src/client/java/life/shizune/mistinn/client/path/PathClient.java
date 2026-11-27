@@ -68,7 +68,9 @@ public final class PathClient {
 		if (end.sea()) {
 			// the sea's picture first, then the names
 			after = end;
-			mc.gui.setScreen(new life.shizune.mistinn.client.story.StoryCardScreen(life.shizune.mistinn.story.StoryScript.PATH_SEA));
+			// with no one lost, all twelve stand at the water after it
+			mc.gui.setScreen(new life.shizune.mistinn.client.story.StoryCardScreen(life.shizune.mistinn.story.StoryScript.PATH_SEA,
+				end.fallen().isEmpty() ? life.shizune.mistinn.story.StoryScript.PATH_SEA_ALL : null));
 			return;
 		}
 		mc.gui.setScreen(new PathEndScreen(end.sea(), end.fallen(), end.walker()));
