@@ -15,7 +15,8 @@
 		},
 		"title": {
 			"translate": "achievement.mistinn.path_again"
-		}
+		},
+		"hidden": true
 	},
 	"requirements": [
 		[

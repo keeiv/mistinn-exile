@@ -825,6 +825,8 @@ public final class TrainingService {
 		player.getFoodData().setSaturation(5.0F);
 		player.setGameMode(server.getWorldData().getGameType());
 		overworld.setAttached(WorldMode.ATTACHMENT, next);
+		// a hunter who has been here before, in another world, is dropped again
+		life.shizune.mistinn.ledger.LedgerService.again(player);
 		if (!falling && next == WorldMode.STORY) {
 			// the story waits for the landing when there is a fall
 			StoryService.beginAfterTraining(server);

@@ -15,7 +15,8 @@
 		},
 		"title": {
 			"translate": "achievement.mistinn.tillers_known"
-		}
+		},
+		"hidden": true
 	},
 	"requirements": [
 		[
