@@ -5,6 +5,9 @@ name: Contribution
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened, labeled, unlabeled]
+  # an approving review (or its dismissal) decides the art review
+  pull_request_review:
+    types: [submitted, dismissed]
 
 permissions:
   contents: read
@@ -19,15 +22,22 @@ jobs:
       - uses: actions/github-script@v7
         with:
           script: |
-            const pr = context.payload.pull_request;
+            const team = ['OWNER', 'MEMBER', 'COLLABORATOR'];
+            const target = { owner: context.repo.owner, repo: context.repo.repo, pull_number: context.payload.pull_request.number };
+            // the pull request as it stands now (a review event carries less of it)
+            const { data: pr } = await github.rest.pulls.get(target);
             // the developers and the core team review their own art
-            if (['OWNER', 'MEMBER', 'COLLABORATOR'].includes(pr.author_association)) {
+            if (team.includes(pr.author_association)) {
               core.info(`${pr.user.login} is on the team: no art review needed`);
               return;
             }
-            const files = await github.paginate(github.rest.pulls.listFiles, {
-              owner: context.repo.owner, repo: context.repo.repo, pull_number: pr.number, per_page: 100,
-            });
+            const files = await github.paginate(github.rest.pulls.listFiles, { ...target, per_page: 100 });
+            if (pr.changed_files > files.length) {
+              // the list stops short of the change: nothing can be said to carry no art, so a person looks
+              core.setFailed(`This pull request changes ${pr.changed_files} files, more than can be listed (${files.length}); `
+                + 'the team reviews it by hand.');
+              return;
+            }
             const art = files.map(f => f.filename).filter(name =>
               /^src\/[^/]+\/resources\/assets\/[^/]+\/(textures|models|sounds|blockstates|items|particles)\//.test(name)
               || /\.(png|jpe?g|gif|ogg|wav|mp3|bbmodel)$/i.test(name));
@@ -35,14 +45,24 @@ jobs:
               core.info('No art in this pull request');
               return;
             }
-            const labels = pr.labels.map(l => l.name);
-            if (labels.includes('art-approved')) {
-              core.info(`Art reviewed and approved:\n${art.join('\n')}`);
+            // approved: a team member's latest review approves the commit the pull request stands at now,
+            // so anything pushed after an approval needs approving again
+            const reviews = await github.paginate(github.rest.pulls.listReviews, { ...target, per_page: 100 });
+            const latest = new Map();
+            for (const review of reviews) {
+              if (['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED'].includes(review.state)) {
+                latest.set(review.user.login, review);
+              }
+            }
+            const approval = [...latest.values()].find(review =>
+              review.state === 'APPROVED' && review.commit_id === pr.head.sha && team.includes(review.author_association));
+            if (approval) {
+              core.info(`Art approved by ${approval.user.login} at ${pr.head.sha.slice(0, 7)}:\n${art.join('\n')}`);
               return;
             }
-            core.setFailed(`This pull request carries art, which the developers and the core team review by hand `
-              + `before it can be merged (they label it art-approved). If the art is not approved, it is taken out and `
-              + `the code alone is merged. The art:\n${art.join('\n')}`);
+            core.setFailed('This pull request carries art, which the developers and the core team review by hand before it can '
+              + 'be merged: a team member approves the pull request at its latest commit (pushing again needs a new approval). '
+              + `If the art is not approved, it is taken out and the code alone is merged. The art:\n${art.join('\n')}`);
 
   ai:
     name: AI disclosure

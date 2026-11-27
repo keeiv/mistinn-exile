@@ -29,10 +29,11 @@ jobs:
             const files = await github.paginate(github.rest.pulls.listFiles, {
               owner: context.repo.owner, repo: context.repo.repo, pull_number: pr.number, per_page: 100,
             });
-            const art = files.some(f =>
+            // a list that stops short of the change is treated as carrying art: a person looks
+            const art = pr.changed_files > files.length || files.some(f =>
               /^src\/[^/]+\/resources\/assets\/[^/]+\/(textures|models|sounds|blockstates|items|particles)\//.test(f.filename)
               || /\.(png|jpe?g|gif|ogg|wav|mp3|bbmodel)$/i.test(f.filename));
-            if (art && !labels.includes('needs-art-review') && !labels.includes('art-approved')) {
+            if (art && !labels.includes('needs-art-review')) {
               await github.rest.issues.addLabels({ ...target, labels: ['needs-art-review'] });
             }
             const linked = /(#\d+|\/issues\/\d+)/.test(pr.body || '');

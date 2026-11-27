@@ -129,7 +129,7 @@ Use `build.ps1` from OneDrive or non-ASCII paths; elsewhere `./gradlew build` wo
 
 ### Review
 
-- **Every piece of art from contributors outside the developers and the core team is reviewed by hand by the developers and the core team.** When a pull request carries art, CI labels it `needs-art-review` and blocks the merge until the team has reviewed it and labelled it `art-approved`.
+- **Every piece of art from contributors outside the developers and the core team is reviewed by hand by the developers and the core team.** When a pull request carries art, CI labels it `needs-art-review` and blocks the merge until a team member approves the pull request at its latest commit; anything pushed after the approval needs approving again.
 - Attach in-game screenshots of the art to the pull request; for a facility that lights up, one lit and one dark.
 - **Approved:** the code and the art are merged together.
 - **Not approved:** if the code passes review, the code alone is merged. A developer takes the art out of the pull request; it is then left to the core team, or you may send a fix in a new pull request within 14 days. Keep "Allow edits by maintainers" ticked on your pull request so the art can be taken out.
@@ -164,7 +164,7 @@ Run `.\build.ps1 build` before committing. CI runs `./gradlew build` on Linux wi
 
 Every pull request also has three checks that must pass:
 
-- **Art review**: art from contributors outside the developers and the core team passes only once it is labelled `art-approved`.
+- **Art review**: art from contributors outside the developers and the core team passes only once a team member has approved the pull request at its latest commit. A change touching more files than can be listed always goes to a person.
 - **AI disclosure**: for contributors outside the developers and the core team, one box under "AI assistance" in the description is ticked.
 - **Co-authors**: every co-author named in the commit messages is a person's GitHub account.
 
