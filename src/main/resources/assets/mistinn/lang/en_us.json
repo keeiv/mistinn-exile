@@ -607,6 +607,7 @@
   "path.mistinn.sea.sub": "%s fell on the way here",
   "path.mistinn.sea.line": "%s stands on the shore. The waves come, and come again. So this is the sea.",
   "path.mistinn.roll": "Those who fell:",
+  "path.mistinn.memorial": "Fallen no. %s",
   "path.mistinn.hud.walker": "Fallen %1$s/%2$s · you are %3$s",
   "path.mistinn.end.none": "No one fell on this way",
   "path.mistinn.end.sea": "%s saw the sea for them.",

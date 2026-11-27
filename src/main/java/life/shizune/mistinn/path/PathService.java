@@ -468,6 +468,12 @@ public final class PathService {
 		}
 		List<Integer> fallen = new ArrayList<>(line.fallen());
 		fallen.add(line.walker());
+		// the way, laid in stone at the homestead: one more memorial on it
+		Settlements.Settlement homestead = Settlements.of(server, line.domain());
+		Domain highland = DomainService.get(server, line.domain());
+		if (homestead != null && highland != null) {
+			PathMemorials.raise(server.overworld(), homestead, highland, fallen.size() - 1, line.walker());
+		}
 		Component lost = name(line.walker());
 		if (fallen.size() >= PEOPLE) {
 			Line cut = line.lost(fallen, line.walker(), Step.CUT);
