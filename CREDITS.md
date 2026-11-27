@@ -21,8 +21,11 @@ Mistinn: Exile is AGPL-3.0-only. Its textures and models are original. Its sound
 | `oga_monster_sfx` | Monster Sound Effects Pack | Ogrebane | CC0 1.0 | <https://opengameart.org/content/monster-sound-effects-pack> |
 | `oga_monster_vol1` | Monster Sound Pack, Volume 1 | Ogrebane | CC0 1.0 | <https://opengameart.org/node/4017> |
 | `synth` | Noise-based synthesis for this project | Keeiv | AGPL-3.0-only (with the project) | this repository |
+| `geist` | Geist (typeface) | Vercel | SIL Open Font License 1.1 | <https://vercel.com/font> |
 
 Licence text: CC0 1.0 Universal, <https://creativecommons.org/publicdomain/zero/1.0/>. Kenney's packs carry the same notice in their `License.txt`; the OpenGameArt pages list "CC0" as the licence of "Various Scissors" and of each `oga_` creature pack (checked 2026-11-20). A `#n` after a recording names the n-th call in a recording of several.
+
+The opening's marks are the studio's own: the MoriTeahouse emblem (drawn from the studio site's emblem) and keeiv's mark, in `textures/gui/intro/`. Their names, `teahouse_wordmark.png` and `keeiv_wordmark.png`, are set in `geist`.
 
 ## Files
 
