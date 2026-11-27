@@ -94,6 +94,23 @@ public final class MistinnPathTest implements FabricClientGameTest {
 			check(stage(world) == PathService.Step.LIGHT, "six dust moves on to lighting the hub: " + stage(world));
 			check(context.computeOnClient(mc -> mc.player.getAttached(PathService.VIEW).stage() == PathService.Step.LIGHT), "and the panel shows it");
 
+			// chapters come one at a time: a step already done waits its turn
+			world.getServer().runOnServer(server -> {
+				PathService.Line line = PathService.line(server);
+				server.overworld().setAttached(PathService.LINE,
+					new PathService.Line(line.domain(), line.fallen(), line.walker(), PathService.Step.RUIN.ordinal(), line.tide()));
+				life.shizune.mistinn.achievement.AchievementService.grant(player(server), life.shizune.mistinn.achievement.Achievement.RUIN_OPENED);
+			});
+			context.waitTicks(40);
+			check(stage(world) == PathService.Step.RUIN, "a ruin opened long before still waits for its chapter: " + stage(world));
+			context.waitTicks(PathService.PACE);
+			check(stage(world) == PathService.Step.SIEGE, "and then counts: " + stage(world));
+			world.getServer().runOnServer(server -> {
+				PathService.Line line = PathService.line(server);
+				server.overworld().setAttached(PathService.LINE,
+					new PathService.Line(line.domain(), line.fallen(), line.walker(), PathService.Step.LIGHT.ordinal(), line.tide()));
+			});
+
 			// the walker falls: the next of the settlement takes up the way, at the hub
 			die(context, world);
 			world.getServer().runOnServer(server -> {
@@ -110,6 +127,21 @@ public final class MistinnPathTest implements FabricClientGameTest {
 			String nextLook = context.computeOnClient(mc -> mc.player.getSkin().body().texturePath().getPath());
 			check(nextLook.contains("tiller") && !nextLook.equals(firstLook[0]), "and the successor is plainly someone else: " + nextLook);
 			context.takeScreenshot("path-fallen");
+
+			// a fall before ever reaching the homestead is no one's: the way is as it was, and the hunter is brought to it again
+			// (in one go: the tick would bring an unplaced hunter to the hub before a later kill)
+			world.getServer().runOnServer(server -> {
+				player(server).setAttached(PathService.PLACED, false);
+				player(server).kill(server.overworld());
+			});
+			afterDeath(context);
+			context.waitTicks(40);
+			world.getServer().runOnServer(server -> {
+				PathService.Line line = PathService.line(server);
+				check(line.fallen().equals(List.of(0)) && line.walker() == 1, "no one of the settlement fell: " + line);
+				check(player(server).getAttachedOrElse(PathService.PLACED, false)
+					&& near(player(server), Settlements.of(server, line.domain()).hub(), 6.0), "and the hunter is by the hub again: " + player(server).blockPosition());
+			});
 
 			// the way comes to the sea: out past the highland, on a beach
 			int[] shore = new int[3];
@@ -157,6 +189,10 @@ public final class MistinnPathTest implements FabricClientGameTest {
 				check(line.stage() == PathService.Step.CUT && line.fallen().size() == PathService.PEOPLE, "the twelfth falls and the way is cut: " + line);
 				check(player(server).gameMode() == GameType.SPECTATOR, "the world can only be watched");
 			});
+			// one who comes back to a cut way in survival is set to watching again
+			world.getServer().runCommand("gamemode survival @a");
+			context.waitTicks(30);
+			check(world.getServer().computeOnServer(server -> player(server).gameMode() == GameType.SPECTATOR), "a cut way stays watched");
 			context.waitFor(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.path.PathEndScreen end && !end.sea(), 300);
 			context.waitTicks(250);
 			context.takeScreenshot("path-cut-end");
@@ -165,6 +201,10 @@ public final class MistinnPathTest implements FabricClientGameTest {
 
 	private static void die(final ClientGameTestContext context, final TestSingleplayerContext world) {
 		world.getServer().runCommand("kill @a");
+		afterDeath(context);
+	}
+
+	private static void afterDeath(final ClientGameTestContext context) {
 		context.waitFor(mc -> mc.gui.screen() instanceof life.shizune.mistinn.client.death.MissionEndScreen, 400);
 		context.waitFor(mc -> life.shizune.mistinn.client.death.DeathScene.seconds() > life.shizune.mistinn.client.death.DeathScene.SCREEN + 1.8F, 400);
 		context.waitTicks(5);

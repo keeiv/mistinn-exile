@@ -164,6 +164,16 @@ public final class PathService {
 		.persistent(Codec.BOOL)
 		.copyOnDeath()
 		.buildAndRegister(Mistinn.id("path_placed"));
+	/** On a hunter: shown the way's end already (one away when it came is shown it on their return). */
+	public static final AttachmentType<Boolean> SAW_END = AttachmentRegistry.<Boolean>builder()
+		.persistent(Codec.BOOL)
+		.copyOnDeath()
+		.buildAndRegister(Mistinn.id("path_saw_end"));
+	/** Ticks at the least between one step of the way and the next, so chapters come one at a time. */
+	public static final int PACE = 200;
+	/** When the way last moved on (this server's run), and whether a way with nowhere to start was said. */
+	private static long movedAt = -PACE;
+	private static boolean stranded;
 
 	private PathService() {
 	}
@@ -182,8 +192,14 @@ public final class PathService {
 			if (!active(server)) {
 				return;
 			}
-			if (!alive) {
+			if (!alive && oldPlayer.getAttachedOrElse(PLACED, false)) {
 				fallen(newPlayer);
+			} else if (!alive) {
+				// fell before ever reaching the homestead (on the way down to it): brought out over it again
+				Line waiting = line(server);
+				if (waiting != null) {
+					bringOver(newPlayer, waiting);
+				}
 			}
 			Line line = line(server);
 			if (line != null) {
@@ -230,6 +246,8 @@ public final class PathService {
 
 	/** The world starts: the way begins at the highland nearest the world's spawn. */
 	private static void begin(final MinecraftServer server) {
+		movedAt = -PACE;
+		stranded = false;
 		if (!active(server) || line(server) != null) {
 			return;
 		}
@@ -285,42 +303,64 @@ public final class PathService {
 			return;
 		}
 		ServerLevel level = server.overworld();
+		List<ServerPlayer> everyone = server.getPlayerList().getPlayers();
 		Settlements.Settlement home = Settlements.of(server, line.domain());
 		if (home == null && Settlements.ledger(server).skipped().contains(line.domain())) {
 			// something already stood where the settlement would: the way starts from the next highland
 			Domain next = nearest(server, line.domain());
-			if (next != null) {
-				line = line.from(next.id());
-				set(server, line);
-				for (ServerPlayer player : level.players()) {
-					if (!player.getAttachedOrElse(PLACED, false)) {
-						bringOver(player, line);
-					}
+			if (next == null) {
+				if (!stranded) {
+					stranded = true;
+					Mistinn.LOGGER.warn("The path has no highland left whose settlement could stand");
+				}
+				return;
+			}
+			line = line.from(next.id());
+			set(server, line);
+			for (ServerPlayer player : everyone) {
+				if (!player.getAttachedOrElse(PLACED, false)) {
+					bringOver(player, line);
 				}
 			}
 			return;
 		}
-		for (ServerPlayer player : level.players()) {
-			if (!player.getAttachedOrElse(PLACED, false) && home != null && !player.isSpectator()) {
+		for (ServerPlayer player : everyone) {
+			if (line.stage() == Step.CUT) {
+				// the way was cut: whoever comes can only watch, as everyone does
+				player.setAttached(PLACED, true);
+				if (player.gameMode() == GameType.SURVIVAL || player.gameMode() == GameType.ADVENTURE) {
+					player.setGameMode(GameType.SPECTATOR);
+				}
+			} else if (!player.getAttachedOrElse(PLACED, false) && home != null && !player.isSpectator() && player.isAlive()) {
 				// the settlement stands: the hunter is one of its people, by the hub
 				place(player, home);
 				player.setAttached(PLACED, true);
 				kit(player);
-				chapter(player, line.stage(), line);
+				if (!line.over()) {
+					chapter(player, line.stage(), line);
+				}
+			}
+			if (line.over() && !player.getAttachedOrElse(SAW_END, false)) {
+				// away (or not yet come) when the way ended: shown how it ended
+				player.setAttached(SAW_END, true);
+				ServerPlayNetworking.send(player, new EndPayload(line.stage() == Step.ENDED, line.fallen(), line.walker()));
 			}
 		}
 		Step stage = line.stage();
 		if (line.over()) {
 			return;
 		}
-		for (ServerPlayer player : level.players()) {
-			if (player.isSpectator() || !player.getAttachedOrElse(PLACED, false) || !done(server, line, home, player, stage)) {
+		long now = level.getGameTime();
+		boolean paced = now - movedAt >= PACE || now < movedAt;
+		for (ServerPlayer player : everyone) {
+			if (!paced || player.isSpectator() || !player.isAlive() || !player.getAttachedOrElse(PLACED, false) || !done(server, line, home, player, stage)) {
 				continue;
 			}
 			Step next = Step.values()[stage.ordinal() + 1];
 			Line advanced = line.at(next);
 			set(server, advanced);
-			for (ServerPlayer each : level.players()) {
+			movedAt = now;
+			for (ServerPlayer each : everyone) {
 				if (next == Step.ENDED) {
 					seaReached(each, advanced);
 				} else {
@@ -414,6 +454,10 @@ public final class PathService {
 		MinecraftServer server = player.level().getServer();
 		Line line = line(server);
 		if (line == null || line.over()) {
+			Settlements.Settlement home = line == null || line.stage() != Step.ENDED ? null : Settlements.of(server, line.domain());
+			if (home != null) {
+				place(player, home);
+			}
 			return;
 		}
 		List<Integer> fallen = new ArrayList<>(line.fallen());
@@ -428,6 +472,7 @@ public final class PathService {
 				each.connection.send(new ClientboundSetTitleTextPacket(Component.translatable("path.mistinn.cut")));
 				each.connection.send(new ClientboundSetSubtitleTextPacket(Component.translatable("path.mistinn.cut.sub", lost)));
 				each.sendSystemMessage(roll(cut).withStyle(ChatFormatting.GRAY));
+				each.setAttached(SAW_END, true);
 				ServerPlayNetworking.send(each, new EndPayload(false, cut.fallen(), cut.walker()));
 			}
 			return;
@@ -460,6 +505,7 @@ public final class PathService {
 		if (!player.isSpectator()) {
 			AchievementService.grant(player, Achievement.SEA_SEEN);
 		}
+		player.setAttached(SAW_END, true);
 		ServerPlayNetworking.send(player, new EndPayload(true, line.fallen(), line.walker()));
 	}
 
