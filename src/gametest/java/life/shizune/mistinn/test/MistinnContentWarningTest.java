@@ -33,13 +33,13 @@ public final class MistinnContentWarningTest implements FabricClientGameTest {
 		check(!ContentWarning.due(running, running), "the same version is not warned again");
 		check(context.computeOnClient(mc -> !ContentWarning.due()), "the other game tests run without it");
 		String answered = context.computeOnClient(mc -> ClientSettings.get(ClientSettings.WARNED_VERSION));
-		boolean scares = context.computeOnClient(mc -> ClientSettings.on(ClientSettings.SCARES));
+		life.shizune.mistinn.client.ContentLevel level = context.computeOnClient(mc -> life.shizune.mistinn.client.ContentLevel.current());
 		String language = context.computeOnClient(mc -> mc.options.languageCode);
 		try {
 			context.runOnClient(mc -> {
 				ContentWarning.test(true);
 				ClientSettings.put(ClientSettings.WARNED_VERSION, null);
-				ClientSettings.set(ClientSettings.SCARES, true);
+				life.shizune.mistinn.client.ContentLevel.set(life.shizune.mistinn.client.ContentLevel.FULL);
 				mc.options.onboardAccessibility = false;
 			});
 			check(context.computeOnClient(mc -> ContentWarning.due()), "with no version answered, it is due");
@@ -50,7 +50,7 @@ public final class MistinnContentWarningTest implements FabricClientGameTest {
 			context.waitFor(mc -> mc.gui.screen() instanceof ContentWarningScreen, 100);
 			context.waitTicks(40);
 			check(context.computeOnClient(mc -> mc.getSituationalMusic() == ContentWarningScreen.MUSIC), "the music box plays behind it");
-			check(onScreen(context), "both choices are on screen (zh)");
+			check(onScreen(context), "all three choices are on screen (zh)");
 			context.getInput().pressKey(InputConstants.KEY_ESCAPE);
 			context.waitTicks(5);
 			check(context.computeOnClient(mc -> mc.gui.screen() instanceof ContentWarningScreen), "Esc does not dismiss it");
@@ -74,10 +74,20 @@ public final class MistinnContentWarningTest implements FabricClientGameTest {
 			context.waitTicks(40);
 			sizes(context, "en");
 
-			// "Off": the scares off, this version answered, on to the title screen and its own music
-			click(context, context.computeOnClient(mc -> ((ContentWarningScreen) mc.gui.screen()).choiceCentre(0)));
+			// the light level tells the frightening words gently: the Snuffer's count, here
+			context.runOnClient(mc -> life.shizune.mistinn.client.ContentLevel.set(life.shizune.mistinn.client.ContentLevel.LIGHT));
+			check(context.computeOnClient(mc -> net.minecraft.locale.Language.getInstance().getOrDefault("story.mistinn.radio.snuffer_end.count", ""))
+				.contains("came again"), "the light level tells the Snuffer's count gently");
+			context.runOnClient(mc -> life.shizune.mistinn.client.ContentLevel.set(life.shizune.mistinn.client.ContentLevel.FULL));
+			check(context.computeOnClient(mc -> net.minecraft.locale.Language.getInstance().getOrDefault("story.mistinn.radio.snuffer_end.count", ""))
+				.contains("sent"), "and the full level as written");
+
+			// "Standard": no frightening pictures or sounds, this version answered, on to the title screen and its own music
+			click(context, context.computeOnClient(mc -> ((ContentWarningScreen) mc.gui.screen()).choiceCentre(1)));
 			context.waitFor(mc -> mc.gui.screen() instanceof MistinnTitleScreen, 100);
-			check(context.computeOnClient(mc -> !ClientSettings.on(ClientSettings.SCARES)), "Off turns the scares off");
+			check(context.computeOnClient(mc -> life.shizune.mistinn.client.ContentLevel.current() == life.shizune.mistinn.client.ContentLevel.NORMAL
+				&& !life.shizune.mistinn.client.ledger.Haunting.scares()),
+				"Standard is chosen: no frightening pictures or sounds");
 			check(context.computeOnClient(mc -> running.equals(ClientSettings.get(ClientSettings.WARNED_VERSION)) && !ContentWarning.due()),
 				"and this version is answered, so it does not come again");
 			context.waitTicks(20);
@@ -85,7 +95,7 @@ public final class MistinnContentWarningTest implements FabricClientGameTest {
 		} finally {
 			context.runOnClient(mc -> {
 				ClientSettings.put(ClientSettings.WARNED_VERSION, answered);
-				ClientSettings.set(ClientSettings.SCARES, scares);
+				life.shizune.mistinn.client.ContentLevel.set(level);
 				ContentWarning.test(false);
 			});
 			language(context, language);
@@ -101,7 +111,7 @@ public final class MistinnContentWarningTest implements FabricClientGameTest {
 			context.waitTicks(10);
 			String seen = context.computeOnClient(mc -> mc.getWindow().getGuiScaledWidth() + "x" + mc.getWindow().getGuiScaledHeight()
 				+ " at " + (mc.gui.screen() instanceof ContentWarningScreen warning ? warning.drawnAt() : -1.0F));
-			check(onScreen(context), "both choices are on screen (" + language + ", " + window[0] + "x" + window[1] + ": " + seen + ")");
+			check(onScreen(context), "all three choices are on screen (" + language + ", " + window[0] + "x" + window[1] + ": " + seen + ")");
 			context.takeScreenshot(TestScreenshotOptions.of("warning-" + language + "-" + window[0]).disableCounterPrefix().withDestinationDir(PHOTOS));
 		}
 		context.getInput().resizeWindow(854, 480);

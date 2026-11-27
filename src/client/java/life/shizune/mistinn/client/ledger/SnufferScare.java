@@ -17,7 +17,8 @@ import net.minecraft.util.Mth;
  * ledger keeps of how many have been sent down; the view stops; then its head alone comes round, all the way, to the
  * view and not to the hunter; two beats; its face, for half
  * a second, with the sound; dark; and the lamp room, lit and empty. It is remembered at once, and never shown again.
- * With scares set off it never happens.
+ * Below full content ({@link life.shizune.mistinn.client.ContentLevel}) the scene never plays: its words alone follow the
+ * last words, and it is remembered all the same.
  */
 public final class SnufferScare {
 	/** Where the scene is. */
@@ -73,9 +74,27 @@ public final class SnufferScare {
 		return kind;
 	}
 
+	/**
+	 * Whether, with the frightening pictures off (content below full), the words of the scene come anyway: they are
+	 * words, and the lower levels keep the words (told gently at the lightest). No silence, no turn, no face.
+	 */
+	public static boolean wordsDue() {
+		return LedgerClient.ledger().stage() == Ledger.Stage.WRONG && !Haunting.scares();
+	}
+
 	/** The Snuffer's last words, with what comes after them when the wrong is due (else as they are). */
 	public static List<StoryScript.Line> lines(final String sequence, final int entity) {
 		List<StoryScript.Line> lines = new ArrayList<>(StoryScript.sequence(sequence));
+		if (StoryScript.SNUFFER_END.equals(sequence) && entity >= 0 && !due() && wordsDue()) {
+			// only the words, as words: then it is remembered, as the scene would be (but not as seen in this world)
+			boolean thanks = LedgerClient.ledger().kindStory();
+			lines.add(new StoryScript.Line(StoryScript.SNUFFER, thanks ? KEPT : COUNT));
+			if (thanks) {
+				lines.add(new StoryScript.Line(StoryScript.SNUFFER, THANKS));
+			}
+			LedgerClient.ledger().see("scare.snuffer");
+			return lines;
+		}
 		if (StoryScript.SNUFFER_END.equals(sequence) && entity >= 0 && due()) {
 			kind = LedgerClient.ledger().kindStory();
 			lines.add(new StoryScript.Line(StoryScript.NARRATION, SILENCE));
@@ -105,7 +124,8 @@ public final class SnufferScare {
 		if (SILENCE.equals(key)) {
 			return SILENT;
 		}
-		return COUNT.equals(key) || KEPT.equals(key) && phase != Phase.NONE ? Integer.MAX_VALUE / 2 : usual;
+		// held only while the scene runs (it ends them); as plain words, they stay as long as any line
+		return (COUNT.equals(key) || KEPT.equals(key)) && phase != Phase.NONE ? Integer.MAX_VALUE / 2 : usual;
 	}
 
 	/** How far the Snuffer has turned its back on the view in the silence, 0 to 1, for this entity (0 for any other). */

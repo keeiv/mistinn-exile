@@ -59,12 +59,12 @@ public final class MistinnScareTest implements FabricClientGameTest {
 		check(context.computeOnClient(mc -> LedgerClient.ledger().stage()) == Ledger.Stage.WRONG, "the ledger has gone wrong");
 		check(context.computeOnClient(mc -> Haunting.picture("drop").getPath().endsWith("drop_wrong.png")), "the drop card's picture is not the same");
 		// nothing goes around the scares setting: with it off, the card keeps its own picture and the screams are left out
-		context.runOnClient(mc -> life.shizune.mistinn.client.ClientSettings.set(life.shizune.mistinn.client.ClientSettings.SCARES, false));
+		context.runOnClient(mc -> life.shizune.mistinn.client.ContentLevel.set(life.shizune.mistinn.client.ContentLevel.NORMAL));
 		check(context.computeOnClient(mc -> Haunting.picture("drop").getPath().endsWith("/drop.png")), "with scares off the drop card keeps its own picture");
 		check(context.computeOnClient(mc -> mc.getSoundManager().play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
 			life.shizune.mistinn.registry.MistinnSounds.THIRTEENTH_SCREAM, 1.0F, 1.0F)) == net.minecraft.client.sounds.SoundEngine.PlayResult.NOT_STARTED),
 			"and the thirteenth's scream is left out");
-		context.runOnClient(mc -> life.shizune.mistinn.client.ClientSettings.set(life.shizune.mistinn.client.ClientSettings.SCARES, true));
+		context.runOnClient(mc -> life.shizune.mistinn.client.ContentLevel.set(life.shizune.mistinn.client.ContentLevel.FULL));
 		check(context.computeOnClient(mc -> Haunting.key("story.mistinn.card.drop.4")).endsWith(".again"), "nor its last words: again");
 		check(context.computeOnClient(mc -> Haunting.text("story.mistinn.radio.first_call.2").getString()).contains("4"), "the record counts the drops");
 

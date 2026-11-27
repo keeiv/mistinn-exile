@@ -21,7 +21,7 @@ public final class MistinnSettingsTest implements FabricClientGameTest {
 			return;
 		}
 		context.runOnClient(mc -> {
-			ClientSettings.set(ClientSettings.SCARES, false);
+			life.shizune.mistinn.client.ContentLevel.set(life.shizune.mistinn.client.ContentLevel.NORMAL);
 			CameraSwing.toggle();
 		});
 		check(context.computeOnClient(mc -> !Haunting.scares()), "the scares stay off after the swing camera is changed");
@@ -31,7 +31,7 @@ public final class MistinnSettingsTest implements FabricClientGameTest {
 		context.takeScreenshot(TestScreenshotOptions.of("settings").disableCounterPrefix().withDestinationDir(Path.of("photos", "settings")));
 		context.runOnClient(mc -> {
 			mc.gui.screen().onClose();
-			ClientSettings.set(ClientSettings.SCARES, true);
+			life.shizune.mistinn.client.ContentLevel.set(life.shizune.mistinn.client.ContentLevel.FULL);
 			ClientSettings.set(ClientSettings.SWING_CAMERA, true);
 		});
 		check(context.computeOnClient(mc -> Haunting.scares() && CameraSwing.enabled()), "and both come back on");
