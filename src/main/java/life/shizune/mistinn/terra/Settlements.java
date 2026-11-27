@@ -193,16 +193,16 @@ public final class Settlements {
 
 	/** Builds one settlement, or nothing (and says so) if someone has already put things where it would stand. */
 	static @Nullable Settlement build(final ServerLevel level, final Domain domain, final BlockPos site) {
+		int deck = deckHeight(level, site);
 		int reach = CLEAR + 1;
 		for (int cx = (site.getX() - reach) >> 4; cx <= (site.getX() + reach) >> 4; cx++) {
 			for (int cz = (site.getZ() - reach) >> 4; cz <= (site.getZ() + reach) >> 4; cz++) {
 				LevelChunk chunk = level.getChunkSource().getChunkNow(cx, cz);
-				if (chunk != null && chunk.getBlockEntities().keySet().stream().anyMatch(pos -> Math.hypot(pos.getX() - site.getX(), pos.getZ() - site.getZ()) <= reach)) {
+				if (chunk != null && chunk.getBlockEntities().keySet().stream().anyMatch(pos -> inTheWay(pos, site, deck))) {
 					return null;
 				}
 			}
 		}
-		int deck = deckHeight(level, site);
 		double turn = TerraShaper.hash(domain.id(), 11, 917) * Math.PI * 2.0;
 		footing(level, site, deck);
 		hub(level, site, deck);
@@ -215,6 +215,19 @@ public final class Settlements {
 		crates(level, along(site, turn + Math.PI * 5.0 / 3.0, 10), deck);
 		people(level, site, deck);
 		return new Settlement(domain.id(), site.atY(deck), deck, site.atY(deck + 1), false, 0L);
+	}
+
+	/** How far under the deck its footing can reach, and how far over it the clearing goes. */
+	static final int FOOTING = 10;
+	static final int CLEARED = 14;
+
+	/**
+	 * Whether something made by someone (a block entity) at {@code at} stands where a settlement with its deck at
+	 * {@code deck} would be built: within its round, between the bottom of its footing and the top of its clearing.
+	 * A trial chamber or a mineshaft deep under the highland is not in the way; a chest on the ground is.
+	 */
+	public static boolean inTheWay(final BlockPos at, final BlockPos site, final int deck) {
+		return Math.hypot(at.getX() - site.getX(), at.getZ() - site.getZ()) <= CLEAR + 1 && at.getY() >= deck - FOOTING && at.getY() <= deck + CLEARED;
 	}
 
 	/** The deck stands at the middle height of the ground under it, so it is cut in on one side and built up on the other. */
@@ -243,7 +256,7 @@ public final class Settlements {
 				int x = site.getX() + dx;
 				int z = site.getZ() + dz;
 				// over the deck everything goes; round it, the trees, crystal and growth, so nothing hangs over the plaza
-				for (int y = deck + 1; y <= deck + 14; y++) {
+				for (int y = deck + 1; y <= deck + CLEARED; y++) {
 					BlockState state = level.getBlockState(at.set(x, y, z));
 					if (!state.isAir() && (off <= DECK + 1 || clearable(state))) {
 						level.setBlock(at, Blocks.AIR.defaultBlockState(), FLAGS);
@@ -253,7 +266,7 @@ public final class Settlements {
 					continue;
 				}
 				level.setBlock(at.set(x, deck, z), (off > DECK - 0.8 ? MistinnBlocks.FACILITY_DECK_EDGE : MistinnBlocks.FACILITY_DECK).defaultBlockState(), FLAGS);
-				for (int y = deck - 1, depth = 0; depth < 10; y--, depth++) {
+				for (int y = deck - 1, depth = 0; depth < FOOTING; y--, depth++) {
 					BlockState below = level.getBlockState(at.set(x, y, z));
 					if (!below.isAir() && below.getFluidState().isEmpty() && !below.canBeReplaced()) {
 						break;

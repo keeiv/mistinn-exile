@@ -30,6 +30,13 @@ public final class MistinnFacilitiesTest implements FabricClientGameTest {
 		if (TestFilter.skip(getClass())) {
 			return;
 		}
+		// what stands in a settlement's way: only what is in its round, between its footing and the top of its clearing
+		BlockPos site = new BlockPos(100, 70, 100);
+		check(Settlements.inTheWay(site.offset(3, 2, -2), site, 70), "a chest on the ground where the deck would go is in the way");
+		check(!Settlements.inTheWay(site.offset(0, -91, 0), site, 70), "a trial chamber far under the highland is not");
+		check(!Settlements.inTheWay(site.offset(0, -25, 4), site, 70), "nor a mineshaft under the footing");
+		check(!Settlements.inTheWay(site.offset(0, 40, 0), site, 70), "nor anything high over the clearing");
+		check(!Settlements.inTheWay(site.offset(Settlements.CLEAR + 3, 0, 0), site, 70), "nor anything outside its round");
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			world.getConnection().waitForChunksRender();
 			world.getServer().runCommand("gamemode creative @a");
