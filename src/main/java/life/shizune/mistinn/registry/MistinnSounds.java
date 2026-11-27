@@ -194,6 +194,13 @@ public final class MistinnSounds {
 	public static final SoundEvent MUSIC_KEEPER_TURN = register("music.keeper_turn");
 	/** A blow, a clang and a shriek, then a ringing that dies away: heard once. */
 	public static final SoundEvent SCARE_STING = register("scare.sting");
+	/**
+	 * The thirteenth's scream when it is hurt, in three voices at once. Its own events (they play vanilla's screams) so
+	 * that each hunter's client can leave it out when their scares are off.
+	 */
+	public static final SoundEvent THIRTEENTH_SCREAM = register("entity.thirteenth.scream");
+	public static final SoundEvent THIRTEENTH_SCREAM_ECHO = register("entity.thirteenth.scream_echo");
+	public static final SoundEvent THIRTEENTH_SCREAM_LOW = register("entity.thirteenth.scream_low");
 	public static final SoundEvent MUSIC_KEEPER_DARK = register("music.keeper_dark");
 	/** The sea fight: drums, low strings and brass, from the ship's first sighting to the last pirate gone. */
 	public static final SoundEvent MUSIC_NAVAL = register("music.naval");

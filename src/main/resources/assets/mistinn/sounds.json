@@ -799,12 +799,40 @@
       }
     ]
   },
+  "entity.thirteenth.scream": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.ghast.scream",
+        "type": "event"
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.thirteenth.scream"
+  },
+  "entity.thirteenth.scream_echo": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.enderman.scream",
+        "type": "event"
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.thirteenth.scream"
+  },
+  "entity.thirteenth.scream_low": {
+    "sounds": [
+      {
+        "name": "minecraft:entity.zombie_villager.cure",
+        "type": "event"
+      }
+    ],
+    "subtitle": "subtitles.mistinn.entity.thirteenth.scream"
+  },
   "scare.sting": {
     "sounds": [
       {
         "name": "mistinn:scare/sting"
       }
-    ]
+    ],
+    "subtitle": "subtitles.mistinn.scare.sting"
   },
   "music.content_warning": {
     "sounds": [

@@ -14,7 +14,7 @@
 A souls-like Minecraft Java mod: salt for currency, residue where you fall, golden bells to rest at,<br>
 damage by body part, gear in seven tiers, a grid inventory inspired by extraction shooters, and a keeper atop a lighthouse.
 
-<sub>Content note: this mod has a few frightening moments; they can be turned off in Mistinn Settings on the title screen.</sub>
+<sub>Content note: this mod contains body horror, psychological horror and heavy themes including suicide and self-harm, and a few sudden jump scares; the scares can be turned off in Mistinn Settings on the title screen.</sub>
 
 [![CI](https://github.com/keeiv/mistinn-exile/actions/workflows/ci.yml/badge.svg)](https://github.com/keeiv/mistinn-exile/actions/workflows/ci.yml)
 ![Minecraft](https://img.shields.io/badge/minecraft-26.3-62B47A)
@@ -32,6 +32,12 @@ damage by body part, gear in seven tiers, a grid inventory inspired by extractio
 [Contributing](CONTRIBUTING.en.md)
 
 </div>
+
+> [!IMPORTANT]
+> **The scares setting is the player's choice**
+>
+> - Nothing may go around the player's scares setting in any form, including hidden endings, special events, achievements and fourth-wall moments.
+> - The content warning screen and the scares settings screen must never contain any horror, deceptive interaction or unusual change.
 
 ![A hunter in the Rust God's Skull, Face and Scales, Bellkeeper greaves and iron boots, the Rust God's Harness on the chest and Reliquary on the back, with a netherite hammer, standing on a drop station platform at dusk](images/hunter.jpg)
 

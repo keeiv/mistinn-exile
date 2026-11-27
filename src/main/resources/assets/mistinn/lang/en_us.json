@@ -1542,6 +1542,8 @@
   "gui.mistinn.guide.node.click": "Click to choose",
   "gui.mistinn.guide.node.confirm": "Click again to learn",
   "subtitles.mistinn.ui.skill.unlock": "Skill learned",
+  "subtitles.mistinn.scare.sting": "A piercing shriek",
+  "subtitles.mistinn.entity.thirteenth.scream": "Stitched body screams",
   "skill.mistinn.slide": "Slide",
   "skill.mistinn.slide.desc": "Crouch while running to slide feet first about five blocks, sweeping the legs of whatever stands in the way.",
   "skill.mistinn.minor.strength_1": "Strength I",

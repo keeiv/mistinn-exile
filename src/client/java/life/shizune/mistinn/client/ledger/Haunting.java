@@ -32,6 +32,15 @@ public final class Haunting {
 		return life.shizune.mistinn.client.ClientSettings.on(life.shizune.mistinn.client.ClientSettings.SCARES);
 	}
 
+	/** The sounds that frighten, which a client with scares off leaves out: the sting, and the thirteenth's scream. */
+	private static final java.util.Set<Identifier> FRIGHTENING = java.util.Set.of(Mistinn.id("scare.sting"), Mistinn.id("entity.thirteenth.scream"),
+		Mistinn.id("entity.thirteenth.scream_echo"), Mistinn.id("entity.thirteenth.scream_low"));
+
+	/** Whether a sound is one that frightens. */
+	public static boolean frightening(final Identifier sound) {
+		return FRIGHTENING.contains(sound);
+	}
+
 	/** The version of this line the hunter reads now. */
 	public static String key(final String base) {
 		Ledger ledger = LedgerClient.ledger();
@@ -74,12 +83,16 @@ public final class Haunting {
 		return Component.translatable(key(base), ledger.drops(), ledger.sent(), net.minecraft.client.Minecraft.getInstance().getUser().getName());
 	}
 
-	/** The picture of a story card as the hunter sees it now. */
+	/**
+	 * The picture of a story card as the hunter sees it now. The pictures that have gone wrong (a figure in the fog, someone
+	 * at the lamp room's window, the fallen standing watching) are a staged turn of the fourth wall: with scares off the
+	 * card keeps its own picture, or its kind one.
+	 */
 	public static Identifier picture(final String card) {
 		Ledger ledger = LedgerClient.ledger();
-		Ledger.Stage stage = ledger.stage();
-		String tone = card.startsWith("path_") ? (ledger.kindPath() ? "kind" : ledger.cruelPath() ? "cruel" : null)
-			: stage != Ledger.Stage.FIRST && ledger.kindStory() ? "kind" : null;
+		Ledger.Stage stage = scares() ? ledger.stage() : Ledger.Stage.FIRST;
+		String tone = card.startsWith("path_") ? (ledger.kindPath() ? "kind" : ledger.cruelPath() && scares() ? "cruel" : null)
+			: ledger.stage() != Ledger.Stage.FIRST && ledger.kindStory() ? "kind" : null;
 		if (tone != null) {
 			Identifier toned = Mistinn.id("textures/gui/story/" + card + "_" + tone + ".png");
 			if (exists(toned)) {
