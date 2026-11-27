@@ -35,6 +35,11 @@ public final class PathClient {
 		ClientTickEvents.END_CLIENT_TICK.register(PathClient::tick);
 	}
 
+	/** The journal the K key opens: the way's record on a world walking it, the mission journal elsewhere. */
+	public static net.minecraft.client.gui.screens.Screen journal(final Minecraft mc) {
+		return mc.player != null && mc.player.hasAttached(PathService.VIEW) ? new PathJournalScreen() : new life.shizune.mistinn.client.story.JournalScreen();
+	}
+
 	/** The end's music while its screen is up, or null. */
 	public static @Nullable Music music() {
 		return Minecraft.getInstance().gui.screen() instanceof PathEndScreen ? END : null;

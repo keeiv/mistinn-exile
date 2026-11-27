@@ -254,7 +254,7 @@ public class MistinnClient implements ClientModInitializer {
 			}
 			while (journal.consumeClick()) {
 				if (minecraft.gui.screen() == null) {
-					minecraft.gui.setScreen(new life.shizune.mistinn.client.story.JournalScreen());
+					minecraft.gui.setScreen(life.shizune.mistinn.client.path.PathClient.journal(minecraft));
 				}
 			}
 			while (swingCamera.consumeClick()) {
