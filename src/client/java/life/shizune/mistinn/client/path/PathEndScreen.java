@@ -51,7 +51,8 @@ public class PathEndScreen extends Screen {
 
 	/** When everything has come up: the last name, then the closing line. */
 	private float whole() {
-		return NAMES + this.fallen.size() * EACH + 1.2F;
+		// at the sea, what they wanted comes up after the rest
+		return NAMES + this.fallen.size() * EACH + (this.sea ? 3.0F : 1.2F);
 	}
 
 	/** Shows everything at once, or, everything shown, closes. */
@@ -160,10 +161,21 @@ public class PathEndScreen extends Screen {
 		y += 10;
 		int closing = fade(t, NAMES + this.fallen.size() * EACH + 0.4F);
 		if (closing > 0) {
-			Component line = this.sea ? Component.translatable("path.mistinn.end.sea", PathService.name(this.walker)) : Component.translatable("path.mistinn.end.cut");
+			Component line = this.sea ? Component.translatable(this.fallen.isEmpty() ? "path.mistinn.end.sea.whole" : "path.mistinn.end.sea",
+				PathService.name(this.walker)) : Component.translatable("path.mistinn.end.cut");
 			for (var part : font.split(line, Math.min(320, this.width - 40))) {
 				g.text(font, part, (this.width - font.width(part)) / 2, y, closing << 24 | (TEXT & 0xFFFFFF), true);
 				y += 11;
+			}
+			// what they wanted, under it, a moment later
+			int wanted = this.sea ? fade(t, NAMES + this.fallen.size() * EACH + 2.2F) : 0;
+			if (wanted > 0) {
+				y += 8;
+				Component want = Component.translatable(this.fallen.isEmpty() ? "path.mistinn.end.wanted.whole" : "path.mistinn.end.wanted");
+				for (var part : font.split(want, Math.min(320, this.width - 40))) {
+					g.text(font, part, (this.width - font.width(part)) / 2, y, wanted << 24 | (HINT & 0xFFFFFF), true);
+					y += 11;
+				}
 			}
 		}
 		if (t >= this.whole()) {

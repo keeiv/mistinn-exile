@@ -57,7 +57,14 @@ public final class StoryScript {
 	/** The ending The Anchor: the salt went up, and another pod is going down. */
 	public static final Card ANCHOR = new Card("anchor", 4, "");
 	/** The ending Mist Inn: no pod comes down again, and the inn's lamp stays lit. */
-	public static final Card INN = new Card("inn", 4, "");
+	public static final Card INN = new Card("inn", 3, "");
+	/** After the inn: the soup, the wall of tags, the name, the morning. */
+	public static final Card INN_HEARTH = new Card("inn_hearth", 4, "");
+	public static final Card INN_WALL = new Card("inn_wall", 5, "");
+	public static final Card INN_NAME = new Card("inn_name", 5, "");
+	public static final Card INN_DAWN = new Card("inn_dawn", 6, "");
+	/** The tillers' way, walked with no one lost: all twelve at the sea. */
+	public static final Card PATH_SEA_ALL = new Card("path_sea_all", 4, "");
 	/** 十三人斬: the twelve, stitched. */
 	public static final Card PATH_STITCHED = new Card("path_stitched", 4, "");
 	/** 十三人斬: the hunter going home. */
@@ -78,7 +85,12 @@ public final class StoryScript {
 		Map.entry(ANSWER.id(), ANSWER), Map.entry(SALT_WORKS.id(), SALT_WORKS), Map.entry(STOPPED.id(), STOPPED), Map.entry(THE_CALL.id(), THE_CALL),
 		Map.entry(ANCHOR.id(), ANCHOR), Map.entry(INN.id(), INN), Map.entry(PATH_FIELDS.id(), PATH_FIELDS), Map.entry(PATH_RECORD.id(), PATH_RECORD),
 		Map.entry(PATH_SEA.id(), PATH_SEA), Map.entry(LAMP_LIT.id(), LAMP_LIT),
-		Map.entry(PATH_STITCHED.id(), PATH_STITCHED), Map.entry(THIRTEEN_END.id(), THIRTEEN_END));
+		Map.entry(PATH_STITCHED.id(), PATH_STITCHED), Map.entry(THIRTEEN_END.id(), THIRTEEN_END),
+		Map.entry(INN_HEARTH.id(), INN_HEARTH), Map.entry(INN_WALL.id(), INN_WALL), Map.entry(INN_NAME.id(), INN_NAME),
+		Map.entry(INN_DAWN.id(), INN_DAWN), Map.entry(PATH_SEA_ALL.id(), PATH_SEA_ALL));
+	/** The cards that come on after a card, one after another: the inn's ending goes on into the morning. */
+	private static final Map<String, Card> FOLLOWS = Map.of(INN.id(), INN_HEARTH, INN_HEARTH.id(), INN_WALL, INN_WALL.id(), INN_NAME,
+		INN_NAME.id(), INN_DAWN);
 
 	// ── Sequences ────────────────────────────────────────────────────
 	/** Helm's first call over the mended radio. */
@@ -123,11 +135,16 @@ public final class StoryScript {
 		Map.entry(SUPPLY_CALL, List.of(NARRATION, NARRATION, HELM, HELM, HELM, HELM, HELM, HELM, HELM)),
 		Map.entry(RUST_WHEEL_END, List.of(RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL, RUST_WHEEL)),
 		Map.entry(STATION_CALL, List.of(HELM, HELM, HELM, NARRATION, TAG_3401, TAG_3401, TAG_3401, TAG_3401, HELM)),
-		Map.entry(ANCHOR_END, List.of(NARRATION, HELM, HELM, NARRATION)),
+		Map.entry(ANCHOR_END, List.of(NARRATION, HELM, HELM, HELM, NARRATION)),
 		Map.entry(INN_END, List.of(NARRATION, TAG_3401, NARRATION, NARRATION))
 	);
 
 	private StoryScript() {
+	}
+
+	/** The card that comes on after this one, or null. */
+	public static @org.jspecify.annotations.Nullable Card follows(final String id) {
+		return FOLLOWS.get(id);
 	}
 
 	public static List<Line> sequence(final String id) {
