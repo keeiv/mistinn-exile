@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import life.shizune.mistinn.Mistinn;
+import life.shizune.mistinn.client.guide.GuideContents;
 import life.shizune.mistinn.client.guide.GuideRecipes;
 import life.shizune.mistinn.client.guide.HunterGuideScreen;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
@@ -108,6 +109,19 @@ public final class MistinnGuideRecipesTest implements FabricClientGameTest {
 		click(context, context.computeOnClient(mc -> screen.contentsLink()));
 		click(context, context.computeOnClient(mc -> screen.contentsLink()));
 		check(context.computeOnClient(mc -> !screen.contentsOpen() && screen.spread() == 17), "and the link closes it again, where the hunter was");
+		// more chapters than one spread holds: the contents turn with the same arrows
+		check(GuideContents.spreads() > 1, "the contents run over more than one spread");
+		click(context, context.computeOnClient(mc -> screen.contentsLink()));
+		check(context.computeOnClient(mc -> screen.contentsSpread()) == 0, "they open on the spread that lists the chapter being read");
+		click(context, context.computeOnClient(mc -> screen.nextPage()));
+		check(context.computeOnClient(mc -> screen.contentsOpen() && screen.contentsSpread() == 1), "the arrow turns the contents, not the pages");
+		context.takeScreenshot("mistinn-guide-contents-2");
+		click(context, context.computeOnClient(mc -> screen.contentsLine(52)));
+		check(context.computeOnClient(mc -> !screen.contentsOpen() && screen.spread() == 25), "a chapter on the later spread turns to it");
+		click(context, context.computeOnClient(mc -> screen.contentsLink()));
+		check(context.computeOnClient(mc -> screen.contentsSpread()) == 1, "and the contents open there again, on its spread");
+		click(context, context.computeOnClient(mc -> screen.previousPage()));
+		check(context.computeOnClient(mc -> screen.contentsOpen() && screen.contentsSpread() == 0), "the other arrow turns them back");
 		context.runOnClient(mc -> mc.gui.setScreen(null));
 	}
 

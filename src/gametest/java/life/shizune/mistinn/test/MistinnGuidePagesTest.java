@@ -36,12 +36,13 @@ public final class MistinnGuidePagesTest implements FabricClientGameTest {
 						code + " page " + page + " runs to " + rows + " rows, past the " + HunterGuideScreen.PAGE_ROWS + " a page holds");
 				}
 			}
-			// the contents hold every chapter: each on a line of its own, none down over the link beneath
+			// the contents hold every chapter, in order: each on a line of its own on its spread, none down over the link
 			java.util.Set<String> lines = new java.util.HashSet<>();
 			for (int i = 0; i < GuideContents.CHAPTERS.size(); i++) {
 				check(GuideContents.CHAPTERS.get(i) <= MistinnItems.GUIDE_PAGES, "chapter " + i + " starts past the last page");
+				check(i == 0 || GuideContents.CHAPTERS.get(i) > GuideContents.CHAPTERS.get(i - 1), "chapter " + i + " is out of order");
 				double[] at = GuideContents.line(0, 0, i);
-				check(lines.add((int) at[0] + "," + (int) at[1]), "contents line " + i + " lies over another");
+				check(lines.add(GuideContents.spreadOf(i) + ":" + (int) at[0] + "," + (int) at[1]), "contents line " + i + " lies over another");
 				check(at[1] + 4.0 < GuideContents.LINK_Y - 4, "contents line " + i + " runs down over the link");
 			}
 		});
