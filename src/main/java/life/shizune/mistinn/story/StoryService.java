@@ -536,6 +536,7 @@ public final class StoryService {
 				if (ending != null) {
 					advance(player, StoryStep.ENDED);
 					life.shizune.mistinn.achievement.AchievementService.grant(player, achievement(ending));
+					life.shizune.mistinn.ledger.LedgerService.tell(player, "ending." + ending.name().toLowerCase(java.util.Locale.ROOT), true);
 					ServerPlayNetworking.send(player, new CardPayload(card(ending).id()));
 				}
 			}
@@ -1078,6 +1079,7 @@ public final class StoryService {
 		List<ServerPlayer> team = advanceTeam(player, StoryStep.ENDED);
 		for (ServerPlayer hunter : concat(player, team)) {
 			life.shizune.mistinn.achievement.AchievementService.grant(hunter, achievement(ending));
+			life.shizune.mistinn.ledger.LedgerService.tell(hunter, "ending." + ending.name().toLowerCase(java.util.Locale.ROOT), true);
 		}
 		if (ending == StoryEnding.INN) {
 			// the fire takes the salt and burns blue, white smoke off it
