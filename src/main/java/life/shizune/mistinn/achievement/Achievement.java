@@ -71,7 +71,13 @@ public enum Achievement {
 	/** 歸途: from one homestead to another by the map. */
 	TRAVEL("travel", 200),
 	/** 接過: a fallen tiller's strength taken up. */
-	INHERITED("inherited", 300);
+	INHERITED("inherited", 300),
+	/** 又一次: dropped into a story again, having reached its end in another world. Read by the hunter's ledger. */
+	DROPPED_AGAIN("dropped_again", 300),
+	/** 又回到晶田: out on the tillers' way again, having walked it to an end in another world. Read by the ledger. */
+	PATH_AGAIN("path_again", 300),
+	/** 似曾相識: known by a tiller, in a world that is not the way, as one who walked it. Read by the ledger. */
+	TILLERS_KNOWN("tillers_known", 200);
 
 	public final String id;
 	public final int reward;

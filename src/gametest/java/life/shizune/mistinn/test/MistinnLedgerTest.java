@@ -2,13 +2,19 @@ package life.shizune.mistinn.test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import life.shizune.mistinn.achievement.Achievement;
+import life.shizune.mistinn.achievement.AchievementService;
+import life.shizune.mistinn.client.achievement.TwoSided;
 import life.shizune.mistinn.client.ledger.Ledger;
 import life.shizune.mistinn.client.ledger.LedgerClient;
 import life.shizune.mistinn.ledger.LedgerService;
+import life.shizune.mistinn.story.WorldMode;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -35,10 +41,12 @@ public final class MistinnLedgerTest implements FabricClientGameTest {
 		});
 		check(ledger(context).drops() == 0 && ledger(context).stage() == Ledger.Stage.FIRST, "a new ledger has nothing in it");
 
+		String first;
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			world.getConnection().waitForChunksRender();
 			context.waitTicks(10);
 			check(ledger(context).drops() == 1, "coming into a world is a drop");
+			first = context.computeOnClient(mc -> LedgerClient.world());
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = player(server);
 				LedgerService.tell(player, "ending.anchor", true);
@@ -62,6 +70,26 @@ public final class MistinnLedgerTest implements FabricClientGameTest {
 			world.getConnection().waitForChunksRender();
 			context.waitTicks(10);
 			check(ledger(context).drops() == 2, "another world, another drop");
+			// the ending reached in the first world is one reached elsewhere, seen from this one; never from its own
+			String here = context.computeOnClient(mc -> LedgerClient.world());
+			check((ledger(context).tone(here) & LedgerService.ENDED_ELSEWHERE) != 0, "from another world, the story's end was reached elsewhere");
+			check((ledger(context).tone(first) & LedgerService.ENDED_ELSEWHERE) == 0, "but not from the world it was reached in");
+			check((ledger(context).tone(here) & LedgerService.WALKED_ELSEWHERE) == 0, "and the tillers' way was never walked");
+			// once more: in a story world, a hunter whose client says so has been dropped again
+			check(world.getServer().computeOnServer(server -> !AchievementService.has(player(server), Achievement.DROPPED_AGAIN)), "a world that is no story is no drop again");
+			world.getServer().runOnServer(server -> {
+				server.overworld().setAttached(WorldMode.ATTACHMENT, WorldMode.STORY);
+				LedgerService.setTone(player(server), LedgerService.tone(player(server)));
+			});
+			check(world.getServer().computeOnServer(server -> AchievementService.has(player(server), Achievement.DROPPED_AGAIN)), "in a story, it is once more");
+			context.waitTicks(5);
+			// read by this hunter's ledger: the salt only ever sent up, so the cold side
+			String side = context.computeOnClient(mc -> {
+				Component words = TwoSided.description(life.shizune.mistinn.Mistinn.id("hunt/" + Achievement.DROPPED_AGAIN.id));
+				return words == null ? "" : ((TranslatableContents) words.getContents()).getKey();
+			});
+			check(side.endsWith(".desc.cruel"), "and it reads the side the ledger leans to: " + side);
+			world.getServer().runOnServer(server -> server.overworld().setAttached(WorldMode.ATTACHMENT, WorldMode.FREE));
 		}
 
 		Ledger again = Ledger.load(file);

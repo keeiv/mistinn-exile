@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/tab_afar",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.tillers_known.desc"
+		},
+		"icon": {
+			"id": "minecraft:name_tag"
+		},
+		"title": {
+			"translate": "achievement.mistinn.tillers_known"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

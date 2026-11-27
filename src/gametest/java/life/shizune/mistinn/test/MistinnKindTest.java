@@ -2,6 +2,9 @@ package life.shizune.mistinn.test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import life.shizune.mistinn.achievement.Achievement;
+import life.shizune.mistinn.achievement.AchievementService;
+import life.shizune.mistinn.client.achievement.TwoSided;
 import life.shizune.mistinn.client.ledger.Haunting;
 import life.shizune.mistinn.client.ledger.Ledger;
 import life.shizune.mistinn.client.ledger.LedgerClient;
@@ -18,6 +21,8 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContex
 import net.fabricmc.fabric.api.client.gametest.v1.screenshot.TestScreenshotOptions;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -103,7 +108,14 @@ public final class MistinnKindTest implements FabricClientGameTest {
 				LedgerService.setTone(player, 2);
 				check(tiller.line(player).equals("message.mistinn.tiller.known.kind"), "a tiller knows them: " + tiller.line(player));
 				check(!tiller.line(player).startsWith("message.mistinn.tiller.known"), "once");
+				check(AchievementService.has(player, Achievement.TILLERS_KNOWN), "and being known is remembered");
 			});
+			context.waitTicks(5);
+			String side = context.computeOnClient(mc -> {
+				Component words = TwoSided.description(life.shizune.mistinn.Mistinn.id("hunt/" + Achievement.TILLERS_KNOWN.id));
+				return words == null ? "" : ((TranslatableContents) words.getContents()).getKey();
+			});
+			check(side.endsWith(".desc.kind"), "a kind hunter reads its kind side: " + side);
 
 			// nothing goes around the scares setting: with it off, not even the thanks comes
 			context.runOnClient(mc -> life.shizune.mistinn.client.ContentLevel.set(life.shizune.mistinn.client.ContentLevel.NORMAL));

@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/tab_shore",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.dropped_again.desc"
+		},
+		"icon": {
+			"id": "minecraft:writable_book"
+		},
+		"title": {
+			"translate": "achievement.mistinn.dropped_again"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

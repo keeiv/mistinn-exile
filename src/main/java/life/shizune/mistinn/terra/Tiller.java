@@ -243,6 +243,7 @@ public class Tiller extends PathfinderMob implements Merchant {
 			&& life.shizune.mistinn.story.WorldMode.of(this.level().getServer()) != life.shizune.mistinn.story.WorldMode.PATH) {
 			int tone = life.shizune.mistinn.ledger.LedgerService.tone(known);
 			if ((tone & 6) != 0 && !life.shizune.mistinn.ledger.LedgerService.knownOnce(known)) {
+				life.shizune.mistinn.achievement.AchievementService.grant(known, life.shizune.mistinn.achievement.Achievement.TILLERS_KNOWN);
 				return "message.mistinn.tiller.known." + ((tone & 2) != 0 ? "kind" : "cruel");
 			}
 		}

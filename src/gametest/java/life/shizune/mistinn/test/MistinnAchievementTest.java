@@ -411,8 +411,10 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 			AchievementService.TWELVE_SLAIN, AchievementService.THIRTEEN_SLAIN, AchievementService.XIRANG, AchievementService.THE_LAND,
 			// earned in play by their own tests: the parry, throwables, bestiary, down, supply, gear lines, rift camps, homestead and path tests
 			Achievement.PARRY_PERFECT.id, Achievement.SALT_BOMB_THREE.id, Achievement.BESTIARY_FULL.id, Achievement.RESCUE.id, Achievement.SUPPLY_DROP.id,
-			Achievement.FULL_SET.id, Achievement.CAMP_BARREL.id, Achievement.HOMESTEAD_GROWN.id, Achievement.TRAVEL.id, Achievement.INHERITED.id};
-		int[] pays = {300, 600, 400, 200, 300, 300, 2000, 12, 13, 3000, 1500, 200, 200, 800, 300, 150, 300, 200, 800, 200, 300};
+			Achievement.FULL_SET.id, Achievement.CAMP_BARREL.id, Achievement.HOMESTEAD_GROWN.id, Achievement.TRAVEL.id, Achievement.INHERITED.id,
+			// the two-sided ones (the ledger and kind tests earn them as the game does)
+			Achievement.DROPPED_AGAIN.id, Achievement.PATH_AGAIN.id, Achievement.TILLERS_KNOWN.id};
+		int[] pays = {300, 600, 400, 200, 300, 300, 2000, 12, 13, 3000, 1500, 200, 200, 800, 300, 150, 300, 200, 800, 200, 300, 300, 300, 200};
 		for (int i = 0; i < terra.length; i++) {
 			String id = terra[i];
 			int beforeEach = world.getServer().computeOnServer(server -> SaltService.get(player(server)));

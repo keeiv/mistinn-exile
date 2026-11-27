@@ -55,7 +55,7 @@ public final class LedgerClient {
 			world = payload.world();
 			// the server may know which way this hunter leans, for what the tillers say
 			if (ClientPlayNetworking.canSend(LedgerService.TonePayload.TYPE)) {
-				ClientPlayNetworking.send(new LedgerService.TonePayload(ledger().tone()));
+				ClientPlayNetworking.send(new LedgerService.TonePayload(ledger().tone(payload.world())));
 			}
 		});
 		ClientPlayNetworking.registerGlobalReceiver(LedgerService.EventPayload.TYPE,

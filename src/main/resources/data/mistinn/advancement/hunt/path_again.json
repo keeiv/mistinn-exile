@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/tab_path",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.path_again.desc"
+		},
+		"icon": {
+			"id": "mistinn:crystal_dust"
+		},
+		"title": {
+			"translate": "achievement.mistinn.path_again"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}
