@@ -43,8 +43,14 @@ public final class MistinnEpicEntryTest implements FabricClientGameTest {
 		context.waitForScreen(StorySelectScreen.class);
 		context.runOnClient(mc -> ((StorySelectScreen) mc.gui.screen()).pick(WorldMode.EPIC));
 		context.waitForScreen(HardshipScreen.class);
+		java.util.List<String> heard = new java.util.concurrent.CopyOnWriteArrayList<>();
+		net.minecraft.client.sounds.SoundEventListener listener = (sound, events, range) -> heard.add(sound.getIdentifier().toString());
+		context.runOnClient(mc -> mc.getSoundManager().addListener(listener));
 		context.runOnClient(mc -> ((HardshipScreen) mc.gui.screen()).pick(Hardship.HUNTER));
-		check(context.computeOnClient(mc -> mc.gui.screen() instanceof EpicOpeningScreen), "the Hunter chosen, the heart beats in the dark");
+		check(context.computeOnClient(mc -> mc.gui.screen() instanceof EpicOpeningScreen), "the Hunter chosen, the screen goes dark");
+		context.waitTicks(5);
+		check(heard.contains(life.shizune.mistinn.registry.MistinnSounds.EPIC_HEARTBEAT.location().toString()), "and the heart beats in it: " + heard);
+		context.runOnClient(mc -> mc.getSoundManager().removeListener(listener));
 		// the opening plays out by itself, then the world is made and opened
 		context.waitFor(mc -> mc.level != null && mc.player != null && mc.getSingleplayerServer() != null && ThreadingImpl.isServerRunning, 6000);
 		context.waitFor(mc -> mc.level.getAttached(EpicService.STATE) != null, 1200);

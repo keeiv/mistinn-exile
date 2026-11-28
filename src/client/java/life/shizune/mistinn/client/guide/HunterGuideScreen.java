@@ -123,7 +123,7 @@ public class HunterGuideScreen extends Screen {
 		if (seal || epic == null && !life.shizune.mistinn.client.epic.Legacy.pack().isEmpty()) {
 			this.addRenderableWidget(net.minecraft.client.gui.components.Button.builder(Component.translatable("epic.mistinn.legacy.title"),
 				b -> this.minecraft.gui.setScreen(new life.shizune.mistinn.client.epic.LegacyScreen(this)))
-				.bounds(this.width / 2 - 60, this.top() + H + 6, 120, 18).build());
+				.bounds(this.width / 2 - 60, this.packButtonY(), 120, 18).build());
 		}
 	}
 
@@ -211,6 +211,12 @@ public class HunterGuideScreen extends Screen {
 		return new double[] {this.left() + W - 34 + 9.0, this.top() + 176 + 6.0};
 	}
 
+	/** Below the book where the window has room for it; on a short window, over the spine at the foot of the spread. */
+	private int packButtonY() {
+		int below = this.top() + H + 6;
+		return below + 18 <= this.height - 2 ? below : this.top() + H - 26;
+	}
+
 	private int left() {
 		return (this.width - W) / 2;
 	}
@@ -277,6 +283,10 @@ public class HunterGuideScreen extends Screen {
 	public boolean mouseClicked(final MouseButtonEvent event, final boolean doubleClick) {
 		double mx = event.x();
 		double my = event.y();
+		// a button laid over the book (the epic's pack, on a short window) answers before the page under it
+		if (this.children().stream().anyMatch(child -> child.isMouseOver(mx, my))) {
+			return super.mouseClicked(event, doubleClick);
+		}
 		for (Tab each : Tab.values()) {
 			double[] c = this.tabCentre(each);
 			if (Math.abs(mx - c[0]) <= TAB_W / 2.0 && Math.abs(my - c[1]) <= TAB_H / 2.0) {

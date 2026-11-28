@@ -495,7 +495,9 @@ public final class EpicService {
 		// the seal that carries their pack to another world
 		for (ServerPlayer hunter : server.getPlayerList().getPlayers()) {
 			net.minecraft.world.item.ItemStack seal = new net.minecraft.world.item.ItemStack(life.shizune.mistinn.registry.MistinnItems.LEGACY_SEAL);
-			if (!hunter.getInventory().add(seal)) {
+			// into the hunter's pack as anything they pick up goes, else their pockets, else at their feet
+			life.shizune.mistinn.grid.GridService.insert(hunter, seal);
+			if (!seal.isEmpty() && !hunter.getInventory().add(seal)) {
 				hunter.drop(seal, false, net.minecraft.util.Prediction.SERVER_ONLY);
 			}
 		}
