@@ -47,8 +47,12 @@ import org.jspecify.annotations.Nullable;
  * air above the water (a dug-out, a hut of earth), is left exactly as it is.
  */
 public final class TerraLake {
-	/** How wide the lake is (before its shore wavers), how deep in the middle, and how far out along the highland it lies. */
-	public static final int RADIUS = 52;
+	/**
+	 * How wide the lake is (before its shore wavers) as a part of its highland's reach, the least reach a highland holds a
+	 * lake at all, how deep it is in the middle, and how far out along the highland it lies.
+	 */
+	public static final double WIDTH = 0.2;
+	public static final int HOLDS_ONE = 150;
 	public static final int DEEPEST = 11;
 	public static final double OUT = 0.55;
 	/** How far out past the shore (as a part of its reach) the bank slopes, and how steeply (blocks up for each out). */
@@ -127,9 +131,19 @@ public final class TerraLake {
 		return new BlockPos(domain.centre().getX() + (int) Math.round(Math.cos(angle) * out), 0, domain.centre().getZ() + (int) Math.round(Math.sin(angle) * out));
 	}
 
+	/** How wide a highland's lake is, before its shore wavers. */
+	public static double reach(final Domain domain) {
+		return domain.radius() * WIDTH;
+	}
+
+	/** Whether a highland holds a lake: a full one does (a small one, laid down for a trial, does not). */
+	public static boolean holds(final Domain domain) {
+		return domain.radius() >= HOLDS_ONE;
+	}
+
 	/** How far its shore reaches out from the middle toward this column: the lake's radius, wavering. */
 	private static double shore(final Domain domain, final double angle) {
-		return RADIUS * (1.0 + 0.12 * Math.sin(3.0 * angle + domain.id()) + 0.07 * Math.sin(5.0 * angle + domain.id() * 1.7));
+		return reach(domain) * (1.0 + 0.12 * Math.sin(3.0 * angle + domain.id()) + 0.07 * Math.sin(5.0 * angle + domain.id() * 1.7));
 	}
 
 	/** How far in a column is, as a part of the way from the shore (1) to the middle (0); above 1, outside. */
@@ -166,6 +180,9 @@ public final class TerraLake {
 
 	/** Whether a column lies in a highland's lake (whose ground the lake digs, not the highland's turning). */
 	public static boolean inLake(final Domain domain, final int x, final int z) {
+		if (!holds(domain)) {
+			return false;
+		}
 		BlockPos middle = middle(domain);
 		return depthPart(domain, middle.getX(), middle.getZ(), x, z) < 1.0;
 	}
@@ -192,7 +209,7 @@ public final class TerraLake {
 				continue;
 			}
 			BlockPos middle = middle(domain);
-			if (!near(middle, pos)) {
+			if (!holds(domain) || !near(domain, middle, pos)) {
 				chunk.setAttached(DUG, VERSION);
 				continue;
 			}
@@ -208,15 +225,15 @@ public final class TerraLake {
 	}
 
 	/** Whether any of a chunk is within the lake's farthest bank. */
-	private static boolean near(final BlockPos middle, final ChunkPos pos) {
+	private static boolean near(final Domain domain, final BlockPos middle, final ChunkPos pos) {
 		double cx = Math.max(pos.getMinBlockX(), Math.min(middle.getX(), pos.getMaxBlockX()));
 		double cz = Math.max(pos.getMinBlockZ(), Math.min(middle.getZ(), pos.getMaxBlockZ()));
-		return Math.hypot(cx - middle.getX(), cz - middle.getZ()) <= RADIUS * 1.2 * BANK + 2.0;
+		return Math.hypot(cx - middle.getX(), cz - middle.getZ()) <= reach(domain) * 1.2 * BANK + 2.0;
 	}
 
 	/** Digs the lake's part of one chunk, strictly round anyone's work. Returns how many columns were dug. */
 	public static int dig(final ServerLevel level, final LevelChunk chunk, final Domain domain) {
-		if (chunk.getInhabitedTime() > LIVED_IN) {
+		if (chunk.getInhabitedTime() > LIVED_IN || !holds(domain)) {
 			return 0;
 		}
 		Lake lake = lake(level, domain);
