@@ -1240,6 +1240,7 @@
   "ground.mistinn.expedition_dam": "泰拉水壩",
   "message.mistinn.expedition.muster": "%1$s 要出發去%2$s。%3$s 秒後還在樞紐旁的人一起去。",
   "message.mistinn.expedition.nobody": "出發的時候，樞紐旁一個人也沒有。",
+  "message.mistinn.expedition.preparing": "%1$s還在準備，出發要再等一下。",
   "message.mistinn.expedition.arrived": "到了%1$s。%2$s 分鐘內找到撤離點撤出；時間到了還在裡面的人會倒下。",
   "message.mistinn.expedition.left.5": "剩五分鐘。",
   "message.mistinn.expedition.left.1": "剩一分鐘。",

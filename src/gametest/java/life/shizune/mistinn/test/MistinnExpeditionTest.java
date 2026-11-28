@@ -2,9 +2,11 @@ package life.shizune.mistinn.test;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import life.shizune.mistinn.block.GravestoneBlockEntity;
 import life.shizune.mistinn.domain.Domain;
 import life.shizune.mistinn.domain.DomainService;
+import life.shizune.mistinn.expedition.DamGround;
 import life.shizune.mistinn.expedition.Expedition;
 import life.shizune.mistinn.expedition.Grounds;
 import life.shizune.mistinn.expedition.Layout;
@@ -215,7 +217,7 @@ public final class MistinnExpeditionTest implements FabricClientGameTest {
 				player.removeAttached(Expedition.AWAY);
 			});
 		} finally {
-			Expedition.layout(Grounds.DAM, null);
+			Expedition.layout(Grounds.DAM, new DamGround());
 			Expedition.musterTicks = 200;
 			Expedition.exitTicks = 600;
 			DownService.standing = DownService.STANDING;
@@ -277,13 +279,14 @@ public final class MistinnExpeditionTest implements FabricClientGameTest {
 		}
 
 		@Override
-		public void build(final ServerLevel level) {
-			for (int x = -16; x <= 16; x++) {
-				for (int z = -16; z <= 16; z++) {
-					level.setBlock(new BlockPos(x, 64, z), Blocks.STONE.defaultBlockState(), 2);
+		public List<Consumer<ServerLevel>> plan() {
+			return List.of(level -> {
+				for (int x = -16; x <= 16; x++) {
+					for (int z = -16; z <= 16; z++) {
+						level.setBlock(new BlockPos(x, 64, z), Blocks.STONE.defaultBlockState(), 2);
+					}
 				}
-			}
-			level.setBlock(CHEST, Blocks.CHEST.defaultBlockState(), 3);
+			}, level -> level.setBlock(CHEST, Blocks.CHEST.defaultBlockState(), 3));
 		}
 
 		@Override
