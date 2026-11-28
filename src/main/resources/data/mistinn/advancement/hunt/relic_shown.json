@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/extracted",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.relic_shown.desc"
+		},
+		"icon": {
+			"id": "mistinn:gate_cassette"
+		},
+		"title": {
+			"translate": "achievement.mistinn.relic_shown"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

@@ -417,8 +417,8 @@ public final class MistinnAchievementTest implements FabricClientGameTest {
 			// the commissions test earns it as the game does
 			Achievement.COMMISSION_DONE.id,
 			// the expedition tests earn them as the game does
-			Achievement.EXTRACTED.id, Achievement.SKY_LENS.id};
-		int[] pays = {300, 600, 400, 200, 300, 300, 2000, 12, 13, 3000, 1500, 200, 200, 800, 300, 150, 300, 200, 800, 200, 300, 0, 0, 0, 200, 200, 500};
+			Achievement.EXTRACTED.id, Achievement.SKY_LENS.id, Achievement.RELIC_SHOWN.id};
+		int[] pays = {300, 600, 400, 200, 300, 300, 2000, 12, 13, 3000, 1500, 200, 200, 800, 300, 150, 300, 200, 800, 200, 300, 0, 0, 0, 200, 200, 500, 300};
 		for (int i = 0; i < terra.length; i++) {
 			String id = terra[i];
 			int beforeEach = world.getServer().computeOnServer(server -> SaltService.get(player(server)));
