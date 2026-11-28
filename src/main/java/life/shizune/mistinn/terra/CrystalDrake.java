@@ -290,7 +290,7 @@ public class CrystalDrake extends Monster {
 		if (!(this.level() instanceof ServerLevel level)) {
 			return false;
 		}
-		life.shizune.mistinn.domain.Domain domain = life.shizune.mistinn.domain.DomainService.at(level.getServer(), this.getX(), this.getZ());
+		life.shizune.mistinn.domain.Domain domain = life.shizune.mistinn.domain.DomainService.at(level, this.getX(), this.getZ());
 		if (domain == null || domain.kind() != life.shizune.mistinn.domain.Domain.Kind.TERRA) {
 			return false;
 		}

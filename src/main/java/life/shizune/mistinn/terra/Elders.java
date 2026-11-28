@@ -114,7 +114,7 @@ public final class Elders {
 
 	/** An elder has fallen: its crown grows another in a while. */
 	static void died(final ServerLevel level, final CrystalElder elder) {
-		Domain domain = DomainService.at(level.getServer(), elder.getX(), elder.getZ());
+		Domain domain = DomainService.at(level, elder.getX(), elder.getZ());
 		for (Domain each : DomainService.of(level.getServer(), Domain.Kind.TERRA)) {
 			Crown crown = crown(level.getServer(), each.id());
 			if (crown != null && crown.out() && (domain == null || domain.id() == each.id())) {
