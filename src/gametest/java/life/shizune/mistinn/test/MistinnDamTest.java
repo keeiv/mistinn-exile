@@ -2,11 +2,15 @@ package life.shizune.mistinn.test;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import life.shizune.mistinn.domain.Domain;
+import life.shizune.mistinn.elite.EliteService;
 import life.shizune.mistinn.expedition.DamGround;
 import life.shizune.mistinn.expedition.Expedition;
 import life.shizune.mistinn.expedition.Grounds;
+import life.shizune.mistinn.terra.CrystalDrake;
+import life.shizune.mistinn.terra.CrystalLizard;
 import life.shizune.mistinn.terra.Settlements;
 import life.shizune.mistinn.terra.TerraService;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
@@ -19,9 +23,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
 
 /**
  * 泰拉水壩: built in steps while the party gathers, and a build cut short and done again comes out whole; the party waits
@@ -74,9 +81,28 @@ public final class MistinnDamTest implements FabricClientGameTest {
 				check(Expedition.ground(server, Grounds.DAM).built(), "built, in " + took + " ticks from setting out (the count is " + Expedition.musterTicks + ")");
 				ServerPlayer player = player(server);
 				check(player.blockPosition().equals(DamGround.STARTS.getFirst()), "the party comes in by the hut: " + player.blockPosition());
-				player.getAbilities().flying = false;
-				player.getAbilities().mayfly = false;
-				player.onUpdateAbilities();
+				// the test looks at the place, not the fight: what lives there leaves a creative hunter be
+				player.setGameMode(GameType.CREATIVE);
+				// counted while the ground is still held loaded about the party coming in
+				// stocked: the creatures, stronger than outside, the guards elites; what is to be found
+				AABB all = AABB.of(new DamGround().bounds());
+				ServerLevel dam = server.getLevel(Grounds.DAM);
+				List<CrystalLizard> lizards = dam.getEntitiesOfClass(CrystalLizard.class, all);
+				check(lizards.size() == DamGround.LIZARDS.size() + DamGround.GUARDS.size(), "the lizards lie in wait: " + lizards.size());
+				check(lizards.stream().allMatch(l -> l.getMaxHealth() >= 23.0F && l.isPersistenceRequired()), "stronger than outside, and they stay");
+				List<CrystalLizard> guards = lizards.stream().filter(EliteService::isElite).toList();
+				check(guards.size() == DamGround.GUARDS.size(), "the control room's guards are elites: " + guards.size());
+				check(dam.getEntitiesOfClass(CrystalDrake.class, all).size() == DamGround.DRAKES.size(), "drakes keep the crest");
+				CrystalLizard fallen = guards.getFirst();
+				fallen.kill(dam);
+				check(fallen.isDeadOrDying(), "an elite lizard, ticked a while, falls like any other");
+				for (BlockPos at : List.of(DamGround.CRATES.getFirst(), DamGround.LOCKERS.getFirst(), DamGround.SAFE, DamGround.HUT_BARREL)) {
+					if (!(dam.getBlockEntity(at) instanceof RandomizableContainerBlockEntity container)) {
+						throw new AssertionError("failed: no container at " + at);
+					}
+					container.unpackLootTable(null);
+					check(!container.isEmpty(), "something to be found at " + at);
+				}
 			});
 			context.waitTicks(100);
 			world.getServer().runOnServer(server -> {
@@ -101,6 +127,25 @@ public final class MistinnDamTest implements FabricClientGameTest {
 				check(walk.reached.contains(DamGround.SPILLWAY.centre().asLong()), "the spillway's way out is reached on foot");
 				check(walk.reached.contains(DamGround.CONTROL.asLong()), "so is the control room");
 				check(walk.reached.contains(DamGround.TOWER.centre().asLong()), "and the tower's roof, the other way out (" + walk.reached.size() + " places)");
+			});
+			// a wave at the spillway: lizards come up out of the ground a little way off
+			world.getServer().runOnServer(server -> player(server).teleportTo(server.getLevel(Grounds.DAM), 0.5, DamGround.BED + 1.0, 24.5,
+				Set.of(), 0.0F, 0.0F, true));
+			context.waitTicks(60);
+			world.getServer().runOnServer(server -> {
+				ServerLevel dam = server.getLevel(Grounds.DAM);
+				AABB about = new AABB(DamGround.SPILLWAY.centre()).inflate(16.0);
+				int before = dam.getEntitiesOfClass(CrystalLizard.class, about).size();
+				new DamGround().wave(dam, DamGround.SPILLWAY, 1, dam.getRandom());
+				List<CrystalLizard> after = dam.getEntitiesOfClass(CrystalLizard.class, about);
+				check(after.size() - before == 3, "the second wave is three lizards: " + before + " then " + after.size());
+				check(after.stream().noneMatch(l -> DamGround.SPILLWAY.holds(l)), "none of them comes up in the way out itself");
+				check(after.stream().allMatch(l -> l.getMaxHealth() >= 23.0F), "and they are as strong as the rest");
+				// nothing in the pictures but the place
+				for (net.minecraft.world.entity.Entity entity : dam.getEntities((net.minecraft.world.entity.Entity) null, AABB.of(new DamGround().bounds()),
+					e -> !(e instanceof ServerPlayer))) {
+					entity.discard();
+				}
 			});
 
 			// pictures along the way, with nothing in the way of them

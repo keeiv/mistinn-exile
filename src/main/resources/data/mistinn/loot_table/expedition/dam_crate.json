@@ -1,0 +1,119 @@
+{
+  "type": "minecraft:chest",
+  "random_sequence": "mistinn:expedition/dam_crate",
+  "pools": [
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 2,
+        "max": 4
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:salt",
+          "weight": 4,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 3,
+              "max": 9
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:copper_ingot",
+          "weight": 3,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 2,
+              "max": 6
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:crystal_dust",
+          "weight": 3,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 2,
+              "max": 6
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:rust_can",
+          "weight": 2,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 2
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:tourniquet",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:splint",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:iron_ingot",
+          "weight": 2,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 3
+            }
+          }
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 0,
+        "max": 1
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:crystal_core",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:lattice_chip",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:painkillers",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:flare",
+          "weight": 2
+        }
+      ]
+    }
+  ]
+}
