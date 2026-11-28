@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/extracted",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.sky_lens.desc"
+		},
+		"icon": {
+			"id": "mistinn:shida_sky_lens"
+		},
+		"title": {
+			"translate": "achievement.mistinn.sky_lens"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

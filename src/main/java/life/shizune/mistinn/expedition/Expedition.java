@@ -643,6 +643,10 @@ public final class Expedition {
 		player.teleportTo(level, hub.getX() + 2.5, hub.getY() + 1.0, hub.getZ() + 0.5, Set.of(), player.getYRot(), 0.0F, true);
 		player.sendSystemMessage(Component.translatable("message.mistinn.expedition.home", name(away.ground())).withStyle(ChatFormatting.AQUA));
 		life.shizune.mistinn.terra.Commissions.extracted(player, away.ground());
+		life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.EXTRACTED);
+		if (life.shizune.mistinn.grid.Carried.count(player, life.shizune.mistinn.registry.MistinnItems.SALVAGE.getLast()) > 0) {
+			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.SKY_LENS);
+		}
 	}
 
 	/** The expedition is over for this hunter: no longer away, no longer counted in, free to build again. */

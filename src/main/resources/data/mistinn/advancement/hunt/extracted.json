@@ -1,0 +1,25 @@
+{
+	"parent": "mistinn:hunt/commission_done",
+	"criteria": {
+		"earned": {
+			"trigger": "minecraft:impossible"
+		}
+	},
+	"display": {
+		"announce_to_chat": false,
+		"description": {
+			"translate": "achievement.mistinn.extracted.desc"
+		},
+		"icon": {
+			"id": "mistinn:gate_gearbox"
+		},
+		"title": {
+			"translate": "achievement.mistinn.extracted"
+		}
+	},
+	"requirements": [
+		[
+			"earned"
+		]
+	]
+}

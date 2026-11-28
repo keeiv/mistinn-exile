@@ -53,6 +53,8 @@ When you change things:
 | elder / crown | the crown elder, the dragon keeping the highland's heart and letting no one leave |
 | drake | a crystal drake |
 | siege | a crystal tide: lizards swarming a woken homestead by night |
+| expedition / ground / layout | an expedition; its ground (a place the forebears left, a dimension of its own); the ground's layout (what stands there, where a party comes in and gets out, what is stocked) |
+| cache / salvage | a container in a ground, searched one thing at a time; the forebears' salvage |
 | commission / keeper / trust | one of Terra's commissions; the keeper who gives them (the elder, or the tiller who keeps the board when it is gone); the tillers' trust in the hunters (one for the whole world) |
 | squall | a crystal squall, a storm of crystal grit over the highland |
 | rift / herald / hound | a sky rift, a rift herald, a rift hound |

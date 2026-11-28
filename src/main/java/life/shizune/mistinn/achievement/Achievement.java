@@ -83,7 +83,11 @@ public enum Achievement {
 	/** 似曾相識: known by a tiller, in a world that is not the way, as one who walked it. */
 	TILLERS_KNOWN("tillers_known", 0),
 	/** 受託: a commission of the tillers done. */
-	COMMISSION_DONE("commission_done", 200);
+	COMMISSION_DONE("commission_done", 200),
+	/** 撤出: out of an expedition alive, the first time. */
+	EXTRACTED("extracted", 200),
+	/** 量天鏡: out of an expedition with Shi-da's sky lens. */
+	SKY_LENS("sky_lens", 500);
 
 	public final String id;
 	public final int reward;
