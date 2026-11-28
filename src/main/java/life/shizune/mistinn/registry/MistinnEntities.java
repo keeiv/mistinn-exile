@@ -108,6 +108,14 @@ public final class MistinnEntities {
 		.clientTrackingRange(10)
 		.fireImmune());
 
+	/** 閘衛機兵: a heavy machine the forebears left to keep the dam, kneeling at its post until woken. */
+	public static final EntityType<life.shizune.mistinn.terra.GateSentry> GATE_SENTRY = register("gate_sentry",
+		EntityType.Builder.<life.shizune.mistinn.terra.GateSentry>of(life.shizune.mistinn.terra.GateSentry::new, MobCategory.MONSTER)
+		.sized(1.5F, 2.4F)
+		.eyeHeight(2.1F)
+		.clientTrackingRange(10)
+		.fireImmune());
+
 	/** 晶龍: a wyvern of living crystal that keeps the skies of a Terra highland. */
 	public static final EntityType<life.shizune.mistinn.terra.CrystalDrake> CRYSTAL_DRAKE = register("crystal_drake",
 		EntityType.Builder.<life.shizune.mistinn.terra.CrystalDrake>of(life.shizune.mistinn.terra.CrystalDrake::new, MobCategory.MONSTER)
@@ -178,6 +186,7 @@ public final class MistinnEntities {
 		FabricDefaultAttributeRegistry.register(CRYSTAL_ELDER, life.shizune.mistinn.terra.CrystalElder.createAttributes());
 		FabricDefaultAttributeRegistry.register(RIFT_HOUND, life.shizune.mistinn.rift.RiftHound.createAttributes());
 		FabricDefaultAttributeRegistry.register(CRYSTAL_LIZARD, life.shizune.mistinn.terra.CrystalLizard.createAttributes());
+		FabricDefaultAttributeRegistry.register(GATE_SENTRY, life.shizune.mistinn.terra.GateSentry.createAttributes());
 		// crystal drakes come of themselves under the open sky of a Terra highland, day or night
 		life.shizune.mistinn.mixin.SpawnPlacementsInvoker.mistinn$register(CRYSTAL_DRAKE, net.minecraft.world.entity.SpawnPlacementTypes.NO_RESTRICTIONS,
 			net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, life.shizune.mistinn.terra.CrystalDrake::checkSpawnRules);

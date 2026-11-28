@@ -55,7 +55,7 @@ public final class MistinnBestiaryTest implements FabricClientGameTest {
 				player.setGameMode(GameType.SURVIVAL);
 				Bestiary.Record record = BestiaryService.get(player);
 				check(Bestiary.ENTRIES.stream().noneMatch(entry -> record.seen(entry.id())), "a new hunter knows nothing of what they hunt");
-				check(Bestiary.ENTRIES.size() == 20, "twenty creatures in the bestiary: " + Bestiary.ENTRIES.size());
+				check(Bestiary.ENTRIES.size() == 21, "twenty-one creatures in the bestiary: " + Bestiary.ENTRIES.size());
 			});
 			hunted(context, world);
 			theGuide(context, world);
