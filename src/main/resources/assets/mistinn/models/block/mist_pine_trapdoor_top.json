@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/template_trapdoor_top",
+  "textures": {
+    "texture": "mistinn:block/mist_pine_trapdoor"
+  }
+}

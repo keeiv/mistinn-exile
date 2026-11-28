@@ -9,8 +9,19 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.FenceBlock;
+import net.minecraft.world.level.block.FenceGateBlock;
+import net.minecraft.world.level.block.PressurePlateBlock;
+import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 
@@ -171,6 +182,24 @@ public final class MistinnBlocks {
 		.mapColor(MapColor.QUARTZ).strength(2.0F).sound(SoundType.WOOD).ignitedByLava());
 	public static final Block MIST_PINE_PLANKS = register("mist_pine_planks", Block::new, BlockBehaviour.Properties.of()
 		.mapColor(MapColor.QUARTZ).strength(2.0F, 3.0F).sound(SoundType.WOOD).ignitedByLava());
+	/** The mist pine's wood, worked as any wood is. */
+	public static final Block MIST_PINE_STAIRS = register("mist_pine_stairs", p -> new StairBlock(MIST_PINE_PLANKS.defaultBlockState(), p),
+		BlockBehaviour.Properties.ofLegacyCopy(MIST_PINE_PLANKS));
+	public static final Block MIST_PINE_SLAB = register("mist_pine_slab", SlabBlock::new, BlockBehaviour.Properties.ofLegacyCopy(MIST_PINE_PLANKS));
+	public static final Block MIST_PINE_FENCE = register("mist_pine_fence", FenceBlock::new, BlockBehaviour.Properties.of()
+		.mapColor(MapColor.QUARTZ).forceSolidOn().strength(2.0F, 3.0F).sound(SoundType.WOOD).ignitedByLava());
+	public static final Block MIST_PINE_FENCE_GATE = register("mist_pine_fence_gate", p -> new FenceGateBlock(WoodType.SPRUCE, p),
+		BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).forceSolidOn().strength(2.0F, 3.0F).ignitedByLava());
+	public static final Block MIST_PINE_DOOR = register("mist_pine_door", p -> new DoorBlock(BlockSetType.SPRUCE, p),
+		BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).strength(3.0F).noOcclusion().ignitedByLava()
+		.pushReaction(PushReaction.POPPED));
+	public static final Block MIST_PINE_TRAPDOOR = register("mist_pine_trapdoor", p -> new TrapDoorBlock(BlockSetType.SPRUCE, p),
+		BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).strength(3.0F).noOcclusion().isValidSpawn(Blocks::never).ignitedByLava());
+	public static final Block MIST_PINE_BUTTON = register("mist_pine_button", p -> new ButtonBlock(BlockSetType.SPRUCE, 30, p),
+		BlockBehaviour.Properties.of().noCollision().strength(0.5F).pushReaction(PushReaction.POPPED));
+	public static final Block MIST_PINE_PRESSURE_PLATE = register("mist_pine_pressure_plate", p -> new PressurePlateBlock(BlockSetType.SPRUCE, p),
+		BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).forceSolidOn().noCollision().strength(0.5F).ignitedByLava()
+		.pushReaction(PushReaction.POPPED));
 	public static final Block MIST_PINE_LEAVES = register("mist_pine_leaves", p -> new net.minecraft.world.level.block.UntintedParticleLeavesBlock(0.02F,
 		net.minecraft.core.particles.ParticleTypes.WHITE_ASH, net.minecraft.world.level.block.sounds.AmbientLeavesBlockSoundPlayer.noAmbientSound(), p),
 		BlockBehaviour.Properties.of()

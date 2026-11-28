@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "group": "wooden_button",
+  "ingredients": [
+    "mistinn:mist_pine_planks"
+  ],
+  "result": {
+    "id": "mistinn:mist_pine_button"
+  }
+}

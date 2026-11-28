@@ -66,6 +66,14 @@ public final class MistinnTab {
 				output.accept(MistinnItems.VEIN_CRYSTAL_ORE);
 				output.accept(MistinnItems.MIST_PINE_LOG);
 				output.accept(MistinnItems.MIST_PINE_PLANKS);
+				output.accept(MistinnItems.MIST_PINE_STAIRS);
+				output.accept(MistinnItems.MIST_PINE_SLAB);
+				output.accept(MistinnItems.MIST_PINE_FENCE);
+				output.accept(MistinnItems.MIST_PINE_FENCE_GATE);
+				output.accept(MistinnItems.MIST_PINE_DOOR);
+				output.accept(MistinnItems.MIST_PINE_TRAPDOOR);
+				output.accept(MistinnItems.MIST_PINE_BUTTON);
+				output.accept(MistinnItems.MIST_PINE_PRESSURE_PLATE);
 				output.accept(MistinnItems.MIST_PINE_LEAVES);
 				output.accept(MistinnItems.JADE_GRASS);
 				output.accept(MistinnItems.JADE_FERN);

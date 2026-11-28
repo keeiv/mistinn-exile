@@ -2,6 +2,14 @@
   "values": [
     "mistinn:charred_log",
     "mistinn:mist_pine_log",
-    "mistinn:mist_pine_planks"
+    "mistinn:mist_pine_planks",
+    "mistinn:mist_pine_stairs",
+    "mistinn:mist_pine_slab",
+    "mistinn:mist_pine_fence",
+    "mistinn:mist_pine_fence_gate",
+    "mistinn:mist_pine_door",
+    "mistinn:mist_pine_trapdoor",
+    "mistinn:mist_pine_button",
+    "mistinn:mist_pine_pressure_plate"
   ]
 }

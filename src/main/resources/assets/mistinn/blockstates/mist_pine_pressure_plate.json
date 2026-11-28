@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "mistinn:block/mist_pine_pressure_plate"
+    },
+    "powered=true": {
+      "model": "mistinn:block/mist_pine_pressure_plate_down"
+    }
+  }
+}
