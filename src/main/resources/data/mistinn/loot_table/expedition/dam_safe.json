@@ -1,0 +1,95 @@
+{
+  "type": "minecraft:chest",
+  "random_sequence": "mistinn:expedition/dam_safe",
+  "pools": [
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 1
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_light_4",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_heavy_4",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_heavy_3",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_light_5",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_heavy_5",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:backpack_light_5",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 2,
+        "max": 3
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:crystal_core",
+          "weight": 3,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 2,
+              "max": 4
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:potent_injector",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:resonance_fork",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:salt",
+          "weight": 3,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 15,
+              "max": 30
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:lattice_chip",
+          "weight": 2
+        }
+      ]
+    }
+  ]
+}

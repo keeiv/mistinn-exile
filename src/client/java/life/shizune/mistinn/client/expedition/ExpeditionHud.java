@@ -60,7 +60,9 @@ public final class ExpeditionHud implements HudElement {
 		int width = Math.max(font.width(line), leaving == null ? 0 : font.width(leaving)) + 16;
 		int height = leaving == null ? 16 : 27;
 		int x = (g.guiWidth() - width) / 2;
-		int y = 4;
+		// below the boss bars, if any show
+		int bars = ((life.shizune.mistinn.client.mixin.BossOverlayAccessor) mc.gui.hud.getBossOverlay()).mistinn$events().size();
+		int y = 4 + bars * 19;
 		g.fill(x, y, x + width, y + height, 0x90080A0E);
 		g.fill(x, y + height - 1, x + width, y + height, left <= 1200L ? URGENT : 0xFF3A6B6B);
 		g.centeredText(font, line, g.guiWidth() / 2, y + 4, left <= 1200L ? URGENT : TEXT);

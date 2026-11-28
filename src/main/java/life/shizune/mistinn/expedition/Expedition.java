@@ -250,6 +250,25 @@ public final class Expedition {
 		return LAYOUTS.get(ground);
 	}
 
+	/** Marks what lives in a ground as stronger than outside. */
+	private static final net.minecraft.resources.Identifier HARDENED = Mistinn.id("afar");
+
+	/** What lives in a ground is stronger than outside, half again the life and a third again the bite, and does not wander off. */
+	public static void harden(final net.minecraft.world.entity.Mob mob) {
+		mob.setPersistenceRequired();
+		net.minecraft.world.entity.ai.attributes.AttributeInstance life = mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
+		if (life != null && !life.hasModifier(HARDENED)) {
+			life.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(HARDENED, 0.5,
+				net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+		}
+		net.minecraft.world.entity.ai.attributes.AttributeInstance bite = mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+		if (bite != null && !bite.hasModifier(HARDENED)) {
+			bite.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(HARDENED, 0.3,
+				net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+		}
+		mob.setHealth(mob.getMaxHealth());
+	}
+
 	/** The name of a ground, for the words. */
 	public static Component name(final ResourceKey<Level> ground) {
 		return Component.translatable("ground." + ground.identifier().getNamespace() + "." + ground.identifier().getPath());

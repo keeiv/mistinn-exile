@@ -1,0 +1,111 @@
+{
+  "type": "minecraft:chest",
+  "random_sequence": "mistinn:expedition/dam_locker",
+  "pools": [
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 2,
+        "max": 3
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:crystal_whetstone",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:armor_repair_kit_4",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:helmet_repair_kit_4",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:salt_bomb",
+          "weight": 2,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 2
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:flare",
+          "weight": 2,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 2
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:salt",
+          "weight": 3,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 4,
+              "max": 10
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:copper_ingot",
+          "weight": 2,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 3,
+              "max": 8
+            }
+          }
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 0,
+        "max": 1
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:surgery_kit",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:lattice_chip",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:crystal_core",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:resonance_fork",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

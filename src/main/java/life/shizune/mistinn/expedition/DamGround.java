@@ -3,15 +3,31 @@ package life.shizune.mistinn.expedition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import life.shizune.mistinn.elite.EliteService;
+import life.shizune.mistinn.registry.MistinnEntities;
+import life.shizune.mistinn.terra.CrystalDrake;
+import life.shizune.mistinn.terra.CrystalLizard;
 import life.shizune.mistinn.world.Builder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.storage.loot.LootTable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 泰拉水壩: the dam the forebears raised across a highland canyon to hold its water back and water the valley below.
@@ -91,12 +107,151 @@ public final class DamGround implements Layout {
 		return List.of(SPILLWAY, TOWER);
 	}
 
-	@Override
-	public void stock(final ServerLevel level, final RandomSource random) {
+	/** What the riverbed's crates hold. */
+	public static final ResourceKey<LootTable> CRATE = loot("dam_crate");
+	/** What the corridors' lockers hold. */
+	public static final ResourceKey<LootTable> LOCKER = loot("dam_locker");
+	/** What the control room's safe holds. */
+	public static final ResourceKey<LootTable> STRONGBOX = loot("dam_safe");
+	/** The hut's barrel. */
+	public static final BlockPos HUT_BARREL = new BlockPos(25, BED + 1, 129);
+	/** Where the lizards lie in wait, in threes on the riverbed and alone or in twos inside. */
+	public static final List<BlockPos> LIZARDS = List.of(
+		new BlockPos(-10, 41, 100), new BlockPos(-8, 41, 103), new BlockPos(-12, 41, 98),
+		new BlockPos(16, 41, 70), new BlockPos(19, 41, 72), new BlockPos(14, 41, 67),
+		new BlockPos(-14, 41, 40), new BlockPos(-11, 41, 37), new BlockPos(-17, 41, 42),
+		new BlockPos(-3, 41, 6), new BlockPos(3, 41, 7),
+		new BlockPos(-20, 56, -3), new BlockPos(10, 56, -3), new BlockPos(26, 56, 1), new BlockPos(-40, 64, -5),
+		new BlockPos(-15, 72, -7), new BlockPos(5, 72, -7), new BlockPos(22, 72, -7), new BlockPos(40, 80, -5),
+		new BlockPos(18, 88, -3), new BlockPos(26, 88, -3), new BlockPos(0, 88, -4),
+		new BlockPos(-30, 109, -8), new BlockPos(30, 109, -8), new BlockPos(0, 109, -42), new BlockPos(-2, 119, -47));
+	/** The control room's guards: elites. */
+	public static final List<BlockPos> GUARDS = List.of(new BlockPos(-4, 88, -6), new BlockPos(4, 88, -6));
+	/** The drakes keeping the crest, and where each comes back to. */
+	public static final List<BlockPos> DRAKES = List.of(new BlockPos(-20, 114, -8), new BlockPos(20, 114, -8));
+
+	private static ResourceKey<LootTable> loot(final String name) {
+		return ResourceKey.create(Registries.LOOT_TABLE, life.shizune.mistinn.Mistinn.id("expedition/" + name));
 	}
 
 	@Override
+	public void stock(final ServerLevel level, final RandomSource random) {
+		for (BlockPos crate : CRATES) {
+			fill(level, crate, CRATE, random);
+		}
+		fill(level, HUT_BARREL, CRATE, random);
+		for (BlockPos locker : LOCKERS) {
+			fill(level, locker, LOCKER, random);
+		}
+		fill(level, SAFE, STRONGBOX, random);
+		for (BlockPos at : LIZARDS) {
+			lizard(level, at, random);
+		}
+		for (BlockPos at : GUARDS) {
+			Mob guard = lizard(level, at, random);
+			if (guard != null) {
+				EliteService.make(guard, EliteService.pick(guard, random, 2));
+				guard.setHealth(guard.getMaxHealth());
+			}
+		}
+		for (BlockPos at : DRAKES) {
+			CrystalDrake drake = MistinnEntities.CRYSTAL_DRAKE.create(level, EntitySpawnReason.STRUCTURE);
+			if (drake != null) {
+				drake.snapTo(at.getX() + 0.5, at.getY(), at.getZ() + 0.5, random.nextFloat() * 360.0F, 0.0F);
+				drake.home(at);
+				Expedition.harden(drake);
+				level.addFreshEntity(drake);
+			}
+		}
+	}
+
+	private static void fill(final ServerLevel level, final BlockPos at, final ResourceKey<LootTable> table, final RandomSource random) {
+		if (level.getBlockEntity(at) instanceof RandomizableContainerBlockEntity container) {
+			container.clearContent();
+			container.setLootTable(table, random.nextLong());
+		}
+	}
+
+	private static @Nullable Mob lizard(final ServerLevel level, final BlockPos at, final RandomSource random) {
+		CrystalLizard lizard = MistinnEntities.CRYSTAL_LIZARD.create(level, EntitySpawnReason.STRUCTURE);
+		if (lizard == null) {
+			return null;
+		}
+		lizard.snapTo(at.getX() + 0.5, at.getY(), at.getZ() + 0.5, random.nextFloat() * 360.0F, 0.0F);
+		Expedition.harden(lizard);
+		level.addFreshEntity(lizard);
+		return lizard;
+	}
+
+	/**
+	 * A wave at a way out: two lizards and one more for every wave before (six at most) come up out of the ground a little
+	 * way off, at whoever holds it; from the third wave at the tower, a drake with them.
+	 */
+	@Override
 	public void wave(final ServerLevel level, final Exit exit, final int wave, final RandomSource random) {
+		List<ServerPlayer> holding = new ArrayList<>();
+		for (ServerPlayer player : level.players()) {
+			if (exit.holds(player) && !player.isCreative() && !player.isSpectator()) {
+				holding.add(player);
+			}
+		}
+		int lizards = Math.min(6, 2 + wave);
+		for (int i = 0; i < lizards; i++) {
+			BlockPos at = ground(level, exit, random);
+			if (at == null) {
+				continue;
+			}
+			CrystalLizard lizard = MistinnEntities.CRYSTAL_LIZARD.create(level, EntitySpawnReason.EVENT);
+			if (lizard != null) {
+				lizard.snapTo(at.getX() + 0.5, at.getY(), at.getZ() + 0.5, random.nextFloat() * 360.0F, 0.0F);
+				rise(level, lizard, holding);
+				level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.SMOOTH_STONE.defaultBlockState()),
+					at.getX() + 0.5, at.getY() + 0.3, at.getZ() + 0.5, 18, 0.4, 0.3, 0.4, 0.15);
+			}
+		}
+		if (exit.equals(TOWER) && wave >= 2) {
+			CrystalDrake drake = MistinnEntities.CRYSTAL_DRAKE.create(level, EntitySpawnReason.EVENT);
+			if (drake != null) {
+				BlockPos c = exit.centre();
+				drake.snapTo(c.getX() + 12.5, c.getY() + 8.0, c.getZ() + 0.5, 0.0F, 0.0F);
+				drake.home(c);
+				rise(level, drake, holding);
+			}
+		}
+		level.playSound(null, exit.centre(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.HOSTILE, 2.5F, 0.6F + 0.1F * Math.min(wave, 5));
+	}
+
+	private static void rise(final ServerLevel level, final Mob mob, final List<ServerPlayer> holding) {
+		Expedition.harden(mob);
+		ServerPlayer nearest = null;
+		for (ServerPlayer player : holding) {
+			if (nearest == null || player.distanceToSqr(mob) < nearest.distanceToSqr(mob)) {
+				nearest = player;
+			}
+		}
+		if (nearest != null) {
+			mob.setTarget(nearest);
+		}
+		level.addFreshEntity(mob);
+	}
+
+	/** Somewhere to stand, seven to thirteen blocks from a way out and not far above or below it. */
+	private static @Nullable BlockPos ground(final ServerLevel level, final Exit exit, final RandomSource random) {
+		BlockPos c = exit.centre();
+		for (int tries = 0; tries < 16; tries++) {
+			double angle = random.nextDouble() * Math.PI * 2.0;
+			double reach = 7.0 + random.nextDouble() * 6.0;
+			int x = c.getX() + (int) Math.round(Math.cos(angle) * reach);
+			int z = c.getZ() + (int) Math.round(Math.sin(angle) * reach);
+			for (int y = c.getY() + 5; y >= c.getY() - 12; y--) {
+				BlockPos at = new BlockPos(x, y, z);
+				if (level.getBlockState(at).getCollisionShape(level, at).isEmpty() && level.getBlockState(at.above()).getCollisionShape(level, at.above()).isEmpty()
+					&& level.getFluidState(at).isEmpty() && !level.getBlockState(at.below()).getCollisionShape(level, at.below()).isEmpty()) {
+					return at;
+				}
+			}
+		}
+		return null;
 	}
 
 	@Override
