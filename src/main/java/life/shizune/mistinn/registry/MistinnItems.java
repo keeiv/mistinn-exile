@@ -136,6 +136,9 @@ public final class MistinnItems {
 	public static final Item MIST_PINE_BOAT = register("mist_pine_boat", p -> new net.minecraft.world.item.BoatItem(MistinnEntities.MIST_PINE_BOAT, p), new Item.Properties().stacksTo(1));
 	public static final Item MIST_PINE_CHEST_BOAT = register("mist_pine_chest_boat", p -> new net.minecraft.world.item.BoatItem(MistinnEntities.MIST_PINE_CHEST_BOAT, p),
 		new Item.Properties().stacksTo(1));
+	/** 探測儀: worn where a mask is, it shows the ores about the hunter a while (five touches, one each five minutes). */
+	public static final Item DETECTOR = register("detector", Item::new, new Item.Properties().durability(life.shizune.mistinn.gear.Detector.USES)
+		.rarity(net.minecraft.world.item.Rarity.RARE));
 	public static final Item MIST_PINE_STAIRS = block("mist_pine_stairs", MistinnBlocks.MIST_PINE_STAIRS, new Item.Properties());
 	public static final Item MIST_PINE_SLAB = block("mist_pine_slab", MistinnBlocks.MIST_PINE_SLAB, new Item.Properties());
 	public static final Item MIST_PINE_FENCE = block("mist_pine_fence", MistinnBlocks.MIST_PINE_FENCE, new Item.Properties());

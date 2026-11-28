@@ -117,6 +117,8 @@ public class MistinnClient implements ClientModInitializer {
 		// the team's beacons over the places they mark, under the minimap and the rest
 		HudElementRegistry.addLast(Mistinn.id("markers"), new life.shizune.mistinn.client.team.MarkerClient());
 		HudElementRegistry.addLast(Mistinn.id("pings"), new life.shizune.mistinn.client.team.PingClient());
+		HudElementRegistry.addLast(Mistinn.id("detector"), new life.shizune.mistinn.client.gear.DetectorClient());
+		life.shizune.mistinn.client.gear.DetectorClient.register();
 		HudElementRegistry.addLast(Mistinn.id("thoughts"), new life.shizune.mistinn.client.path.Thoughts());
 		ClientTickEvents.END_CLIENT_TICK.register(life.shizune.mistinn.client.path.Thoughts::tick);
 		life.shizune.mistinn.client.anim.Tremors.register();
@@ -270,6 +272,10 @@ public class MistinnClient implements ClientModInitializer {
 				lines.add(net.minecraft.network.chat.Component.translatable("item.mistinn." + net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath() + ".desc")
 					.withStyle(net.minecraft.ChatFormatting.GRAY));
 				lines.add(net.minecraft.network.chat.Component.translatable("gui.mistinn.relic.hint").withStyle(net.minecraft.ChatFormatting.AQUA));
+			}
+			if (life.shizune.mistinn.gear.Detector.is(stack)) {
+				lines.add(net.minecraft.network.chat.Component.translatable("item.mistinn.detector.desc").withStyle(net.minecraft.ChatFormatting.GRAY));
+				lines.add(net.minecraft.network.chat.Component.translatable("item.mistinn.detector.usage").withStyle(net.minecraft.ChatFormatting.AQUA));
 			}
 			if (life.shizune.mistinn.expedition.Salvage.is(stack)) {
 				lines.add(net.minecraft.network.chat.Component.translatable("item.mistinn." + net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath() + ".desc")
