@@ -24,6 +24,7 @@ import org.jspecify.annotations.Nullable;
 final class GuideSupplyPage {
 	private static final int PER_PAGE = 5;
 	private static final int ROW = 24;
+	private static final int RIGHT_ROW = 21;
 
 	private static @Nullable String armed;
 	private static @Nullable Component notice;
@@ -35,7 +36,8 @@ final class GuideSupplyPage {
 
 	/** Top-left of an offer's row, relative to the spread. */
 	private static int[] rowAt(final int index) {
-		return index < PER_PAGE ? new int[] {20, 46 + index * ROW} : new int[] {172, 18 + (index - PER_PAGE) * ROW};
+		// the right-hand page holds six, a little closer, above the order's status
+		return index < PER_PAGE ? new int[] {20, 46 + index * ROW} : new int[] {172, 12 + (index - PER_PAGE) * RIGHT_ROW};
 	}
 
 	/** Centre of an offer's row, in GUI pixels. */
@@ -94,7 +96,7 @@ final class GuideSupplyPage {
 			row(g, font, SupplyService.OFFERS.get(i), x + rowAt(i)[0], y + rowAt(i)[1], salt, pending, mouseX, mouseY);
 		}
 		// how the last order stands, or the answer just given
-		g.fill(x + 172, y + 140, x + 300, y + 141, HunterGuideScreen.LINE_DARK);
+		g.fill(x + 172, y + 142, x + 300, y + 143, HunterGuideScreen.LINE_DARK);
 		Component status;
 		int colour = HunterGuideScreen.FADED;
 		if (notice != null && System.currentTimeMillis() - noticeAt < 4000) {
@@ -103,7 +105,7 @@ final class GuideSupplyPage {
 		} else {
 			status = status(player);
 		}
-		int sy = y + 145;
+		int sy = y + 149;
 		List<FormattedCharSequence> rows = font.split(status, HunterGuideScreen.PAGE_WIDTH);
 		for (int i = 0; i < Math.min(4, rows.size()); i++) {
 			g.text(font, rows.get(i), x + 172, sy + i * 10, colour, false);

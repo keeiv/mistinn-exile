@@ -55,10 +55,10 @@ public final class Squall {
 	public static final int GATHER = 200;
 	public static final int SHORTEST = 1800;
 	public static final int LONGEST = 2400;
-	/** How long a highland stays calm after a squall has passed. */
-	public static final int CALM = 6000;
-	/** With a hunter there and the calm over, a squall gathers on one second in this many. */
-	public static final int ODDS = 300;
+	/** How long a highland stays calm after a squall has passed (a quarter of an hour). */
+	public static final int CALM = 18000;
+	/** With a hunter there and the calm over, a squall gathers on one second in this many (some twenty-five minutes, as a rule). */
+	public static final int ODDS = 1500;
 	/** How often it cuts a hunter in the open, and how deep on a normal world. */
 	public static final int CUT_EVERY = 40;
 	public static final float CUT = 1.5F;

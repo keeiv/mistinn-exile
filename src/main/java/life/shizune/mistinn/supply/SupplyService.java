@@ -68,7 +68,8 @@ public final class SupplyService {
 		new Offer("salt_bomb", () -> MistinnItems.SALT_BOMB, 2, 100),
 		new Offer("flare", () -> MistinnItems.FLARE, 2, 120),
 		new Offer("bell_lure", () -> MistinnItems.BELL_LURE, 1, 100),
-		new Offer("armor_repair_kit", () -> MistinnItems.ARMOR_REPAIR_KITS.getFirst(), 1, 300));
+		new Offer("armor_repair_kit", () -> MistinnItems.ARMOR_REPAIR_KITS.getFirst(), 1, 300),
+		new Offer("helmet_repair_kit", () -> MistinnItems.HELMET_REPAIR_KITS.getFirst(), 1, 250));
 
 	/** How long an order takes, at the least and the most. */
 	public static final int DELAY_MIN = 600;
