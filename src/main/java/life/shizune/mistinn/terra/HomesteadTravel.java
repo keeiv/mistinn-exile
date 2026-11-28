@@ -155,8 +155,11 @@ public final class HomesteadTravel {
 		return false;
 	}
 
-	/** The homestead the hunter stands at, if any. */
+	/** The homestead the hunter stands at, if any (homesteads stand only in the overworld: the same numbers elsewhere are another place). */
 	public static Settlements.@Nullable Settlement homeHere(final MinecraftServer server, final ServerPlayer player) {
+		if (player.level().dimension() != Level.OVERWORLD) {
+			return null;
+		}
 		for (Settlements.Settlement home : Settlements.homesteads(server)) {
 			if (Math.hypot(player.getX() - (home.hub().getX() + 0.5), player.getZ() - (home.hub().getZ() + 0.5)) <= AT_HOME
 				&& Math.abs(player.getY() - home.hub().getY()) < 8.0) {
