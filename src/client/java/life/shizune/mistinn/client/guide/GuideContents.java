@@ -16,7 +16,7 @@ import net.minecraft.network.chat.Component;
 public final class GuideContents {
 	/** The page each chapter starts on. */
 	public static final List<Integer> CHAPTERS = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 17, 19, 22, 25, 27, 28, 29, 30, 31, 32, 33, 34, 35,
-		36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56);
+		36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 58);
 	/** Down each page: how many lines, from where, how far apart. */
 	private static final int PER_PAGE = 16;
 	private static final int PER_SPREAD = 2 * PER_PAGE;
@@ -30,7 +30,7 @@ public final class GuideContents {
 
 	/** A chapter's title: the first line of its first page, without the brackets round it. */
 	static String title(final int page) {
-		String text = Language.getInstance().getOrDefault("item.mistinn.hunter_guide.page." + page);
+		String text = Language.getInstance().getOrDefault(HunterGuideScreen.pageKey(page));
 		String first = text.split("\n", 2)[0].strip();
 		if (first.startsWith("【") && first.endsWith("】") || first.startsWith("[") && first.endsWith("]")) {
 			first = first.substring(1, first.length() - 1);
