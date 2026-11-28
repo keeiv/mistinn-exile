@@ -77,7 +77,10 @@ public final class MistinnExpeditionCommissionTest implements FabricClientGameTe
 				Commissions.depart(player);
 				check(Expedition.mustering(), "from the hub, holding it, they set out");
 			});
-			context.waitTicks(Expedition.musterTicks + 20);
+			context.waitTicks(5);
+			check(context.computeOnClient(mc -> mc.getSituationalMusic().sound().value() == life.shizune.mistinn.registry.MistinnSounds.MUSIC_MUSTER),
+				"holding an expedition at a homestead, the setting out's music plays");
+			context.waitTicks(Expedition.musterTicks + 15);
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = player(server);
 				check(player.level().dimension() == Grounds.DAM, "and go to the dam");
