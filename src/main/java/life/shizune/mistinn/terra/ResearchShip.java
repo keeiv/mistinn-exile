@@ -237,6 +237,14 @@ public final class ResearchShip {
 				for (int y = water - 1; y <= water + 1; y++) {
 					set(level, ship.pos(u, y, v), edge ? paint : air);
 				}
+				// ladders up the side at the gangways, out of the water to the deck
+				if (Math.abs(v) == 4 && (u == 0 || u == 1)) {
+					Direction out = v > 0 ? ship.side() : ship.side().getOpposite();
+					for (int y = water; y <= deck; y++) {
+						set(level, ship.pos(u, y, v + Integer.signum(v)), Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING, out)
+							.setValue(LadderBlock.WATERLOGGED, y <= water));
+					}
+				}
 				set(level, ship.pos(u, deck, v), edge ? rim : planks);
 				if (edge && !(Math.abs(v) == 4 && (u == 0 || u == 1))) {
 					joined.add(set(level, ship.pos(u, deck + 1, v), rail));
@@ -386,6 +394,15 @@ public final class ResearchShip {
 			return;
 		}
 		ServerLevel level = server.overworld();
+		// now and then, a lake whose ship is not settled yet is looked at again (its middle may only now be all loaded)
+		if (server.getTickCount() % 200 == 0 && !TerraLake.dormant) {
+			for (Domain domain : life.shizune.mistinn.domain.DomainService.of(server, Domain.Kind.TERRA)) {
+				TerraLake.Lake lake = TerraLake.placed(level, domain.id());
+				if (lake != null && of(level, domain.id()) == null && level.getChunkSource().getChunkNow(lake.x() >> 4, lake.z() >> 4) != null) {
+					consider(level, domain);
+				}
+			}
+		}
 		List<Ship> ships = level.getAttachedOrElse(SHIPS, List.of());
 		if (ships.isEmpty() || level.players().isEmpty()) {
 			return;

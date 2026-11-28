@@ -409,13 +409,17 @@ public final class DomainService {
 		return changed[0];
 	}
 
-	/** Whether a chunk has had all a domain's change done to it so far (its ground shaped and its biome set). */
+	/**
+	 * Whether a chunk has had all a domain's change done to it so far (its ground shaped and its biome set): the change has
+	 * reached as far as the domain has spread, or (a domain spreading on, as an older world's widened highland does) at
+	 * least past all of this chunk, so that nothing more of the spread will come to it.
+	 */
 	public static boolean worked(final MinecraftServer server, final int domain, final ChunkPos pos) {
 		Domain found = get(server, domain);
 		long packed = pos.pack();
 		for (Done done : book(server).done()) {
 			if (done.domain() == domain && done.chunk() == packed) {
-				return found == null || done.reached() >= found.spread();
+				return found == null || done.reached() >= found.spread() || done.reached() >= farthest(found, pos);
 			}
 		}
 		return false;

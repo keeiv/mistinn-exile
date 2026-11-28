@@ -78,6 +78,10 @@ public final class MistinnResearchShipTest implements FabricClientGameTest {
 				// the rail joined along the side
 				var rail = level.getBlockState(ResearchShip.deck(c, true, 4, 4));
 				check(rail.getBlock() instanceof FenceBlock && rail.getValue(FenceBlock.EAST) && rail.getValue(FenceBlock.WEST), "the rail runs joined along the side");
+				// ladders up the side at the gangways, out of the water to the deck
+				BlockPos ladder = ResearchShip.deck(c, true, 0, 5).below();
+				check(level.getBlockState(ladder).is(Blocks.LADDER) && level.getBlockState(ladder.below(2)).is(Blocks.LADDER)
+					&& level.getBlockState(ResearchShip.deck(c, true, 0, -5).below()).is(Blocks.LADDER), "ladders up both sides at the gangway");
 				// the laboratory's chest always holds a detector; the stores, a piece of better gear
 				check(ResearchShip.lab(level, c, true) instanceof ChestBlockEntity, "a chest in the laboratory");
 				ChestBlockEntity lab = (ChestBlockEntity) ResearchShip.lab(level, c, true);
