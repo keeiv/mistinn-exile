@@ -1,10 +1,13 @@
 package life.shizune.mistinn.test;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import java.util.List;
 import java.util.Set;
 import life.shizune.mistinn.client.expedition.SearchScreen;
+import life.shizune.mistinn.client.grid.GridPanel;
 import life.shizune.mistinn.expedition.Cache;
 import life.shizune.mistinn.expedition.SearchMenu;
+import life.shizune.mistinn.grid.Area;
 import life.shizune.mistinn.grid.Carried;
 import life.shizune.mistinn.grid.GridService;
 import life.shizune.mistinn.registry.MistinnItems;
@@ -18,6 +21,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -110,13 +114,60 @@ public final class MistinnSearchTest implements FabricClientGameTest {
 			check(context.computeOnClient(mc -> mc.gui.screen() instanceof SearchScreen screen && screen.getMenu().searched(0)
 				&& !screen.getMenu().getSlot(0).getItem().isEmpty()), "the hunter's screen shows it");
 			context.takeScreenshot(TestScreenshotOptions.of("search-searching").disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("search")));
+			// by the hunter's own hand: click the first up, click it down in the safe box
+			thing(context, 0);
+			context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+			context.waitTicks(4);
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = player(server);
-				SearchMenu menu = (SearchMenu) player.containerMenu;
-				ItemStack expected = server.overworld().getBlockEntity(barrel[0]).getAttached(Cache.CACHE).entries().getFirst().stack().copy();
-				menu.clicked(0, 0, ContainerInput.QUICK_MOVE, player);
-				check(Carried.count(player, expected.getItem()) >= expected.getCount(), "once searched it can be taken: " + expected);
-				check(server.overworld().getBlockEntity(barrel[0]).getAttached(Cache.CACHE).entries().getFirst().stack().isEmpty(), "and it is gone from the cache");
+				check(player.containerMenu.getCarried().is(Items.SHIELD), "a click takes it up: " + player.containerMenu.getCarried());
+				check(cache(server, barrel[0]).entries().getFirst().stack().isEmpty(), "and it is gone from the cache");
+			});
+			cell(context, Area.SAFE, 0, 0, 0);
+			context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+			context.waitTicks(4);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				check(player.containerMenu.getCarried().isEmpty() && GridService.get(player).items(Area.SAFE).stream().anyMatch(p -> p.stack().is(Items.SHIELD)),
+					"a click puts it down in the hunter's own grid");
+			});
+			// the next, shift-clicked once searched
+			waitSearched(context, world, barrel[0], 1);
+			Item second = world.getServer().computeOnServer(server -> cache(server, barrel[0]).entries().get(1).stack().getItem());
+			int had = world.getServer().computeOnServer(server -> Carried.count(player(server), second));
+			thing(context, 1);
+			context.getInput().holdShift();
+			context.waitTicks(2);
+			context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+			context.waitTicks(2);
+			context.getInput().releaseShift();
+			context.waitTicks(4);
+			world.getServer().runOnServer(server -> check(cache(server, barrel[0]).entries().get(1).stack().isEmpty()
+				&& Carried.count(player(server), second) > had, "shift-clicked, it goes straight onto the hunter (on the cursor: "
+				+ player(server).containerMenu.getCarried() + ", in the cache: " + cache(server, barrel[0]).entries().get(1).stack() + ")"));
+			// a one-cell thing, dragged onto a free pocket
+			int small = world.getServer().computeOnServer(server -> {
+				List<Cache.Entry> entries = cache(server, barrel[0]).entries();
+				for (int i = 2; i < entries.size(); i++) {
+					if (entries.get(i).w() * entries.get(i).h() == 1) {
+						return i;
+					}
+				}
+				return -1;
+			});
+			check(small > 0, "there is a one-cell thing to drag");
+			waitSearched(context, world, barrel[0], small);
+			Item dragged = world.getServer().computeOnServer(server -> cache(server, barrel[0]).entries().get(small).stack().getItem());
+			thing(context, small);
+			context.getInput().holdMouse(InputConstants.MOUSE_BUTTON_LEFT);
+			context.waitTicks(4);
+			cell(context, Area.POCKETS, 3, 0, 0);
+			context.getInput().releaseMouse(InputConstants.MOUSE_BUTTON_LEFT);
+			context.waitTicks(4);
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = player(server);
+				check(GridService.get(player).items(Area.POCKETS).stream().anyMatch(p -> p.section() == 3 && p.stack().is(dragged))
+					&& player.containerMenu.getCarried().isEmpty(), "dragged out of the cache, it lands in a pocket");
 				player.closeContainer();
 			});
 			// the chunk unloads; what was searched stays searched
@@ -169,6 +220,38 @@ public final class MistinnSearchTest implements FabricClientGameTest {
 				mc.options.guiScale().set(0);
 			});
 		}
+	}
+
+	private static Cache cache(final MinecraftServer server, final BlockPos at) {
+		return server.overworld().getBlockEntity(at).getAttached(Cache.CACHE);
+	}
+
+	private static void waitSearched(final ClientGameTestContext context, final TestSingleplayerContext world, final BlockPos at, final int index) {
+		for (int i = 0; i < 40 && !world.getServer().computeOnServer(server -> cache(server, at).entries().get(index).searched()); i++) {
+			context.waitTicks(5);
+		}
+		context.waitTicks(4);
+	}
+
+	private static void thing(final ClientGameTestContext context, final int index) {
+		double[] at = context.computeOnClient(mc -> {
+			double[] gui = ((SearchScreen) mc.gui.screen()).thingCentre(index);
+			double scale = mc.getWindow().getGuiScale();
+			return new double[] {gui[0] * scale, gui[1] * scale};
+		});
+		context.getInput().setCursorPos(at[0], at[1]);
+		context.waitTicks(2);
+	}
+
+	private static void cell(final ClientGameTestContext context, final Area area, final int section, final int cx, final int cy) {
+		double[] at = context.computeOnClient(mc -> {
+			double[] gui = GridPanel.cellCentre(area, section, cx, cy);
+			check(gui != null, "the grid panel shows " + area + " " + section);
+			double scale = mc.getWindow().getGuiScale();
+			return new double[] {gui[0] * scale, gui[1] * scale};
+		});
+		context.getInput().setCursorPos(at[0], at[1]);
+		context.waitTicks(2);
 	}
 
 	private static ServerPlayer player(final MinecraftServer server) {

@@ -85,6 +85,14 @@ public final class MistinnSalvageTest implements FabricClientGameTest {
 				player.containerMenu.setCarried(new ItemStack(MistinnItems.SALVAGE.getFirst()));
 				GridService.place(player, Area.POCKETS, 3, 0, 0, false);
 				check(player.containerMenu.getCarried().isEmpty(), "a pocket takes it");
+				// nor in a pack: a pack does not go in the grid at all, salvage in it or not
+				ItemStack pack = new ItemStack(MistinnItems.BACKPACKS.getFirst());
+				pack.set(life.shizune.mistinn.registry.MistinnComponents.BACKPACK_CONTENTS,
+					List.of(new life.shizune.mistinn.grid.Placed(0, 0, 0, false, new ItemStack(MistinnItems.SALVAGE.getLast()))));
+				player.containerMenu.setCarried(pack);
+				GridService.place(player, Area.SAFE, 0, 0, 0, false);
+				check(GridService.get(player).items(Area.SAFE).isEmpty() && !player.containerMenu.getCarried().isEmpty(), "nor in a pack put in the safe box");
+				player.containerMenu.setCarried(ItemStack.EMPTY);
 				// the tillers buy it all at its worth
 				Carried.give(player, new ItemStack(MistinnItems.SALVAGE.getFirst(), 2));
 				Carried.give(player, lens.copy());
