@@ -193,6 +193,10 @@ To install it yourself: you need Minecraft Java Edition 26.3, [Fabric Loader](ht
 
 Existing Bell Salve stacks turn into the same amount of raw gold when the save is loaded.
 
+### Shaders
+
+With Iris installed, the mod's blocks, boats and handheld lights are matched to the nearest vanilla ones in whatever shader pack you use: mist pine leaves, jade grass, jade ferns and mist reeds sway in the wind, the crystal glints, mist pine and vein stone take on the feel of wood and stone, the facilities of metal, no water shows inside a mist pine boat, and a facility lamp or crystal held in the hand casts light of a near colour. The Complementary packs the launcher downloads by default (Reimagined and Unbound) get more: lattice crystal, crystal clusters and lit facilities (the hub, relay pylons, refinery, the workshop's light strips and so on) give off a soft glow, the crystal vein ore glows as ores do, and facilities gone dark stay plain metal. All of this happens in memory as the pack loads; no file of the shader pack is changed, and anything the pack names itself keeps the pack's own settings.
+
 ### Playing with friends
 
 The host enters a Story or Free exploration world, presses Esc, and chooses **World & Multiplayer → Open Room**. An invite code starting with `MIST-` appears; **Copy Invite** puts it on the clipboard to send to friends. Friends paste it into **Join a Friend** in the Mistinn Launcher and go straight into the room, or use **Multiplayer → Join with Invite** in game. The host can close the room from the same screen, and the world stays on their computer.

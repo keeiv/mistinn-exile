@@ -15,7 +15,8 @@
 	},
 	"mixins": [
 		"mistinn.mixins.json",
-		{ "config": "mistinn.client.mixins.json", "environment": "client" }
+		{ "config": "mistinn.client.mixins.json", "environment": "client" },
+		{ "config": "mistinn.iris.mixins.json", "environment": "client" }
 	],
 	"depends": {
 		"fabricloader": ">=0.20.1",

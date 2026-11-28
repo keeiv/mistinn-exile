@@ -1,0 +1,7 @@
+{
+	"required": false,
+	"package": "life.shizune.mistinn.client.irismixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": ["IrisBlockIdsMixin", "IrisNamedIdsMixin"],
+	"injectors": { "defaultRequire": 0 }
+}
