@@ -303,7 +303,7 @@ public final class GridService {
 	public static void maskSlot(final ServerPlayer player) {
 		AbstractContainerMenu menu = player.containerMenu;
 		ItemStack carried = menu.getCarried();
-		if (!carried.isEmpty() && GridInventory.maskOf(carried) == null) {
+		if (!carried.isEmpty() && GridInventory.maskOf(carried) == null && !life.shizune.mistinn.gear.Detector.is(carried)) {
 			cue(player, MistinnSounds.GRID_REJECT);
 			return;
 		}
@@ -718,7 +718,7 @@ public final class GridService {
 		} else if (GridInventory.rigOf(stack) != null && inv.rig().isEmpty()) {
 			set(player, inv.withRig(stack.copyWithCount(1)));
 			gear(player, MistinnSounds.EQUIP_RIG);
-		} else if (GridInventory.maskOf(stack) != null && inv.mask().isEmpty()) {
+		} else if ((GridInventory.maskOf(stack) != null || life.shizune.mistinn.gear.Detector.is(stack)) && inv.mask().isEmpty()) {
 			set(player, inv.withMask(stack.copyWithCount(1)));
 			gear(player, MistinnSounds.EQUIP_MASK);
 		} else {

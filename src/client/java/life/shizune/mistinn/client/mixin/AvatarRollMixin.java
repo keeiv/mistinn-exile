@@ -31,6 +31,7 @@ public abstract class AvatarRollMixin {
 	private void mistinn$rollState(final Avatar entity, final AvatarRenderState state, final float partialTicks, final CallbackInfo ci) {
 		state.setData(RollClient.KEY, RollClient.sample(entity.getId()));
 		state.setData(life.shizune.mistinn.client.combat.ParryClient.KEY, life.shizune.mistinn.client.combat.ParryClient.sample(entity.getId()));
+		state.setData(life.shizune.mistinn.client.gear.DetectorClient.KEY, life.shizune.mistinn.client.gear.DetectorClient.reach(entity.getId()));
 		int mask = entity.getAttachedOrElse(life.shizune.mistinn.registry.MistinnAttachments.WORN_MASK, -1);
 		state.setData(life.shizune.mistinn.client.gear.MaskLayer.KEY, mask >= 0 ? mask : null);
 		int pack = entity.getAttachedOrElse(life.shizune.mistinn.registry.MistinnAttachments.WORN_BACKPACK, -1);
