@@ -119,6 +119,7 @@ public class MistinnClient implements ClientModInitializer {
 		HudElementRegistry.addLast(Mistinn.id("pings"), new life.shizune.mistinn.client.team.PingClient());
 		HudElementRegistry.addLast(Mistinn.id("thoughts"), new life.shizune.mistinn.client.path.Thoughts());
 		ClientTickEvents.END_CLIENT_TICK.register(life.shizune.mistinn.client.path.Thoughts::tick);
+		life.shizune.mistinn.client.anim.Tremors.register();
 		ClientTickEvents.END_CLIENT_TICK.register(life.shizune.mistinn.client.path.InnerVoice::tick);
 		HudElementRegistry.addLast(Mistinn.id("minimap"), new MinimapHud());
 		// the quick-use wheel round the crosshair while its key is held

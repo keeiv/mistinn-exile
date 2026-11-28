@@ -96,6 +96,9 @@ public final class MistinnGateSentryTest implements FabricClientGameTest {
 			until(context, world, server -> (sentry[0].move() == GateSentry.Move.SLAM_WINDUP), GateSentry.WAKE + 40);
 			context.waitTicks(GateSentry.SLAM_WINDUP - 4);
 			context.takeScreenshot(TestScreenshotOptions.of("sentry-slam").disableCounterPrefix().withDestinationDir(java.nio.file.Path.of("sentry")));
+			until(context, world, server -> (sentry[0].move() == GateSentry.Move.SLAM), 20);
+			context.waitTicks(2);
+			check(context.computeOnClient(mc -> life.shizune.mistinn.client.anim.CameraSwing.shaking()), "the ground shakes under the one it slammed at");
 			until(context, world, server -> (sentry[0].move() == GateSentry.Move.RECOVER), 40);
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = player(server);
