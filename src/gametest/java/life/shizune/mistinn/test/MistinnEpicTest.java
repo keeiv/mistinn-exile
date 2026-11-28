@@ -77,29 +77,33 @@ public final class MistinnEpicTest implements FabricClientGameTest {
 			int sealed = context.computeOnClient(mc -> life.shizune.mistinn.client.epic.Legacy.pack().size());
 			check(sealed >= 14, "the pack holds what 3412 wore and carried: " + sealed);
 		}
-		// another world: free exploration, where the guide offers the pack back
-		context.runOnClient(mc -> life.shizune.mistinn.client.epic.Legacy.reread());
+		// another world: free exploration, where the guide offers the pack back (read afresh on joining, as a player's is)
 		WorldMode.choose(WorldMode.FREE);
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			context.waitTicks(40);
 			int before = context.computeOnClient(mc -> life.shizune.mistinn.client.epic.Legacy.pack().size());
 			check(before >= 14, "in another world the pack is still there: " + before);
 			net.minecraft.world.item.ItemStack first = context.computeOnClient(mc -> life.shizune.mistinn.client.epic.Legacy.pack().getFirst().copy());
-			context.runOnClient(mc -> life.shizune.mistinn.client.epic.Legacy.claim(0));
+			check(first.isEnchanted(), "the piece read in the new world keeps its enchantments: " + first);
+			// two quick clicks ask for it once
+			context.runOnClient(mc -> {
+				life.shizune.mistinn.client.epic.Legacy.claim(0);
+				life.shizune.mistinn.client.epic.Legacy.claim(0);
+			});
 			context.waitTicks(10);
 			int after = context.computeOnClient(mc -> life.shizune.mistinn.client.epic.Legacy.pack().size());
 			check(after == before - 1, "a piece taken out of the pack: " + after);
 			boolean has = world.getServer().computeOnServer(server -> {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
 				for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-					if (net.minecraft.world.item.ItemStack.isSameItem(player.getInventory().getItem(i), first)) {
+					if (net.minecraft.world.item.ItemStack.isSameItem(player.getInventory().getItem(i), first) && player.getInventory().getItem(i).isEnchanted()) {
 						return true;
 					}
 				}
 				var grid = life.shizune.mistinn.grid.GridService.get(player);
 				for (var area : life.shizune.mistinn.grid.GridService.ORDER) {
 					for (var placed : grid.items(area)) {
-						if (net.minecraft.world.item.ItemStack.isSameItem(placed.stack(), first)) {
+						if (net.minecraft.world.item.ItemStack.isSameItem(placed.stack(), first) && placed.stack().isEnchanted()) {
 							return true;
 						}
 					}

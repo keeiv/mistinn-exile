@@ -182,8 +182,10 @@ public final class MistinnWorld {
 	 */
 	public static void ensureSpawnStation(final MinecraftServer server) {
 		ServerLevel level = server.overworld();
-		// the epic wakes at the Mist Inn, not at a drop station
-		if (level.getAttachedOrElse(SPAWN_STATION, false) || life.shizune.mistinn.story.WorldMode.of(server) == life.shizune.mistinn.story.WorldMode.EPIC) {
+		// the epic wakes at the Mist Inn, not at a drop station; asked of the land itself, since a new world's mode is
+		// settled after this runs
+		if (level.getAttachedOrElse(SPAWN_STATION, false) || life.shizune.mistinn.story.WorldMode.of(server) == life.shizune.mistinn.story.WorldMode.EPIC
+			|| level.getChunkSource().getGenerator().getBiomeSource() instanceof life.shizune.mistinn.udasru.UdasruBiomes) {
 			return;
 		}
 		BlockPos spawn = level.getRespawnData().pos();

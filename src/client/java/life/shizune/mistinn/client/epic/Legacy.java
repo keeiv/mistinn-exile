@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.epic.LegacyService;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
@@ -34,11 +35,16 @@ public final class Legacy {
 	private static boolean read;
 	/** What the last answer said, to show on the pack's screen. */
 	private static @Nullable Component notice;
+	/** Set while a piece is asked for and not yet answered, so a second click does not ask for it twice. */
+	private static boolean pending;
 
 	private Legacy() {
 	}
 
 	public static void register() {
+		// the pack's pieces are read against a world's registries, so each world reads them afresh
+		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> reread());
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> reread());
 		ClientPlayNetworking.registerGlobalReceiver(LegacyService.SealedPayload.TYPE, (payload, context) -> {
 			pack = List.copyOf(payload.pack());
 			read = true;
@@ -46,6 +52,7 @@ public final class Legacy {
 			notice = Component.translatable("epic.mistinn.legacy.sealed", pack.size());
 		});
 		ClientPlayNetworking.registerGlobalReceiver(LegacyService.ClaimedPayload.TYPE, (payload, context) -> {
+			pending = false;
 			if (payload.given()) {
 				List<ItemStack> left = new ArrayList<>(pack());
 				if (payload.index() >= 0 && payload.index() < left.size()) {
@@ -129,14 +136,16 @@ public final class Legacy {
 	/** Asks for a piece of the pack, by its place in it. */
 	public static void claim(final int index) {
 		List<ItemStack> now = pack();
-		if (index >= 0 && index < now.size()) {
+		if (!pending && index >= 0 && index < now.size()) {
+			pending = true;
 			ClientPlayNetworking.send(new LegacyService.ClaimPayload(index, now.get(index)));
 		}
 	}
 
-	/** Forgets what was read, so the pack is read again (the test hook, and a new world's registries). */
+	/** Forgets what was read, so the pack is read again with the next world's registries. */
 	public static void reread() {
 		read = false;
+		pending = false;
 		pack = List.of();
 	}
 }
