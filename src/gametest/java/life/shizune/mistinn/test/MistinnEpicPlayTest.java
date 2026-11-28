@@ -222,6 +222,8 @@ public final class MistinnEpicPlayTest implements FabricClientGameTest {
 			// the pack sealed from the guide's own button
 			context.setScreen(HunterGuideScreen::new);
 			context.waitTicks(5);
+			check(context.computeOnClient(mc -> HunterGuideScreen.pageKey(58).endsWith(".epic") && HunterGuideScreen.pageKey(2).endsWith(".2")),
+				"in the epic the guide is the library's copy: Udasru where the station's book says the zone is empty");
 			click(context, "epic.mistinn.legacy.title");
 			context.waitForScreen(LegacyScreen.class);
 			click(context, "epic.mistinn.legacy.seal");

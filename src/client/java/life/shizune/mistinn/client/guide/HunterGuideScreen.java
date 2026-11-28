@@ -211,6 +211,15 @@ public class HunterGuideScreen extends Screen {
 		return new double[] {this.left() + W - 34 + 9.0, this.top() + 176 + 6.0};
 	}
 
+	/**
+	 * A page's words. In a world of the epic the guide is the Great Library's copy (篇冊): a page it has rewritten (the
+	 * cover, and Udasru where the station's book says the zone is empty) is read from its {@code .epic} key.
+	 */
+	public static String pageKey(final int page) {
+		String key = "item.mistinn.hunter_guide.page." + page;
+		return life.shizune.mistinn.client.epic.EpicClient.inEpic() && net.minecraft.locale.Language.getInstance().has(key + ".epic") ? key + ".epic" : key;
+	}
+
 	/** Below the book where the window has room for it; on a short window, over the spine at the foot of the spread. */
 	private int packButtonY() {
 		int below = this.top() + H + 6;
@@ -466,7 +475,7 @@ public class HunterGuideScreen extends Screen {
 			}
 			int px = x + (side == 0 ? 20 : 172);
 			int py = y + 18;
-			for (FormattedCharSequence row : this.font.split(Component.translatable("item.mistinn.hunter_guide.page." + page), PAGE_WIDTH)) {
+			for (FormattedCharSequence row : this.font.split(Component.translatable(pageKey(page)), PAGE_WIDTH)) {
 				g.text(this.font, row, px, py, INK, false);
 				py += 10;
 			}

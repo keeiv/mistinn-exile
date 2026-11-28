@@ -34,6 +34,14 @@ public final class MistinnGuidePagesTest implements FabricClientGameTest {
 					int rows = mc.font.split(Component.literal(text), HunterGuideScreen.PAGE_WIDTH).size();
 					check(rows <= HunterGuideScreen.PAGE_ROWS,
 						code + " page " + page + " runs to " + rows + " rows, past the " + HunterGuideScreen.PAGE_ROWS + " a page holds");
+					// the epic's own copy of a page fits as well
+					if (language.has(key + ".epic")) {
+						int epic = mc.font.split(Component.literal(language.getOrDefault(key + ".epic", "")), HunterGuideScreen.PAGE_WIDTH).size();
+						check(epic <= HunterGuideScreen.PAGE_ROWS, code + " the epic's page " + page + " runs to " + epic + " rows");
+					}
+				}
+				for (int page : new int[] {1, 58, 59}) {
+					check(language.has("item.mistinn.hunter_guide.page." + page + ".epic"), code + " the epic rewrites page " + page);
 				}
 			}
 			// the contents hold every chapter, in order: each on a line of its own on its spread, none down over the link
