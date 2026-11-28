@@ -641,6 +641,7 @@ public final class Expedition {
 		leave(player, away);
 		player.teleportTo(level, hub.getX() + 2.5, hub.getY() + 1.0, hub.getZ() + 0.5, Set.of(), player.getYRot(), 0.0F, true);
 		player.sendSystemMessage(Component.translatable("message.mistinn.expedition.home", name(away.ground())).withStyle(ChatFormatting.AQUA));
+		life.shizune.mistinn.terra.Commissions.extracted(player, away.ground());
 	}
 
 	/** The expedition is over for this hunter: no longer away, no longer counted in, free to build again. */

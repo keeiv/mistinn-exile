@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.registry.MistinnItems;
 import life.shizune.mistinn.salt.SaltService;
@@ -60,7 +61,9 @@ public final class Commissions {
 		/** Bring back so much of something, to the keeper who asked. */
 		DELIVER,
 		/** Hold the homestead through a crystal tide; the next night it comes. */
-		GUARD;
+		GUARD,
+		/** Go to one of the forebears' grounds and get out alive; always on the board once the tillers trust the hunters enough. */
+		EXPEDITION;
 
 		public final String id = this.name().toLowerCase(Locale.ROOT);
 
@@ -101,6 +104,9 @@ public final class Commissions {
 			}
 			if (this.kind == Kind.HUNT) {
 				return BuiltInRegistries.ENTITY_TYPE.getOptional(id).map(EntityType::getDescription).orElse(Component.literal(this.what));
+			}
+			if (this.kind == Kind.EXPEDITION) {
+				return life.shizune.mistinn.expedition.Expedition.name(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, id));
 			}
 			return BuiltInRegistries.ITEM.getOptional(id).map(item -> item.getName(item.getDefaultInstance())).orElse(Component.literal(this.what));
 		}
@@ -192,7 +198,7 @@ public final class Commissions {
 		public static final StreamCodec<ByteBuf, BoardPayload> CODEC = StreamCodec.composite(
 			ByteBufCodecs.VAR_INT, BoardPayload::keeper,
 			ByteBufCodecs.VAR_INT, BoardPayload::domain,
-			Commission.STREAM_CODEC.apply(ByteBufCodecs.list(BOARD + 1)), BoardPayload::offers,
+			Commission.STREAM_CODEC.apply(ByteBufCodecs.list(BOARD + 1 + life.shizune.mistinn.expedition.Grounds.ALL.size())), BoardPayload::offers,
 			ByteBufCodecs.VAR_INT, BoardPayload::trust,
 			ByteBufCodecs.BOOL, BoardPayload::trades,
 			BoardPayload::new);
@@ -226,7 +232,7 @@ public final class Commissions {
 		}
 		MinecraftServer server = hunter.level().getServer();
 		net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(hunter, new BoardPayload(keeper.getId(), home.domain(),
-			board(server, home.domain()).offers(), trust(server), keeper.role() == Tiller.Role.ELDER));
+			offers(server, home.domain()), trust(server), keeper.role() == Tiller.Role.ELDER));
 	}
 
 	/** What the screen asked, decided here as if asked in person. */
@@ -238,6 +244,12 @@ public final class Commissions {
 			case "take" -> take(hunter, keeper, payload.commission());
 			case "abandon" -> abandon(hunter);
 			case "hand" -> handIn(hunter, keeper);
+			case "depart" -> {
+				if (asking(hunter, keeper) != null) {
+					depart(hunter);
+				}
+				yield null;
+			}
 			case "trade" -> {
 				if (asking(hunter, keeper) != null && keeper.role() == Tiller.Role.ELDER) {
 					keeper.trade(hunter);
@@ -294,6 +306,33 @@ public final class Commissions {
 		Board filled = new Board(domain, List.copyOf(offers), today);
 		putBoard(server, new State(state.boards(), state.trust(), issued), filled);
 		return filled;
+	}
+
+	/** Trust that opens each of the forebears' grounds to expeditions. */
+	private static final Map<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>, Integer> OPENS = Map.of(
+		life.shizune.mistinn.expedition.Grounds.DAM, 1);
+	/** What an expedition pays: salt and cores. */
+	public static final int EXPEDITION_SALT = 600;
+	public static final int EXPEDITION_CORES = 2;
+
+	/** The expeditions the tillers trust the hunters with now: one for each ground opened, and ready. */
+	public static List<Commission> expeditions(final MinecraftServer server) {
+		List<Commission> open = new ArrayList<>();
+		int trust = trust(server);
+		for (net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> ground : life.shizune.mistinn.expedition.Grounds.ALL) {
+			if (trust >= OPENS.getOrDefault(ground, Integer.MAX_VALUE) && life.shizune.mistinn.expedition.Expedition.layout(ground) != null) {
+				open.add(new Commission("x_" + ground.identifier().getPath(), Kind.EXPEDITION, ground.identifier().toString(), 1,
+					EXPEDITION_SALT, EXPEDITION_CORES));
+			}
+		}
+		return open;
+	}
+
+	/** Everything a homestead's keeper offers today: its board, and the expeditions, which stay on it. */
+	public static List<Commission> offers(final MinecraftServer server, final int domain) {
+		List<Commission> all = new ArrayList<>(board(server, domain).offers());
+		all.addAll(expeditions(server));
+		return all;
 	}
 
 	/** Puts these commissions on a homestead's board for today, in place of what was there (tests, and the server's own use). */
@@ -398,15 +437,48 @@ public final class Commissions {
 		}
 		MinecraftServer server = hunter.level().getServer();
 		Board board = board(server, home.domain());
-		Commission chosen = board.offers().stream().filter(c -> c.id().equals(id)).findFirst().orElse(null);
+		Commission chosen = board.offers().stream().filter(c -> c.id().equals(id)).findFirst()
+			.orElse(expeditions(server).stream().filter(c -> c.id().equals(id)).findFirst().orElse(null));
 		if (chosen == null) {
 			return Result.GONE;
 		}
-		List<Commission> left = new ArrayList<>(board.offers());
-		left.remove(chosen);
-		putBoard(server, state(server), new Board(home.domain(), List.copyOf(left), board.day()));
+		if (chosen.kind() != Kind.EXPEDITION) {
+			List<Commission> left = new ArrayList<>(board.offers());
+			left.remove(chosen);
+			putBoard(server, state(server), new Board(home.domain(), List.copyOf(left), board.day()));
+		}
 		hunter.setAttached(TAKEN, new Taken(chosen, home.domain(), 0, hunter.level().getGameTime() + HELD));
 		return Result.TAKEN;
+	}
+
+	/** The hunter sets out on the expedition they hold, from the hub they stand at; told why not, if they cannot. */
+	public static void depart(final ServerPlayer hunter) {
+		Taken taken = hunter.getAttached(TAKEN);
+		if (taken == null || taken.commission().kind() != Kind.EXPEDITION) {
+			hunter.sendSystemMessage(Component.translatable(Result.NONE.key()).withStyle(ChatFormatting.GRAY), true);
+			return;
+		}
+		net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> ground = net.minecraft.resources.ResourceKey.create(
+			net.minecraft.core.registries.Registries.DIMENSION, Identifier.parse(taken.commission().what()));
+		life.shizune.mistinn.expedition.Expedition.Result result = life.shizune.mistinn.expedition.Expedition.muster(hunter, ground);
+		if (result != life.shizune.mistinn.expedition.Expedition.Result.MUSTERING) {
+			hunter.sendSystemMessage(Component.translatable("message.mistinn.expedition.refused." + result.name().toLowerCase(Locale.ROOT))
+				.withStyle(ChatFormatting.GRAY), true);
+		}
+	}
+
+	/** A hunter got out of a ground alive: an expedition there they hold is done. */
+	public static void extracted(final ServerPlayer hunter, final net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> ground) {
+		Taken taken = hunter.getAttached(TAKEN);
+		if (taken != null && taken.commission().kind() == Kind.EXPEDITION && taken.commission().what().equals(ground.identifier().toString())) {
+			done(hunter, taken.with(1));
+		}
+	}
+
+	/** For tests: the tillers' trust in the hunters, set. */
+	public static void trust(final MinecraftServer server, final int trust) {
+		State state = state(server);
+		set(server, new State(state.boards(), trust, state.issued()));
 	}
 
 	/** The hunter lets their commission go: nothing is lost but the commission. */
