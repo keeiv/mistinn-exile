@@ -3,6 +3,7 @@ package life.shizune.mistinn.test;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import life.shizune.mistinn.client.terra.CommissionScreen;
 import life.shizune.mistinn.domain.Domain;
 import life.shizune.mistinn.expedition.DamGround;
 import life.shizune.mistinn.expedition.Expedition;
@@ -51,6 +52,7 @@ public final class MistinnExpeditionCommissionTest implements FabricClientGameTe
 			context.waitTicks(20);
 			Settlements.Settlement[] home = new Settlements.Settlement[1];
 			int[] salt = new int[1];
+			int[] expedition = new int[1];
 			world.getServer().runOnServer(server -> {
 				ServerLevel level = server.overworld();
 				ServerPlayer player = player(server);
@@ -70,14 +72,34 @@ public final class MistinnExpeditionCommissionTest implements FabricClientGameTe
 				Commissions.Commission dam = offers.stream().filter(c -> c.kind() == Commissions.Kind.EXPEDITION).findFirst().orElse(null);
 				check(dam != null && dam.what().equals(Grounds.DAM.identifier().toString()), "one commission done, the dam is offered: " + offers);
 				check(dam.describe().getString().contains(Expedition.name(Grounds.DAM).getString()), "named as the dam: " + dam.describe().getString());
-				check(Commissions.take(player, elder, dam.id()) == Commissions.Result.TAKEN, "the hunter takes it");
-				check(Commissions.offers(server, home[0].domain()).stream().anyMatch(c -> c.id().equals(dam.id())), "and it stays on the board");
-				player.teleportTo(level, home[0].hub().getX() + 2.5, home[0].hub().getY() + 1.0, home[0].hub().getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
-				salt[0] = SaltService.get(player);
-				Commissions.depart(player);
-				check(Expedition.mustering(), "from the hub, holding it, they set out");
+				expedition[0] = offers.indexOf(dam);
 			});
-			context.waitTicks(5);
+			// (waking the hub puts its tillers back afresh: the elder is looked for again once it has)
+			context.waitTicks(10);
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				ServerPlayer player = player(server);
+				Tiller elder = elder(level, home[0]);
+				// the elder by the hub, as by day; the hunter beside both, at the board
+				BlockPos hub = home[0].hub();
+				elder.setNoAi(true);
+				elder.teleportTo(hub.getX() + 3.5, hub.getY() + 1.0, hub.getZ() + 0.5);
+				player.teleportTo(level, hub.getX() + 2.5, hub.getY() + 1.0, hub.getZ() + 2.5, Set.of(), 0.0F, 0.0F, true);
+				salt[0] = SaltService.get(player);
+				Commissions.open(player, elder);
+			});
+			context.waitTicks(10);
+			check(context.computeOnClient(mc -> mc.gui.screen() instanceof CommissionScreen), "the keeper's board is open");
+			click(context, "gui.mistinn.commission.take", expedition[0]);
+			context.waitFor(mc -> mc.player.hasAttached(Commissions.TAKEN), 100);
+			world.getServer().runOnServer(server -> {
+				Commissions.Taken taken = player(server).getAttached(Commissions.TAKEN);
+				check(taken != null && taken.commission().kind() == Commissions.Kind.EXPEDITION, "on the board, the hunter takes the expedition");
+				check(Commissions.offers(server, home[0].domain()).stream().anyMatch(c -> c.kind() == Commissions.Kind.EXPEDITION), "and it stays on the board");
+			});
+			click(context, "gui.mistinn.commission.depart", 0);
+			check(world.getServer().computeOnServer(server -> Expedition.mustering()), "\"set out\" on the board, by the hub, and the party gathers");
+			check(context.computeOnClient(mc -> !(mc.gui.screen() instanceof CommissionScreen)), "the board closes as they go");
 			check(context.computeOnClient(mc -> mc.getSituationalMusic().sound().value() == life.shizune.mistinn.registry.MistinnSounds.MUSIC_MUSTER),
 				"holding an expedition at a homestead, the setting out's music plays");
 			context.waitTicks(Expedition.musterTicks + 15);
@@ -99,6 +121,19 @@ public final class MistinnExpeditionCommissionTest implements FabricClientGameTe
 			Expedition.musterTicks = 200;
 			Expedition.exitTicks = 600;
 		}
+	}
+
+	/** Clicks a button of the open board, by its words and which of them it is. */
+	private static void click(final ClientGameTestContext context, final String key, final int index) {
+		double[] at = context.computeOnClient(mc -> {
+			double[] gui = ((CommissionScreen) mc.gui.screen()).buttonCentre(key, index);
+			double scale = mc.getWindow().getGuiScale();
+			return new double[] {gui[0] * scale, gui[1] * scale};
+		});
+		context.getInput().setCursorPos(at[0], at[1]);
+		context.waitTicks(2);
+		context.getInput().pressMouse(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT);
+		context.waitTicks(6);
 	}
 
 	private static void fly(final ServerPlayer player) {

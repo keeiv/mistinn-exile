@@ -132,12 +132,36 @@ public final class MistinnDamTest implements FabricClientGameTest {
 			world.getServer().runOnServer(server -> {
 				ServerLevel dam = server.getLevel(Grounds.DAM);
 				AABB about = new AABB(DamGround.SPILLWAY.centre()).inflate(16.0);
-				int before = dam.getEntitiesOfClass(CrystalLizard.class, about).size();
+				java.util.Set<java.util.UUID> there = new HashSet<>();
+				dam.getEntitiesOfClass(CrystalLizard.class, about).forEach(l -> there.add(l.getUUID()));
+				int before = there.size();
 				new DamGround().wave(dam, DamGround.SPILLWAY, 1, dam.getRandom());
 				List<CrystalLizard> after = dam.getEntitiesOfClass(CrystalLizard.class, about);
 				check(after.size() - before == 3, "the second wave is three lizards: " + before + " then " + after.size());
 				check(after.stream().noneMatch(l -> DamGround.SPILLWAY.holds(l)), "none of them comes up in the way out itself");
 				check(after.stream().allMatch(l -> l.getMaxHealth() >= 23.0F), "and they are as strong as the rest");
+				for (CrystalLizard lizard : after.stream().filter(l -> !there.contains(l.getUUID())).toList()) {
+					net.minecraft.world.level.pathfinder.Path path = lizard.getNavigation().createPath(DamGround.SPILLWAY.centre(), 1);
+					check(path != null && path.canReach(), "a lizard at " + lizard.blockPosition() + " finds its way to the spillway");
+				}
+				player(server).teleportTo(dam, 0.5, DamGround.TOWER.centre().getY(), -43.5, Set.of(), 0.0F, 0.0F, true);
+			});
+			// and on the tower's roof, from the bridge and the stairs
+			context.waitTicks(60);
+			world.getServer().runOnServer(server -> {
+				ServerLevel dam = server.getLevel(Grounds.DAM);
+				AABB about = new AABB(DamGround.TOWER.centre()).inflate(16.0);
+				java.util.Set<java.util.UUID> there = new HashSet<>();
+				dam.getEntitiesOfClass(CrystalLizard.class, about).forEach(l -> there.add(l.getUUID()));
+				int before = there.size();
+				new DamGround().wave(dam, DamGround.TOWER, 2, dam.getRandom());
+				List<CrystalLizard> after = dam.getEntitiesOfClass(CrystalLizard.class, about);
+				check(after.size() - before == 4, "the third wave at the tower is four lizards: " + before + " then " + after.size());
+				check(!dam.getEntitiesOfClass(CrystalDrake.class, about.inflate(8.0)).isEmpty(), "and a drake with them");
+				for (CrystalLizard lizard : after.stream().filter(l -> !there.contains(l.getUUID())).toList()) {
+					net.minecraft.world.level.pathfinder.Path path = lizard.getNavigation().createPath(DamGround.TOWER.centre(), 1);
+					check(path != null && path.canReach(), "a lizard at " + lizard.blockPosition() + " finds its way up to the roof");
+				}
 				// nothing in the pictures but the place
 				for (net.minecraft.world.entity.Entity entity : dam.getEntities((net.minecraft.world.entity.Entity) null, AABB.of(new DamGround().bounds()),
 					e -> !(e instanceof ServerPlayer))) {
