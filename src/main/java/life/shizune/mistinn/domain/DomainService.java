@@ -98,6 +98,8 @@ public final class DomainService {
 			}
 		});
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> WAITING.clear());
+		// the clients' view is not kept with the world: it is drawn again from the book each time the world opens
+		ServerLifecycleEvents.SERVER_STARTED.register(server -> show(server.overworld(), book(server)));
 	}
 
 	public static void shaper(final Domain.Kind kind, final Shaper shaper) {
@@ -205,7 +207,11 @@ public final class DomainService {
 	private static void write(final MinecraftServer server, final Book book) {
 		ServerLevel level = server.overworld();
 		level.setAttached(BOOK, book);
-		// clients do not need to follow the spread, so they hear only of real changes
+		show(level, book);
+	}
+
+	/** Tells every client of the domains as the book has them; they do not follow the spread, so they hear only of real changes. */
+	private static void show(final ServerLevel level, final Book book) {
 		List<Domain> view = new ArrayList<>(book.domains().size());
 		for (Domain domain : book.domains()) {
 			view.add(domain.spread(0));
