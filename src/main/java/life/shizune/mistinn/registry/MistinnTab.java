@@ -77,6 +77,11 @@ public final class MistinnTab {
 				output.accept(MistinnItems.MIST_PINE_TRAPDOOR);
 				output.accept(MistinnItems.MIST_PINE_BUTTON);
 				output.accept(MistinnItems.MIST_PINE_PRESSURE_PLATE);
+				output.accept(MistinnItems.STRIPPED_MIST_PINE_LOG);
+				output.accept(MistinnItems.MIST_PINE_SIGN);
+				output.accept(MistinnItems.MIST_PINE_HANGING_SIGN);
+				output.accept(MistinnItems.MIST_PINE_BOAT);
+				output.accept(MistinnItems.MIST_PINE_CHEST_BOAT);
 				output.accept(MistinnItems.MIST_PINE_LEAVES);
 				output.accept(MistinnItems.JADE_GRASS);
 				output.accept(MistinnItems.JADE_FERN);

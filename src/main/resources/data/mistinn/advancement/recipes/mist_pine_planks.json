@@ -12,7 +12,7 @@
       "conditions": {
         "items": [
           {
-            "items": "mistinn:mist_pine_log"
+            "items": "#mistinn:mist_pine_logs"
           }
         ]
       }

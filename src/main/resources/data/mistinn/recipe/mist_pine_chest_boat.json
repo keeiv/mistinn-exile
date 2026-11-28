@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "chest_boat",
+  "ingredients": [
+    "minecraft:chest",
+    "mistinn:mist_pine_boat"
+  ],
+  "result": {
+    "id": "mistinn:mist_pine_chest_boat"
+  }
+}

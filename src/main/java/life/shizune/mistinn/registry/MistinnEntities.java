@@ -127,6 +127,15 @@ public final class MistinnEntities {
 	public static final EntityType<life.shizune.mistinn.weapon.ElementArrow> BLAST_ARROW = arrow("blast_arrow", life.shizune.mistinn.weapon.ElementArrow.Kind.BLAST);
 	public static final EntityType<life.shizune.mistinn.weapon.ElementArrow> FROST_ARROW = arrow("frost_arrow", life.shizune.mistinn.weapon.ElementArrow.Kind.FROST);
 	public static final EntityType<life.shizune.mistinn.weapon.ElementArrow> SHOCK_ARROW = arrow("shock_arrow", life.shizune.mistinn.weapon.ElementArrow.Kind.SHOCK);
+	/** The mist pine's boats, plain and with a chest. */
+	public static final EntityType<net.minecraft.world.entity.vehicle.boat.Boat> MIST_PINE_BOAT = register("mist_pine_boat",
+		EntityType.Builder.<net.minecraft.world.entity.vehicle.boat.Boat>of(
+		(type, level) -> new net.minecraft.world.entity.vehicle.boat.Boat(type, level, () -> MistinnItems.MIST_PINE_BOAT), MobCategory.MISC)
+		.noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
+	public static final EntityType<net.minecraft.world.entity.vehicle.boat.ChestBoat> MIST_PINE_CHEST_BOAT = register("mist_pine_chest_boat",
+		EntityType.Builder.<net.minecraft.world.entity.vehicle.boat.ChestBoat>of(
+		(type, level) -> new net.minecraft.world.entity.vehicle.boat.ChestBoat(type, level, () -> MistinnItems.MIST_PINE_CHEST_BOAT), MobCategory.MISC)
+		.noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
 
 	/** 晶龍: a wyvern of living crystal that keeps the skies of a Terra highland. */
 	public static final EntityType<life.shizune.mistinn.terra.CrystalDrake> CRYSTAL_DRAKE = register("crystal_drake",

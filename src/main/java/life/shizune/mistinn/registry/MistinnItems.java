@@ -128,6 +128,14 @@ public final class MistinnItems {
 		new Item.Properties());
 	public static final Item SHOCK_ARROW = register("shock_arrow", p -> new life.shizune.mistinn.weapon.ElementArrowItem(life.shizune.mistinn.weapon.ElementArrow.Kind.SHOCK, p),
 		new Item.Properties());
+	public static final Item STRIPPED_MIST_PINE_LOG = block("stripped_mist_pine_log", MistinnBlocks.STRIPPED_MIST_PINE_LOG, new Item.Properties());
+	public static final Item MIST_PINE_SIGN = register("mist_pine_sign", p -> new net.minecraft.world.item.StandingAndWallBlockItem(MistinnBlocks.MIST_PINE_SIGN,
+		MistinnBlocks.MIST_PINE_WALL_SIGN, net.minecraft.core.Direction.DOWN, p), new Item.Properties().stacksTo(16).useBlockDescriptionPrefix());
+	public static final Item MIST_PINE_HANGING_SIGN = register("mist_pine_hanging_sign", p -> new net.minecraft.world.item.HangingSignItem(MistinnBlocks.MIST_PINE_HANGING_SIGN,
+		MistinnBlocks.MIST_PINE_WALL_HANGING_SIGN, p), new Item.Properties().stacksTo(16).useBlockDescriptionPrefix());
+	public static final Item MIST_PINE_BOAT = register("mist_pine_boat", p -> new net.minecraft.world.item.BoatItem(MistinnEntities.MIST_PINE_BOAT, p), new Item.Properties().stacksTo(1));
+	public static final Item MIST_PINE_CHEST_BOAT = register("mist_pine_chest_boat", p -> new net.minecraft.world.item.BoatItem(MistinnEntities.MIST_PINE_CHEST_BOAT, p),
+		new Item.Properties().stacksTo(1));
 	public static final Item MIST_PINE_STAIRS = block("mist_pine_stairs", MistinnBlocks.MIST_PINE_STAIRS, new Item.Properties());
 	public static final Item MIST_PINE_SLAB = block("mist_pine_slab", MistinnBlocks.MIST_PINE_SLAB, new Item.Properties());
 	public static final Item MIST_PINE_FENCE = block("mist_pine_fence", MistinnBlocks.MIST_PINE_FENCE, new Item.Properties());

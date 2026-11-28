@@ -53,6 +53,8 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.skill.Masteries.register();
 		life.shizune.mistinn.weapon.SkeletonAmmo.register();
 		life.shizune.mistinn.weapon.ElementArrow.register();
+		// the mist pine's signs keep their words as any sign does
+		life.shizune.mistinn.registry.MistinnBlocks.signs();
 		life.shizune.mistinn.skill.SlideService.register();
 		life.shizune.mistinn.voice.Voice.register();
 		life.shizune.mistinn.weapon.HeavyService.register();

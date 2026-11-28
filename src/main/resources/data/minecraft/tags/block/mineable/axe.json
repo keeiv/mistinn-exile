@@ -10,6 +10,11 @@
     "mistinn:mist_pine_door",
     "mistinn:mist_pine_trapdoor",
     "mistinn:mist_pine_button",
-    "mistinn:mist_pine_pressure_plate"
+    "mistinn:mist_pine_pressure_plate",
+    "mistinn:mist_pine_sign",
+    "mistinn:mist_pine_wall_sign",
+    "mistinn:mist_pine_hanging_sign",
+    "mistinn:mist_pine_wall_hanging_sign",
+    "mistinn:stripped_mist_pine_log"
   ]
 }
