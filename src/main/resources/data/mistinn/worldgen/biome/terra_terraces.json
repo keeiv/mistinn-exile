@@ -30,7 +30,17 @@
         "spawns_by_category": {
           "ambient": [],
           "axolotls": [],
-          "creature": [],
+          "creature": [
+            {
+              "type": "mistinn:jade_antelope",
+              "count": {
+                "type": "minecraft:uniform",
+                "min_inclusive": 2,
+                "max_inclusive": 4
+              },
+              "weight": 12
+            }
+          ],
           "misc": [],
           "monster": [
             {

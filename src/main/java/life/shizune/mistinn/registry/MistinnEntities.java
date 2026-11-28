@@ -116,6 +116,13 @@ public final class MistinnEntities {
 		.clientTrackingRange(10)
 		.fireImmune());
 
+	/** 玉角羚: the gentle grazer of Terra's valleys, horned with jade crystal; its hide is leather. */
+	public static final EntityType<life.shizune.mistinn.terra.JadeAntelope> JADE_ANTELOPE = register("jade_antelope",
+		EntityType.Builder.<life.shizune.mistinn.terra.JadeAntelope>of(life.shizune.mistinn.terra.JadeAntelope::new, MobCategory.CREATURE)
+		.sized(0.9F, 1.4F)
+		.eyeHeight(1.45F)
+		.clientTrackingRange(10));
+
 	/** 晶龍: a wyvern of living crystal that keeps the skies of a Terra highland. */
 	public static final EntityType<life.shizune.mistinn.terra.CrystalDrake> CRYSTAL_DRAKE = register("crystal_drake",
 		EntityType.Builder.<life.shizune.mistinn.terra.CrystalDrake>of(life.shizune.mistinn.terra.CrystalDrake::new, MobCategory.MONSTER)
@@ -187,6 +194,10 @@ public final class MistinnEntities {
 		FabricDefaultAttributeRegistry.register(RIFT_HOUND, life.shizune.mistinn.rift.RiftHound.createAttributes());
 		FabricDefaultAttributeRegistry.register(CRYSTAL_LIZARD, life.shizune.mistinn.terra.CrystalLizard.createAttributes());
 		FabricDefaultAttributeRegistry.register(GATE_SENTRY, life.shizune.mistinn.terra.GateSentry.createAttributes());
+		FabricDefaultAttributeRegistry.register(JADE_ANTELOPE, life.shizune.mistinn.terra.JadeAntelope.createAttributes());
+		// jade-horn antelopes graze the valleys' jade turf in small herds
+		life.shizune.mistinn.mixin.SpawnPlacementsInvoker.mistinn$register(JADE_ANTELOPE, net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+			net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, life.shizune.mistinn.terra.JadeAntelope::checkSpawnRules);
 		// crystal drakes come of themselves under the open sky of a Terra highland, day or night
 		life.shizune.mistinn.mixin.SpawnPlacementsInvoker.mistinn$register(CRYSTAL_DRAKE, net.minecraft.world.entity.SpawnPlacementTypes.NO_RESTRICTIONS,
 			net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, life.shizune.mistinn.terra.CrystalDrake::checkSpawnRules);

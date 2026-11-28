@@ -311,6 +311,7 @@ public class Tiller extends PathfinderMob implements Merchant {
 		list.add(deal(new ItemCost(MistinnItems.CRYSTAL_DUST, 4), new ItemStack(MistinnItems.CRYSTAL_WHETSTONE, 2)));
 		list.add(deal(new ItemCost(MistinnItems.CRYSTAL_CORE, 1), new ItemStack(MistinnItems.RESONANCE_FORK)));
 		list.add(deal(new ItemCost(MistinnItems.CRYSTAL_DUST, 3), new ItemStack(Items.BREAD, 4)));
+		list.add(deal(new ItemCost(MistinnItems.CRYSTAL_DUST, 3), new ItemStack(Items.LEATHER, 2)));
 		list.add(deal(new ItemCost(MistinnItems.CRYSTAL_DUST, 5), new ItemStack(MistinnItems.TOURNIQUET, 2)));
 		list.add(deal(new ItemCost(MistinnItems.CRYSTAL_DUST, 8), new ItemStack(MistinnItems.PAINKILLERS)));
 		list.add(deal(new ItemCost(MistinnItems.CRYSTAL_CORE, 1), new ItemStack(MistinnItems.POTENT_INJECTOR)));

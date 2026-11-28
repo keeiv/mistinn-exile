@@ -213,6 +213,10 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.terra.CrystalLizardModel::createBodyLayer);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.CRYSTAL_LIZARD,
 			life.shizune.mistinn.client.terra.CrystalLizardRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.terra.JadeAntelopeModel.LAYER,
+			life.shizune.mistinn.client.terra.JadeAntelopeModel::createBodyLayer);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.JADE_ANTELOPE,
+			life.shizune.mistinn.client.terra.JadeAntelopeRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.terra.GateSentryModel.LAYER,
 			life.shizune.mistinn.client.terra.GateSentryModel::createBodyLayer);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.GATE_SENTRY,
