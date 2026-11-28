@@ -243,7 +243,7 @@ public class Tiller extends PathfinderMob implements Merchant {
 			return "message.mistinn.tiller.squall";
 		}
 		if (this.level().getServer() != null) {
-			life.shizune.mistinn.domain.Domain domain = life.shizune.mistinn.domain.DomainService.at(this.level().getServer(), this.getX(), this.getZ());
+			life.shizune.mistinn.domain.Domain domain = life.shizune.mistinn.domain.DomainService.at(this.level(), this.getX(), this.getZ());
 			if (domain != null && Siege.watch(this.level().getServer(), domain.id()).on()) {
 				return "message.mistinn.tiller.siege";
 			}

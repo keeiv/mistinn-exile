@@ -143,6 +143,15 @@ public final class DomainService {
 		return null;
 	}
 
+	/**
+	 * The domain covering this column of {@code level}, if any. Domains lie only in the overworld: anywhere else (an
+	 * expedition's ground, the nether) the same numbers are another place, and nothing covers them.
+	 */
+	public static @Nullable Domain at(final Level level, final double x, final double z) {
+		MinecraftServer server = level.getServer();
+		return server == null || level.dimension() != Level.OVERWORLD ? null : at(server, x, z);
+	}
+
 	/** Whether a new domain here would come within {@code gap} blocks of another's edge. */
 	public static boolean crowded(final MinecraftServer server, final BlockPos centre, final int radius, final int gap) {
 		for (Domain domain : all(server)) {
