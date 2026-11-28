@@ -80,7 +80,9 @@ public final class Haunting {
 	/** The line as the hunter reads it now: with how many times they have been dropped, and how many have been sent down. */
 	public static Component text(final String base) {
 		Ledger ledger = LedgerClient.ledger();
-		return Component.translatable(key(base), ledger.drops(), ledger.sent(), net.minecraft.client.Minecraft.getInstance().getUser().getName());
+		// the fourth: the name the epic was written under, in a world of the epic (3412's number until then)
+		return Component.translatable(key(base), ledger.drops(), ledger.sent(), net.minecraft.client.Minecraft.getInstance().getUser().getName(),
+			life.shizune.mistinn.client.epic.EpicClient.name());
 	}
 
 	/**

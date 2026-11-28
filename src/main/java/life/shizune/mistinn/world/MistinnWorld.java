@@ -135,14 +135,14 @@ public final class MistinnWorld {
 
 		GenerationStep.Decoration step = GenerationStep.Decoration.SURFACE_STRUCTURES;
 		BiomeModifications.addFeature(
-			BiomeSelectors.foundInOverworld().and(c -> !c.hasTag(BiomeTags.IS_OCEAN) && !c.hasTag(BiomeTags.IS_RIVER) && !c.hasTag(BiomeTags.IS_BEACH)),
+			BiomeSelectors.foundInOverworld().and(MistinnWorld::outsideUdasru).and(c -> !c.hasTag(BiomeTags.IS_OCEAN) && !c.hasTag(BiomeTags.IS_RIVER) && !c.hasTag(BiomeTags.IS_BEACH)),
 			step,
 			placed("drop_station")
 		);
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_BEACH).or(BiomeSelectors.tag(BiomeTags.IS_BADLANDS)), step, placed("salt_cairn"));
 		BiomeModifications.addFeature(BiomeSelectors.tag(BiomeTags.IS_BEACH), step, placed("anchor_wreck"));
 		BiomeModifications.addFeature(
-			BiomeSelectors.foundInOverworld().and(c -> !c.hasTag(BiomeTags.IS_OCEAN) && !c.hasTag(BiomeTags.IS_RIVER)),
+			BiomeSelectors.foundInOverworld().and(MistinnWorld::outsideUdasru).and(c -> !c.hasTag(BiomeTags.IS_OCEAN) && !c.hasTag(BiomeTags.IS_RIVER)),
 			step,
 			placed("watchpost")
 		);
@@ -156,7 +156,7 @@ public final class MistinnWorld {
 
 		// inland on level ground, rarest of the keepers' places: the salt works
 		BiomeModifications.addFeature(
-			BiomeSelectors.foundInOverworld().and(c -> !c.hasTag(BiomeTags.IS_OCEAN) && !c.hasTag(BiomeTags.IS_RIVER) && !c.hasTag(BiomeTags.IS_BEACH)),
+			BiomeSelectors.foundInOverworld().and(MistinnWorld::outsideUdasru).and(c -> !c.hasTag(BiomeTags.IS_OCEAN) && !c.hasTag(BiomeTags.IS_RIVER) && !c.hasTag(BiomeTags.IS_BEACH)),
 			step,
 			placed("salt_works")
 		);
@@ -168,6 +168,11 @@ public final class MistinnWorld {
 		ServerLifecycleEvents.SERVER_STARTED.register(MistinnWorld::ensureSpawnStation);
 		ShoreMist.init();
 		life.shizune.mistinn.shore.ShoreSpawner.init();
+	}
+
+	/** Udasru's land is drawn and built by hand: the coast's scattered buildings never stand on it. */
+	private static boolean outsideUdasru(final net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext context) {
+		return !context.getBiomeKey().toString().contains("mistinn:udasru_");
 	}
 
 	/**

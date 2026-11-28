@@ -1,0 +1,20 @@
+{
+  "replace": false,
+  "values": [
+    "mistinn:udasru_sea",
+    "mistinn:udasru_shore",
+    "mistinn:udasru_mist_rim",
+    "mistinn:udasru_bell_plains",
+    "mistinn:udasru_capital",
+    "mistinn:udasru_salt_flats",
+    "mistinn:udasru_salt_marsh",
+    "mistinn:udasru_old_woods",
+    "mistinn:udasru_frost_ridge",
+    "mistinn:udasru_rust_wastes",
+    "mistinn:udasru_crystal_highland",
+    "mistinn:udasru_river",
+    "mistinn:udasru_lake",
+    "mistinn:udasru_anchor_hills",
+    "mistinn:udasru_bell_bay"
+  ]
+}

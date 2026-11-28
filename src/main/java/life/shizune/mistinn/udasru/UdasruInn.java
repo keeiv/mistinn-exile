@@ -118,7 +118,7 @@ public final class UdasruInn {
 		}
 		b.hanging(-2, 4, 0, Blocks.LANTERN);
 		b.hanging(3, 4, 0, Blocks.LANTERN);
-		b.container(HX - 1, 1, HZ - 1, Blocks.BARREL, Direction.UP, "minecraft:chests/village/village_plains_house");
+		b.container(HX - 1, 1, HZ - 1, Blocks.BARREL, Direction.UP, "chests/udasru_house");
 
 		// upstairs: the rooms
 		b.bed(BED.getX(), BED.getY(), BED.getZ(), Blocks.BED.lightBlue(), Direction.NORTH);
