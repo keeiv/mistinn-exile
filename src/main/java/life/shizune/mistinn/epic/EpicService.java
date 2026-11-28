@@ -274,9 +274,10 @@ public final class EpicService {
 		if (state.at() == EpicStep.BELLS && state.bellsRung() >= 2 && !state.has(EpicState.RIFTED) && !state.has(EpicState.RIFT_OPEN)) {
 			openRift(server);
 		} else if (state.at() == EpicStep.DEFEND && !riftOpen(server)) {
-			set(server, state(server).with(EpicState.RIFT_OPEN, false).with(EpicState.RIFTED, true));
+			// back to the bells (a step back on the road, so set rather than advanced)
+			EpicState held = state(server).with(EpicState.RIFT_OPEN, false).with(EpicState.RIFTED, true);
+			set(server, held.at(held.bellsRung() >= 4 ? EpicStep.GREAT_BELL : EpicStep.BELLS));
 			playAll(server, EpicScript.RIFT_HELD);
-			advance(server, state(server).bellsRung() >= 4 ? EpicStep.GREAT_BELL : EpicStep.BELLS);
 		}
 		// the beasts stand bigger in the epic
 		for (UdasruPlaces.GreatBell bell : UdasruPlaces.GreatBell.values()) {
@@ -308,10 +309,11 @@ public final class EpicService {
 		}
 		EpicState state = state(server);
 		for (UdasruPlaces.Tower tower : UdasruPlaces.Tower.values()) {
-			int ground = level.getHeight(Heightmap.Types.OCEAN_FLOOR, tower.x + 6, tower.z + 6);
-			if (Math.abs(at.getX() - tower.x) <= 2 && Math.abs(at.getZ() - tower.z) <= 2 && at.getY() > ground + 14) {
+			// the only bell at a tower's middle is the one in its belfry
+			if (Math.abs(at.getX() - tower.x) <= 2 && Math.abs(at.getZ() - tower.z) <= 2) {
+				// a hunter of the epic wakes here now, at the tower's door
 				player.setRespawnPosition(new ServerPlayer.RespawnConfig(new LevelData.RespawnData(GlobalPos.of(Level.OVERWORLD,
-					new BlockPos(tower.x + 2, at.getY() - UdasruBuild.SHAFT - 6, tower.z + 7)), 0.0F, 0.0F), true), false);
+					new BlockPos(tower.x, at.getY() - UdasruBuild.SHAFT - 5, tower.z + 6)), 0.0F, 0.0F), true), false);
 				if (!state.rungTower(tower.bit())) {
 					set(server, state.withTower(tower.bit()));
 					level.playSound(null, at, SoundEvents.BELL_RESONATE, SoundSource.BLOCKS, 3.0F, 1.0F);
@@ -487,8 +489,9 @@ public final class EpicService {
 
 	/** A name as the epic takes it: no formatting, no control characters, at most {@link #NAME_LENGTH} characters. */
 	public static String clean(final String given) {
+		String plain = ChatFormatting.stripFormatting(given);
 		StringBuilder out = new StringBuilder();
-		given.codePoints().filter(c -> c != '§' && !Character.isISOControl(c)).limit(NAME_LENGTH).forEach(out::appendCodePoint);
+		(plain == null ? "" : plain).codePoints().filter(c -> c != '§' && !Character.isISOControl(c)).limit(NAME_LENGTH).forEach(out::appendCodePoint);
 		return out.toString().strip();
 	}
 
@@ -560,6 +563,21 @@ public final class EpicService {
 		public Type<AskNamePayload> type() {
 			return TYPE;
 		}
+	}
+
+	/** Test hook: the epic looks at its hunters now, as it does every half second. */
+	public static void look(final MinecraftServer server) {
+		tick(server);
+	}
+
+	/** Test hook: a hunter rings the bell at this place, as using it would. */
+	public static void ring(final ServerPlayer player, final BlockPos at) {
+		rang(player, at);
+	}
+
+	/** Test hook: the name a hunter gives the epic, as the Chronicler's screen would send it. */
+	public static void name(final ServerPlayer player, final String given) {
+		named(player, given);
 	}
 
 	/** For tests: the steps in order. */

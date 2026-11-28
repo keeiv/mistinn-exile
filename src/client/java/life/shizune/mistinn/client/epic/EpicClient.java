@@ -46,6 +46,12 @@ public final class EpicClient {
 		return mc.level == null ? null : mc.level.getAttached(EpicService.STATE);
 	}
 
+	/** The name the epic was written under, or 3412's number before it has one. */
+	public static String name() {
+		EpicState state = state(Minecraft.getInstance());
+		return state == null || state.name().isEmpty() ? Component.translatable("story.mistinn.speaker.apostle").getString() : state.name();
+	}
+
 	/** Whether this client is in a world of the epic. */
 	public static boolean inEpic() {
 		return state(Minecraft.getInstance()) != null;

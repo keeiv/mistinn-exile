@@ -283,7 +283,7 @@ public final class UdasruBuild {
 		b.bed(-hx + 1, 1, -hz + 2, Blocks.BED.lightBlue(), Direction.NORTH);
 		b.set(hx - 1, 1, hz - 1, Blocks.SPRUCE_FENCE);
 		b.set(hx - 1, 2, hz - 1, Blocks.SPRUCE_PRESSURE_PLATE);
-		b.container(hx - 1, 1, -hz + 1, Blocks.CHEST, Direction.WEST, "minecraft:chests/village/village_plains_house");
+		b.container(hx - 1, 1, -hz + 1, Blocks.CHEST, Direction.WEST, "chests/udasru_house");
 		b.set(-hx + 1, 1, hz - 1, Blocks.BARREL);
 		b.hanging(0, wallTop - 1, 0, Blocks.LANTERN);
 		b.settle();
