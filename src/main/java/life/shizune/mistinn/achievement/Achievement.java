@@ -87,7 +87,9 @@ public enum Achievement {
 	/** 撤出: out of an expedition alive, the first time. */
 	EXTRACTED("extracted", 200),
 	/** 量天鏡: out of an expedition with Shi-da's sky lens. */
-	SKY_LENS("sky_lens", 500);
+	SKY_LENS("sky_lens", 500),
+	/** 遺物: a ground's relic shown to an elder. */
+	RELIC_SHOWN("relic_shown", 300);
 
 	public final String id;
 	public final int reward;

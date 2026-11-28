@@ -33,7 +33,7 @@ public final class GridSprites {
 	/** The item's grid sprite (a pack, a rig, a medical item's column art), or null. Looked up once per item. */
 	public static @Nullable Identifier of(final Item item) {
 		if (!MistinnItems.BACKPACKS.contains(item) && !MistinnItems.RIGS.contains(item) && !(item instanceof TreatmentItem)
-			&& !MistinnItems.SALVAGE.contains(item)) {
+			&& !MistinnItems.SALVAGE.contains(item) && item != MistinnItems.GATE_CASSETTE) {
 			return null;
 		}
 		return FOUND.computeIfAbsent(item, i -> {
@@ -45,7 +45,8 @@ public final class GridSprites {
 
 	/** Texture pixels per cell of the item's grid sprite. */
 	public static int texelsPerCell(final Item item) {
-		return item instanceof TreatmentItem || MistinnItems.SALVAGE.contains(item) ? MEDICAL_TEXELS_PER_CELL : TEXELS_PER_CELL;
+		return item instanceof TreatmentItem || MistinnItems.SALVAGE.contains(item) || item == MistinnItems.GATE_CASSETTE
+			? MEDICAL_TEXELS_PER_CELL : TEXELS_PER_CELL;
 	}
 
 	/**

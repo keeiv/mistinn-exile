@@ -252,6 +252,12 @@ public final class Commissions {
 				}
 				yield null;
 			}
+			case "relic" -> {
+				if (asking(hunter, keeper) != null && keeper.role() == Tiller.Role.ELDER) {
+					life.shizune.mistinn.expedition.Relics.show(hunter);
+				}
+				yield null;
+			}
 			case "depart" -> {
 				if (asking(hunter, keeper) != null) {
 					depart(hunter);

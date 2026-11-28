@@ -242,6 +242,11 @@ public class MistinnClient implements ClientModInitializer {
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> life.shizune.mistinn.client.combat.RustAnchorWeaponText.decorate(stack, lines));
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> life.shizune.mistinn.client.path.PsycheText.decorate(stack, lines));
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> {
+			if (life.shizune.mistinn.expedition.Relics.is(stack)) {
+				lines.add(net.minecraft.network.chat.Component.translatable("item.mistinn." + net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath() + ".desc")
+					.withStyle(net.minecraft.ChatFormatting.GRAY));
+				lines.add(net.minecraft.network.chat.Component.translatable("gui.mistinn.relic.hint").withStyle(net.minecraft.ChatFormatting.AQUA));
+			}
 			if (life.shizune.mistinn.expedition.Salvage.is(stack)) {
 				lines.add(net.minecraft.network.chat.Component.translatable("item.mistinn." + net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath() + ".desc")
 					.withStyle(net.minecraft.ChatFormatting.GRAY));

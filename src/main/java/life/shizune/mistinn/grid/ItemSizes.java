@@ -84,6 +84,7 @@ public final class ItemSizes {
 			life.shizune.mistinn.expedition.Salvage.Kind kind = life.shizune.mistinn.expedition.Salvage.KINDS.get(i);
 			put(kind.w(), kind.h(), MistinnItems.SALVAGE.get(i));
 		}
+		put(1, 2, MistinnItems.GATE_CASSETTE);
 		MistinnItems.LEGGINGS.forEach(item -> put(2, 3, item));
 		MistinnItems.BOOTS.forEach(item -> put(2, 2, item));
 	}

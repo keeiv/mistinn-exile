@@ -161,7 +161,7 @@ public final class GridService {
 			cue(player, MistinnSounds.GRID_REJECT);
 			return;
 		}
-		if (area == Area.SAFE && life.shizune.mistinn.expedition.Salvage.is(carried)) {
+		if (area == Area.SAFE && life.shizune.mistinn.expedition.Relics.atStake(carried)) {
 			// what is found out there is at stake until it is home
 			cue(player, MistinnSounds.GRID_REJECT);
 			return;
@@ -466,7 +466,7 @@ public final class GridService {
 		}
 		Inventory inventory = player.getInventory();
 		ItemStack held = inventory.getItem(hotbar);
-		if (area == Area.SAFE && life.shizune.mistinn.expedition.Salvage.is(held)) {
+		if (area == Area.SAFE && life.shizune.mistinn.expedition.Relics.atStake(held)) {
 			// what is found out there is at stake until it is home
 			cue(player, MistinnSounds.GRID_REJECT);
 			return;
@@ -583,7 +583,7 @@ public final class GridService {
 			cue(player, MistinnSounds.GRID_REJECT);
 			return;
 		}
-		if (area == Area.SAFE && life.shizune.mistinn.expedition.Salvage.is(carried)) {
+		if (area == Area.SAFE && life.shizune.mistinn.expedition.Relics.atStake(carried)) {
 			// what is found out there is at stake until it is home
 			cue(player, MistinnSounds.GRID_REJECT);
 			return;

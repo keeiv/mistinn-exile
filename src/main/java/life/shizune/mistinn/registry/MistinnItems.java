@@ -165,6 +165,8 @@ public final class MistinnItems {
 	public static final Item RIFT_SHARD = register("rift_shard", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
 	public static final Item RIFT_BEACON = register("rift_beacon", life.shizune.mistinn.rift.RiftBeaconItem::new,
 		new Item.Properties().stacksTo(4).rarity(Rarity.RARE));
+	/** 閘門晶匣: the dam's relic, the cassette that held the sluice gates' orders. */
+	public static final Item GATE_CASSETTE = register("gate_cassette", Item::new, new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
 	/** 遠征物資: the forebears' salvage, in the order of {@link life.shizune.mistinn.expedition.Salvage#KINDS}. */
 	public static final List<Item> SALVAGE = salvage();
 

@@ -39,6 +39,8 @@ public final class CommissionScreen extends Screen {
 	private int bottomY;
 	/** What the salvage carried would fetch, when the buttons were laid out. */
 	private int salvage;
+	/** Whether a relic was carried, when the buttons were laid out. */
+	private boolean relic;
 	private final List<int[]> offerAt = new ArrayList<>();
 
 	public CommissionScreen(final Commissions.BoardPayload board) {
@@ -117,6 +119,12 @@ public final class CommissionScreen extends Screen {
 			this.addRenderableWidget(Button.builder(Component.translatable("gui.mistinn.commission.trade"), b -> ask("trade", ""))
 				.bounds(this.left + 6, this.bottomY, 64, 20).build());
 		}
+		// a ground's relic, shown to the elder
+		if (this.board.trades() && relicCarried()) {
+			this.addRenderableWidget(Button.builder(Component.translatable("gui.mistinn.commission.relic"), b -> ask("relic", ""))
+				.bounds(this.left + 74, this.bottomY, 104, 20).build());
+		}
+		this.relic = relicCarried();
 		// the forebears' salvage, bought by any keeper: what all of it carried comes to
 		this.salvage = salvageCarried();
 		Button sell = Button.builder(Component.translatable("gui.mistinn.commission.sell", this.salvage), b -> ask("sell", ""))
@@ -147,7 +155,7 @@ public final class CommissionScreen extends Screen {
 	public void tick() {
 		// the commission changes on the server (taken, handed in, done): the screen follows
 		Commissions.Taken now = taken();
-		if (now == null ? this.shown != null : !now.equals(this.shown) || salvageCarried() != this.salvage) {
+		if ((now == null ? this.shown != null : !now.equals(this.shown)) || salvageCarried() != this.salvage || relicCarried() != this.relic) {
 			this.rebuildWidgets();
 		}
 	}
@@ -189,6 +197,28 @@ public final class CommissionScreen extends Screen {
 			g.text(font, Component.translatable("gui.mistinn.commission.none"), this.left + 10, this.currentY + 16, DIM, false);
 		}
 		super.extractRenderState(g, mouseX, mouseY, a);
+	}
+
+	/** Whether the hunter carries a ground's relic (hotbar, pockets, pack, rig). */
+	private static boolean relicCarried() {
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.player == null) {
+			return false;
+		}
+		for (int i = 0; i < mc.player.getInventory().getContainerSize(); i++) {
+			if (life.shizune.mistinn.expedition.Relics.is(mc.player.getInventory().getItem(i))) {
+				return true;
+			}
+		}
+		life.shizune.mistinn.grid.GridInventory grid = life.shizune.mistinn.client.grid.GridPanel.inventory(mc.player);
+		for (life.shizune.mistinn.grid.Area area : life.shizune.mistinn.grid.GridService.ORDER) {
+			for (life.shizune.mistinn.grid.Placed placed : grid.items(area)) {
+				if (life.shizune.mistinn.expedition.Relics.is(placed.stack())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/** What the salvage the hunter carries (hotbar, pockets, pack, rig) would fetch. */
