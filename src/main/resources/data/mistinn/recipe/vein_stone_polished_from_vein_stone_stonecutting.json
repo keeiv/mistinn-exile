@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "mistinn:vein_stone",
+  "result": {
+    "id": "mistinn:vein_stone_polished"
+  }
+}
