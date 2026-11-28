@@ -37,6 +37,7 @@ public final class MistinnShaderIdsTest implements FabricClientGameTest {
 				ids.put(state, 10332);
 			}
 			ids.put(Blocks.SEA_LANTERN.defaultBlockState(), 10448);
+			ids.put(Blocks.AMETHYST_BLOCK.defaultBlockState(), 10328);
 			ids.put(Blocks.SPRUCE_PLANKS.defaultBlockState(), 10188);
 			ids.put(Blocks.IRON_BLOCK.defaultBlockState(), 10400);
 			// one of ours the pack names itself
@@ -47,7 +48,8 @@ public final class MistinnShaderIdsTest implements FabricClientGameTest {
 			check(ids.getInt(dry) == 10009 && ids.getInt(dry.setValue(LeavesBlock.WATERLOGGED, true)) == 10011, "mist pine leaves sway as leaves, wet or dry");
 			check(ids.getInt(MistinnBlocks.JADE_GRASS.defaultBlockState()) == 10005, "jade grass waves as grass");
 			check(ids.getInt(MistinnBlocks.MIST_PINE_PLANKS.defaultBlockState()) == 10188, "mist pine planks are wood");
-			check(ids.getInt(MistinnBlocks.LATTICE_CRYSTAL.defaultBlockState()) == ShaderIds.GLOW, "the lattice crystal takes Complementary's glow");
+			check(ids.getInt(MistinnBlocks.TERRA_CRYSTAL_CLUSTER.defaultBlockState()) == ShaderIds.GLOW, "crystal clusters take Complementary's glow");
+			check(ids.getInt(MistinnBlocks.LATTICE_CRYSTAL.defaultBlockState()) == ShaderIds.GLOW, "and the lattice's spires glow softly through");
 			check(ids.getInt(MistinnBlocks.VEIN_CRYSTAL_ORE.defaultBlockState()) == ShaderIds.ORE, "the crystal vein ore takes its ore");
 			BlockState hub = MistinnBlocks.HUB_CORE.defaultBlockState();
 			BlockState lit = hub.setValue(life.shizune.mistinn.block.HubCoreBlock.LIT, true);
@@ -89,10 +91,26 @@ public final class MistinnShaderIdsTest implements FabricClientGameTest {
 						System.out.println("[mistinn shader] Iris has no pack loaded: skipped");
 						return;
 					}
-					check(held.getInt(MistinnBlocks.LATTICE_CRYSTAL.defaultBlockState()) == ShaderIds.GLOW, "Iris holds the lattice crystal at the glow: "
-						+ held.getInt(MistinnBlocks.LATTICE_CRYSTAL.defaultBlockState()));
+					check(held.getInt(MistinnBlocks.TERRA_CRYSTAL_CLUSTER.defaultBlockState()) == ShaderIds.GLOW, "Iris holds the crystal clusters at the glow: "
+						+ held.getInt(MistinnBlocks.TERRA_CRYSTAL_CLUSTER.defaultBlockState()));
 					check(held.getInt(MistinnBlocks.MIST_PINE_LEAVES.defaultBlockState()) == held.getInt(Blocks.SPRUCE_LEAVES.defaultBlockState()),
 						"and the mist pine leaves as spruce leaves: " + held.getInt(MistinnBlocks.MIST_PINE_LEAVES.defaultBlockState()));
+					// the boats and held lights, in the pack's own entity and item lists
+					Object pack = ((java.util.Optional<?>) Class.forName("net.irisshaders.iris.Iris").getMethod("getCurrentPack").invoke(null)).orElseThrow();
+					Object idMap = pack.getClass().getMethod("getIdMap").invoke(pack);
+					java.lang.reflect.Constructor<?> name = Class.forName("net.irisshaders.iris.shaderpack.materialmap.NamespacedId").getConstructor(String.class, String.class);
+					@SuppressWarnings("unchecked")
+					it.unimi.dsi.fastutil.objects.Object2IntFunction<Object> entityIds = (it.unimi.dsi.fastutil.objects.Object2IntFunction<Object>) idMap.getClass()
+						.getMethod("getEntityIdMap").invoke(idMap);
+					@SuppressWarnings("unchecked")
+					it.unimi.dsi.fastutil.objects.Object2IntFunction<Object> itemIds = (it.unimi.dsi.fastutil.objects.Object2IntFunction<Object>) idMap.getClass()
+						.getMethod("getItemIdMap").invoke(idMap);
+					int boat = entityIds.getInt(name.newInstance("mistinn", "mist_pine_boat"));
+					check(boat == entityIds.getInt(name.newInstance("minecraft", "spruce_boat")) && boat != entityIds.defaultReturnValue(),
+						"Iris holds the mist pine boat as a boat: " + boat);
+					int lamp = itemIds.getInt(name.newInstance("mistinn", "facility_lamp"));
+					check(lamp == itemIds.getInt(name.newInstance("minecraft", "sea_lantern")) && lamp != itemIds.defaultReturnValue(),
+						"and the facility lamp in the hand as a sea lantern: " + lamp);
 				} catch (ReflectiveOperationException e) {
 					throw new AssertionError("failed: could not read Iris's ids", e);
 				}

@@ -28,8 +28,14 @@ public final class ShaderIds {
 	private static final int AMETHYST = 10332;
 	private static final int SEA_LANTERN = 10448;
 
-	/** What one of the mod's blocks is told as: a vanilla block it is like, and, for Complementary, a slot from a given light. */
-	private record Like(@Nullable Block block, boolean glows, boolean ore, int glowFrom) {
+	/**
+	 * What one of the mod's blocks is told as: a vanilla block it is like, and, for Complementary, a slot from a given
+	 * light; with {@code litOnly}, only its states giving light are told at all (a lamp unlit is not a lantern).
+	 */
+	private record Like(@Nullable Block block, boolean glows, boolean ore, int glowFrom, boolean litOnly) {
+		Like(final @Nullable Block block, final boolean glows, final boolean ore, final int glowFrom) {
+			this(block, glows, ore, glowFrom, false);
+		}
 	}
 
 	private static @Nullable Map<Block, Like> likes;
@@ -73,6 +79,7 @@ public final class ShaderIds {
 			MistinnBlocks.TERRA_CRYSTAL_CLUSTER, MistinnBlocks.RIFT_CRYSTAL_BUD, MistinnBlocks.RIFT_CRYSTAL_CLUSTER}) {
 			map.put(crystal, glow(Blocks.AMETHYST_CLUSTER, 1));
 		}
+		// the crown's spires glow softly through: as amethyst they would stand dull grey at dusk
 		map.put(MistinnBlocks.TERRA_CRYSTAL_BLOCK, glow(Blocks.AMETHYST_BLOCK, 1));
 		map.put(MistinnBlocks.RIFT_CRYSTAL_BLOCK, glow(Blocks.AMETHYST_BLOCK, 1));
 		map.put(MistinnBlocks.LATTICE_CRYSTAL, glow(Blocks.AMETHYST_BLOCK, 1));
@@ -99,7 +106,7 @@ public final class ShaderIds {
 			map.put(facility, glow(Blocks.IRON_BLOCK, 4));
 		}
 		// the shore's and the inn's
-		map.put(MistinnBlocks.LAMP_STAND, like(Blocks.LANTERN));
+		map.put(MistinnBlocks.LAMP_STAND, new Like(Blocks.LANTERN, false, false, 1, true));
 		map.put(MistinnBlocks.RADIO, glow(null, 1));
 		map.put(MistinnBlocks.MARKER_BEACON, glow(null, 1));
 		map.put(MistinnBlocks.GRASS_REDSTONE_SOIL, like(Blocks.GRASS_BLOCK));
@@ -128,7 +135,7 @@ public final class ShaderIds {
 		for (Map.Entry<Block, Like> entry : likes().entrySet()) {
 			Like like = entry.getValue();
 			for (BlockState state : entry.getKey().getStateDefinition().getPossibleStates()) {
-				if (ids.containsKey(state)) {
+				if (ids.containsKey(state) || like.litOnly() && state.getLightEmission() < like.glowFrom()) {
 					continue;
 				}
 				int id = ids.defaultReturnValue();

@@ -45,6 +45,7 @@ public abstract class IrisNamedIdsMixin {
 			if (told > 0) {
 				result.setReturnValue(Object2IntMaps.unmodifiable(more));
 			}
+			Mistinn.LOGGER.info("Told the shader pack {} of the mod's {}", told, entities ? "entities" : "items");
 		} catch (ReflectiveOperationException | RuntimeException e) {
 			Mistinn.LOGGER.warn("Could not tell the shader pack of the mod's entities or items", e);
 		}

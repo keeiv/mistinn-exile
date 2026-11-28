@@ -57,23 +57,41 @@ public final class MistinnTerraLakeTest implements FabricClientGameTest {
 						}
 					}
 				}
-				// someone's work in it: a cobblestone post, a chest, a hut roofed with earth, a chunk lived in
+				// someone's work in it: a cobblestone post, a chest, a hut roofed with earth, a chunk lived in, a wall of bare logs,
+				// a cobblestone cellar sunk below the water's level
 				for (int y = 0; y < 3; y++) {
-					level.setBlock(m.offset(10, y, 0), Blocks.COBBLESTONE.defaultBlockState(), 2);
+					level.setBlock(m.offset(14, y, 0), Blocks.COBBLESTONE.defaultBlockState(), 2);
+					level.setBlock(m.offset(-12, y, -14), Blocks.OAK_LOG.defaultBlockState(), 2);
 				}
 				level.setBlock(m.offset(-20, 0, 6), Blocks.CHEST.defaultBlockState(), 2);
 				for (int x = 0; x < 3; x++) {
-					for (int z = 20; z < 23; z++) {
+					for (int z = 26; z < 29; z++) {
 						level.setBlock(m.offset(x, 3, z), Blocks.DIRT.defaultBlockState(), 2);
 					}
 				}
-				BlockPos lived = m.offset(0, 0, -32);
+				level.setBlock(m.offset(1, 0, 28), Blocks.TORCH.defaultBlockState(), 2);
+				for (int x = -26; x <= -22; x++) {
+					for (int y = -7; y <= -3; y++) {
+						for (int z = -21; z <= -17; z++) {
+							boolean inside = x > -26 && x < -22 && y > -7 && y < -3 && z > -21 && z < -17;
+							level.setBlock(m.offset(x, y, z), (inside ? Blocks.AIR : Blocks.COBBLESTONE).defaultBlockState(), 2);
+						}
+					}
+				}
+				// a little cave at the water's level, in ground kept for the log wall: the water beside it is sealed
+				level.setBlock(m.offset(-8, -2, -14), Blocks.AIR.defaultBlockState(), 2);
+				// a tree, as trees grow: the land's own
+				for (int y = 0; y < 4; y++) {
+					level.setBlock(m.offset(8, y, 12), Blocks.OAK_LOG.defaultBlockState(), 2);
+				}
+				level.setBlock(m.offset(8, 4, 12), Blocks.OAK_LEAVES.defaultBlockState(), 2);
+				BlockPos lived = m.offset(-36, 0, 0);
 				level.getChunkAt(lived).setInhabitedTime(TerraLake.LIVED_IN + 100L);
 				// and what the land grew: coal in the stone
 				level.setBlock(m.offset(5, -6, -5), Blocks.COAL_ORE.defaultBlockState(), 2);
 				// a knoll of stone just past the shore, east
 				int shore = 0;
-				while (TerraLake.depthPart(domain, m.getX(), m.getZ(), m.getX() + shore, m.getZ()) < 1.0) {
+				while (TerraLake.depthPart(TerraLake.of(level, domain), m.getX() + shore, m.getZ()) < 1.0) {
 					shore++;
 				}
 				for (int x = shore + 4; x <= shore + 7; x++) {
@@ -84,9 +102,12 @@ public final class MistinnTerraLakeTest implements FabricClientGameTest {
 					}
 				}
 				// the highland's turning leaves the lake's ground to the lake
-				BlockPos under = m.offset(1, -1, 21);
+				BlockPos under = m.offset(1, -1, 27);
 				new TerraShaper().column(level, level.getChunkAt(under), domain, under.getX(), under.getZ(), domain.distance(under.getX() + 0.5, under.getZ() + 0.5));
 				check(level.getBlockState(under).is(Blocks.GRASS_BLOCK), "the highland's turning keeps off the lake");
+				ResearchShip.chance = 1.0;
+				ResearchShip.consider(level, domain);
+				check(ResearchShip.of(level, domain.id()) == null, "no ship before the lake is dug");
 				// dig every chunk of it
 				int dug = 0;
 				ChunkPos from = new ChunkPos((m.getX() - SPAN) >> 4, (m.getZ() - SPAN) >> 4);
@@ -109,13 +130,23 @@ public final class MistinnTerraLakeTest implements FabricClientGameTest {
 				// ore is the land's own: dug
 				check(level.getBlockState(m.offset(5, -2, -5)).is(Blocks.WATER), "a column with ore in it is the land's, and dug");
 				// someone's work, left exactly as it is
-				check(level.getBlockState(m.offset(10, 0, 0)).is(Blocks.COBBLESTONE) && level.getBlockState(m.offset(10, -1, 0)).is(Blocks.GRASS_BLOCK),
+				check(level.getBlockState(m.offset(14, 0, 0)).is(Blocks.COBBLESTONE) && level.getBlockState(m.offset(14, -1, 0)).is(Blocks.GRASS_BLOCK),
 					"a column with a block the land did not grow is left");
+				check(level.getBlockState(m.offset(10, -1, 0)).is(Blocks.GRASS_BLOCK) && level.getBlockState(m.offset(9, -2, 0)).is(Blocks.WATER),
+					"and the ground for some blocks round it");
+				check(level.getBlockState(m.offset(-12, 1, -14)).is(Blocks.OAK_LOG) && level.getBlockState(m.offset(-12, -1, -14)).is(Blocks.GRASS_BLOCK),
+					"a wall of bare logs (no crown on it) is someone's: left");
+				check(level.getBlockState(m.offset(8, -2, 12)).is(Blocks.WATER) && level.getBlockState(m.offset(8, 2, 12)).isAir(),
+					"a tree with its crown is the land's: dug");
+				check(level.getBlockState(m.offset(-7, -2, -14)).is(Blocks.SAND) && level.getBlockState(m.offset(-6, -2, -14)).is(Blocks.WATER),
+					"water beside open air (a little cave) is sealed with sand");
+				check(level.getBlockState(m.offset(-24, -5, -19)).isAir() && !level.getBlockState(m.offset(-18, -2, -19)).is(Blocks.WATER)
+					&& level.getBlockState(m.offset(-17, -2, -19)).is(Blocks.WATER), "a cellar below the water's level stays dry, the ground round it kept");
 				check(level.getBlockState(m.offset(-20, 0, 6)).is(Blocks.CHEST) && level.getBlockState(m.offset(-17, -1, 9)).is(Blocks.GRASS_BLOCK),
 					"the ground near a chest is left");
 				check(level.getBlockState(m.offset(-12, -2, 6)).is(Blocks.WATER), "and farther from it, dug");
-				check(level.getBlockState(m.offset(1, 3, 21)).is(Blocks.DIRT) && level.getBlockState(under).is(Blocks.GRASS_BLOCK),
-					"a roof of earth over air is someone's: left");
+				check(level.getBlockState(m.offset(1, 3, 27)).is(Blocks.DIRT) && level.getBlockState(under).is(Blocks.GRASS_BLOCK),
+					"an earthen hut with a torch in it is someone's: left");
 				check(level.getBlockState(lived.below()).is(Blocks.GRASS_BLOCK), "a chunk someone has lived in is left");
 				// the knoll by the shore cut down to a bank
 				BlockPos knoll = m.offset(shore + 5, 0, 0);
@@ -127,16 +158,8 @@ public final class MistinnTerraLakeTest implements FabricClientGameTest {
 				BlockState cut = level.getBlockState(knoll.atY(face));
 				check(face > Y && face < Y + 7 && (cut.is(Blocks.SAND) || cut.is(life.shizune.mistinn.registry.MistinnBlocks.JADE_TURF)),
 					"to a bank sloping up from the water, faced with turf: " + (face - Y) + " " + cut);
-				// a ship comes to the lake only once its middle is all dug, and only on open water: the cobblestone post stands
-				// in its way when it would lie east and west
-				ResearchShip.chance = 1.0;
-				ResearchShip.consider(level, domain);
-				check(ResearchShip.of(level, domain.id()) == null, "no ship before the lake's middle is all dug");
-				for (int cx = from.x(); cx <= to.x(); cx++) {
-					for (int cz = from.z(); cz <= to.z(); cz++) {
-						level.getChunk(cx, cz).setAttached(TerraLake.DUG, TerraLake.VERSION);
-					}
-				}
+				// a ship comes once the lake's middle is all dug, and only on open water: the cobblestone post (and the ground
+				// kept round it) stands in its way when it would lie east and west
 				ResearchShip.consider(level, domain);
 				ResearchShip.Ship ship = ResearchShip.of(level, domain.id());
 				check(ship != null && ship.present() == !ship.alongX(), "then it comes, unless someone's work stands in the water: "
