@@ -16,7 +16,8 @@ public final class SkillTree {
 	public static final String ROOT = "slide";
 	/** Minor nodes in each stat's branch. */
 	public static final int BRANCH = 5;
-	/** The major nodes closing rows: 久經沙場 (constitution), 裝備大師 (intellect), 初心本我 (speed). */
+	/** The major nodes closing rows: 千鈞 (strength), 初心本我 (speed), 久經沙場 (constitution), 裝備大師 (intellect). */
+	public static final String THOUSAND_WEIGHT = "thousand_weight";
 	public static final String BATTLE_HARDENED = "battle_hardened";
 	public static final String GEAR_MASTER = "gear_master";
 	public static final String TRUE_SELF = "true_self";
@@ -38,6 +39,7 @@ public final class SkillTree {
 			}
 		}
 		// each closes its row, after the row's last minor node (its stat says which row; it adds no point to it)
+		nodes.add(new Node(THOUSAND_WEIGHT, true, Stat.STRENGTH, Stat.STRENGTH.id + "_" + BRANCH));
 		nodes.add(new Node(TRUE_SELF, true, Stat.SPEED, Stat.SPEED.id + "_" + BRANCH));
 		nodes.add(new Node(BATTLE_HARDENED, true, Stat.CONSTITUTION, Stat.CONSTITUTION.id + "_" + BRANCH));
 		nodes.add(new Node(GEAR_MASTER, true, Stat.INTELLECT, Stat.INTELLECT.id + "_" + BRANCH));

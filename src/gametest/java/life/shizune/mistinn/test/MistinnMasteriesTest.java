@@ -25,8 +25,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * The three later major skills, each closing a row after its last minor node: 初心本我 (speed), 久經沙場 (constitution),
- * 裝備大師 (intellect). They add no stat point. Hardened, a blow does less; a gear master's helmet and chest piece wear half,
+ * The four later major skills, each closing a row after its last minor node: 千鈞 (strength), 初心本我 (speed),
+ * 久經沙場 (constitution), 裝備大師 (intellect). They add no stat point. Hardened, a blow does less; a gear master's helmet and chest piece wear half,
  * legs and boots a quarter less; one as they began guards a little longer and ripostes off a blow turned aside. And the
  * crystal drakes come of themselves far more rarely: never within reach of another.
  */
@@ -47,7 +47,7 @@ public final class MistinnMasteriesTest implements FabricClientGameTest {
 				ServerLevel level = server.overworld();
 				ServerPlayer player = player(server);
 				// the tree
-				for (String id : new String[] {SkillTree.TRUE_SELF, SkillTree.BATTLE_HARDENED, SkillTree.GEAR_MASTER}) {
+				for (String id : new String[] {SkillTree.THOUSAND_WEIGHT, SkillTree.TRUE_SELF, SkillTree.BATTLE_HARDENED, SkillTree.GEAR_MASTER}) {
 					SkillTree.Node node = SkillTree.node(id);
 					check(node != null && node.major() && node.parent().equals(node.stat().id + "_" + SkillTree.BRANCH), id + " closes its row");
 				}
@@ -64,6 +64,13 @@ public final class MistinnMasteriesTest implements FabricClientGameTest {
 				}
 				SkillService.set(player, new Skills(row));
 				check(SkillService.unlock(player, SkillTree.BATTLE_HARDENED) == SkillService.Result.NO_RUST_SALT, "and it takes a rust god salt");
+
+				// 千鈞
+				check(Masteries.heavyCost(player) == 1.0F && Masteries.heavyBlow(player, 1.0F) == 1.0F, "without it, a heavy blow is as it was");
+				SkillService.set(player, new Skills(Set.of(SkillTree.ROOT, SkillTree.THOUSAND_WEIGHT)));
+				check(Masteries.heavyCost(player) == Masteries.HEAVY_COST, "a thousand weight: a heavy blow costs less breath");
+				check(Masteries.heavyBlow(player, 1.0F) == Masteries.FULL_BLOW && Masteries.heavyBlow(player, 0.6F) == 1.0F,
+					"and only one charged all the way lands harder");
 
 				// 久經沙場
 				check(Masteries.hardened(player) == 1.0F, "unhardened, a blow is what it is");
