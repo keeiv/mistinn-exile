@@ -43,6 +43,16 @@ public final class MistinnEpicTest implements FabricClientGameTest {
 		if (TestFilter.skip(getClass())) {
 			return;
 		}
+		java.nio.file.Path pack = java.nio.file.Path.of("epic_test_pack.dat").toAbsolutePath();
+		context.runOnClient(mc -> {
+			life.shizune.mistinn.client.epic.Legacy.override = pack;
+			life.shizune.mistinn.client.epic.Legacy.reread();
+		});
+		try {
+			java.nio.file.Files.deleteIfExists(pack);
+		} catch (java.io.IOException ignored) {
+			// a pack left from an earlier run is replaced when sealed
+		}
 		WorldMode.choose(WorldMode.EPIC);
 		Hardship.choose(Hardship.HUNTER);
 		try (TestSingleplayerContext world = context.worldBuilder().setUseConsistentSettings(false).adjustSettings(s -> s.setWorldType(
@@ -56,6 +66,47 @@ public final class MistinnEpicTest implements FabricClientGameTest {
 				check(seen != null && seen.at() == EpicStep.WAKE, "the client knows the epic and where it stands: " + seen);
 			});
 			world.getServer().runOnServer(MistinnEpicTest::road);
+			// the pack, sealed now the epic is written, kept by the hunter's own game
+			world.getServer().runOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				check(player.getInventory().contains(new net.minecraft.world.item.ItemStack(life.shizune.mistinn.registry.MistinnItems.LEGACY_SEAL)),
+					"the pack seal given at the end");
+				life.shizune.mistinn.epic.LegacyService.seal(player);
+			});
+			context.waitTicks(10);
+			int sealed = context.computeOnClient(mc -> life.shizune.mistinn.client.epic.Legacy.pack().size());
+			check(sealed >= 14, "the pack holds what 3412 wore and carried: " + sealed);
+		}
+		// another world: free exploration, where the guide offers the pack back
+		context.runOnClient(mc -> life.shizune.mistinn.client.epic.Legacy.reread());
+		WorldMode.choose(WorldMode.FREE);
+		try (TestSingleplayerContext world = context.worldBuilder().create()) {
+			context.waitTicks(40);
+			int before = context.computeOnClient(mc -> life.shizune.mistinn.client.epic.Legacy.pack().size());
+			check(before >= 14, "in another world the pack is still there: " + before);
+			net.minecraft.world.item.ItemStack first = context.computeOnClient(mc -> life.shizune.mistinn.client.epic.Legacy.pack().getFirst().copy());
+			context.runOnClient(mc -> life.shizune.mistinn.client.epic.Legacy.claim(0));
+			context.waitTicks(10);
+			int after = context.computeOnClient(mc -> life.shizune.mistinn.client.epic.Legacy.pack().size());
+			check(after == before - 1, "a piece taken out of the pack: " + after);
+			boolean has = world.getServer().computeOnServer(server -> {
+				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
+				for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+					if (net.minecraft.world.item.ItemStack.isSameItem(player.getInventory().getItem(i), first)) {
+						return true;
+					}
+				}
+				var grid = life.shizune.mistinn.grid.GridService.get(player);
+				for (var area : life.shizune.mistinn.grid.GridService.ORDER) {
+					for (var placed : grid.items(area)) {
+						if (net.minecraft.world.item.ItemStack.isSameItem(placed.stack(), first)) {
+							return true;
+						}
+					}
+				}
+				return false;
+			});
+			check(has, "and the hunter has it: " + first);
 		}
 	}
 
@@ -113,6 +164,26 @@ public final class MistinnEpicTest implements FabricClientGameTest {
 		EpicService.ring(player, bell);
 		check(EpicService.state(server).at() == EpicStep.CAPITAL && EpicService.state(server).rungTower(first.bit()), "the first tower rung: "
 			+ EpicService.state(server));
+		// a letter the fog brought, kept in the belfry, read
+		net.minecraft.world.item.ItemStack letter = net.minecraft.world.item.ItemStack.EMPTY;
+		for (BlockPos at : BlockPos.betweenClosed(first.x - 5, bell.getY() - 8, first.z - 5, first.x + 5, bell.getY() + 2, first.z + 5)) {
+			if (level.getBlockEntity(at) instanceof net.minecraft.world.level.block.entity.BarrelBlockEntity barrel) {
+				for (int i = 0; i < barrel.getContainerSize(); i++) {
+					if (barrel.getItem(i).getItem() instanceof life.shizune.mistinn.epic.UnsentLetterItem) {
+						letter = barrel.getItem(i);
+					}
+				}
+			}
+		}
+		check(life.shizune.mistinn.epic.UnsentLetterItem.number(letter) == first.ordinal(), "the belfry keeps letter " + first.ordinal());
+		EpicService.letterRead(player, life.shizune.mistinn.epic.UnsentLetterItem.number(letter));
+		check(EpicService.state(server).letters() == 1, "and it is read");
+		// the bell carries the hunter back to it from anywhere
+		go(player, 0, 900);
+		check(life.shizune.mistinn.epic.EpicTravel.travel(player, first.ordinal()), "the map's bell carries 3412 to the tower");
+		check(player.blockPosition().distSqr(new BlockPos(first.x, player.blockPosition().getY(), first.z + 7)) < 9, "to its door: " + player.blockPosition());
+		check(!life.shizune.mistinn.epic.EpicTravel.travel(player, first.ordinal()), "and rests a moment before the next");
+		check(!life.shizune.mistinn.epic.EpicTravel.travel(player, UdasruPlaces.Tower.FROST_RIDGE.ordinal()), "never to a tower not rung");
 
 		// the capital, the Chronicler and the Regent
 		go(player, 0, 30);

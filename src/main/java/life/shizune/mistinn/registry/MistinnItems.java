@@ -89,6 +89,11 @@ public final class MistinnItems {
 					new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.NAUSEA, 200, 0), 0.4F))
 				.build()));
 
+	/** 沒寄出的信 and 行囊印: the epic's twelve letters, and the seal that carries a hunter's pack to another world. */
+	public static final Item UNSENT_LETTER = register("unsent_letter", life.shizune.mistinn.epic.UnsentLetterItem::new, new Item.Properties().stacksTo(1));
+	public static final Item LEGACY_SEAL = register("legacy_seal", life.shizune.mistinn.epic.LegacySealItem::new,
+		new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
+
 	/** 舊編號牌: a hunter's tag found under a cairn of the salt road; its number and last words are on the stack. */
 	public static final Item HUNTER_TAG = register("hunter_tag", Item::new, new Item.Properties().stacksTo(1));
 

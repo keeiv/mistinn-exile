@@ -100,6 +100,9 @@ public class ExploredMapScreen extends Screen {
 
 	@Override
 	public boolean mouseClicked(final MouseButtonEvent event, final boolean doubleClick) {
+		if (life.shizune.mistinn.client.epic.EpicMap.click(this, event.x(), event.y())) {
+			return true;
+		}
 		Settlements.Settlement home = this.homeUnder(event.x(), event.y());
 		if (home != null && home.lit()) {
 			ClientPlayNetworking.send(new HomesteadTravel.TravelPayload(home.domain()));
@@ -141,9 +144,11 @@ public class ExploredMapScreen extends Screen {
 	@Override
 	public void extractRenderState(final GuiGraphicsExtractor g, final int mouseX, final int mouseY, final float a) {
 		g.fill(0, 0, this.width, this.height, BACKGROUND);
+		life.shizune.mistinn.client.epic.EpicMap.base(g, this);
 		this.land(g);
 		this.domains(g);
 		this.marks(g);
+		life.shizune.mistinn.client.epic.EpicMap.icons(g, this);
 		for (Settlements.Settlement settlement : settlements()) {
 			double[] at = this.toScreen(settlement.hub().getX() + 0.5, settlement.hub().getZ() + 0.5);
 			drawHome(g, (int) at[0], (int) at[1], settlement.lit());
@@ -161,6 +166,10 @@ public class ExploredMapScreen extends Screen {
 		if (status != null) {
 			g.fill(0, this.height - 18, this.width, this.height, 0xC0101317);
 			g.text(this.font, status, 8, this.height - 13, 0xFF9AA4AA, false);
+		}
+		List<Component> tower = life.shizune.mistinn.client.epic.EpicMap.tooltip(this, mouseX, mouseY);
+		if (tower != null) {
+			g.setTooltipForNextFrame(this.font, tower, java.util.Optional.empty(), mouseX, mouseY);
 		}
 		Settlements.Settlement under = this.homeUnder(mouseX, mouseY);
 		if (under != null) {

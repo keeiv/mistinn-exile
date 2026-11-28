@@ -98,6 +98,8 @@ public final class EpicService {
 		PayloadTypeRegistry.clientboundPlay().register(AskNamePayload.TYPE, AskNamePayload.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(NamePayload.TYPE, (payload, context) -> named(context.player(), payload.name()));
 		EpicScript.register();
+		EpicTravel.register();
+		LegacyService.register();
 		// after the world mode is settled (WorldMode registers its own SERVER_STARTED first)
 		ServerLifecycleEvents.SERVER_STARTED.register(EpicService::setup);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> HAND.clear());
@@ -484,6 +486,13 @@ public final class EpicService {
 		advance(server, EpicStep.ENDED);
 		playAll(server, EpicScript.LET_GO);
 		cardAll(server, EpicScript.HOME);
+		// the seal that carries their pack to another world
+		for (ServerPlayer hunter : server.getPlayerList().getPlayers()) {
+			net.minecraft.world.item.ItemStack seal = new net.minecraft.world.item.ItemStack(life.shizune.mistinn.registry.MistinnItems.LEGACY_SEAL);
+			if (!hunter.getInventory().add(seal)) {
+				hunter.drop(seal, false, net.minecraft.util.Prediction.SERVER_ONLY);
+			}
+		}
 		Mistinn.LOGGER.info("Epic written as {}", name);
 	}
 
@@ -562,6 +571,23 @@ public final class EpicService {
 		@Override
 		public Type<AskNamePayload> type() {
 			return TYPE;
+		}
+	}
+
+	/** A hunter reads one of the unsent letters: it is read aloud, and counted found. */
+	public static void letterRead(final ServerPlayer player, final int number) {
+		MinecraftServer server = player.level().getServer();
+		play(player, "epic_letter_" + number);
+		if (!active(server)) {
+			return;
+		}
+		EpicState state = state(server);
+		int bit = 1 << number;
+		if ((state.letters() & bit) == 0) {
+			set(server, state.withLetter(bit));
+			if (Integer.bitCount(state(server).letters()) >= UnsentLetterItem.LETTERS) {
+				play(player, EpicScript.LETTERS_ALL);
+			}
 		}
 	}
 

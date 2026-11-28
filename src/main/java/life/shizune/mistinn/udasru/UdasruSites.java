@@ -76,6 +76,8 @@ public final class UdasruSites {
 			site("tower_" + tower.id, tower.x, tower.z, 9, GROUND, b -> {
 				BELLS.put("tower_" + tower.id, UdasruBuild.tower(b));
 				UdasruBuild.person(b, StaffRole.TOWER_KEEPER, 2, 1, 7, 180.0F, 4);
+				// a letter the fog brought, kept in the belfry
+				UdasruBuild.letter(b, 3, UdasruBuild.SHAFT + 2, 3, tower.ordinal());
 			});
 		}
 		// the beasts' grounds: each place the rust took a great beast in
@@ -140,12 +142,12 @@ public final class UdasruSites {
 			site("capital_gate_" + gate.name().toLowerCase(java.util.Locale.ROOT), gx, gz, 10, CAPITAL_Y, b -> UdasruCapital.gate(b, gate),
 				near(gx, gz, 10, cell));
 		}
-		site("capital_tower", 0, 0, 10, CAPITAL_Y, b -> {
-			Builder at = b;
-			BELLS.put("capital_tower", UdasruBuild.greatTower(at));
-		}, near(0, 0, 10, cell));
-		site("capital_palace", 0, -62, 18, CAPITAL_Y, UdasruBuild::palace, near(0, -62, 18, cell));
-		site("capital_library", 62, 0, 16, CAPITAL_Y, UdasruBuild::library, near(62, 0, 16, cell));
+		site("capital_tower", 0, 0, 13, CAPITAL_Y, b -> BELLS.put("capital_tower", UdasruLandmarks.greatTower(b)), near(0, 0, 13, cell));
+		site("capital_palace", 0, -62, 20, CAPITAL_Y, UdasruLandmarks::palace, near(0, -62, 20, cell));
+		site("capital_library", 62, 0, 16, CAPITAL_Y, b -> {
+			UdasruLandmarks.library(b);
+			UdasruBuild.letter(b, 3, 1, -6, 8);
+		}, near(62, 0, 16, cell));
 		site("capital_market", -62, 0, 18, CAPITAL_Y, UdasruCapital::market, near(-62, 0, 18, cell));
 		site("capital_tea", 40, 52, 8, CAPITAL_Y, UdasruBuild::teaHouse, near(40, 52, 8, cell));
 		site("capital_stelae", -40, 52, 10, CAPITAL_Y, UdasruBuild::stelae, near(-40, 52, 10, cell));
@@ -250,8 +252,17 @@ public final class UdasruSites {
 	}
 
 	private static void town(final String id, final BlockPos at, final UdasruBuild.Style style, final StaffRole folk) {
+		int letter = switch (id) {
+			case "salt_town" -> 9;
+			case "bell_port" -> 10;
+			case "forge_town" -> 11;
+			default -> -1;
+		};
 		site(id + "_square", at.getX(), at.getZ(), 9, GROUND, b -> {
 			UdasruBuild.square(b, style, 8);
+			if (letter >= 0) {
+				UdasruBuild.letter(b, -5, 1, 5, letter);
+			}
 			UdasruBuild.person(b, folk, 3, 1, 4, 0.0F, 8);
 			UdasruBuild.person(b, StaffRole.TOWNSWOMAN, -4, 1, -3, 90.0F, 8);
 		});
