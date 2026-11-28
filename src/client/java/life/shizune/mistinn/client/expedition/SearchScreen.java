@@ -1,5 +1,6 @@
 package life.shizune.mistinn.client.expedition;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import life.shizune.mistinn.client.grid.GridPanel;
 import life.shizune.mistinn.expedition.SearchMenu;
 import life.shizune.mistinn.grid.ItemSizes;
@@ -141,7 +142,9 @@ public final class SearchScreen extends AbstractContainerScreen<SearchMenu> {
 		}
 		Slot slot = this.menu.slots.get(i);
 		if (this.menu.searched(i) && slot.hasItem() && this.menu.getCarried().isEmpty()) {
-			this.slotClicked(slot, slot.index, event.button(), event.hasShiftDown() ? ContainerInput.QUICK_MOVE : ContainerInput.PICKUP);
+			// shift as the event has it, or as the keyboard does (a click put together by hand may not carry it)
+			boolean shift = event.hasShiftDown() || InputConstants.isKeyDown(InputConstants.KEY_LSHIFT) || InputConstants.isKeyDown(InputConstants.KEY_RSHIFT);
+			this.slotClicked(slot, slot.index, event.button(), shift ? ContainerInput.QUICK_MOVE : ContainerInput.PICKUP);
 		}
 		// nothing goes into a cache, and nothing unsearched comes out
 		return true;
