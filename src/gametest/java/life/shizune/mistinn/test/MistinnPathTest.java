@@ -34,15 +34,22 @@ public final class MistinnPathTest implements FabricClientGameTest {
 		if (TestFilter.skip(getClass())) {
 			return;
 		}
-		// the mode screen: the path never asks how hard, it is Rust Anchor
+		// the mode screen: the path is always Rust Anchor (its hardship screen shows that card alone)
 		WorldMode[] mode = new WorldMode[1];
 		Hardship[] hardship = new Hardship[1];
-		context.runOnClient(mc -> new ModeSelectScreen((m, h) -> {
+		context.setScreen(() -> new ModeSelectScreen((m, h) -> {
 			mode[0] = m;
 			hardship[0] = h;
-		}, () -> { }).pick(WorldMode.PATH));
+		}, () -> { }));
+		context.waitTicks(5);
+		context.runOnClient(mc -> ((ModeSelectScreen) mc.gui.screen()).pick(WorldMode.PATH));
+		context.waitForScreen(life.shizune.mistinn.client.title.HardshipScreen.class);
+		check(context.computeOnClient(mc -> ((life.shizune.mistinn.client.title.HardshipScreen) mc.gui.screen()).lit(Hardship.RUST_ANCHOR)),
+			"the path's one card, Rust Anchor, is lit");
+		context.runOnClient(mc -> ((life.shizune.mistinn.client.title.HardshipScreen) mc.gui.screen()).pick(Hardship.RUST_ANCHOR));
+		context.setScreen(net.minecraft.client.gui.screens.TitleScreen::new);
 		check(mode[0] == WorldMode.PATH && hardship[0] == Hardship.RUST_ANCHOR, "picking the path goes on at Rust Anchor: " + hardship[0]);
-		check(!ModeSelectScreen.asksHardship(WorldMode.PATH), "and does not ask how hard");
+		check(ModeSelectScreen.offered(WorldMode.PATH).equals(java.util.List.of(Hardship.RUST_ANCHOR)), "and its hardship screen offers Rust Anchor alone");
 
 		WorldMode.choose(WorldMode.PATH);
 		Hardship.choose(Hardship.RUST_ANCHOR);

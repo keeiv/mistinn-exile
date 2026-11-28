@@ -66,6 +66,9 @@ public class ModeSelectScreen extends Screen {
 	 */
 	public void pick(final WorldMode mode) {
 		if (this.minecraft == null) {
+			// not on screen (a test, a mod): no screens to ask with, so the mode's first hardship
+			List<Hardship> offered = offered(mode);
+			this.proceed.accept(mode, offered.isEmpty() ? Hardship.NORMAL : offered.getFirst());
 			return;
 		}
 		if (mode == WorldMode.STORY && !(this.minecraft.gui.screen() instanceof StorySelectScreen)) {

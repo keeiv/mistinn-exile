@@ -111,6 +111,19 @@ public final class ShaderIds {
 		map.put(MistinnBlocks.MARKER_BEACON, glow(null, 1));
 		map.put(MistinnBlocks.GRASS_REDSTONE_SOIL, like(Blocks.GRASS_BLOCK));
 		map.put(MistinnBlocks.REDSTONE_SOIL, like(Blocks.DIRT));
+		// Udasru's
+		map.put(MistinnBlocks.UDASRU_STONE_BRICKS, like(Blocks.STONE_BRICKS));
+		map.put(MistinnBlocks.UDASRU_STONE_BRICK_STAIRS, like(Blocks.STONE_BRICK_STAIRS));
+		map.put(MistinnBlocks.UDASRU_STONE_BRICK_SLAB, like(Blocks.STONE_BRICK_SLAB));
+		map.put(MistinnBlocks.UDASRU_STONE_BRICK_WALL, like(Blocks.STONE_BRICK_WALL));
+		map.put(MistinnBlocks.UDASRU_ROOF_TILES, like(Blocks.DEEPSLATE_TILES));
+		map.put(MistinnBlocks.UDASRU_ROOF_TILE_STAIRS, like(Blocks.DEEPSLATE_TILE_STAIRS));
+		map.put(MistinnBlocks.UDASRU_ROOF_TILE_SLAB, like(Blocks.DEEPSLATE_TILE_SLAB));
+		map.put(MistinnBlocks.UDASRU_PLASTER, like(Blocks.CALCITE));
+		map.put(MistinnBlocks.UDASRU_TIMBER, like(Blocks.DARK_OAK_LOG));
+		map.put(MistinnBlocks.SALT_CRUST, like(Blocks.CALCITE));
+		map.put(MistinnBlocks.RUST_SOIL, like(Blocks.COARSE_DIRT));
+		map.put(MistinnBlocks.BELL_BRONZE, like(Blocks.COPPER_BLOCK.waxed().unaffected()));
 		likes = map;
 		return map;
 	}

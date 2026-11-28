@@ -37,7 +37,8 @@ public final class MistinnHeightmapTagsTest implements FabricClientGameTest {
 						continue;
 					}
 					BlockState state = BuiltInRegistries.BLOCK.getValue(id).defaultBlockState();
-					if (state.isSolid() && !state.is(BlockTags.LEAVES) && !state.is(BlockTags.BLOCKS_MOTION_IN_HEIGHTMAP_NO_LEAVES)) {
+					// a sign is solid in name only: walked through, as vanilla's are, and kept out of the heightmaps like them
+					if (state.isSolid() && !state.is(BlockTags.LEAVES) && !state.is(BlockTags.ALL_SIGNS) && !state.is(BlockTags.BLOCKS_MOTION_IN_HEIGHTMAP_NO_LEAVES)) {
 						missing.add(id.toString());
 					}
 				}
