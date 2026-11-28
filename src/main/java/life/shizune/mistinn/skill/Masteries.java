@@ -25,6 +25,8 @@ import net.minecraft.world.phys.Vec3;
  * <li>裝備大師 (gear master, the intellect row): armour wears slower, the helmet and the chest piece by half, the legs and
  * the boots a little.</li>
  * <li>久經沙場 (battle-hardened, the constitution row): every blow that reaches the body does less.</li>
+ * <li>千鈞 (a thousand weight, the strength row): a heavy blow costs less breath, and one charged all the way lands
+ * harder.</li>
  * <li>初心本我 (the self as it began, the speed row): two things No. 3412 does, as they were trained: the guard (架) turns a
  * blow aside a little later into it, and off a blow turned aside whole, the next cut is the riposte (回刺), stepping
  * straight back in along the line it came from, for more.</li>
@@ -34,6 +36,10 @@ public final class Masteries {
 	/** 裝備大師: what the helmet and the chest piece wear, and the legs and the boots, of what they would. */
 	public static final float UPPER_WEAR = 0.5F;
 	public static final float LOWER_WEAR = 0.75F;
+	/** 千鈞: what a heavy blow costs in stamina, and what one charged all the way adds, from how full a charge. */
+	public static final float HEAVY_COST = 0.75F;
+	public static final float FULL_BLOW = 1.25F;
+	public static final float FULL = 0.95F;
 	/** 久經沙場: what a blow comes to on a battle-hardened body. */
 	public static final float HARDENED = 0.85F;
 	/** 初心本我: ticks more of the guard that turn a blow aside whole; how long the riposte waits after; what it adds. */
@@ -54,6 +60,18 @@ public final class Masteries {
 
 	private static boolean has(final Player player, final String id) {
 		return SkillService.get(player).has(id);
+	}
+
+	// ── 千鈞 ──────────────────────────────────────────────────────
+
+	/** What a heavy blow costs this hunter in stamina, of what it would. */
+	public static float heavyCost(final Player player) {
+		return has(player, SkillTree.THOUSAND_WEIGHT) ? HEAVY_COST : 1.0F;
+	}
+
+	/** What a heavy blow at this charge does for this hunter, of what it would. */
+	public static float heavyBlow(final Player player, final float charge) {
+		return has(player, SkillTree.THOUSAND_WEIGHT) && charge >= FULL ? FULL_BLOW : 1.0F;
 	}
 
 	// ── 久經沙場 ────────────────────────────────────────────────────

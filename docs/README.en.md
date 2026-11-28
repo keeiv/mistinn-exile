@@ -508,9 +508,10 @@ A hunter starts growing once a keeper falls and its rust god salt comes home. Op
 | Constitution | Each body part holds 2 more (up to 120), stamina 3 more (up to 160), bleeding and fractures 3% less likely |
 | Intellect | Treatment and repair take 2.5% less time (never less than half), surgery kits and injectors heal 3% more |
 
-- **Major nodes** take one rust god salt, from the hands, the hotbar or the grid. Besides the slide, the speed, constitution and intellect rows each end in a major node, open once the row's five minor nodes are learned; a major node adds no stat point. The major node at the end of the strength row is not yet open; the guide shows it so.
+- **Major nodes** take one rust god salt, from the hands, the hotbar or the grid. Besides the slide, each of the four rows ends in a major node, open once the row's five minor nodes are learned; a major node adds no stat point.
 - **Minor nodes** cost 200 salt for the first and 100 more for each one after. Each of the four branches has five.
 - **Slide** (crouch while running): feet first for about five blocks, slowing as it goes. The body leans back only about 40 degrees with the head up and looking ahead, the lead leg straight and the other folded under it, the hand on the low side taking the weight on the floor and the other out in front for balance, then it pushes off and stands; 18 stamina, a 1.2 second cooldown, and it breaks off a treatment in hand. Every hostile creature in the way is swept off its feet for 3 damage, once each. The slide gives no dodge, and two dead legs cannot slide.
+- **Thousand Weight** (strength row): heavy blows cost a quarter less stamina, and one charged all the way does a quarter more.
 - **As I Began** (speed row): No. 3412's training comes back. A perfect guard comes two ticks later; for 1.5 seconds after a blow turned aside, the next cut is a riposte, stepping in for 1.75 times the damage.
 - **Battle-Hardened** (constitution row): every hit that reaches you does 15% less.
 - **Gear Master** (intellect row): helmets and chest armour wear half as fast, legs and boots a quarter slower.

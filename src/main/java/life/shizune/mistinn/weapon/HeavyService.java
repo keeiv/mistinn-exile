@@ -271,8 +271,10 @@ public final class HeavyService {
 		double damage = special == SpecialWeapon.LANTERN_STAFF
 			? burstDamage(SkillService.stat(player, Stat.INTELLECT), charge)
 			: damage(player.getAttributeValue(Attributes.ATTACK_DAMAGE), charge, SkillService.stat(player, Stat.STRENGTH));
+		// 千鈞: less breath, and a full charge lands harder
+		damage *= life.shizune.mistinn.skill.Masteries.heavyBlow(player, charge);
 		if (StaminaService.applies(player)) {
-			StaminaService.spend(player, cost(stack, charge));
+			StaminaService.spend(player, cost(stack, charge) * life.shizune.mistinn.skill.Masteries.heavyCost(player));
 		}
 		TreatmentService.interrupt(player);
 		player.resetAttackStrengthTicker();
