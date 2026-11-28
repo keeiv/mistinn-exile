@@ -2,6 +2,7 @@ package life.shizune.mistinn.client.terra;
 
 import java.util.Map;
 import life.shizune.mistinn.rift.RiftShaper;
+import life.shizune.mistinn.terra.TerraLake;
 import life.shizune.mistinn.terra.TerraShaper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
@@ -24,6 +25,7 @@ public final class ZoneTitle {
 		TerraShaper.VEINS, new Name("zone.mistinn.terra", "biome.mistinn.terra_veins"),
 		TerraShaper.TERRACES, new Name("zone.mistinn.terra", "biome.mistinn.terra_terraces"),
 		TerraShaper.CROWN, new Name("zone.mistinn.terra", "biome.mistinn.terra_crown"),
+		TerraLake.LAKE, new Name("zone.mistinn.terra", "biome.mistinn.terra_lake"),
 		RiftShaper.OPEN, new Name("biome.mistinn.rift_open", null),
 		RiftShaper.SCAR, new Name("biome.mistinn.rift_scar", null));
 	/** How long outside a place before walking back in shows its name again. */

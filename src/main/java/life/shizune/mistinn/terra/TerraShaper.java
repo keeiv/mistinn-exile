@@ -122,6 +122,10 @@ public final class TerraShaper implements DomainService.Shaper {
 
 	@Override
 	public void column(final ServerLevel level, final LevelChunk chunk, final Domain domain, final int x, final int z, final double distance) {
+		// land a hunter has lived in a while is theirs; and the lake digs its own ground
+		if (chunk.getInhabitedTime() > TerraLake.LIVED_IN || TerraLake.inLake(domain, x, z)) {
+			return;
+		}
 		Zone zone = zone(domain, x, z, distance);
 		int top = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x & 15, z & 15);
 		BlockPos.MutableBlockPos at = new BlockPos.MutableBlockPos();

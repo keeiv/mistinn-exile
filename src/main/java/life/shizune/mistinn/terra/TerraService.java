@@ -21,18 +21,44 @@ import net.minecraft.world.level.biome.Biome;
 public final class TerraService {
 	/** How many a world holds, and how far each reaches. */
 	public static final int COUNT = 6;
-	public static final int RADIUS = 180;
+	public static final int RADIUS = 260;
 	/** How far out from spawn they lie, and how far apart (centre to centre) at the least. */
 	public static final int NEAREST = 1200;
 	public static final int FARTHEST = 3200;
 	public static final int APART = 1300;
+	/** How far short of another domain's edge an older highland's widening stops. */
+	public static final int GAP = 16;
 
 	private TerraService() {
 	}
 
 	public static void register() {
 		DomainService.shaper(Domain.Kind.TERRA, new TerraShaper());
+		ServerLifecycleEvents.SERVER_STARTED.register(TerraService::widen);
 		ServerLifecycleEvents.SERVER_STARTED.register(TerraService::plan);
+		TerraLake.register();
+	}
+
+	/**
+	 * An older world's highlands grow to the highlands' present width: each spreads on out from where it reached, and the
+	 * new ground is turned as any is (only what nature put there, never near anyone's things).
+	 */
+	public static void widen(final MinecraftServer server) {
+		for (Domain domain : DomainService.of(server, Domain.Kind.TERRA)) {
+			if (domain.radius() >= RADIUS) {
+				continue;
+			}
+			// (never so far that it reaches another's ground, a rift's that came near it)
+			int wide = RADIUS;
+			for (Domain other : DomainService.all(server)) {
+				if (other.id() != domain.id()) {
+					wide = Math.min(wide, (int) Math.floor(domain.distance(other.centre().getX() + 0.5, other.centre().getZ() + 0.5)) - other.radius() - GAP);
+				}
+			}
+			if (wide > domain.radius()) {
+				DomainService.update(server, new Domain(domain.id(), domain.kind(), domain.centre(), wide, domain.phase(), domain.since(), domain.spread()));
+			}
+		}
 	}
 
 	/** Settles where the world's Terra highlands lie, if it has not been done. */
