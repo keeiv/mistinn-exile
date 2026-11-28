@@ -121,6 +121,15 @@ public final class MistinnItems {
 	public static final Item MIST_PINE_LOG = block("mist_pine_log", MistinnBlocks.MIST_PINE_LOG, new Item.Properties());
 	public static final Item MIST_PINE_PLANKS = block("mist_pine_planks", MistinnBlocks.MIST_PINE_PLANKS, new Item.Properties());
 	public static final Item MIST_PINE_LEAVES = block("mist_pine_leaves", MistinnBlocks.MIST_PINE_LEAVES, new Item.Properties());
+	public static final Item MIST_PINE_STAIRS = block("mist_pine_stairs", MistinnBlocks.MIST_PINE_STAIRS, new Item.Properties());
+	public static final Item MIST_PINE_SLAB = block("mist_pine_slab", MistinnBlocks.MIST_PINE_SLAB, new Item.Properties());
+	public static final Item MIST_PINE_FENCE = block("mist_pine_fence", MistinnBlocks.MIST_PINE_FENCE, new Item.Properties());
+	public static final Item MIST_PINE_FENCE_GATE = block("mist_pine_fence_gate", MistinnBlocks.MIST_PINE_FENCE_GATE, new Item.Properties());
+	public static final Item MIST_PINE_DOOR = register("mist_pine_door", p -> new net.minecraft.world.item.DoubleHighBlockItem(MistinnBlocks.MIST_PINE_DOOR, p),
+		new Item.Properties().useBlockDescriptionPrefix());
+	public static final Item MIST_PINE_TRAPDOOR = block("mist_pine_trapdoor", MistinnBlocks.MIST_PINE_TRAPDOOR, new Item.Properties());
+	public static final Item MIST_PINE_BUTTON = block("mist_pine_button", MistinnBlocks.MIST_PINE_BUTTON, new Item.Properties());
+	public static final Item MIST_PINE_PRESSURE_PLATE = block("mist_pine_pressure_plate", MistinnBlocks.MIST_PINE_PRESSURE_PLATE, new Item.Properties());
 	public static final Item JADE_GRASS = block("jade_grass", MistinnBlocks.JADE_GRASS, new Item.Properties());
 	public static final Item JADE_FERN = block("jade_fern", MistinnBlocks.JADE_FERN, new Item.Properties());
 	public static final Item MIST_REED = block("mist_reed", MistinnBlocks.MIST_REED, new Item.Properties());

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "mistinn:block/mist_pine_planks",
+    "side": "mistinn:block/mist_pine_planks",
+    "top": "mistinn:block/mist_pine_planks"
+  }
+}
