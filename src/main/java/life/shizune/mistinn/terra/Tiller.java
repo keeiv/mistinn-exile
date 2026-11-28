@@ -52,18 +52,35 @@ import org.jspecify.annotations.Nullable;
  * the field and run when struck,
  * the warden stands guard with a spear against monsters and the crystal drakes, and the keeper of
  * trade deals in crystal. Whoever harms one of them is turned away by all of them for a while.
+ * <p>
+ * Some of them crew the research ships on the highlands' lakes ({@link ResearchShip}): researchers and the ship's wardens,
+ * who keep to their deck, warn off whoever comes near, and fight anyone who boards.
  */
 public class Tiller extends PathfinderMob implements Merchant {
 	/** Who one is, and how they look. */
 	public enum Role {
-		TILLER_1("tiller_1", true), TILLER_2("tiller_2", false), WARDEN("warden", false), ELDER("elder", true);
+		TILLER_1("tiller_1", true, false), TILLER_2("tiller_2", false, false), WARDEN("warden", false, false), ELDER("elder", true, false),
+		RESEARCHER("researcher", true, true), SHIP_WARDEN("ship_warden", false, true);
 
 		public final String id;
 		public final boolean slim;
+		/** Whether one crews a research ship (and so fights whoever boards it) rather than keeping a settlement. */
+		public final boolean ship;
 
-		Role(final String id, final boolean slim) {
+		Role(final String id, final boolean slim, final boolean ship) {
 			this.id = id;
 			this.slim = slim;
+			this.ship = ship;
+		}
+
+		/** Whether one fights: the wardens, and all of a ship's crew. */
+		public boolean fights() {
+			return this == WARDEN || this.ship;
+		}
+
+		/** Whether one stands guard against monsters: the wardens, of a settlement or a ship. */
+		public boolean guards() {
+			return this == WARDEN || this == SHIP_WARDEN;
 		}
 
 		public static Role byIndex(final int index) {
@@ -110,13 +127,13 @@ public class Tiller extends PathfinderMob implements Merchant {
 		this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.15, true) {
 			@Override
 			public boolean canUse() {
-				return Tiller.this.role() == Role.WARDEN && super.canUse();
+				return Tiller.this.role().fights() && super.canUse();
 			}
 		});
 		this.goalSelector.addGoal(1, new PanicGoal(this, 1.4) {
 			@Override
 			public boolean canUse() {
-				return Tiller.this.role() != Role.WARDEN && super.canUse();
+				return !Tiller.this.role().fights() && super.canUse();
 			}
 		});
 		// the settlement's day: field, hub, workshop (see TillerRoutine)
@@ -128,25 +145,38 @@ public class Tiller extends PathfinderMob implements Merchant {
 		this.targetSelector.addGoal(1, new HurtByTargetGoal(this) {
 			@Override
 			public boolean canUse() {
-				return Tiller.this.role() == Role.WARDEN && super.canUse();
+				return Tiller.this.role().fights() && super.canUse();
 			}
 		});
 		this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Mob.class, 10, true, false,
-			(target, level) -> this.role() == Role.WARDEN && target instanceof Enemy && !CrystalLizard.companion(target) && target.distanceTo(this) < 16.0F));
+			(target, level) -> this.role().guards() && target instanceof Enemy && !CrystalLizard.companion(target) && target.distanceTo(this) < 16.0F));
 		this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Player.class, 10, false, false,
-			(target, level) -> this.role() == Role.WARDEN && this.holdsAgainst(target)));
+			(target, level) -> this.role().fights() && this.holdsAgainst(target)));
 	}
 
 	/** Takes up a place in a settlement: a role, and a home to keep near. */
 	public void settle(final Role role, final BlockPos home) {
 		this.entityData.set(DATA_ROLE, (byte) role.ordinal());
 		this.home = home;
-		this.setHomeTo(home, Settlements.HOME);
-		if (role == Role.WARDEN) {
+		this.setHomeTo(home, role.ship ? ResearchShip.DECK : Settlements.HOME);
+		if (role.guards()) {
 			this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(MistinnItems.MIST_SPEAR));
 			this.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
 			this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(50.0);
 			this.setHealth(50.0F);
+		}
+		if (role == Role.RESEARCHER) {
+			// a researcher fights with bare hands, and not as hard
+			this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(4.0);
+		}
+	}
+
+	/** Turns this one on a hunter (one who boarded their ship) until a time. */
+	public void affront(final Player hunter, final long until) {
+		this.wronged = hunter.getUUID();
+		this.wrongedUntil = until;
+		if (this.role().fights() && !hunter.isCreative() && !hunter.isSpectator()) {
+			this.setTarget(hunter);
 		}
 	}
 
@@ -179,7 +209,8 @@ public class Tiller extends PathfinderMob implements Merchant {
 	@Override
 	public boolean hurtServer(final ServerLevel level, final DamageSource source, final float amount) {
 		if (source.getEntity() instanceof Player hunter && !hunter.isCreative()) {
-			if (hunter instanceof net.minecraft.server.level.ServerPlayer wronging) {
+			// (a ship's crew who turned on a boarder first is not wronged by being fought back)
+			if (hunter instanceof net.minecraft.server.level.ServerPlayer wronging && !(this.role().ship && this.holdsAgainst(hunter))) {
 				life.shizune.mistinn.ledger.LedgerService.tell(wronging, "tiller.wronged", false);
 			}
 			// word goes round the settlement
@@ -188,7 +219,7 @@ public class Tiller extends PathfinderMob implements Merchant {
 				other.wronged = hunter.getUUID();
 				other.wrongedUntil = until;
 				// the wardens know who did it, wherever they stand
-				if (other.role() == Role.WARDEN && !hunter.isCreative()) {
+				if (other.role().fights() && !hunter.isCreative()) {
 					other.setTarget(hunter);
 				}
 			}
@@ -239,6 +270,10 @@ public class Tiller extends PathfinderMob implements Merchant {
 	/** What one of them says to a hunter: what the moment calls for (a squall over them, a siege at their door), or one of their own. */
 	public String line(final Player player) {
 		String who = this.role().id.replaceAll("_\\d", "");
+		// a ship's crew speak of their ship and their work, and nothing else
+		if (this.role().ship) {
+			return "message.mistinn.tiller." + who + "." + this.random.nextInt(LINES);
+		}
 		if (player instanceof net.minecraft.server.level.ServerPlayer hunter && Squall.sky(hunter) == Squall.Stage.RAGING) {
 			return "message.mistinn.tiller.squall";
 		}

@@ -71,7 +71,7 @@ public final class MistinnTillersTest implements FabricClientGameTest {
 				check(level.getBlockState(hub).is(MistinnBlocks.HUB_CORE) && !level.getBlockState(hub).getValue(HubCoreBlock.LIT), "a sleeping hub at its middle");
 				check(level.getBlockState(built[0].centre().offset(6, 0, 0)).is(MistinnBlocks.FACILITY_DECK), "on a deck");
 				List<Tiller> people = level.getEntitiesOfClass(Tiller.class, new AABB(hub).inflate(16.0));
-				for (Tiller.Role role : Tiller.Role.values()) {
+				for (Tiller.Role role : java.util.Arrays.stream(Tiller.Role.values()).filter(r -> !r.ship).toList()) {
 					check(people.stream().anyMatch(t -> t.role() == role), "the settlement has its " + role.id);
 				}
 				// what they build cannot be broken or blown away

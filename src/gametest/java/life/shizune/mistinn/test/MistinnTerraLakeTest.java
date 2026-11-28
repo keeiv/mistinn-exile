@@ -3,6 +3,7 @@ package life.shizune.mistinn.test;
 import java.util.Set;
 import life.shizune.mistinn.domain.Domain;
 import life.shizune.mistinn.domain.DomainService;
+import life.shizune.mistinn.terra.ResearchShip;
 import life.shizune.mistinn.terra.TerraLake;
 import life.shizune.mistinn.terra.TerraService;
 import life.shizune.mistinn.terra.TerraShaper;
@@ -126,6 +127,20 @@ public final class MistinnTerraLakeTest implements FabricClientGameTest {
 				BlockState cut = level.getBlockState(knoll.atY(face));
 				check(face > Y && face < Y + 7 && (cut.is(Blocks.SAND) || cut.is(life.shizune.mistinn.registry.MistinnBlocks.JADE_TURF)),
 					"to a bank sloping up from the water, faced with turf: " + (face - Y) + " " + cut);
+				// a ship comes to the lake only once its middle is all dug, and only on open water: the cobblestone post stands
+				// in its way when it would lie east and west
+				ResearchShip.chance = 1.0;
+				ResearchShip.consider(level, domain);
+				check(ResearchShip.of(level, domain.id()) == null, "no ship before the lake's middle is all dug");
+				for (int cx = from.x(); cx <= to.x(); cx++) {
+					for (int cz = from.z(); cz <= to.z(); cz++) {
+						level.getChunk(cx, cz).setAttached(TerraLake.DUG, TerraLake.VERSION);
+					}
+				}
+				ResearchShip.consider(level, domain);
+				ResearchShip.Ship ship = ResearchShip.of(level, domain.id());
+				check(ship != null && ship.present() == !ship.alongX(), "then it comes, unless someone's work stands in the water: "
+					+ (ship == null ? "none" : ship.present() + " along x " + ship.alongX()));
 				// an older world's highland widens, short of a rift that came near it
 				// (somewhere well clear of the world's own highlands)
 				BlockPos old = null;

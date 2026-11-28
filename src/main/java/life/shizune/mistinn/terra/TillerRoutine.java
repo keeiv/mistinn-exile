@@ -95,7 +95,7 @@ public final class TillerRoutine extends Goal {
 
 	/** Where this tiller means to be now, or null when it keeps no settlement's day. */
 	public static @Nullable BlockPos spot(final Tiller tiller) {
-		Settlements.Settlement home = home(tiller);
+		Settlements.Settlement home = tiller.role().ship ? null : home(tiller);
 		if (home == null) {
 			return null;
 		}
@@ -113,6 +113,7 @@ public final class TillerRoutine extends Goal {
 					yield Settlements.along(hub, angle, PATROL).atY(home.deck() + 1);
 				}
 				case ELDER -> Settlements.along(hub, turn(home) + Math.PI / 3.0, 2).atY(home.deck() + 1);
+				case RESEARCHER, SHIP_WARDEN -> null;
 			};
 			case GATHER -> Settlements.along(hub, turn(home) + Math.PI * 2.0 * seat / Tiller.Role.values().length, 3).atY(home.deck() + 1);
 			case REST -> warden ? Settlements.along(hub, turn(home) + Math.PI / 3.0, 2).atY(home.deck() + 1) : indoors(home, seat);

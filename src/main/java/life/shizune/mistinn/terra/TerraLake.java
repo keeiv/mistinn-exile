@@ -221,6 +221,8 @@ public final class TerraLake {
 			chunk.setAttached(DUG, VERSION);
 			chunk.markUnsaved();
 			dug++;
+			// once the lake's middle is all dug, a research ship may come to lie on it
+			ResearchShip.consider(level, domain);
 		}
 	}
 
