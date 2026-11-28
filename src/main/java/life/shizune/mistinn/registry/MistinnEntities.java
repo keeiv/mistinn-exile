@@ -137,6 +137,13 @@ public final class MistinnEntities {
 		(type, level) -> new net.minecraft.world.entity.vehicle.boat.ChestBoat(type, level, () -> MistinnItems.MIST_PINE_CHEST_BOAT), MobCategory.MISC)
 		.noLootTable().sized(1.375F, 0.5625F).eyeHeight(0.5625F).clientTrackingRange(10));
 
+	/** 晶羊: a stocky sheep whose fleece grows crystal; it rams whoever strikes it. */
+	public static final EntityType<life.shizune.mistinn.terra.CrystalSheep> CRYSTAL_SHEEP = register("crystal_sheep",
+		EntityType.Builder.<life.shizune.mistinn.terra.CrystalSheep>of(life.shizune.mistinn.terra.CrystalSheep::new, MobCategory.CREATURE).sized(0.9F, 1.3F).eyeHeight(1.15F).clientTrackingRange(10));
+	/** 陸鯊: a shark that swims through the valleys' turf, its crystal fin above it; it leaps at whoever strikes it. */
+	public static final EntityType<life.shizune.mistinn.terra.LandShark> LAND_SHARK = register("land_shark",
+		EntityType.Builder.<life.shizune.mistinn.terra.LandShark>of(life.shizune.mistinn.terra.LandShark::new, MobCategory.CREATURE).sized(1.2F, 0.7F).eyeHeight(0.5F).clientTrackingRange(10));
+
 	/** 晶龍: a wyvern of living crystal that keeps the skies of a Terra highland. */
 	public static final EntityType<life.shizune.mistinn.terra.CrystalDrake> CRYSTAL_DRAKE = register("crystal_drake",
 		EntityType.Builder.<life.shizune.mistinn.terra.CrystalDrake>of(life.shizune.mistinn.terra.CrystalDrake::new, MobCategory.MONSTER)
@@ -214,6 +221,12 @@ public final class MistinnEntities {
 		FabricDefaultAttributeRegistry.register(CRYSTAL_LIZARD, life.shizune.mistinn.terra.CrystalLizard.createAttributes());
 		FabricDefaultAttributeRegistry.register(GATE_SENTRY, life.shizune.mistinn.terra.GateSentry.createAttributes());
 		FabricDefaultAttributeRegistry.register(JADE_ANTELOPE, life.shizune.mistinn.terra.JadeAntelope.createAttributes());
+		FabricDefaultAttributeRegistry.register(CRYSTAL_SHEEP, life.shizune.mistinn.terra.CrystalSheep.createAttributes());
+		FabricDefaultAttributeRegistry.register(LAND_SHARK, life.shizune.mistinn.terra.LandShark.createAttributes());
+		life.shizune.mistinn.mixin.SpawnPlacementsInvoker.mistinn$register(CRYSTAL_SHEEP, net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+			net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, life.shizune.mistinn.terra.CrystalSheep::checkSpawnRules);
+		life.shizune.mistinn.mixin.SpawnPlacementsInvoker.mistinn$register(LAND_SHARK, net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+			net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, life.shizune.mistinn.terra.LandShark::checkSpawnRules);
 		// jade-horn antelopes graze the valleys' jade turf in small herds
 		life.shizune.mistinn.mixin.SpawnPlacementsInvoker.mistinn$register(JADE_ANTELOPE, net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
 			net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, life.shizune.mistinn.terra.JadeAntelope::checkSpawnRules);

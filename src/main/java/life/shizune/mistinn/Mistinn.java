@@ -51,6 +51,7 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.medical.TreatmentService.register();
 		life.shizune.mistinn.skill.SkillService.register();
 		life.shizune.mistinn.skill.Masteries.register();
+		life.shizune.mistinn.terra.TerraFauna.register();
 		life.shizune.mistinn.gear.Detector.register();
 		life.shizune.mistinn.weapon.SkeletonAmmo.register();
 		life.shizune.mistinn.weapon.ElementArrow.register();

@@ -39,6 +39,24 @@
                 "max_inclusive": 4
               },
               "weight": 12
+            },
+            {
+              "type": "mistinn:crystal_sheep",
+              "count": {
+                "type": "minecraft:uniform",
+                "min_inclusive": 2,
+                "max_inclusive": 3
+              },
+              "weight": 8
+            },
+            {
+              "type": "mistinn:land_shark",
+              "count": {
+                "type": "minecraft:uniform",
+                "min_inclusive": 1,
+                "max_inclusive": 1
+              },
+              "weight": 3
             }
           ],
           "misc": [],
