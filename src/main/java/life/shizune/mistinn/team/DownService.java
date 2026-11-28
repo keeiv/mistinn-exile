@@ -211,10 +211,16 @@ public final class DownService {
 		if (!isDown(player)) {
 			return;
 		}
-		player.removeAttached(DOWN);
-		unhold(player);
 		ServerLevel level = player.level();
-		DamageSource source = new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(BLED_OUT));
+		dieOutright(player, new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(BLED_OUT)));
+	}
+
+	/** The hunter dies where they lie or stand, of {@code source}: no one can lift them from it, down or not. */
+	public static void dieOutright(final ServerPlayer player, final DamageSource source) {
+		if (isDown(player)) {
+			player.removeAttached(DOWN);
+			unhold(player);
+		}
 		player.setHealth(0.0F);
 		player.die(source);
 	}

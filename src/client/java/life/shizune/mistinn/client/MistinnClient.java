@@ -126,6 +126,8 @@ public class MistinnClient implements ClientModInitializer {
 		HudElementRegistry.addLast(Mistinn.id("story"), new life.shizune.mistinn.client.story.StoryHud());
 		HudElementRegistry.addLast(Mistinn.id("path"), new life.shizune.mistinn.client.path.PathHud());
 		HudElementRegistry.addLast(Mistinn.id("commission"), new life.shizune.mistinn.client.terra.CommissionHud());
+		HudElementRegistry.addLast(Mistinn.id("expedition"), new life.shizune.mistinn.client.expedition.ExpeditionHud());
+		life.shizune.mistinn.client.expedition.ExpeditionHud.register();
 		net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(life.shizune.mistinn.terra.Commissions.BoardPayload.TYPE,
 			(payload, context) -> life.shizune.mistinn.client.terra.CommissionScreen.received(payload));
 		life.shizune.mistinn.client.path.PathClient.init();
