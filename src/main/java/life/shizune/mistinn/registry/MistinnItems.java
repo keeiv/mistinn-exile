@@ -121,6 +121,13 @@ public final class MistinnItems {
 	public static final Item MIST_PINE_LOG = block("mist_pine_log", MistinnBlocks.MIST_PINE_LOG, new Item.Properties());
 	public static final Item MIST_PINE_PLANKS = block("mist_pine_planks", MistinnBlocks.MIST_PINE_PLANKS, new Item.Properties());
 	public static final Item MIST_PINE_LEAVES = block("mist_pine_leaves", MistinnBlocks.MIST_PINE_LEAVES, new Item.Properties());
+	/** 爆裂箭、冰凍箭、電箭. */
+	public static final Item BLAST_ARROW = register("blast_arrow", p -> new life.shizune.mistinn.weapon.ElementArrowItem(life.shizune.mistinn.weapon.ElementArrow.Kind.BLAST, p),
+		new Item.Properties());
+	public static final Item FROST_ARROW = register("frost_arrow", p -> new life.shizune.mistinn.weapon.ElementArrowItem(life.shizune.mistinn.weapon.ElementArrow.Kind.FROST, p),
+		new Item.Properties());
+	public static final Item SHOCK_ARROW = register("shock_arrow", p -> new life.shizune.mistinn.weapon.ElementArrowItem(life.shizune.mistinn.weapon.ElementArrow.Kind.SHOCK, p),
+		new Item.Properties());
 	public static final Item MIST_PINE_STAIRS = block("mist_pine_stairs", MistinnBlocks.MIST_PINE_STAIRS, new Item.Properties());
 	public static final Item MIST_PINE_SLAB = block("mist_pine_slab", MistinnBlocks.MIST_PINE_SLAB, new Item.Properties());
 	public static final Item MIST_PINE_FENCE = block("mist_pine_fence", MistinnBlocks.MIST_PINE_FENCE, new Item.Properties());

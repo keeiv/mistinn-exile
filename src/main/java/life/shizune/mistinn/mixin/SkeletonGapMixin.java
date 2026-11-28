@@ -14,6 +14,11 @@ public abstract class SkeletonGapMixin {
 	@Inject(method = {"getAttackInterval", "getHardAttackInterval"}, at = @At("RETURN"), cancellable = true)
 	private void mistinn$faster(final CallbackInfoReturnable<Integer> cir) {
 		AbstractSkeleton self = (AbstractSkeleton) (Object) this;
-		cir.setReturnValue(Ferocity.gap(cir.getReturnValueI(), Ferocity.of(self.level()).bowGap()));
+		int gap = Ferocity.gap(cir.getReturnValueI(), Ferocity.of(self.level()).bowGap());
+		// blast, frost and shock arrows are slower to nock
+		if (life.shizune.mistinn.weapon.SkeletonAmmo.of(self) != null) {
+			gap = Math.round(gap * life.shizune.mistinn.weapon.SkeletonAmmo.SLOWER);
+		}
+		cir.setReturnValue(gap);
 	}
 }

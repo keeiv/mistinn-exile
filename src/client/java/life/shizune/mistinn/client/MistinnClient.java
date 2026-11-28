@@ -213,6 +213,12 @@ public class MistinnClient implements ClientModInitializer {
 			life.shizune.mistinn.client.terra.CrystalLizardModel::createBodyLayer);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.CRYSTAL_LIZARD,
 			life.shizune.mistinn.client.terra.CrystalLizardRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.BLAST_ARROW,
+			ctx -> new life.shizune.mistinn.client.combat.ElementArrowRenderer(ctx, life.shizune.mistinn.weapon.ElementArrow.Kind.BLAST));
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.FROST_ARROW,
+			ctx -> new life.shizune.mistinn.client.combat.ElementArrowRenderer(ctx, life.shizune.mistinn.weapon.ElementArrow.Kind.FROST));
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SHOCK_ARROW,
+			ctx -> new life.shizune.mistinn.client.combat.ElementArrowRenderer(ctx, life.shizune.mistinn.weapon.ElementArrow.Kind.SHOCK));
 		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.terra.JadeAntelopeModel.LAYER,
 			life.shizune.mistinn.client.terra.JadeAntelopeModel::createBodyLayer);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.JADE_ANTELOPE,

@@ -31,6 +31,8 @@
 		"PunchSoundMixin",
 		"RiposteMixin",
 		"SeizedBlowMixin",
+		"SkeletonAmmoMixin",
+		"SkeletonDrawMixin",
 		"ServerExplosionMixin",
 		"SkeletonGapMixin",
 		"SkeletonShotSoundMixin",

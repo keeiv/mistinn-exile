@@ -123,6 +123,11 @@ public final class MistinnEntities {
 		.eyeHeight(1.45F)
 		.clientTrackingRange(10));
 
+	/** 爆裂箭、冰凍箭、電箭: arrows with heads of their own. */
+	public static final EntityType<life.shizune.mistinn.weapon.ElementArrow> BLAST_ARROW = arrow("blast_arrow", life.shizune.mistinn.weapon.ElementArrow.Kind.BLAST);
+	public static final EntityType<life.shizune.mistinn.weapon.ElementArrow> FROST_ARROW = arrow("frost_arrow", life.shizune.mistinn.weapon.ElementArrow.Kind.FROST);
+	public static final EntityType<life.shizune.mistinn.weapon.ElementArrow> SHOCK_ARROW = arrow("shock_arrow", life.shizune.mistinn.weapon.ElementArrow.Kind.SHOCK);
+
 	/** 晶龍: a wyvern of living crystal that keeps the skies of a Terra highland. */
 	public static final EntityType<life.shizune.mistinn.terra.CrystalDrake> CRYSTAL_DRAKE = register("crystal_drake",
 		EntityType.Builder.<life.shizune.mistinn.terra.CrystalDrake>of(life.shizune.mistinn.terra.CrystalDrake::new, MobCategory.MONSTER)
@@ -169,6 +174,11 @@ public final class MistinnEntities {
 		.noSave());
 
 	private MistinnEntities() {
+	}
+
+	private static EntityType<life.shizune.mistinn.weapon.ElementArrow> arrow(final String name, final life.shizune.mistinn.weapon.ElementArrow.Kind kind) {
+		return register(name, EntityType.Builder.<life.shizune.mistinn.weapon.ElementArrow>of((type, level) -> new life.shizune.mistinn.weapon.ElementArrow(type, level, kind),
+			MobCategory.MISC).noLootTable().sized(0.5F, 0.5F).eyeHeight(0.13F).clientTrackingRange(4).updateInterval(20));
 	}
 
 	private static <T extends net.minecraft.world.entity.Entity> EntityType<T> register(final String name, final EntityType.Builder<T> builder) {
