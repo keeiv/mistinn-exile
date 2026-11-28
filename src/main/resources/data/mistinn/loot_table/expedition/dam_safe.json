@@ -5,38 +5,48 @@
     {
       "rolls": {
         "type": "minecraft:uniform",
-        "min": 1,
-        "max": 1
+        "min": 2,
+        "max": 3
       },
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "mistinn:armor_light_4",
+          "name": "mistinn:lattice_cell",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:gate_gearbox",
           "weight": 3
         },
         {
           "type": "minecraft:item",
-          "name": "mistinn:armor_heavy_4",
+          "name": "mistinn:record_chip",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:pressure_regulator",
           "weight": 3
         },
         {
           "type": "minecraft:item",
-          "name": "mistinn:backpack_heavy_3",
+          "name": "mistinn:sky_gauge_part",
           "weight": 2
         },
         {
           "type": "minecraft:item",
-          "name": "mistinn:armor_light_5",
+          "name": "mistinn:core_stabilizer",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:star_chart_plate",
           "weight": 1
         },
         {
           "type": "minecraft:item",
-          "name": "mistinn:armor_heavy_5",
-          "weight": 1
-        },
-        {
-          "type": "minecraft:item",
-          "name": "mistinn:backpack_light_5",
+          "name": "mistinn:shida_sky_lens",
           "weight": 1
         }
       ]
@@ -44,8 +54,8 @@
     {
       "rolls": {
         "type": "minecraft:uniform",
-        "min": 2,
-        "max": 3
+        "min": 0,
+        "max": 1
       },
       "entries": [
         {
@@ -56,8 +66,8 @@
             "type": "minecraft:set_count",
             "count": {
               "type": "minecraft:uniform",
-              "min": 2,
-              "max": 4
+              "min": 1,
+              "max": 2
             }
           }
         },
@@ -68,26 +78,13 @@
         },
         {
           "type": "minecraft:item",
-          "name": "mistinn:resonance_fork",
-          "weight": 2
+          "name": "mistinn:armor_light_4",
+          "weight": 1
         },
         {
           "type": "minecraft:item",
-          "name": "mistinn:salt",
-          "weight": 3,
-          "modifier": {
-            "type": "minecraft:set_count",
-            "count": {
-              "type": "minecraft:uniform",
-              "min": 15,
-              "max": 30
-            }
-          }
-        },
-        {
-          "type": "minecraft:item",
-          "name": "mistinn:lattice_chip",
-          "weight": 2
+          "name": "mistinn:armor_heavy_4",
+          "weight": 1
         }
       ]
     }

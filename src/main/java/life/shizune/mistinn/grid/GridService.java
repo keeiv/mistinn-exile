@@ -161,6 +161,11 @@ public final class GridService {
 			cue(player, MistinnSounds.GRID_REJECT);
 			return;
 		}
+		if (area == Area.SAFE && life.shizune.mistinn.expedition.Salvage.is(carried)) {
+			// what is found out there is at stake until it is home
+			cue(player, MistinnSounds.GRID_REJECT);
+			return;
+		}
 		GridInventory inv = get(player);
 		GridShape shape = inv.shape(area);
 		List<Placed> items = new ArrayList<>(inv.items(area));
@@ -461,6 +466,11 @@ public final class GridService {
 		}
 		Inventory inventory = player.getInventory();
 		ItemStack held = inventory.getItem(hotbar);
+		if (area == Area.SAFE && life.shizune.mistinn.expedition.Salvage.is(held)) {
+			// what is found out there is at stake until it is home
+			cue(player, MistinnSounds.GRID_REJECT);
+			return;
+		}
 		GridInventory inv = get(player);
 		List<Placed> items = new ArrayList<>(inv.items(area));
 		int index = GridLogic.itemAt(items, section, x, y);
@@ -570,6 +580,11 @@ public final class GridService {
 			return;
 		}
 		if (!GridLogic.canStore(carried)) {
+			cue(player, MistinnSounds.GRID_REJECT);
+			return;
+		}
+		if (area == Area.SAFE && life.shizune.mistinn.expedition.Salvage.is(carried)) {
+			// what is found out there is at stake until it is home
 			cue(player, MistinnSounds.GRID_REJECT);
 			return;
 		}

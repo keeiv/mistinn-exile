@@ -165,6 +165,8 @@ public final class MistinnItems {
 	public static final Item RIFT_SHARD = register("rift_shard", Item::new, new Item.Properties().rarity(Rarity.UNCOMMON));
 	public static final Item RIFT_BEACON = register("rift_beacon", life.shizune.mistinn.rift.RiftBeaconItem::new,
 		new Item.Properties().stacksTo(4).rarity(Rarity.RARE));
+	/** 遠征物資: the forebears' salvage, in the order of {@link life.shizune.mistinn.expedition.Salvage#KINDS}. */
+	public static final List<Item> SALVAGE = salvage();
 
 	/** 護甲維修包 / 頭盔維修包 for tiers III to VI, indexed by {@code tier.ordinal() - 3}. */
 	public static final List<Item> ARMOR_REPAIR_KITS = repairKits("armor_repair_kit", EquipmentSlot.CHEST);
@@ -422,6 +424,14 @@ public final class MistinnItems {
 
 	private static Item block(final String name, final Block block, final Item.Properties properties) {
 		return register(name, p -> new BlockItem(block, p), properties.useBlockDescriptionPrefix());
+	}
+
+	private static List<Item> salvage() {
+		List<Item> items = new java.util.ArrayList<>();
+		for (life.shizune.mistinn.expedition.Salvage.Kind kind : life.shizune.mistinn.expedition.Salvage.KINDS) {
+			items.add(register(kind.id(), Item::new, new Item.Properties().stacksTo(kind.stack())));
+		}
+		return List.copyOf(items);
 	}
 
 	private static Item register(final String name, final Function<Item.Properties, Item> factory, final Item.Properties properties) {

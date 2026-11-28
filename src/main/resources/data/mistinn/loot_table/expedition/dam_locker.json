@@ -5,8 +5,83 @@
     {
       "rolls": {
         "type": "minecraft:uniform",
-        "min": 2,
-        "max": 3
+        "min": 3,
+        "max": 4
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:copper_gear",
+          "weight": 4,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 2
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:old_filter",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:pressure_gauge",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:lattice_fragment",
+          "weight": 4,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 2
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:coolant_tube",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:control_panel",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:resonance_coil",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:lattice_cell",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:gate_gearbox",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:record_chip",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 1
       },
       "entries": [
         {
@@ -40,69 +115,11 @@
         {
           "type": "minecraft:item",
           "name": "mistinn:flare",
-          "weight": 2,
-          "modifier": {
-            "type": "minecraft:set_count",
-            "count": {
-              "type": "minecraft:uniform",
-              "min": 1,
-              "max": 2
-            }
-          }
+          "weight": 2
         },
-        {
-          "type": "minecraft:item",
-          "name": "mistinn:salt",
-          "weight": 3,
-          "modifier": {
-            "type": "minecraft:set_count",
-            "count": {
-              "type": "minecraft:uniform",
-              "min": 4,
-              "max": 10
-            }
-          }
-        },
-        {
-          "type": "minecraft:item",
-          "name": "minecraft:copper_ingot",
-          "weight": 2,
-          "modifier": {
-            "type": "minecraft:set_count",
-            "count": {
-              "type": "minecraft:uniform",
-              "min": 3,
-              "max": 8
-            }
-          }
-        }
-      ]
-    },
-    {
-      "rolls": {
-        "type": "minecraft:uniform",
-        "min": 0,
-        "max": 1
-      },
-      "entries": [
         {
           "type": "minecraft:item",
           "name": "mistinn:surgery_kit",
-          "weight": 2
-        },
-        {
-          "type": "minecraft:item",
-          "name": "mistinn:lattice_chip",
-          "weight": 1
-        },
-        {
-          "type": "minecraft:item",
-          "name": "mistinn:crystal_core",
-          "weight": 2
-        },
-        {
-          "type": "minecraft:item",
-          "name": "mistinn:resonance_fork",
           "weight": 1
         }
       ]

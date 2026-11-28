@@ -37,6 +37,8 @@ public final class CommissionScreen extends Screen {
 	private int rows;
 	private int currentY;
 	private int bottomY;
+	/** What the salvage carried would fetch, when the buttons were laid out. */
+	private int salvage;
 	private final List<int[]> offerAt = new ArrayList<>();
 
 	public CommissionScreen(final Commissions.BoardPayload board) {
@@ -115,6 +117,12 @@ public final class CommissionScreen extends Screen {
 			this.addRenderableWidget(Button.builder(Component.translatable("gui.mistinn.commission.trade"), b -> ask("trade", ""))
 				.bounds(this.left + 6, this.bottomY, 64, 20).build());
 		}
+		// the forebears' salvage, bought by any keeper: what all of it carried comes to
+		this.salvage = salvageCarried();
+		Button sell = Button.builder(Component.translatable("gui.mistinn.commission.sell", this.salvage), b -> ask("sell", ""))
+			.bounds(this.left + this.panel - 6 - 118, this.bottomY, 118, 20).build();
+		sell.active = this.salvage > 0;
+		this.addRenderableWidget(sell);
 	}
 
 	/** The centre of a widget's button, for tests: the take button of offer {@code index}, or by its words. */
@@ -139,7 +147,7 @@ public final class CommissionScreen extends Screen {
 	public void tick() {
 		// the commission changes on the server (taken, handed in, done): the screen follows
 		Commissions.Taken now = taken();
-		if (now == null ? this.shown != null : !now.equals(this.shown)) {
+		if (now == null ? this.shown != null : !now.equals(this.shown) || salvageCarried() != this.salvage) {
 			this.rebuildWidgets();
 		}
 	}
@@ -181,6 +189,25 @@ public final class CommissionScreen extends Screen {
 			g.text(font, Component.translatable("gui.mistinn.commission.none"), this.left + 10, this.currentY + 16, DIM, false);
 		}
 		super.extractRenderState(g, mouseX, mouseY, a);
+	}
+
+	/** What the salvage the hunter carries (hotbar, pockets, pack, rig) would fetch. */
+	private static int salvageCarried() {
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.player == null) {
+			return 0;
+		}
+		int total = 0;
+		for (int i = 0; i < mc.player.getInventory().getContainerSize(); i++) {
+			total += life.shizune.mistinn.expedition.Salvage.value(mc.player.getInventory().getItem(i));
+		}
+		life.shizune.mistinn.grid.GridInventory grid = life.shizune.mistinn.client.grid.GridPanel.inventory(mc.player);
+		for (life.shizune.mistinn.grid.Area area : life.shizune.mistinn.grid.GridService.ORDER) {
+			for (life.shizune.mistinn.grid.Placed placed : grid.items(area)) {
+				total += life.shizune.mistinn.expedition.Salvage.value(placed.stack());
+			}
+		}
+		return total;
 	}
 
 	/** Words cut to fit, ending in an ellipsis rather than mid-word. */

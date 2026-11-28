@@ -80,6 +80,10 @@ public final class ItemSizes {
 			put(rig.itemWidth(), rig.itemHeight(), MistinnItems.RIGS.get(i));
 		}
 		MistinnItems.MASKS.forEach(item -> put(2, 2, item));
+		for (int i = 0; i < life.shizune.mistinn.expedition.Salvage.KINDS.size(); i++) {
+			life.shizune.mistinn.expedition.Salvage.Kind kind = life.shizune.mistinn.expedition.Salvage.KINDS.get(i);
+			put(kind.w(), kind.h(), MistinnItems.SALVAGE.get(i));
+		}
 		MistinnItems.LEGGINGS.forEach(item -> put(2, 3, item));
 		MistinnItems.BOOTS.forEach(item -> put(2, 2, item));
 	}

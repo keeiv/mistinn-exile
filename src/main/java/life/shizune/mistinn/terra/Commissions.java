@@ -244,6 +244,14 @@ public final class Commissions {
 			case "take" -> take(hunter, keeper, payload.commission());
 			case "abandon" -> abandon(hunter);
 			case "hand" -> handIn(hunter, keeper);
+			case "sell" -> {
+				if (asking(hunter, keeper) != null) {
+					int salt = life.shizune.mistinn.expedition.Salvage.sell(hunter);
+					hunter.sendSystemMessage(Component.translatable(salt > 0 ? "message.mistinn.salvage.sold" : "message.mistinn.salvage.none", salt)
+						.withStyle(salt > 0 ? ChatFormatting.GOLD : ChatFormatting.GRAY));
+				}
+				yield null;
+			}
 			case "depart" -> {
 				if (asking(hunter, keeper) != null) {
 					depart(hunter);
