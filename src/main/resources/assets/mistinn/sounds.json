@@ -799,6 +799,30 @@
       }
     ]
   },
+  "music.muster": {
+    "sounds": [
+      {
+        "name": "mistinn:music/muster",
+        "stream": true
+      }
+    ]
+  },
+  "music.expedition": {
+    "sounds": [
+      {
+        "name": "mistinn:music/expedition",
+        "stream": true
+      }
+    ]
+  },
+  "music.extract": {
+    "sounds": [
+      {
+        "name": "mistinn:music/extract",
+        "stream": true
+      }
+    ]
+  },
   "entity.thirteenth.scream": {
     "sounds": [
       {

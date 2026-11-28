@@ -209,6 +209,10 @@ public final class MistinnSounds {
 	public static final SoundEvent MUSIC_RIFT = register("music.rift");
 	public static final SoundEvent MUSIC_RIFT_SCAR = register("music.rift_scar");
 	public static final SoundEvent MUSIC_ELDER = register("music.elder");
+	/** The expeditions: setting out, out on one, and the way out closing. */
+	public static final SoundEvent MUSIC_MUSTER = register("music.muster");
+	public static final SoundEvent MUSIC_EXPEDITION = register("music.expedition");
+	public static final SoundEvent MUSIC_EXTRACT = register("music.extract");
 	/** Under the path of longing's end, seen or cut. */
 	public static final SoundEvent MUSIC_PATH_END = register("music.path_end");
 	/** Under the Mist Inn ending's last pages: the morning. */

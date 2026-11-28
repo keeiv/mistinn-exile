@@ -140,6 +140,8 @@ public final class MistinnExpeditionTest implements FabricClientGameTest {
 				"the hunter's own world is the ground, with no highland drawn over it");
 			check(context.computeOnClient(mc -> mc.player.getAttached(Expedition.AWAY) != null && !mc.player.getAbilities().mayBuild),
 				"their client knows their time, and does not build there");
+			check(context.computeOnClient(mc -> mc.getSituationalMusic().sound().value() == life.shizune.mistinn.registry.MistinnSounds.MUSIC_EXPEDITION),
+				"out there, the expedition's music plays");
 
 			// a way out: stepping off stops the count; holding it to the end brings the hunter home
 			world.getServer().runOnServer(server -> toExit(server.getLevel(Grounds.DAM), player(server)));
@@ -148,8 +150,12 @@ public final class MistinnExpeditionTest implements FabricClientGameTest {
 				ServerPlayer player = player(server);
 				check(player.getAttached(Expedition.AWAY).leaving() != 0L, "standing in the way out begins the count");
 				check(arena.waves >= 1, "and the ground sends a wave at once");
-				player.teleportTo(server.getLevel(Grounds.DAM), Arena.START.getX() + 0.5, Arena.START.getY(), Arena.START.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
 			});
+			context.waitTicks(2);
+			check(context.computeOnClient(mc -> mc.getSituationalMusic().sound().value() == life.shizune.mistinn.registry.MistinnSounds.MUSIC_EXTRACT),
+				"holding the way out, the music turns to the getting out");
+			world.getServer().runOnServer(server -> player(server).teleportTo(server.getLevel(Grounds.DAM), Arena.START.getX() + 0.5, Arena.START.getY(),
+				Arena.START.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true));
 			context.waitTicks(10);
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = player(server);

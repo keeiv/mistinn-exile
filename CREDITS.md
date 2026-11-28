@@ -316,6 +316,9 @@ Sound files are listed relative to `src/main/resources/assets/mistinn/sounds/`. 
 | `music/inn_morning.ogg` | `vsco_ce:violin section (susVib)`; `vsco_ce:cello section (susvib)`; `vsco_ce:F horn (sus)`; `vsco_ce:timpani`; `synth:crystal chimes, struck bars of six detuned partials` | CC0 1.0 sources + project synthesis |
 | `music/content_warning.ogg` | `vsco_ce:cello section (spic, susvib)`; `vsco_ce:violin section (susVib)`; `synth:crystal chimes, struck bars of six detuned partials` | CC0 1.0 sources + project synthesis |
 | `music/rift_scar.ogg` | `vsco_ce:cello section (susvib)`; `vsco_ce:violin section (susVib)`; `vsco_ce:F horn (sus)`; `vsco_ce:timpani`; `vsco_ce:gong` | CC0 1.0 sources |
+| `music/muster.ogg` | `vsco_ce:trumpet (sus)`; `vsco_ce:F horn (sus)`; `vsco_ce:tenor trombone (sus)`; `vsco_ce:cello section (spic, susvib)`; `vsco_ce:violin section (susVib)`; `vsco_ce:timpani`; `vsco_ce:bass drum`; `vsco_ce:snare`; `vsco_ce:crash cymbals`; `vsco_ce:gong` | CC0 1.0 sources |
+| `music/expedition.ogg` | `vsco_ce:trumpet (sus)`; `vsco_ce:F horn (sus)`; `vsco_ce:cello section (spic, susvib)`; `vsco_ce:violin section (susVib)`; `vsco_ce:timpani`; `vsco_ce:bass drum`; `vsco_ce:snare`; `vsco_ce:crash cymbals`; `vsco_ce:gong` | CC0 1.0 sources |
+| `music/extract.ogg` | `vsco_ce:trumpet (sus)`; `vsco_ce:F horn (sus)`; `vsco_ce:tenor trombone (sus)`; `vsco_ce:cello section (spic)`; `vsco_ce:violin section (susVib)`; `vsco_ce:timpani`; `vsco_ce:bass drum`; `vsco_ce:snare`; `vsco_ce:anvil`; `vsco_ce:crash cymbals` | CC0 1.0 sources |
 | `music/shore.ogg` | `vsco_ce:cello section (susvib)`; `kenney_impact:impactBell_heavy_002` | CC0 1.0 sources |
 | `player/dive_1.ogg` | `kenney_rpg:cloth`; `synth:moving-band noise whoosh` | CC0 1.0 sources + project synthesis |
 | `player/dive_2.ogg` | `kenney_rpg:cloth`; `synth:moving-band noise whoosh` | CC0 1.0 sources + project synthesis |
