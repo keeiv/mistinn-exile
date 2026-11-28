@@ -24,6 +24,7 @@ import life.shizune.mistinn.registry.MistinnEntities;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -122,6 +123,8 @@ public final class Settlements {
 				tick(server);
 			}
 		});
+		// the maps' view is not kept with the world: it is drawn again from the ledger each time the world opens
+		ServerLifecycleEvents.SERVER_STARTED.register(server -> show(server, ledger(server)));
 	}
 
 	public static Ledger ledger(final MinecraftServer server) {
@@ -130,7 +133,15 @@ public final class Settlements {
 
 	private static void write(final MinecraftServer server, final Ledger ledger) {
 		server.overworld().setAttached(LEDGER, ledger);
-		server.overworld().setAttached(VIEW, List.copyOf(ledger.built()));
+		show(server, ledger);
+	}
+
+	/** Tells every client of the settlements as the ledger has them, if they have not heard it already. */
+	private static void show(final MinecraftServer server, final Ledger ledger) {
+		List<Settlement> view = server.overworld().getAttached(VIEW);
+		if (view == null ? !ledger.built().isEmpty() : !view.equals(ledger.built())) {
+			server.overworld().setAttached(VIEW, List.copyOf(ledger.built()));
+		}
 	}
 
 	public static @Nullable Settlement of(final MinecraftServer server, final int domain) {
