@@ -94,6 +94,29 @@ public final class MistinnMistPineTest implements FabricClientGameTest {
 				level.setBlock(row.east(7), MistinnBlocks.MIST_PINE_PRESSURE_PLATE.defaultBlockState(), 3);
 				level.setBlock(row.east(8).north(-1), MistinnBlocks.MIST_PINE_PLANKS.defaultBlockState(), 3);
 				check(level.getBlockState(row.east(5).above()).is(MistinnBlocks.MIST_PINE_DOOR), "a door stands two high");
+				// its signs keep their words as any sign does
+				BlockPos signs = p.offset(3, 0, 2);
+				level.setBlock(signs, MistinnBlocks.MIST_PINE_SIGN.defaultBlockState(), 3);
+				check(level.getBlockEntity(signs) instanceof net.minecraft.world.level.block.entity.SignBlockEntity, "a mist pine sign holds words");
+				level.setBlock(signs.above(3), MistinnBlocks.MIST_PINE_PLANKS.defaultBlockState(), 3);
+				level.setBlock(signs.above(2), MistinnBlocks.MIST_PINE_HANGING_SIGN.defaultBlockState(), 3);
+				check(level.getBlockEntity(signs.above(2)) instanceof net.minecraft.world.level.block.entity.HangingSignBlockEntity, "and so does a hanging one");
+				// an axe strips its log
+				BlockPos log = p.offset(-2, 0, 2);
+				level.setBlock(log, MistinnBlocks.MIST_PINE_LOG.defaultBlockState(), 3);
+				player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_AXE));
+				player.getMainHandItem().useOn(new net.minecraft.world.item.context.UseOnContext(player, net.minecraft.world.InteractionHand.MAIN_HAND,
+					new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(log), Direction.UP, log, false)));
+				check(level.getBlockState(log).is(MistinnBlocks.STRIPPED_MIST_PINE_LOG), "an axe strips the bark off its log: " + level.getBlockState(log));
+				for (String id : new String[] {"mist_pine_sign", "mist_pine_hanging_sign", "mist_pine_boat", "mist_pine_chest_boat"}) {
+					check(server.getRecipeManager().byKey(key(id)).isPresent(), id + " has its recipe");
+				}
+				// and its boat floats
+				net.minecraft.world.entity.vehicle.boat.Boat boat = life.shizune.mistinn.registry.MistinnEntities.MIST_PINE_BOAT.create(level,
+					net.minecraft.world.entity.EntitySpawnReason.EVENT);
+				check(boat != null && boat.getPickResult().is(MistinnItems.MIST_PINE_BOAT), "a mist pine boat is its own boat");
+				boat.snapTo(p.getX() + 0.5, Y, p.getZ() + 2.5, 30.0F, 0.0F);
+				level.addFreshEntity(boat);
 				player.teleportTo(level, p.getX() + 0.5, Y, p.getZ() - 0.5, Set.of(), 0.0F, 15.0F, true);
 			});
 			context.waitTicks(20);

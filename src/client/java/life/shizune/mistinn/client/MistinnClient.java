@@ -219,6 +219,15 @@ public class MistinnClient implements ClientModInitializer {
 			ctx -> new life.shizune.mistinn.client.combat.ElementArrowRenderer(ctx, life.shizune.mistinn.weapon.ElementArrow.Kind.FROST));
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.SHOCK_ARROW,
 			ctx -> new life.shizune.mistinn.client.combat.ElementArrowRenderer(ctx, life.shizune.mistinn.weapon.ElementArrow.Kind.SHOCK));
+		// the mist pine's boats (their textures follow the layers' names: entity/boat/mist_pine, entity/chest_boat/mist_pine)
+		net.minecraft.client.model.geom.ModelLayerLocation boat = new net.minecraft.client.model.geom.ModelLayerLocation(life.shizune.mistinn.Mistinn.id("boat/mist_pine"), "main");
+		net.minecraft.client.model.geom.ModelLayerLocation chestBoat = new net.minecraft.client.model.geom.ModelLayerLocation(life.shizune.mistinn.Mistinn.id("chest_boat/mist_pine"), "main");
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(boat, net.minecraft.client.model.object.boat.BoatModel::createBoatModel);
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(chestBoat, net.minecraft.client.model.object.boat.BoatModel::createChestBoatModel);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.MIST_PINE_BOAT,
+			ctx -> new net.minecraft.client.renderer.entity.BoatRenderer(ctx, boat));
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.MIST_PINE_CHEST_BOAT,
+			ctx -> new net.minecraft.client.renderer.entity.BoatRenderer(ctx, chestBoat));
 		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.terra.JadeAntelopeModel.LAYER,
 			life.shizune.mistinn.client.terra.JadeAntelopeModel::createBodyLayer);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.JADE_ANTELOPE,

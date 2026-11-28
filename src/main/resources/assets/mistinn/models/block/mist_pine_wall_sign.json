@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_wall_sign",
+  "textures": {
+    "all": "mistinn:block/mist_pine_sign",
+    "particle": "mistinn:block/mist_pine_planks"
+  }
+}

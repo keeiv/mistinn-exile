@@ -182,6 +182,23 @@ public final class MistinnBlocks {
 		.mapColor(MapColor.QUARTZ).strength(2.0F).sound(SoundType.WOOD).ignitedByLava());
 	public static final Block MIST_PINE_PLANKS = register("mist_pine_planks", Block::new, BlockBehaviour.Properties.of()
 		.mapColor(MapColor.QUARTZ).strength(2.0F, 3.0F).sound(SoundType.WOOD).ignitedByLava());
+	/** The mist pine as a kind of wood: its signs, its doors' sounds. */
+	public static final BlockSetType MIST_PINE_SET = new net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeBuilder().register(Mistinn.id("mist_pine"));
+	public static final WoodType MIST_PINE_WOOD = new net.fabricmc.fabric.api.object.builder.v1.block.type.WoodTypeBuilder().register(Mistinn.id("mist_pine"), MIST_PINE_SET);
+	/** Its log with the bark off (an axe strips it). */
+	public static final Block STRIPPED_MIST_PINE_LOG = register("stripped_mist_pine_log", net.minecraft.world.level.block.RotatedPillarBlock::new,
+		BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).strength(2.0F).sound(SoundType.WOOD).ignitedByLava());
+	/** Its signs, standing and on a wall, and its hanging signs. */
+	public static final Block MIST_PINE_SIGN = register("mist_pine_sign", p -> new net.minecraft.world.level.block.StandingSignBlock(MIST_PINE_WOOD, p),
+		BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).forceSolidOn().noCollision().strength(1.0F).ignitedByLava());
+	public static final Block MIST_PINE_WALL_SIGN = register("mist_pine_wall_sign", p -> new net.minecraft.world.level.block.WallSignBlock(MIST_PINE_WOOD, p),
+		BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).forceSolidOn().noCollision().strength(1.0F).ignitedByLava()
+		.overrideLootTable(MIST_PINE_SIGN.getLootTable()).overrideDescription(MIST_PINE_SIGN.getDescriptionId()));
+	public static final Block MIST_PINE_HANGING_SIGN = register("mist_pine_hanging_sign", p -> new net.minecraft.world.level.block.CeilingHangingSignBlock(MIST_PINE_WOOD, p),
+		BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).forceSolidOn().noCollision().strength(1.0F).ignitedByLava());
+	public static final Block MIST_PINE_WALL_HANGING_SIGN = register("mist_pine_wall_hanging_sign", p -> new net.minecraft.world.level.block.WallHangingSignBlock(MIST_PINE_WOOD, p),
+		BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).forceSolidOn().noCollision().strength(1.0F).ignitedByLava()
+		.overrideLootTable(MIST_PINE_HANGING_SIGN.getLootTable()).overrideDescription(MIST_PINE_HANGING_SIGN.getDescriptionId()));
 	/** The mist pine's wood, worked as any wood is. */
 	public static final Block MIST_PINE_STAIRS = register("mist_pine_stairs", p -> new StairBlock(MIST_PINE_PLANKS.defaultBlockState(), p),
 		BlockBehaviour.Properties.ofLegacyCopy(MIST_PINE_PLANKS));
@@ -300,6 +317,17 @@ public final class MistinnBlocks {
 	private static Block register(final String name, final Function<BlockBehaviour.Properties, Block> factory, final BlockBehaviour.Properties properties) {
 		ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, Mistinn.id(name));
 		return Registry.register(BuiltInRegistries.BLOCK, key, factory.apply(properties.setId(key)));
+	}
+
+	/** The mist pine's signs keep their words as any sign does. */
+	public static void signs() {
+		var sign = (net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityType) net.minecraft.world.level.block.entity.BlockEntityTypes.SIGN;
+		var hanging = (net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityType)
+			net.minecraft.world.level.block.entity.BlockEntityTypes.HANGING_SIGN;
+		sign.addValidBlock(MIST_PINE_SIGN);
+		sign.addValidBlock(MIST_PINE_WALL_SIGN);
+		hanging.addValidBlock(MIST_PINE_HANGING_SIGN);
+		hanging.addValidBlock(MIST_PINE_WALL_HANGING_SIGN);
 	}
 
 	public static void init() {

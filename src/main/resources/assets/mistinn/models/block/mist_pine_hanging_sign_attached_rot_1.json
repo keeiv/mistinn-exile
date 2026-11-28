@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_attached_hanging_sign_rot_1",
+  "textures": {
+    "all": "mistinn:block/mist_pine_hanging_sign",
+    "particle": "mistinn:block/stripped_mist_pine_log"
+  }
+}

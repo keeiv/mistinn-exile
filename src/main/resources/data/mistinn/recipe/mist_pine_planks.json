@@ -3,7 +3,7 @@
   "category": "building",
   "group": "planks",
   "ingredients": [
-    "mistinn:mist_pine_log"
+    "#mistinn:mist_pine_logs"
   ],
   "result": {
     "count": 4,
