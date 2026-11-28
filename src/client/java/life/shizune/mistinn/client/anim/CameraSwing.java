@@ -20,6 +20,12 @@ public final class CameraSwing {
 	private static long hitAt = Long.MIN_VALUE;
 	/** Whether the coming jolt is a heavy blow's. */
 	private static boolean heavyHit;
+	/** When the ground last shook nearby, and how hard (0 to 1). */
+	private static long tremorAt = Long.MIN_VALUE;
+	private static float tremor;
+	/** How long a shake lasts, in seconds, and how far it throws the view at its hardest, in degrees. */
+	public static final float TREMOR_TIME = 0.45F;
+	public static final float TREMOR_DEGREES = 1.1F;
 
 	private CameraSwing() {
 	}
@@ -59,6 +65,26 @@ public final class CameraSwing {
 	public static void met(final boolean parried) {
 		hitAt = System.nanoTime();
 		heavyHit = parried;
+	}
+
+	/** A great blow landed nearby: the ground shakes under the hunter, harder the nearer it was (0 to 1). */
+	public static void tremor(final float strength) {
+		long now = System.nanoTime();
+		float left = tremorLeft(now);
+		// a shake still going is not cut short by a lighter one
+		tremor = Math.max(strength, tremor * left);
+		tremorAt = now;
+	}
+
+	/** How much of the last shake is left, 1 at its start to 0 when it is over. */
+	private static float tremorLeft(final long now) {
+		float since = (now - tremorAt) / 1.0E9F;
+		return since < 0.0F || since >= TREMOR_TIME ? 0.0F : 1.0F - since / TREMOR_TIME;
+	}
+
+	/** Whether the ground is shaking under the hunter now (for tests). */
+	public static boolean shaking() {
+		return tremorLeft(System.nanoTime()) > 0.0F && tremor > 0.0F;
 	}
 
 	/** Adds the swing and jolt to the view; called while vanilla tilts the view for damage. */
@@ -118,6 +144,14 @@ public final class CameraSwing {
 			roll += 0.6F * kick * strength;
 		} else if (since >= 0.25F) {
 			heavyHit = false;
+		}
+		float shake = tremorLeft(System.nanoTime());
+		if (enabled() && shake > 0.0F) {
+			// the ground shakes: a quick tremble, dying away (no shake at all with the swing motion turned off)
+			float t = (System.nanoTime() - tremorAt) / 1.0E9F;
+			float k = shake * shake * tremor * TREMOR_DEGREES;
+			pitch += Mth.sin(t * 61.0F) * k;
+			roll += Mth.sin(t * 47.0F + 1.3F) * k * 0.7F;
 		}
 		if (yaw != 0.0F || pitch != 0.0F || roll != 0.0F) {
 			pose.rotateDegrees(Axis.ZP, roll);
