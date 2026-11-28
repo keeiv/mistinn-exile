@@ -57,9 +57,10 @@ public class EpicOpeningScreen extends Screen {
 	}
 
 	private void go() {
-		if (!this.done) {
+		if (!this.done && this.minecraft != null) {
 			this.done = true;
-			this.proceed.run();
+			// made on the next frame, outside this screen's tick: opening a world replaces the screen while it ticks
+			this.minecraft.schedule(this.proceed);
 		}
 	}
 
