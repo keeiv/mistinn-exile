@@ -671,7 +671,7 @@ public final class GridService {
 		}
 		Slot slot = menu.slots.get(slotIndex);
 		// only ordinary storage slots: taking from a result slot would skip using up the ingredients
-		if (!slot.hasItem() || !slot.mayPickup(player) || !slot.mayPlace(slot.getItem())) {
+		if (!slot.hasItem() || !slot.mayPickup(player) || !slot.mayPlace(slot.getItem()) && !(slot instanceof life.shizune.mistinn.expedition.SearchMenu.CacheSlot)) {
 			return;
 		}
 		ItemStack moving = slot.getItem().copy();

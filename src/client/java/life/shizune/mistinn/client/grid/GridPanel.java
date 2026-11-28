@@ -409,7 +409,7 @@ public final class GridPanel {
 	 * it; every other item keeps its square icon so it is never stretched (a pouch upright, a sword
 	 * corner to corner).
 	 */
-	private static void drawPlaced(final GuiGraphicsExtractor g, final Font font, final Placed placed, final int x, final int y) {
+	public static void drawPlaced(final GuiGraphicsExtractor g, final Font font, final Placed placed, final int x, final int y) {
 		int w = placed.width();
 		int h = placed.height();
 		Tier tier = Tiers.of(placed.stack());
