@@ -30,7 +30,7 @@ public final class UpdateNotice {
 		new Notice("bags"), new Notice("enchant"), new Notice("recipes"), new Notice("bells"), new Notice("controls"), new Notice("pirates"),
 		new Notice("story_shared"), new Notice("pings"), new Notice("raids"), new Notice("elites"), new Notice("tide"),
 		new Notice("gear_lines"), new Notice("throwables"), new Notice("bounty"), new Notice("supply"), new Notice("rift"), new Notice("terra"),
-		new Notice("achievement_tabs"), new Notice("commissions"));
+		new Notice("achievement_tabs"), new Notice("commissions"), new Notice("expeditions"));
 
 	/** The notices this hunter has read. */
 	public static final AttachmentType<List<String>> SEEN = AttachmentRegistry.<List<String>>builder()
