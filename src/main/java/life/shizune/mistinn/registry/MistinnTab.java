@@ -64,6 +64,9 @@ public final class MistinnTab {
 				output.accept(MistinnItems.VEIN_STONE_POLISHED);
 				output.accept(MistinnItems.VEIN_STONE_BRICKS);
 				output.accept(MistinnItems.VEIN_CRYSTAL_ORE);
+				output.accept(MistinnItems.BLAST_ARROW);
+				output.accept(MistinnItems.FROST_ARROW);
+				output.accept(MistinnItems.SHOCK_ARROW);
 				output.accept(MistinnItems.MIST_PINE_LOG);
 				output.accept(MistinnItems.MIST_PINE_PLANKS);
 				output.accept(MistinnItems.MIST_PINE_STAIRS);
