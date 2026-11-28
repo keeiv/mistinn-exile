@@ -1,0 +1,91 @@
+{
+  "has_precipitation": true,
+  "temperature": 0.6,
+  "downfall": 0.8,
+  "effects": {
+    "water_color": "#2f8f9a",
+    "grass_color": "#79b98e",
+    "foliage_color": "#6aae86",
+    "dry_foliage_color": "#6aae86"
+  },
+  "attributes": {
+    "minecraft:visual/sky_color": "#9cc8d8",
+    "minecraft:visual/fog_color": "#dbe7e8",
+    "minecraft:visual/cloud_color": "#e6f2f6f6",
+    "minecraft:visual/water_fog_color": "#3a8a8a",
+    "minecraft:visual/ambient_particles": {
+      "argument": [
+        {
+          "particle": {
+            "type": "minecraft:white_ash"
+          },
+          "probability": 0.012
+        }
+      ],
+      "modifier": "append"
+    },
+    "minecraft:gameplay/natural_mob_spawns": {
+      "argument": {
+        "spawn_costs": {},
+        "spawns_by_category": {
+          "ambient": [],
+          "axolotls": [],
+          "creature": [],
+          "misc": [],
+          "monster": [],
+          "underground_water_creature": [],
+          "water_ambient": [
+            {
+              "type": "minecraft:tropical_fish",
+              "count": {
+                "type": "minecraft:uniform",
+                "min_inclusive": 2,
+                "max_inclusive": 4
+              },
+              "weight": 6
+            }
+          ],
+          "water_creature": [
+            {
+              "type": "minecraft:squid",
+              "count": {
+                "type": "minecraft:uniform",
+                "min_inclusive": 1,
+                "max_inclusive": 2
+              },
+              "weight": 2
+            }
+          ]
+        }
+      },
+      "modifier": "overlay"
+    },
+    "minecraft:visual/fog_end_distance": {
+      "argument": 0.65,
+      "modifier": "multiply"
+    },
+    "minecraft:audio/background_music": {
+      "default": {
+        "sound": "mistinn:music.terra",
+        "min_delay": 2400,
+        "max_delay": 9600,
+        "replace_current_music": true
+      }
+    },
+    "minecraft:audio/ambient_sounds": {
+      "loop": "mistinn:ambient.terra.loop",
+      "additions": {
+        "sound": "mistinn:ambient.terra.additions",
+        "tick_chance": 0.0045
+      },
+      "mood": {
+        "sound": "minecraft:ambient.cave",
+        "tick_delay": 6000,
+        "block_search_extent": 8,
+        "offset": 2.0
+      }
+    }
+  },
+  "carvers": [],
+  "features": []
+}
