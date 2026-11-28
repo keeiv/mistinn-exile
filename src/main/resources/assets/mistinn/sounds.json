@@ -1569,7 +1569,8 @@
   "epic.heartbeat": {
     "sounds": [
       "mistinn:epic/heartbeat"
-    ]
+    ],
+    "subtitle": "subtitles.mistinn.epic.heartbeat"
   },
   "epic.click": {
     "sounds": [
@@ -1577,7 +1578,8 @@
         "name": "mistinn:epic/click",
         "volume": 0.6
       }
-    ]
+    ],
+    "subtitle": "subtitles.mistinn.epic.click"
   },
   "music.epic_field": {
     "sounds": [

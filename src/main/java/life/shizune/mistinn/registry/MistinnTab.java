@@ -84,6 +84,18 @@ public final class MistinnTab {
 				output.accept(MistinnItems.MIST_PINE_BOAT);
 				output.accept(MistinnItems.MIST_PINE_CHEST_BOAT);
 				output.accept(MistinnItems.MIST_PINE_LEAVES);
+				output.accept(MistinnItems.UDASRU_STONE_BRICKS);
+				output.accept(MistinnItems.UDASRU_STONE_BRICK_STAIRS);
+				output.accept(MistinnItems.UDASRU_STONE_BRICK_SLAB);
+				output.accept(MistinnItems.UDASRU_STONE_BRICK_WALL);
+				output.accept(MistinnItems.UDASRU_ROOF_TILES);
+				output.accept(MistinnItems.UDASRU_ROOF_TILE_STAIRS);
+				output.accept(MistinnItems.UDASRU_ROOF_TILE_SLAB);
+				output.accept(MistinnItems.UDASRU_PLASTER);
+				output.accept(MistinnItems.UDASRU_TIMBER);
+				output.accept(MistinnItems.SALT_CRUST);
+				output.accept(MistinnItems.RUST_SOIL);
+				output.accept(MistinnItems.BELL_BRONZE);
 				output.accept(MistinnItems.JADE_GRASS);
 				output.accept(MistinnItems.JADE_FERN);
 				output.accept(MistinnItems.MIST_REED);

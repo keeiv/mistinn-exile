@@ -76,6 +76,23 @@ public class MistinnHardshipTest implements FabricClientGameTest {
 		context.waitTicks(20);
 		check(context.computeOnClient(mc -> ((life.shizune.mistinn.client.title.HardshipScreen) mc.gui.screen()).lit(Hardship.NORMAL)), "normal is lit when the screen opens");
 		context.takeScreenshot("hardship-screen");
+		// the story's three roads: the story card opens them; the epic offers the Hunter's hardship alone, already lit
+		life.shizune.mistinn.story.WorldMode[] chosen = new life.shizune.mistinn.story.WorldMode[1];
+		Hardship[] picked = new Hardship[1];
+		context.setScreen(() -> new life.shizune.mistinn.client.title.ModeSelectScreen((m, h) -> {
+			chosen[0] = m;
+			picked[0] = h;
+		}, () -> { }));
+		context.waitTicks(5);
+		context.runOnClient(mc -> ((life.shizune.mistinn.client.title.ModeSelectScreen) mc.gui.screen()).pick(life.shizune.mistinn.story.WorldMode.STORY));
+		context.waitForScreen(life.shizune.mistinn.client.title.StorySelectScreen.class);
+		context.takeScreenshot("story-roads");
+		context.runOnClient(mc -> ((life.shizune.mistinn.client.title.StorySelectScreen) mc.gui.screen()).pick(life.shizune.mistinn.story.WorldMode.EPIC));
+		context.waitForScreen(life.shizune.mistinn.client.title.HardshipScreen.class);
+		check(context.computeOnClient(mc -> ((life.shizune.mistinn.client.title.HardshipScreen) mc.gui.screen()).lit(Hardship.HUNTER)), "the epic's one card, the Hunter, is lit");
+		context.takeScreenshot("hardship-epic");
+		context.runOnClient(mc -> ((life.shizune.mistinn.client.title.HardshipScreen) mc.gui.screen()).pick(Hardship.HUNTER));
+		check(chosen[0] == life.shizune.mistinn.story.WorldMode.EPIC && picked[0] == Hardship.HUNTER, "the epic goes on at the Hunter's hardship");
 		context.setScreen(net.minecraft.client.gui.screens.TitleScreen::new);
 		// the choice made on the hardship screen, as the player would make it
 		Hardship.choose(Hardship.RUST_ANCHOR);
