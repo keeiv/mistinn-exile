@@ -1565,5 +1565,66 @@
       }
     ],
     "subtitle": "subtitles.mistinn.entity.rust_wheel.break"
+  },
+  "epic.heartbeat": {
+    "sounds": [
+      "mistinn:epic/heartbeat"
+    ]
+  },
+  "epic.click": {
+    "sounds": [
+      {
+        "name": "mistinn:epic/click",
+        "volume": 0.6
+      }
+    ]
+  },
+  "music.epic_field": {
+    "sounds": [
+      {
+        "name": "mistinn:music/epic_field",
+        "stream": true
+      }
+    ]
+  },
+  "music.epic_capital": {
+    "sounds": [
+      {
+        "name": "mistinn:music/epic_capital",
+        "stream": true
+      }
+    ]
+  },
+  "music.epic_hunt": {
+    "sounds": [
+      {
+        "name": "mistinn:music/epic_hunt",
+        "stream": true
+      }
+    ]
+  },
+  "music.epic_helm": {
+    "sounds": [
+      {
+        "name": "mistinn:music/epic_helm",
+        "stream": true
+      }
+    ]
+  },
+  "music.epic_reveal": {
+    "sounds": [
+      {
+        "name": "mistinn:music/epic_reveal",
+        "stream": true
+      }
+    ]
+  },
+  "music.epic_end": {
+    "sounds": [
+      {
+        "name": "mistinn:music/epic_end",
+        "stream": true
+      }
+    ]
   }
 }

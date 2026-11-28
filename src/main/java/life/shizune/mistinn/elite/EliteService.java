@@ -218,6 +218,8 @@ public final class EliteService {
 			case EASY -> 0.5F;
 			case NORMAL -> 1.0F;
 			case RUST_ANCHOR -> 1.5F;
+			// the epic's hunters meet the marked more often: more to hunt, more to carry home
+			case HUNTER -> 1.6F;
 		};
 		return chance * hardship;
 	}

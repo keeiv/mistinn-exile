@@ -36,6 +36,11 @@ public final class StoryClient {
 	private StoryClient() {
 	}
 
+	/** Whether no story card or line is on screen or waiting: the story has nothing more to show for now. */
+	public static boolean idle() {
+		return CARDS.isEmpty() && playing == null && !(net.minecraft.client.Minecraft.getInstance().gui.screen() instanceof StoryCardScreen);
+	}
+
 	public static void register() {
 		ClientPlayNetworking.registerGlobalReceiver(StoryService.CardPayload.TYPE, (payload, context) -> CARDS.add(payload.card()));
 		ClientPlayNetworking.registerGlobalReceiver(StoryService.LinesPayload.TYPE, (payload, context) -> start(payload));

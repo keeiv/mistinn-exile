@@ -41,6 +41,18 @@
     "mistinn:roof_vent",
     "mistinn:workshop_wall",
     "mistinn:workbench",
-    "mistinn:turret"
+    "mistinn:turret",
+    "mistinn:udasru_stone_bricks",
+    "mistinn:udasru_stone_brick_stairs",
+    "mistinn:udasru_stone_brick_slab",
+    "mistinn:udasru_stone_brick_wall",
+    "mistinn:udasru_roof_tiles",
+    "mistinn:udasru_roof_tile_stairs",
+    "mistinn:udasru_roof_tile_slab",
+    "mistinn:udasru_plaster",
+    "mistinn:bell_bronze",
+    "mistinn:udasru_timber",
+    "mistinn:salt_crust",
+    "mistinn:rust_soil"
   ]
 }

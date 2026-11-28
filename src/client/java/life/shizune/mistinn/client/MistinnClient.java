@@ -128,6 +128,7 @@ public class MistinnClient implements ClientModInitializer {
 		HudElementRegistry.addLast(Mistinn.id("quick_wheel"), new life.shizune.mistinn.client.grid.QuickWheel());
 		HudElementRegistry.addLast(Mistinn.id("story"), new life.shizune.mistinn.client.story.StoryHud());
 		HudElementRegistry.addLast(Mistinn.id("path"), new life.shizune.mistinn.client.path.PathHud());
+		life.shizune.mistinn.client.epic.EpicClient.register();
 		HudElementRegistry.addLast(Mistinn.id("commission"), new life.shizune.mistinn.client.terra.CommissionHud());
 		HudElementRegistry.addLast(Mistinn.id("expedition"), new life.shizune.mistinn.client.expedition.ExpeditionHud());
 		life.shizune.mistinn.client.expedition.ExpeditionHud.register();

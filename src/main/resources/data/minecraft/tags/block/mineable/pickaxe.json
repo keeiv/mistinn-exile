@@ -14,6 +14,15 @@
     "mistinn:terra_crystal_cluster",
     "mistinn:terra_crystal_block",
     "mistinn:lattice_crystal",
-    "mistinn:lattice_crystal_dim"
+    "mistinn:lattice_crystal_dim",
+    "mistinn:udasru_stone_bricks",
+    "mistinn:udasru_stone_brick_stairs",
+    "mistinn:udasru_stone_brick_slab",
+    "mistinn:udasru_stone_brick_wall",
+    "mistinn:udasru_roof_tiles",
+    "mistinn:udasru_roof_tile_stairs",
+    "mistinn:udasru_roof_tile_slab",
+    "mistinn:udasru_plaster",
+    "mistinn:bell_bronze"
   ]
 }

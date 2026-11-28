@@ -13,10 +13,11 @@ import net.minecraft.util.FormattedCharSequence;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Asked after the story or training card: how hard the world will be. Each card says in a line
- * what it is; the full rules of the card under the pointer (or the one chosen with the keys) are
- * written out across the screen below them. Normal is the default, already lit when the screen
- * opens, so Enter takes it; Escape goes back to the modes.
+ * Asked after a road of the story or training: how hard the world will be. Only the hardships the mode offers are
+ * shown ({@link ModeSelectScreen#offered}): three for the road of rust and training, one for the path of longing (its
+ * rules are fixed) and one for the epic. Each card says in a line what it is; the full rules of the card under the
+ * pointer (or the one chosen with the keys) are written out across the screen below them. Normal is the default where
+ * it is offered, already lit when the screen opens, so Enter takes it; Escape goes back.
  */
 public class HardshipScreen extends Screen {
 	private static final int CARD_W = 172;
@@ -46,11 +47,14 @@ public class HardshipScreen extends Screen {
 
 	@Override
 	protected void init() {
+		List<Hardship> offered = ModeSelectScreen.offered(this.mode);
+		int count = Math.max(1, offered.size());
 		int cardWidth = Math.min(CARD_W, (this.width - 2 * GAP - 24) / 3);
+		// a lone card keeps the rules box as wide as three would, so the rules read the same
 		this.rowWidth = 3 * cardWidth + 2 * GAP;
 		this.left = (this.width - this.rowWidth) / 2;
 		this.rulesLines = 1;
-		for (Hardship hardship : Hardship.values()) {
+		for (Hardship hardship : offered) {
 			this.rulesLines = Math.max(this.rulesLines, this.font.split(rules(hardship), this.rowWidth - 2 * PAD).size());
 		}
 		// a line under the rules for what No. 3412 says to themself
@@ -59,12 +63,12 @@ public class HardshipScreen extends Screen {
 		this.top = Math.max(4, (this.height - total) / 2);
 		int y = this.top + 22;
 		this.cards.clear();
-		int x = this.left;
-		for (Hardship hardship : Hardship.values()) {
+		int x = (this.width - count * cardWidth - (count - 1) * GAP) / 2;
+		for (Hardship hardship : offered) {
 			this.cards.put(hardship, this.addRenderableWidget(this.card(x, y, cardWidth, hardship)));
 			x += cardWidth + GAP;
 		}
-		this.setInitialFocus(this.cards.get(Hardship.NORMAL));
+		this.setInitialFocus(this.cards.getOrDefault(Hardship.NORMAL, this.cards.get(offered.getFirst())));
 	}
 
 	private int rulesBoxHeight() {
@@ -74,8 +78,13 @@ public class HardshipScreen extends Screen {
 	private ChoiceCard card(final int x, final int y, final int width, final Hardship hardship) {
 		String key = "hardship.mistinn." + hardship.id;
 		return new ChoiceCard(x, y, width, CARD_H, Component.translatable(key), Component.translatable(key + ".tagline"),
-			hardship == Hardship.NORMAL ? Component.translatable("hardship.mistinn.default") : null,
-			hardship == Hardship.RUST_ANCHOR ? ChoiceCard.RUST : ChoiceCard.GOLD, () -> this.pick(hardship));
+			hardship == Hardship.NORMAL ? Component.translatable("hardship.mistinn.default")
+				: this.mode == WorldMode.PATH || this.mode == WorldMode.EPIC ? Component.translatable("hardship.mistinn.only") : null,
+			palette(hardship), () -> this.pick(hardship));
+	}
+
+	private static ChoiceCard.Palette palette(final Hardship hardship) {
+		return hardship == Hardship.RUST_ANCHOR ? ChoiceCard.RUST : hardship == Hardship.HUNTER ? ChoiceCard.EPIC : ChoiceCard.GOLD;
 	}
 
 	private static Component rules(final Hardship hardship) {
@@ -137,7 +146,7 @@ public class HardshipScreen extends Screen {
 		int boxHeight = this.rulesBoxHeight();
 		Hardship shown = this.shown();
 		if (shown != null) {
-			ChoiceCard.Palette palette = shown == Hardship.RUST_ANCHOR ? ChoiceCard.RUST : ChoiceCard.GOLD;
+			ChoiceCard.Palette palette = palette(shown);
 			g.fill(this.left, boxY, this.left + this.rowWidth, boxY + boxHeight, 0xC00C0F12);
 			g.outline(this.left, boxY, this.rowWidth, boxHeight, 0xFF000000 | palette.rest());
 			List<FormattedCharSequence> lines = this.font.split(rules(shown), this.rowWidth - 2 * PAD);
@@ -150,7 +159,8 @@ public class HardshipScreen extends Screen {
 			Component voice = Component.translatable("hardship.mistinn." + shown.id + ".voice").withStyle(net.minecraft.ChatFormatting.ITALIC);
 			g.text(this.font, voice, this.left + this.rowWidth - PAD - this.font.width(voice), boxY + boxHeight - PAD - 8, 0xFF9A948A, false);
 		}
-		Component hint = Component.translatable("hardship.mistinn.hint", Component.translatable("mode.mistinn." + this.mode.id));
+		Component hint = Component.translatable("hardship.mistinn.hint",
+			Component.translatable(this.mode == WorldMode.STORY ? "mode.mistinn.rust_road" : "mode.mistinn." + this.mode.id));
 		g.text(this.font, hint, (this.width - this.font.width(hint)) / 2, boxY + boxHeight + 10, 0xFF8E887C, false);
 	}
 }

@@ -50,6 +50,7 @@ public final class TrainingClient {
 				case EASY -> Difficulty.EASY;
 				case NORMAL -> Difficulty.NORMAL;
 				case RUST_ANCHOR -> Difficulty.HARD;
+				case HUNTER -> Difficulty.NORMAL;
 			};
 			var settings = new LevelSettings(title, GameType.SURVIVAL,
 				new LevelSettings.DifficultySettings(difficulty, false, false), false, config);

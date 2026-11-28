@@ -69,7 +69,8 @@ public final class ApostleService {
 		if (!AchievementService.has(player, Achievement.APOSTLE) && worthy(player)) {
 			AchievementService.grant(player, Achievement.APOSTLE);
 		}
-		boolean apostle = AchievementService.has(player, Achievement.APOSTLE);
+		// in the epic the hunter is the apostle from the first: hunter No. 3412 as the anchor called them
+		boolean apostle = AchievementService.has(player, Achievement.APOSTLE) || life.shizune.mistinn.epic.EpicService.apostle(player);
 		if (is(player) != apostle) {
 			if (apostle) {
 				player.setAttached(APOSTLE, true);

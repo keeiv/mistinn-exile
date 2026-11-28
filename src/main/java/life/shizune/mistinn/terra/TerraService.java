@@ -68,6 +68,15 @@ public final class TerraService {
 			return;
 		}
 		ServerLevel level = server.overworld();
+		// Udasru's one highland is drawn: the crystal highland, round the crown peak where its elder nests
+		if (WorldMode.of(server) == WorldMode.EPIC) {
+			if (DomainService.of(server, Domain.Kind.TERRA).isEmpty()) {
+				life.shizune.mistinn.udasru.UdasruPlaces.GreatBell crown = life.shizune.mistinn.udasru.UdasruPlaces.GreatBell.CRYSTAL;
+				DomainService.add(server, Domain.Kind.TERRA, new BlockPos(crown.x, level.getSeaLevel(), crown.z), RADIUS, Domain.Phase.SETTLED,
+					RADIUS + DomainService.EDGE);
+			}
+			return;
+		}
 		RandomSource random = RandomSource.create(level.getSeed() ^ 0x7E44A5EEDL);
 		BlockPos spawn = level.getRespawnData().pos();
 		int placed = DomainService.of(server, Domain.Kind.TERRA).size();
