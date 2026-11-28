@@ -66,13 +66,21 @@ public final class MistinnCrystalDrakeTest implements FabricClientGameTest {
 			check(climbed > 3.0, "and has climbed: " + climbed);
 			photo(context, world, drake[0], 9.0, "drake-flight");
 
-			// it stoops on the hunter and bites
+			// it stoops on the hunter and bites; out of the dive it hangs low a moment before it climbs
+			double ground = world.getServer().computeOnServer(server -> player(server).getY());
 			boolean bitten = false;
-			for (int i = 0; i < 80 && !bitten; i++) {
-				context.waitTicks(10);
-				bitten = world.getServer().computeOnServer(server -> player(server).getHealth() < player(server).getMaxHealth());
+			for (int i = 0; i < 800 && !bitten; i++) {
+				context.waitTick();
+				bitten = world.getServer().computeOnServer(server -> drake[0].stalling() && drake[0].bite(1.0F) > 0.0F);
 			}
-			check(bitten, "the drake dives and bites");
+			check(bitten, "the drake dives and bites, and after its dive it hangs low a moment");
+			// a bite, not a throw: the hunter stays on the ground
+			double peak = ground;
+			for (int i = 0; i < 20; i++) {
+				context.waitTick();
+				peak = Math.max(peak, world.getServer().computeOnServer(server -> player(server).getY()));
+			}
+			check(peak - ground < 1.0, "and the bite does not throw the hunter into the air: " + (peak - ground));
 			check(world.getServer().computeOnServer(server -> drake[0].shadows() > 0), "its shadow falls round the hunter as it comes down");
 
 			// its facets
