@@ -37,6 +37,7 @@ public final class TerraService {
 		ServerLifecycleEvents.SERVER_STARTED.register(TerraService::widen);
 		ServerLifecycleEvents.SERVER_STARTED.register(TerraService::plan);
 		TerraLake.register();
+		ResearchShip.register();
 	}
 
 	/**

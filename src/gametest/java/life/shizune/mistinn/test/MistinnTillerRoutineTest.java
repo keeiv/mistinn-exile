@@ -120,7 +120,7 @@ public final class MistinnTillerRoutineTest implements FabricClientGameTest {
 			boolean done = world.getServer().computeOnServer(server -> {
 				Settlements.Settlement home = Settlements.ledger(server).built().getFirst();
 				List<Tiller> people = people(server, home.hub());
-				return people.size() == Tiller.Role.values().length && condition.test(people);
+				return people.size() == java.util.Arrays.stream(Tiller.Role.values()).filter(r -> !r.ship).count() && condition.test(people);
 			});
 			if (done) {
 				check(true, what);
