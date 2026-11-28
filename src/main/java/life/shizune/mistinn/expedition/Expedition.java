@@ -71,8 +71,8 @@ import org.jspecify.annotations.Nullable;
  * bucket poured and no explosion takes a block, though chests, doors and levers work as anywhere.
  */
 public final class Expedition {
-	/** How near the hub a hunter must stand to go along. */
-	public static final double REACH = 8.0;
+	/** How near the hub a hunter must stand to go along: anywhere on the homestead's deck (the keeper's workshop too). */
+	public static final double REACH = HomesteadTravel.AT_HOME;
 	/** How long each hunter has in a ground. */
 	public static final long LIMIT = 20L * 60L * 20L;
 	/** Between two waves at an exit. */
@@ -254,7 +254,7 @@ public final class Expedition {
 	/** Marks what lives in a ground as stronger than outside. */
 	private static final net.minecraft.resources.Identifier HARDENED = Mistinn.id("afar");
 
-	/** What lives in a ground is stronger than outside, half again the life and a third again the bite, and does not wander off. */
+	/** What lives in a ground is stronger than outside: half again the life, a third again the bite, twice the reach of its tracking; and it stays. */
 	public static void harden(final net.minecraft.world.entity.Mob mob) {
 		mob.setPersistenceRequired();
 		net.minecraft.world.entity.ai.attributes.AttributeInstance life = mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
@@ -265,6 +265,12 @@ public final class Expedition {
 		net.minecraft.world.entity.ai.attributes.AttributeInstance bite = mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
 		if (bite != null && !bite.hasModifier(HARDENED)) {
 			bite.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(HARDENED, 0.3,
+				net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+		}
+		// and it follows twice as far: far enough to find its way from the tower's bridge up to the roof
+		net.minecraft.world.entity.ai.attributes.AttributeInstance follow = mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.FOLLOW_RANGE);
+		if (follow != null && !follow.hasModifier(HARDENED)) {
+			follow.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(HARDENED, 1.0,
 				net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
 		}
 		mob.setHealth(mob.getMaxHealth());

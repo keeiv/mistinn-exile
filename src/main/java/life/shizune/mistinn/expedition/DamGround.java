@@ -191,13 +191,13 @@ public final class DamGround implements Layout {
 		}
 		int lizards = Math.min(6, 2 + wave);
 		for (int i = 0; i < lizards; i++) {
-			BlockPos at = ground(level, exit, random);
-			if (at == null) {
-				continue;
-			}
 			CrystalLizard lizard = MistinnEntities.CRYSTAL_LIZARD.create(level, EntitySpawnReason.EVENT);
 			if (lizard != null) {
-				lizard.snapTo(at.getX() + 0.5, at.getY(), at.getZ() + 0.5, random.nextFloat() * 360.0F, 0.0F);
+				// hardened first, so its way is reckoned as far as it will follow
+				Expedition.harden(lizard);
+			}
+			BlockPos at = lizard == null ? null : ground(level, exit, random, lizard);
+			if (at != null) {
 				rise(level, lizard, holding);
 				level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.SMOOTH_STONE.defaultBlockState()),
 					at.getX() + 0.5, at.getY() + 0.3, at.getZ() + 0.5, 18, 0.4, 0.3, 0.4, 0.15);
@@ -229,19 +229,31 @@ public final class DamGround implements Layout {
 		level.addFreshEntity(mob);
 	}
 
-	/** Somewhere to stand, seven to thirteen blocks from a way out and not far above or below it. */
-	private static @Nullable BlockPos ground(final ServerLevel level, final Exit exit, final RandomSource random) {
+	/**
+	 * Somewhere for {@code lizard} to come up, seven to thirteen blocks from a way out, at its height or a little below, from
+	 * where it can walk to the way out (not a ledge on the dam's face it could never get down from); it is set there.
+	 */
+	private static @Nullable BlockPos ground(final ServerLevel level, final Exit exit, final RandomSource random, final Mob lizard) {
 		BlockPos c = exit.centre();
-		for (int tries = 0; tries < 16; tries++) {
+		// round the tower there is little but water and a narrow bridge to come up on: try a good many places
+		for (int tries = 0; tries < 48; tries++) {
 			double angle = random.nextDouble() * Math.PI * 2.0;
 			double reach = 7.0 + random.nextDouble() * 6.0;
 			int x = c.getX() + (int) Math.round(Math.cos(angle) * reach);
 			int z = c.getZ() + (int) Math.round(Math.sin(angle) * reach);
-			for (int y = c.getY() + 5; y >= c.getY() - 12; y--) {
+			// never above the way out: they come up from below, not out of the walls about it
+			for (int y = c.getY(); y >= c.getY() - 12; y--) {
 				BlockPos at = new BlockPos(x, y, z);
 				if (level.getBlockState(at).getCollisionShape(level, at).isEmpty() && level.getBlockState(at.above()).getCollisionShape(level, at.above()).isEmpty()
 					&& level.getFluidState(at).isEmpty() && !level.getBlockState(at.below()).getCollisionShape(level, at.below()).isEmpty()) {
-					return at;
+					lizard.snapTo(at.getX() + 0.5, at.getY(), at.getZ() + 0.5, random.nextFloat() * 360.0F, 0.0F);
+					// not yet in the world, it has never landed: a walker's path is only reckoned from the ground
+					lizard.setOnGround(true);
+					net.minecraft.world.level.pathfinder.Path path = lizard.getNavigation().createPath(exit.centre(), 1);
+					if (path != null && path.canReach()) {
+						return at;
+					}
+					break;
 				}
 			}
 		}
