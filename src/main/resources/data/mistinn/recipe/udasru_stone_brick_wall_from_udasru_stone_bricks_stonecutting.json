@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "mistinn:udasru_stone_bricks",
+  "result": {
+    "id": "mistinn:udasru_stone_brick_wall"
+  }
+}

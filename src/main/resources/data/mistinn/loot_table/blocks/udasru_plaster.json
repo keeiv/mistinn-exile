@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mistinn:udasru_plaster"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "mistinn:blocks/udasru_plaster"
+}

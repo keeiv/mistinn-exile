@@ -11,13 +11,15 @@ import net.minecraft.server.level.ServerLevel;
 import org.jspecify.annotations.Nullable;
 
 /**
- * How a world is played. Training gives way to the story or free exploration in the same save.
+ * How a world is played. Training gives way to the story or free exploration in the same save. The story has three
+ * roads: the road of rust (STORY), the path of longing (PATH) and the epic (EPIC), each a world of its own.
  */
 public enum WorldMode {
 	STORY("story"),
 	FREE("free"),
 	TRAINING("training"),
-	PATH("path");
+	PATH("path"),
+	EPIC("epic");
 
 	public final String id;
 
@@ -43,6 +45,7 @@ public enum WorldMode {
 			case "story" -> STORY;
 			case "training" -> TRAINING;
 			case "path" -> PATH;
+			case "epic" -> EPIC;
 			default -> FREE;
 		};
 	}

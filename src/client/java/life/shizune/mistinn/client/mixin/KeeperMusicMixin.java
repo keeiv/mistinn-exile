@@ -26,6 +26,9 @@ public abstract class KeeperMusicMixin {
 			fight = life.shizune.mistinn.client.story.StoryCardScreen.music();
 		}
 		if (fight == null) {
+			fight = life.shizune.mistinn.client.epic.EpicMusic.current();
+		}
+		if (fight == null) {
 			fight = life.shizune.mistinn.client.path.PathClient.music();
 		}
 		if (fight == null) {

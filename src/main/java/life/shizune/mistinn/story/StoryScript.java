@@ -82,7 +82,7 @@ public final class StoryScript {
 	/** The path of longing: the sea, at last. */
 	public static final Card PATH_SEA = new Card("path_sea", 3, "path.mistinn.chapter.5");
 
-	private static final Map<String, Card> CARDS = Map.ofEntries(Map.entry(DROP.id(), DROP), Map.entry(LIGHTHOUSE.id(), LIGHTHOUSE),
+	private static final Map<String, Card> CARDS = new java.util.HashMap<>(Map.ofEntries(Map.entry(DROP.id(), DROP), Map.entry(LIGHTHOUSE.id(), LIGHTHOUSE),
 		Map.entry(UNANSWERED.id(), UNANSWERED), Map.entry(SALT_ROAD.id(), SALT_ROAD), Map.entry(ROAD_END.id(), ROAD_END),
 		Map.entry(BELL_STATION.id(), BELL_STATION),
 		Map.entry(ANSWER.id(), ANSWER), Map.entry(SALT_WORKS.id(), SALT_WORKS), Map.entry(STOPPED.id(), STOPPED), Map.entry(THE_CALL.id(), THE_CALL),
@@ -90,7 +90,7 @@ public final class StoryScript {
 		Map.entry(PATH_SEA.id(), PATH_SEA), Map.entry(LAMP_LIT.id(), LAMP_LIT),
 		Map.entry(PATH_STITCHED.id(), PATH_STITCHED), Map.entry(THIRTEEN_END.id(), THIRTEEN_END),
 		Map.entry(INN_HEARTH.id(), INN_HEARTH), Map.entry(INN_WALL.id(), INN_WALL), Map.entry(INN_NAME.id(), INN_NAME),
-		Map.entry(INN_DAWN.id(), INN_DAWN), Map.entry(PATH_SEA_ALL.id(), PATH_SEA_ALL));
+		Map.entry(INN_DAWN.id(), INN_DAWN), Map.entry(PATH_SEA_ALL.id(), PATH_SEA_ALL)));
 	/** The cards that come on after a card, one after another: the inn's ending goes on into the morning. */
 	private static final Map<String, Card> FOLLOWS = Map.of(INN.id(), INN_HEARTH, INN_HEARTH.id(), INN_WALL, INN_WALL.id(), INN_NAME,
 		INN_NAME.id(), INN_DAWN);
@@ -128,7 +128,7 @@ public final class StoryScript {
 	/** The numbers on those tags, in the same order. */
 	public static final List<Integer> TAG_NUMBERS = List.of(3388, 3401, 3409);
 
-	private static final Map<String, List<String>> SPEAKERS = Map.ofEntries(
+	private static final Map<String, List<String>> SPEAKERS = new java.util.HashMap<>(Map.ofEntries(
 		Map.entry(FIRST_CALL, List.of(HELM, HELM, HELM, HELM, HELM, HELM, HELM, HELM, HELM)),
 		Map.entry(SNUFFER_END, List.of(SNUFFER, SNUFFER, SNUFFER, SNUFFER)),
 		Map.entry(NO_ANSWER, List.of(NARRATION, NARRATION, NARRATION, APOSTLE)),
@@ -143,9 +143,21 @@ public final class StoryScript {
 		Map.entry(STATION_CALL, List.of(HELM, HELM, HELM, NARRATION, TAG_3401, TAG_3401, TAG_3401, TAG_3401, HELM, APOSTLE)),
 		Map.entry(ANCHOR_END, List.of(NARRATION, HELM, HELM, HELM, APOSTLE, NARRATION)),
 		Map.entry(INN_END, List.of(NARRATION, APOSTLE, TAG_3401, NARRATION, NARRATION))
-	);
+	));
 
 	private StoryScript() {
+	}
+
+	/** Adds a card of another telling (the epic's) under its id. */
+	public static Card add(final Card card) {
+		CARDS.put(card.id(), card);
+		return card;
+	}
+
+	/** Adds a sequence of another telling: who speaks each of its lines, in order. */
+	public static String add(final String sequence, final List<String> speakers) {
+		SPEAKERS.put(sequence, List.copyOf(speakers));
+		return sequence;
 	}
 
 	/** The card that comes on after this one, or null. */

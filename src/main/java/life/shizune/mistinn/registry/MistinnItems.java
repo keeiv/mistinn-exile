@@ -141,6 +141,19 @@ public final class MistinnItems {
 		.rarity(net.minecraft.world.item.Rarity.RARE));
 	public static final Item MIST_PINE_STAIRS = block("mist_pine_stairs", MistinnBlocks.MIST_PINE_STAIRS, new Item.Properties());
 	public static final Item MIST_PINE_SLAB = block("mist_pine_slab", MistinnBlocks.MIST_PINE_SLAB, new Item.Properties());
+	/** Udasru's building blocks. */
+	public static final Item UDASRU_STONE_BRICKS = block("udasru_stone_bricks", MistinnBlocks.UDASRU_STONE_BRICKS, new Item.Properties());
+	public static final Item UDASRU_STONE_BRICK_STAIRS = block("udasru_stone_brick_stairs", MistinnBlocks.UDASRU_STONE_BRICK_STAIRS, new Item.Properties());
+	public static final Item UDASRU_STONE_BRICK_SLAB = block("udasru_stone_brick_slab", MistinnBlocks.UDASRU_STONE_BRICK_SLAB, new Item.Properties());
+	public static final Item UDASRU_STONE_BRICK_WALL = block("udasru_stone_brick_wall", MistinnBlocks.UDASRU_STONE_BRICK_WALL, new Item.Properties());
+	public static final Item UDASRU_ROOF_TILES = block("udasru_roof_tiles", MistinnBlocks.UDASRU_ROOF_TILES, new Item.Properties());
+	public static final Item UDASRU_ROOF_TILE_STAIRS = block("udasru_roof_tile_stairs", MistinnBlocks.UDASRU_ROOF_TILE_STAIRS, new Item.Properties());
+	public static final Item UDASRU_ROOF_TILE_SLAB = block("udasru_roof_tile_slab", MistinnBlocks.UDASRU_ROOF_TILE_SLAB, new Item.Properties());
+	public static final Item UDASRU_PLASTER = block("udasru_plaster", MistinnBlocks.UDASRU_PLASTER, new Item.Properties());
+	public static final Item UDASRU_TIMBER = block("udasru_timber", MistinnBlocks.UDASRU_TIMBER, new Item.Properties());
+	public static final Item SALT_CRUST = block("salt_crust", MistinnBlocks.SALT_CRUST, new Item.Properties());
+	public static final Item RUST_SOIL = block("rust_soil", MistinnBlocks.RUST_SOIL, new Item.Properties());
+	public static final Item BELL_BRONZE = block("bell_bronze", MistinnBlocks.BELL_BRONZE, new Item.Properties());
 	public static final Item MIST_PINE_FENCE = block("mist_pine_fence", MistinnBlocks.MIST_PINE_FENCE, new Item.Properties());
 	public static final Item MIST_PINE_FENCE_GATE = block("mist_pine_fence_gate", MistinnBlocks.MIST_PINE_FENCE_GATE, new Item.Properties());
 	public static final Item MIST_PINE_DOOR = register("mist_pine_door", p -> new net.minecraft.world.item.DoubleHighBlockItem(MistinnBlocks.MIST_PINE_DOOR, p),

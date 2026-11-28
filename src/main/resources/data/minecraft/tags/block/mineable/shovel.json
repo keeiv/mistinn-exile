@@ -6,6 +6,8 @@
     "mistinn:rift_turf",
     "mistinn:rift_soil",
     "mistinn:jade_turf",
-    "mistinn:vein_soil"
+    "mistinn:vein_soil",
+    "mistinn:salt_crust",
+    "mistinn:rust_soil"
   ]
 }

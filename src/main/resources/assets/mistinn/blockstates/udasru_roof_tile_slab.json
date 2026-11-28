@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "mistinn:block/udasru_roof_tile_slab"
+    },
+    "type=double": {
+      "model": "mistinn:block/udasru_roof_tiles"
+    },
+    "type=top": {
+      "model": "mistinn:block/udasru_roof_tile_slab_top"
+    }
+  }
+}

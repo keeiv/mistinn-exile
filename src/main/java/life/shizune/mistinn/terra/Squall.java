@@ -255,6 +255,7 @@ public final class Squall {
 			case EASY -> CUT * 0.7F;
 			case NORMAL -> CUT;
 			case RUST_ANCHOR -> CUT * 1.6F;
+			case HUNTER -> CUT * 0.7F;
 		};
 	}
 

@@ -1,5 +1,6 @@
 package life.shizune.mistinn.client.title;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 import life.shizune.mistinn.hardship.Hardship;
 import life.shizune.mistinn.story.WorldMode;
@@ -8,9 +9,11 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 /**
- * Asked at world creation. Story and free exploration open the world settings; training opens
- * an introductory course that leads to either destination. Story and training ask how hard the
- * world should be first; free exploration is normal; the path of longing is always Rust Anchor.
+ * Asked at world creation: the story, free exploration or training. The story opens its three roads
+ * ({@link StorySelectScreen}): the road of rust, the path of longing and the epic. Each road and training
+ * then asks how hard the world should be, offering only what it allows: the road of rust and training
+ * all three, the path of longing only Rust Anchor (its rules are fixed under it), the epic only Hunter.
+ * Free exploration is normal and asks nothing.
  */
 public class ModeSelectScreen extends Screen {
 	private static final int CARD_W = 172;
@@ -29,32 +32,47 @@ public class ModeSelectScreen extends Screen {
 	@Override
 	protected void init() {
 		int gap = 14;
-		int cardWidth = Math.min(CARD_W, (this.width - 3 * gap - 24) / 4);
-		int x = (this.width - 4 * cardWidth - 3 * gap) / 2;
+		int cardWidth = Math.min(CARD_W, (this.width - 2 * gap - 24) / 3);
+		int x = (this.width - 3 * cardWidth - 2 * gap) / 2;
 		int y = this.height / 2 - CARD_H / 2 + 10;
 		this.addRenderableWidget(this.card(x, y, cardWidth, WorldMode.STORY));
 		this.addRenderableWidget(this.card(x + cardWidth + gap, y, cardWidth, WorldMode.FREE));
 		this.addRenderableWidget(this.card(x + 2 * (cardWidth + gap), y, cardWidth, WorldMode.TRAINING));
-		this.addRenderableWidget(this.card(x + 3 * (cardWidth + gap), y, cardWidth, WorldMode.PATH));
 	}
 
 	private ChoiceCard card(final int x, final int y, final int width, final WorldMode mode) {
 		return new ChoiceCard(x, y, width, CARD_H, Component.translatable("mode.mistinn." + mode.id),
-			Component.translatable("mode.mistinn." + mode.id + ".desc"), null, mode == WorldMode.PATH ? ChoiceCard.RUST : ChoiceCard.GOLD,
-			() -> this.pick(mode));
+			Component.translatable("mode.mistinn." + mode.id + ".desc"), null, ChoiceCard.GOLD, () -> this.pick(mode));
+	}
+
+	/** The hardships a mode offers, in the order shown; none for a mode that does not ask. */
+	public static List<Hardship> offered(final WorldMode mode) {
+		return switch (mode) {
+			case STORY, TRAINING -> List.of(Hardship.EASY, Hardship.NORMAL, Hardship.RUST_ANCHOR);
+			case PATH -> List.of(Hardship.RUST_ANCHOR);
+			case EPIC -> List.of(Hardship.HUNTER);
+			case FREE -> List.of();
+		};
 	}
 
 	/** Whether picking this mode asks how hard the world should be. */
 	public static boolean asksHardship(final WorldMode mode) {
-		return mode == WorldMode.STORY || mode == WorldMode.TRAINING;
+		return !offered(mode).isEmpty();
 	}
 
-	/** Picks a mode as a click would: story and training go on to the hardship screen; the path is Rust Anchor, always. */
+	/**
+	 * Picks a mode as a click would. The story opens its roads; a road (picked there, or here by its mode) and training
+	 * go on to the hardship screen with what they offer; free exploration goes straight on at normal.
+	 */
 	public void pick(final WorldMode mode) {
-		if (mode == WorldMode.PATH) {
-			this.proceed.accept(mode, Hardship.RUST_ANCHOR);
-		} else if (asksHardship(mode) && this.minecraft != null) {
-			this.minecraft.gui.setScreen(new HardshipScreen(this, mode, hardship -> this.proceed.accept(mode, hardship)));
+		if (this.minecraft == null) {
+			return;
+		}
+		if (mode == WorldMode.STORY && !(this.minecraft.gui.screen() instanceof StorySelectScreen)) {
+			this.minecraft.gui.setScreen(new StorySelectScreen(this));
+		} else if (asksHardship(mode)) {
+			net.minecraft.client.gui.screens.Screen from = this.minecraft.gui.screen() == null ? this : this.minecraft.gui.screen();
+			this.minecraft.gui.setScreen(new HardshipScreen(from, mode, hardship -> this.proceed.accept(mode, hardship)));
 		} else {
 			this.proceed.accept(mode, Hardship.NORMAL);
 		}

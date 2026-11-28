@@ -24,6 +24,8 @@ final class ChoiceCard extends AbstractButton {
 	static final Palette GOLD = new Palette(0xD89A50, 0x6B5B3A, 0xF2CC80);
 	/** Rust red, for the hardest choice. */
 	static final Palette RUST = new Palette(0xC0503A, 0x6E3A2E, 0xF2A894);
+	/** Udasru's teal and indigo, for the epic. */
+	static final Palette EPIC = new Palette(0x5FC1BE, 0x2E4A7A, 0xA8E6E2);
 
 	private final Component desc;
 	private final @Nullable Component tag;

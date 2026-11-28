@@ -67,6 +67,16 @@ public class RustApostle extends PathfinderMob {
 	private static final EntityDataAccessor<Integer> DATA_MOVE_START = SynchedEntityData.defineId(RustApostle.class, EntityDataSerializers.INT);
 	/** Whether the blade is out, for the client: before it they carry it low. */
 	private static final EntityDataAccessor<Boolean> DATA_DRAWN = SynchedEntityData.defineId(RustApostle.class, EntityDataSerializers.BOOLEAN);
+	/** Whether this is the Helm, hunter No. 0001, the epic's last opponent, rather than 3412 (on either side). */
+	private static final EntityDataAccessor<Boolean> DATA_HELM = SynchedEntityData.defineId(RustApostle.class, EntityDataSerializers.BOOLEAN);
+	/** What a blow takes from the Helm, of what it would take; the Helm's strength; how much bigger the Helm stands. */
+	public static final float HELM_TAKEN = 0.6F;
+	public static final double HELM_HEALTH = 1000.0;
+	public static final double HELM_SCALE = 1.15;
+	/** How many things the Helm says as it fights. */
+	public static final int HELM_MUTTERINGS = 8;
+	/** How far the Helm looks for a hunter to fight. */
+	private static final double HELM_SEES = 48.0;
 
 	private @Nullable ApostleMove move;
 	private int moveTicks;
@@ -119,6 +129,45 @@ public class RustApostle extends PathfinderMob {
 		builder.define(DATA_MOVE, (byte) 0);
 		builder.define(DATA_MOVE_START, 0);
 		builder.define(DATA_DRAWN, false);
+		builder.define(DATA_HELM, false);
+	}
+
+	/** Whether this is the Helm (on either side). */
+	public boolean helm() {
+		return this.entityData.get(DATA_HELM);
+	}
+
+	/**
+	 * Makes this the Helm: the first hunter, the anchor's voice, in the apostle's whole art and stronger, who means to win
+	 * and can be brought down. It fights the nearest hunter, takes a part of each blow, and never lets anyone go.
+	 */
+	public void becomeHelm() {
+		this.entityData.set(DATA_HELM, true);
+		var health = this.getAttribute(Attributes.MAX_HEALTH);
+		if (health != null) {
+			health.setBaseValue(HELM_HEALTH);
+		}
+		this.setHealth(this.getMaxHealth());
+		var scale = this.getAttribute(Attributes.SCALE);
+		if (scale != null) {
+			scale.setBaseValue(HELM_SCALE);
+		}
+		this.bar.setName(Component.translatable("entity.mistinn.helm"));
+		this.bar.setColor(BossEvent.BossBarColor.RED);
+	}
+
+	@Override
+	protected void addAdditionalSaveData(final net.minecraft.world.level.storage.ValueOutput output) {
+		super.addAdditionalSaveData(output);
+		output.putBoolean("helm", this.helm());
+	}
+
+	@Override
+	protected void readAdditionalSaveData(final net.minecraft.world.level.storage.ValueInput input) {
+		super.readAdditionalSaveData(input);
+		if (input.getBooleanOr("helm", false)) {
+			this.becomeHelm();
+		}
 	}
 
 	@Override
@@ -174,7 +223,16 @@ public class RustApostle extends PathfinderMob {
 	}
 
 	private @Nullable ServerPlayer quarry() {
-		if (!(this.level() instanceof ServerLevel level) || this.quarry == null) {
+		if (!(this.level() instanceof ServerLevel level)) {
+			return null;
+		}
+		if (this.helm() && (this.quarry == null || !(level.getServer().getPlayerList().getPlayer(this.quarry) instanceof ServerPlayer kept)
+			|| !kept.isAlive() || kept.isSpectator() || kept.distanceToSqr(this) > HELM_SEES * HELM_SEES)) {
+			ServerPlayer nearest = level.getNearestPlayer(this.getX(), this.getY(), this.getZ(), HELM_SEES,
+				p -> p instanceof ServerPlayer s && s.isAlive() && !s.isSpectator() && !s.isCreative()) instanceof ServerPlayer s ? s : null;
+			this.quarry = nearest == null ? null : nearest.getUUID();
+		}
+		if (this.quarry == null) {
 			return null;
 		}
 		return level.getServer().getPlayerList().getPlayer(this.quarry) instanceof ServerPlayer player && player.isAlive() && !player.isSpectator()
@@ -204,6 +262,15 @@ public class RustApostle extends PathfinderMob {
 			hitter.syncVelocity = true;
 			this.begin(ApostleMove.RIPOSTE);
 			return false;
+		}
+		// the Helm means to win, and can be brought down
+		if (this.helm()) {
+			boolean struck = super.hurtServer(level, source, amount * HELM_TAKEN);
+			if (!this.serious && this.getHealth() < this.getMaxHealth() * 0.5F) {
+				this.serious = true;
+				this.say("epic_helm_serious");
+			}
+			return struck;
 		}
 		// they do not go down: no blow takes them below a floor of their strength, whatever the thing does
 		float room = this.getHealth() - this.getMaxHealth() * FLOOR;
@@ -240,7 +307,14 @@ public class RustApostle extends PathfinderMob {
 		ServerPlayer target = this.quarry();
 		this.bar.setProgress(this.getHealth() / this.getMaxHealth());
 		if (target == null) {
-			// the work done: the move in hand finished, then home, walking
+			// the work done: the move in hand finished, then home, walking (the Helm stays on its crown)
+			if (this.helm()) {
+				this.getNavigation().stop();
+				if (this.move != null) {
+					this.run(level, null);
+				}
+				return;
+			}
 			if (this.move != null) {
 				this.run(level, null);
 			} else if (this.leaving > 0) {
@@ -264,12 +338,12 @@ public class RustApostle extends PathfinderMob {
 			this.nextMutter = MUTTER + this.random.nextInt(80);
 			this.mutter();
 		}
-		if (this.fightTicks % 20 == 0) {
+		if (this.fightTicks % 20 == 0 && !this.helm()) {
 			this.heal(MENDS);
 		}
 		this.getLookControl().setLookAt(target, 60.0F, 30.0F);
 		// enough is enough
-		if (this.drawn && !this.finishing && (this.fightTicks >= FIGHT || Thirteenth.spent(target))) {
+		if (!this.helm() && this.drawn && !this.finishing && (this.fightTicks >= FIGHT || Thirteenth.spent(target))) {
 			this.finishing = true;
 			this.queued = null;
 			this.say("apostle_finish");
@@ -571,7 +645,12 @@ public class RustApostle extends PathfinderMob {
 			level.playSound(null, target.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE, 1.4F, 0.6F);
 			level.playSound(null, target.blockPosition(), SoundEvents.TRIDENT_RIPTIDE_3.value(), SoundSource.HOSTILE, 0.9F, 1.4F);
 		}
-		if (t == ApostleMove.IAI_FALLS) {
+		if (t == ApostleMove.IAI_FALLS && this.helm()) {
+			// the Helm's draw-cut is a blow like the rest: a hard one
+			if (target != null) {
+				this.land(level, target, 26.0F, 1.2, 0.0);
+			}
+		} else if (t == ApostleMove.IAI_FALLS) {
 			// no thing walks on after this
 			level.playSound(null, this.blockPosition(), SoundEvents.ARMOR_EQUIP_IRON.value(), SoundSource.HOSTILE, 1.0F, 1.5F);
 			Thirteenth.finishing(target);
@@ -617,7 +696,8 @@ public class RustApostle extends PathfinderMob {
 			}
 			java.util.Collections.shuffle(this.mutterOrder, new java.util.Random(this.random.nextLong()));
 		}
-		this.say("apostle_mutter_" + this.mutterOrder.removeFirst());
+		int line = this.mutterOrder.removeFirst();
+		this.say(this.helm() ? "epic_helm_mutter_" + line % HELM_MUTTERINGS : "apostle_mutter_" + line);
 		this.muttered++;
 	}
 

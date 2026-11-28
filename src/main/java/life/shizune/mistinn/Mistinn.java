@@ -70,6 +70,7 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.enemy.StaggerService.init();
 		life.shizune.mistinn.registry.MistinnEntities.init();
 		MistinnWorld.init();
+		life.shizune.mistinn.udasru.Udasru.register();
 		life.shizune.mistinn.story.WorldMode.init();
 		life.shizune.mistinn.hardship.Hardship.init();
 		life.shizune.mistinn.food.HungerCap.init();
@@ -77,6 +78,7 @@ public class Mistinn implements ModInitializer {
 		life.shizune.mistinn.hardship.RustAnchorWeapons.init();
 		life.shizune.mistinn.body.LostLimbs.init();
 		life.shizune.mistinn.story.StoryService.init();
+		life.shizune.mistinn.epic.EpicService.register();
 		TrainingService.init();
 		life.shizune.mistinn.station.StationTalk.init();
 		life.shizune.mistinn.station.StationBroadcast.init();

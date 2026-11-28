@@ -51,6 +51,13 @@ public class StationHand extends PathfinderMob {
 	@Override
 	protected void registerGoals() {
 		this.goalSelector.addGoal(5, new RouteGoal(this));
+		// away from the station (the inn, Udasru's towns) a member keeps near home, wandering a little
+		this.goalSelector.addGoal(7, new net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal(this, 0.5) {
+			@Override
+			public boolean canUse() {
+				return StationHand.this.hasHome() && StationHand.this.getHomeRadius() > 0 && super.canUse();
+			}
+		});
 		this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
 		this.goalSelector.addGoal(9, new RandomLookAroundGoal(this));
 	}
@@ -67,12 +74,17 @@ public class StationHand extends PathfinderMob {
 	protected void addAdditionalSaveData(final ValueOutput output) {
 		super.addAdditionalSaveData(output);
 		output.putString("role", this.role().id);
+		if (this.hasHome()) {
+			output.putLong("home", this.getHomePosition().asLong());
+			output.putInt("home_radius", this.getHomeRadius());
+		}
 	}
 
 	@Override
 	protected void readAdditionalSaveData(final ValueInput input) {
 		super.readAdditionalSaveData(input);
 		this.setRole(StaffRole.byId(input.getStringOr("role", StaffRole.DOCK_WORKER_1.id)));
+		input.getLong("home").ifPresent(home -> this.setHomeTo(net.minecraft.core.BlockPos.of(home), input.getIntOr("home_radius", 0)));
 	}
 
 	@Override

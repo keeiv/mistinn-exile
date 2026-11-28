@@ -36,6 +36,12 @@ public abstract class CreateWorldMixin {
 				TrainingClient.createWorld(minecraft, hardship);
 				return;
 			}
+			if (mode == WorldMode.EPIC) {
+				// the heart in the dark, then Udasru
+				minecraft.gui.setScreen(new life.shizune.mistinn.client.epic.EpicOpeningScreen(
+					() -> life.shizune.mistinn.client.epic.EpicClient.createWorld(minecraft)));
+				return;
+			}
 			WorldMode.choose(mode);
 			Hardship.choose(hardship);
 			mistinn$chosen = true;

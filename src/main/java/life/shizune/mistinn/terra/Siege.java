@@ -165,6 +165,7 @@ public final class Siege {
 			case EASY -> CHANCE * 0.6F;
 			case NORMAL -> CHANCE;
 			case RUST_ANCHOR -> CHANCE * 1.6F;
+			case HUNTER -> CHANCE;
 		};
 	}
 

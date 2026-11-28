@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/wall_inventory",
+  "textures": {
+    "wall": "mistinn:block/udasru_stone_bricks"
+  }
+}

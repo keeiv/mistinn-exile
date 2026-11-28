@@ -134,6 +134,7 @@ public final class RiftService {
 			case EASY -> 0.20;
 			case NORMAL -> 0.30;
 			case RUST_ANCHOR -> 0.45;
+			case HUNTER -> 0.30;
 		};
 	}
 
@@ -178,6 +179,7 @@ public final class RiftService {
 
 	private static boolean allowed(final ServerLevel level, final long day) {
 		return !AUTOMATED && day >= FIRST_DAY && level.getDifficulty() != Difficulty.PEACEFUL && WorldMode.of(level.getServer()) != WorldMode.TRAINING
+			&& life.shizune.mistinn.epic.EpicService.allowsRifts(level.getServer())
 			&& DomainService.of(level.getServer(), Domain.Kind.RIFT).stream().noneMatch(Domain::open);
 	}
 
@@ -346,6 +348,7 @@ public final class RiftService {
 			case EASY -> 0.75F;
 			case NORMAL -> 1.0F;
 			case RUST_ANCHOR -> 1.5F;
+			case HUNTER -> 1.0F;
 		};
 		int walkers = Math.max(2, Math.round((2 + wave + Math.max(0, hunters - 1) * 2) * scale));
 		List<UUID> down = new ArrayList<>();

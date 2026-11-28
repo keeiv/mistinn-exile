@@ -243,6 +243,16 @@ public final class MistinnSounds {
 	public static final SoundEvent VOICE_FEMALE_BREATH = register("voice.female.breath");
 	public static final SoundEvent VOICE_FEMALE_PANT = register("voice.female.pant");
 
+	/** The epic: the heart under its opening, the click of its screens, and its music. */
+	public static final SoundEvent EPIC_HEARTBEAT = register("epic.heartbeat");
+	public static final SoundEvent EPIC_CLICK = register("epic.click");
+	public static final SoundEvent MUSIC_EPIC_FIELD = register("music.epic_field");
+	public static final SoundEvent MUSIC_EPIC_CAPITAL = register("music.epic_capital");
+	public static final SoundEvent MUSIC_EPIC_HUNT = register("music.epic_hunt");
+	public static final SoundEvent MUSIC_EPIC_HELM = register("music.epic_helm");
+	public static final SoundEvent MUSIC_EPIC_REVEAL = register("music.epic_reveal");
+	public static final SoundEvent MUSIC_EPIC_END = register("music.epic_end");
+
 	private static SoundEvent register(final String name) {
 		Identifier id = Mistinn.id(name);
 		return Registry.register(BuiltInRegistries.SOUND_EVENT, id, SoundEvent.createVariableRangeEvent(id));

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "mistinn:block/udasru_stone_bricks",
+    "side": "mistinn:block/udasru_stone_bricks",
+    "top": "mistinn:block/udasru_stone_bricks"
+  }
+}

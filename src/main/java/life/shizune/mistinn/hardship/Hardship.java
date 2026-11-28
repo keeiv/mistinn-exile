@@ -18,14 +18,16 @@ import net.minecraft.world.entity.player.Player;
 import org.jspecify.annotations.Nullable;
 
 /**
- * How hard a world is, chosen with its mode: 輕鬆, 普通 or 鏽錨站. Normal is the game as it was;
- * every number here is 1 for it. Rust Anchor adds its own rules on top (station food only,
- * weakened weapons, lost limbs, a heavier death), each kept by the system it belongs to.
+ * How hard a world is, chosen with its mode: 輕鬆, 普通 or 鏽錨站, and 獵人 for the epic alone. Normal is the game as
+ * it was; every number here is 1 for it. Rust Anchor adds its own rules on top (station food only, weakened weapons,
+ * lost limbs, a heavier death), each kept by the system it belongs to. Hunter is made for the joy of the hunt: blows
+ * land light, wounds are rare and mend fast, and a fall costs nothing.
  */
 public enum Hardship {
 	EASY("easy", 0.7F, 0.5F, 0.75F, 0.5F, 0.8F),
 	NORMAL("normal", 1.0F, 1.0F, 1.0F, 1.0F, 1.0F),
-	RUST_ANCHOR("rust_anchor", 1.25F, 1.5F, 1.5F, 2.0F, 1.25F);
+	RUST_ANCHOR("rust_anchor", 1.25F, 1.5F, 1.5F, 2.0F, 1.25F),
+	HUNTER("hunter", 0.5F, 0.3F, 0.5F, 0.4F, 0.6F);
 
 	public final String id;
 	/** Multiplies what a blow takes from a hunter's body. */
@@ -72,6 +74,7 @@ public enum Hardship {
 		return switch (id) {
 			case "easy" -> EASY;
 			case "rust_anchor" -> RUST_ANCHOR;
+			case "hunter" -> HUNTER;
 			default -> NORMAL;
 		};
 	}
@@ -95,6 +98,11 @@ public enum Hardship {
 
 	public static boolean rustAnchor(final Player player) {
 		return of(player) == RUST_ANCHOR;
+	}
+
+	/** Whether this player hunts at the epic's own hardship. */
+	public static boolean hunter(final Player player) {
+		return of(player) == HUNTER;
 	}
 
 	/**

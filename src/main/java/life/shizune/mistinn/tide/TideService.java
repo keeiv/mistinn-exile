@@ -122,6 +122,7 @@ public final class TideService {
 			case EASY -> CHANCE * 2.0F / 3.0F;
 			case NORMAL -> CHANCE;
 			case RUST_ANCHOR -> CHANCE * 5.0F / 3.0F;
+			case HUNTER -> CHANCE;
 		};
 	}
 

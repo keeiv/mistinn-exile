@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "mistinn:udasru_roof_tiles",
+  "result": {
+    "id": "mistinn:udasru_roof_tile_stairs"
+  }
+}

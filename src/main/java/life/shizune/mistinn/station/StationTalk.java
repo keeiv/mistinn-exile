@@ -35,7 +35,23 @@ public final class StationTalk {
 		Map.entry(StaffRole.ARCHIVIST, List.of("guide", "stats", "skills", "achievements", "map", "records")),
 		Map.entry(StaffRole.BELL_KEEPER, List.of("bell", "death", "wall", "return", "light", "fogbell")),
 		Map.entry(StaffRole.RADIO_OPERATOR, List.of("radio", "helm", "static")),
-		Map.entry(StaffRole.CRANE_OPERATOR, List.of("pod", "count")));
+		Map.entry(StaffRole.CRANE_OPERATOR, List.of("pod", "count")),
+		Map.entry(StaffRole.INNKEEPER, List.of("morning", "fog", "name")),
+		Map.entry(StaffRole.XIAOLING, List.of("herbs", "letters", "wait")),
+		Map.entry(StaffRole.ACHAO, List.of("sea", "station", "stayed")),
+		Map.entry(StaffRole.ASHA, List.of("salt", "wall", "dig")),
+		Map.entry(StaffRole.INN_GRANNY, List.of("song", "bells", "boat")),
+		Map.entry(StaffRole.INN_3411, List.of("drop", "udasru", "you")),
+		Map.entry(StaffRole.TOWER_KEEPER, List.of("udasru", "fog", "bells", "travel")),
+		Map.entry(StaffRole.CHRONICLER, List.of("saga", "writer", "book", "you")),
+		Map.entry(StaffRole.REGENT, List.of("bells", "anchor", "station")),
+		Map.entry(StaffRole.CAPITAL_GUARD, List.of("gate", "city", "3411")),
+		Map.entry(StaffRole.TOWNSMAN, List.of("market", "bells", "writer")),
+		Map.entry(StaffRole.TOWNSWOMAN, List.of("greeting", "book", "tea")),
+		Map.entry(StaffRole.SALT_WORKER, List.of("salt", "lake", "ship")),
+		Map.entry(StaffRole.WOODSMAN, List.of("woods", "lighthouse", "fog")),
+		Map.entry(StaffRole.FROST_GUARD, List.of("gate", "ridge", "north")),
+		Map.entry(StaffRole.FORGE_SMITH, List.of("forge", "rust", "wheel")));
 
 	private StationTalk() {
 	}
@@ -54,7 +70,8 @@ public final class StationTalk {
 	/** Opens a talk with this member on the hunter's screen. */
 	public static void open(final ServerPlayer hunter, final StationHand hand) {
 		TrainingService.greeted(hunter, hand.role());
-		String lesson = TrainingService.opening(hunter, hand.role());
+		String lesson = life.shizune.mistinn.epic.EpicService.active(hunter.level().getServer())
+			? life.shizune.mistinn.epic.EpicService.opening(hunter, hand.role()) : TrainingService.opening(hunter, hand.role());
 		ServerPlayNetworking.send(hunter, new OpenPayload(hand.getId(), hand.role(), lesson == null ? HELLO : lesson, topics(hand.role())));
 	}
 
@@ -62,6 +79,7 @@ public final class StationTalk {
 	public static void heard(final ServerPlayer hunter, final int entity, final String topic) {
 		if (hunter.level().getEntity(entity) instanceof StationHand hand && hunter.distanceTo(hand) <= REACH) {
 			TrainingService.heard(hunter, hand.role(), topic);
+			life.shizune.mistinn.epic.EpicService.heard(hunter, hand.role(), topic);
 		}
 	}
 

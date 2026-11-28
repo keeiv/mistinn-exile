@@ -22,7 +22,24 @@ public enum StaffRole {
 	DOCK_WORKER_1("dock_worker_1", "dock_worker_1", false),
 	DOCK_WORKER_2("dock_worker_2", "dock_worker_2", false),
 	DOCK_WORKER_3("dock_worker_3", "dock_worker_3", false),
-	DOCK_WORKER_4("dock_worker_4", "dock_worker_4", false);
+	DOCK_WORKER_4("dock_worker_4", "dock_worker_4", false),
+	// the people of the Mist Inn and of Udasru, met in the epic
+	INNKEEPER("innkeeper", "udasru/innkeeper", false),
+	XIAOLING("xiaoling", "udasru/xiaoling_3409", true),
+	ACHAO("achao", "udasru/achao_3401", false),
+	ASHA("asha", "udasru/asha_3388", false),
+	INN_GRANNY("inn_granny", "staff/bell_keeper", true),
+	INN_3411("inn_3411", "staff/hunter_3411", false),
+	TOWER_KEEPER("tower_keeper", "udasru/tower_keeper", false),
+	CHRONICLER("chronicler", "udasru/chronicler", false),
+	REGENT("regent", "udasru/regent", true),
+	CAPITAL_GUARD("capital_guard", "udasru/capital_guard", false),
+	TOWNSMAN("townsman", "udasru/townsman", false),
+	TOWNSWOMAN("townswoman", "udasru/townswoman", true),
+	SALT_WORKER("salt_worker", "udasru/salt_worker", false),
+	WOODSMAN("woodsman", "udasru/woodsman", false),
+	FROST_GUARD("frost_guard", "udasru/frost_guard", false),
+	FORGE_SMITH("forge_smith", "udasru/forge_smith", false);
 
 	public static final StreamCodec<ByteBuf, StaffRole> STREAM_CODEC = ByteBufCodecs.VAR_INT.map(StaffRole::byIndex, StaffRole::ordinal);
 
@@ -33,7 +50,7 @@ public enum StaffRole {
 	StaffRole(final String id, final String skin, final boolean slim) {
 		this.id = id;
 		this.slim = slim;
-		this.texture = Mistinn.id("textures/entity/staff/" + skin + ".png");
+		this.texture = Mistinn.id("textures/entity/" + (skin.contains("/") ? skin : "staff/" + skin) + ".png");
 	}
 
 	/** The 64 by 64 player skin this member wears. */

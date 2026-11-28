@@ -40,6 +40,11 @@ public class RustApostleRenderer extends HumanoidMobRenderer<RustApostle, Apostl
 		this.slim = new ApostleModel(context.bakeLayer(ModelLayers.PLAYER_SLIM));
 	}
 
+	/** The Helm's skin: hunter No. 0001, in the station's oldest plate and the anchor's chain. */
+	private static final net.minecraft.resources.Identifier HELM_TEXTURE = life.shizune.mistinn.Mistinn.id("textures/entity/udasru/helm_0001.png");
+	private static final PlayerSkin HELM = PlayerSkin.insecure(new net.minecraft.core.ClientAsset.ResourceTexture(HELM_TEXTURE, HELM_TEXTURE), null, null,
+		net.minecraft.world.entity.player.PlayerModelType.WIDE);
+
 	/** The looker's own skin, as they chose it: not the tillers' clothes the way may put on them. */
 	public static PlayerSkin own() {
 		Minecraft mc = Minecraft.getInstance();
@@ -66,7 +71,7 @@ public class RustApostleRenderer extends HumanoidMobRenderer<RustApostle, Apostl
 	@Override
 	public void extractRenderState(final RustApostle entity, final ApostleRenderState state, final float partialTicks) {
 		super.extractRenderState(entity, state, partialTicks);
-		state.skin = own();
+		state.skin = entity.helm() ? HELM : own();
 		state.style = WeaponStyle.of(entity.getMainHandItem());
 		state.move = entity.move();
 		state.drawn = entity.drawn();

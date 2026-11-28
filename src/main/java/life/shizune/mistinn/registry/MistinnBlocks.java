@@ -311,6 +311,37 @@ public final class MistinnBlocks {
 	public static final Block RELAY_PYLON = register("relay_pylon", life.shizune.mistinn.block.RelayPylonBlock::new, facility().noOcclusion()
 		.lightLevel(state -> state.getValue(life.shizune.mistinn.block.RelayPylonBlock.LIT) ? 9 : 1));
 
+	// ── Udasru: what the land behind the fog wall builds with ─────────────
+	/** 鐘都石磚: the pale limestone of the Bell Capital and the towers. */
+	public static final Block UDASRU_STONE_BRICKS = register("udasru_stone_bricks", Block::new, BlockBehaviour.Properties.ofLegacyCopy(Blocks.STONE_BRICKS)
+		.mapColor(MapColor.TERRACOTTA_LIGHT_BLUE));
+	public static final Block UDASRU_STONE_BRICK_STAIRS = register("udasru_stone_brick_stairs", p -> new StairBlock(UDASRU_STONE_BRICKS.defaultBlockState(), p),
+		BlockBehaviour.Properties.ofLegacyCopy(UDASRU_STONE_BRICKS));
+	public static final Block UDASRU_STONE_BRICK_SLAB = register("udasru_stone_brick_slab", SlabBlock::new, BlockBehaviour.Properties.ofLegacyCopy(UDASRU_STONE_BRICKS));
+	public static final Block UDASRU_STONE_BRICK_WALL = register("udasru_stone_brick_wall", net.minecraft.world.level.block.WallBlock::new,
+		BlockBehaviour.Properties.ofLegacyCopy(UDASRU_STONE_BRICKS).forceSolidOn());
+	/** 青瓦: the deep indigo glazed tiles of Udasru's roofs. */
+	public static final Block UDASRU_ROOF_TILES = register("udasru_roof_tiles", Block::new, BlockBehaviour.Properties.ofLegacyCopy(Blocks.DEEPSLATE_TILES)
+		.mapColor(MapColor.COLOR_BLUE));
+	public static final Block UDASRU_ROOF_TILE_STAIRS = register("udasru_roof_tile_stairs", p -> new StairBlock(UDASRU_ROOF_TILES.defaultBlockState(), p),
+		BlockBehaviour.Properties.ofLegacyCopy(UDASRU_ROOF_TILES));
+	public static final Block UDASRU_ROOF_TILE_SLAB = register("udasru_roof_tile_slab", SlabBlock::new, BlockBehaviour.Properties.ofLegacyCopy(UDASRU_ROOF_TILES));
+	/** 白灰牆: lime plaster over the walls of town houses. */
+	public static final Block UDASRU_PLASTER = register("udasru_plaster", Block::new, BlockBehaviour.Properties.ofLegacyCopy(Blocks.CALCITE)
+		.mapColor(MapColor.SNOW));
+	/** 深色木樑: the dark stained beams of Udasru's frames. */
+	public static final Block UDASRU_TIMBER = register("udasru_timber", net.minecraft.world.level.block.RotatedPillarBlock::new,
+		BlockBehaviour.Properties.ofLegacyCopy(Blocks.DARK_OAK_LOG).mapColor(MapColor.COLOR_BROWN));
+	/** 鹽殼: the crust of the white salt flats. */
+	public static final Block SALT_CRUST = register("salt_crust", Block::new, BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)
+		.strength(0.6F).sound(SoundType.CALCITE));
+	/** 鏽土: the oxidised ground of the rust wastes. */
+	public static final Block RUST_SOIL = register("rust_soil", Block::new, BlockBehaviour.Properties.of().mapColor(MapColor.TERRACOTTA_RED)
+		.strength(0.6F).sound(SoundType.GRAVEL));
+	/** 鐘樓青銅板: aged bronze plate, for the bell towers. */
+	public static final Block BELL_BRONZE = register("bell_bronze", Block::new, BlockBehaviour.Properties.ofLegacyCopy(Blocks.COPPER_BLOCK.waxed().unaffected())
+		.mapColor(MapColor.TERRACOTTA_ORANGE));
+
 	private MistinnBlocks() {
 	}
 
