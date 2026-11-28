@@ -280,7 +280,7 @@ public final class BodyService {
 				BodyGear.wearMask(player, damage);
 			}
 			if (slots.length > 0) {
-				((LivingEntityInvoker) player).mistinn$doHurtEquipment(source, damage, slots);
+				life.shizune.mistinn.skill.Masteries.wear(player, source, damage, slots);
 			}
 			damage = CombatRules.getDamageAfterAbsorb(player, damage, source, armor, toughness);
 		}
@@ -298,6 +298,8 @@ public final class BodyService {
 		damage *= Hardship.of(player).damageTaken;
 		// and a little softer for the Rust Anchor's apostle
 		damage *= life.shizune.mistinn.achievement.ApostleService.taken(player);
+		// and softer for one hardened by many fights
+		damage *= life.shizune.mistinn.skill.Masteries.hardened(player);
 		damage *= life.shizune.mistinn.path.Thirteenth.taken(player);
 		player.causeFoodExhaustion(source.getFoodExhaustion());
 		// a heavy blow breaks off whatever the hunter was treating or mending

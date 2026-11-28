@@ -150,7 +150,7 @@ public final class ParryService {
 		if (look.lengthSqr() < 1.0E-6 || toward.lengthSqr() < 1.0E-6 || look.normalize().dot(toward.normalize()) < FRONT) {
 			return null;
 		}
-		boolean perfect = held < PERFECT;
+		boolean perfect = held < life.shizune.mistinn.skill.Masteries.perfectGuard(player, PERFECT);
 		boolean great = great(attacker);
 		float share = perfect ? (great ? GREAT : 0.0F) : BLOCKED;
 		lastFull = damage;
@@ -158,6 +158,7 @@ public final class ParryService {
 		Vec3 at = player.getEyePosition().add(toward.normalize().scale(0.7)).add(0.0, -0.35, 0.0);
 		if (perfect) {
 			perfects++;
+			life.shizune.mistinn.skill.Masteries.parried(player);
 			life.shizune.mistinn.achievement.AchievementService.grant(player, life.shizune.mistinn.achievement.Achievement.PARRY_PERFECT);
 			StaminaService.restore(player, REFUND);
 			if (attacker instanceof life.shizune.mistinn.keeper.Keeper keeper) {

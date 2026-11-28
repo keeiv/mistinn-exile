@@ -67,6 +67,11 @@ public class CrystalDrake extends Monster {
 	public static final float GLANCE = 0.7F;
 	public static final float CRACK = 1.3F;
 	private static final int BITE_SHOWN = 10;
+	/** After a dive, bitten or missed, how long it hangs low beating its wings before it climbs again: a blade's chance. */
+	public static final int STALL = 24;
+	/** No more than one comes of itself within this far of another, and only one try in this many. */
+	public static final double ALONE = 80.0;
+	public static final int SPAWN_ODDS = 12;
 	private static final DustParticleOptions SHADOW = new DustParticleOptions(0x15141C, 1.8F);
 
 	/** What it is doing. */
@@ -83,6 +88,8 @@ public class CrystalDrake extends Monster {
 	private int alone;
 	private Vec3 aim = Vec3.ZERO;
 	private int shadows;
+	private int stall;
+	private Vec3 stallAt = Vec3.ZERO;
 
 	private float aloftO;
 	private float aloft;
@@ -102,7 +109,7 @@ public class CrystalDrake extends Monster {
 		return Monster.createMonsterAttributes()
 			.add(Attributes.MAX_HEALTH, 40.0)
 			.add(Attributes.ARMOR, 6.0)
-			.add(Attributes.ATTACK_DAMAGE, 7.0)
+			.add(Attributes.ATTACK_DAMAGE, 5.0)
 			.add(Attributes.MOVEMENT_SPEED, 0.3)
 			.add(Attributes.FLYING_SPEED, 0.6)
 			.add(Attributes.FOLLOW_RANGE, 48.0)
@@ -158,6 +165,17 @@ public class CrystalDrake extends Monster {
 			this.abilities(level, target);
 			return;
 		}
+		if (this.stall > 0) {
+			// hanging low after its dive, wings beating, before it climbs
+			this.stall--;
+			this.aim = this.stallAt;
+			this.steer(0.12);
+			if (this.stall == 0) {
+				this.climb();
+			}
+			this.abilities(level, target);
+			return;
+		}
 		switch (this.mode) {
 			case CIRCLE -> {
 				Vec3 anchor = target != null ? target.position().add(0.0, this.over(), 0.0) : Vec3.atCenterOf(this.home).add(0.0, this.over() + 5.0, 0.0);
@@ -176,8 +194,10 @@ public class CrystalDrake extends Monster {
 				}
 			}
 			case SWOOP -> {
-				if (target == null || this.timer <= 0) {
+				if (target == null) {
 					this.climb();
+				} else if (this.timer <= 0) {
+					this.recoil();
 				} else {
 					this.aim = target.getEyePosition();
 					if (this.tickCount % 2 == 0) {
@@ -185,8 +205,12 @@ public class CrystalDrake extends Monster {
 					}
 					if (this.getBoundingBox().inflate(0.8).intersects(target.getBoundingBox())) {
 						this.doHurtTarget(level, target);
+						// a bite, not a throw: whoever it bit stays on the ground
+						Vec3 thrown = target.getDeltaMovement();
+						target.setDeltaMovement(thrown.x * 0.5, Math.min(thrown.y, 0.1), thrown.z * 0.5);
+						target.syncVelocity = true;
 						this.entityData.set(DATA_BITE, BITE_SHOWN);
-						this.climb();
+						this.recoil();
 					}
 				}
 			}
@@ -270,6 +294,24 @@ public class CrystalDrake extends Monster {
 	/** Sets where it is flying to. */
 	protected void aim(final Vec3 at) {
 		this.aim = at;
+	}
+
+	/** Out of a dive it hangs low a moment, beating its wings, before it climbs (the elder climbs at once). */
+	private void recoil() {
+		if (this instanceof CrystalElder) {
+			this.climb();
+			return;
+		}
+		this.setMode(Mode.CIRCLE);
+		this.stall = STALL;
+		this.stallAt = this.position().add(this.getDeltaMovement().multiply(2.0, 0.0, 2.0)).add(0.0, 1.0, 0.0);
+		this.setDeltaMovement(this.getDeltaMovement().scale(0.3));
+		this.playSound(SoundEvents.ENDER_DRAGON_FLAP, 1.0F, 1.7F);
+	}
+
+	/** Whether it hangs low after a dive just now. */
+	public boolean stalling() {
+		return this.stall > 0;
 	}
 
 	/** Pulls up out of a dive and goes back to circling, a while before the next. */
@@ -401,13 +443,13 @@ public class CrystalDrake extends Monster {
 
 	// ── Spawning ──────────────────────────────────────────────────
 
-	/** Where one may come of itself: under the open sky, and not where a few already keep the air. */
+	/** Where one may come of itself: under the open sky, now and then, and not where another already keeps the air. */
 	public static boolean checkSpawnRules(final EntityType<CrystalDrake> type, final ServerLevelAccessor level, final EntitySpawnReason reason, final BlockPos pos,
 		final RandomSource random) {
 		if (reason != EntitySpawnReason.NATURAL && reason != EntitySpawnReason.CHUNK_GENERATION) {
 			return true;
 		}
-		return level.canSeeSky(pos) && level.getEntitiesOfClass(CrystalDrake.class, new AABB(pos).inflate(64.0)).size() < 3 && random.nextInt(4) == 0;
+		return level.canSeeSky(pos) && random.nextInt(SPAWN_ODDS) == 0 && level.getEntitiesOfClass(CrystalDrake.class, new AABB(pos).inflate(ALONE)).isEmpty();
 	}
 
 	// ── The voice ─────────────────────────────────────────────────
