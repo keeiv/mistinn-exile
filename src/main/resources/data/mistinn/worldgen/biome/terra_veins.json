@@ -39,6 +39,15 @@
                 "max_inclusive": 3
               },
               "weight": 4
+            },
+            {
+              "type": "mistinn:land_shark",
+              "count": {
+                "type": "minecraft:uniform",
+                "min_inclusive": 1,
+                "max_inclusive": 2
+              },
+              "weight": 5
             }
           ],
           "misc": [],

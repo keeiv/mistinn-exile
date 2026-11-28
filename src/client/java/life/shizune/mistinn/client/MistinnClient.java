@@ -230,6 +230,14 @@ public class MistinnClient implements ClientModInitializer {
 			ctx -> new net.minecraft.client.renderer.entity.BoatRenderer(ctx, boat));
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.MIST_PINE_CHEST_BOAT,
 			ctx -> new net.minecraft.client.renderer.entity.BoatRenderer(ctx, chestBoat));
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.terra.CrystalSheepModel.LAYER,
+			life.shizune.mistinn.client.terra.CrystalSheepModel::createBodyLayer);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.CRYSTAL_SHEEP,
+			life.shizune.mistinn.client.terra.CrystalSheepRenderer::new);
+		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.terra.LandSharkModel.LAYER,
+			life.shizune.mistinn.client.terra.LandSharkModel::createBodyLayer);
+		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.LAND_SHARK,
+			life.shizune.mistinn.client.terra.LandSharkRenderer::new);
 		net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry.registerModelLayer(life.shizune.mistinn.client.terra.JadeAntelopeModel.LAYER,
 			life.shizune.mistinn.client.terra.JadeAntelopeModel::createBodyLayer);
 		net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(life.shizune.mistinn.registry.MistinnEntities.JADE_ANTELOPE,
