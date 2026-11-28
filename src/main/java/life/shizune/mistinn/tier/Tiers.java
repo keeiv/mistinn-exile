@@ -45,6 +45,9 @@ public final class Tiers {
 		FIXED.put(MistinnItems.SALT_BOMB, Tier.I);
 		FIXED.put(MistinnItems.FLARE, Tier.II);
 		FIXED.put(MistinnItems.BELL_LURE, Tier.II);
+		for (int i = 0; i < life.shizune.mistinn.expedition.Salvage.KINDS.size(); i++) {
+			FIXED.put(MistinnItems.SALVAGE.get(i), life.shizune.mistinn.expedition.Salvage.KINDS.get(i).tier());
+		}
 		MistinnItems.WEAPONS.values().forEach(byMaterial -> byMaterial.forEach((material, item) -> FIXED.put(item, material.tier)));
 		// every line's helmets, body armour, packs and rigs, each at its own tier
 		for (int i = 0; i < MistinnItems.HELMETS.size(); i++) {

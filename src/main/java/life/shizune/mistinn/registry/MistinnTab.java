@@ -84,6 +84,7 @@ public final class MistinnTab {
 				output.accept(MistinnItems.CRYSTAL_WHETSTONE);
 				output.accept(MistinnItems.RESONANCE_FORK);
 				output.accept(MistinnItems.RIFT_BEACON);
+				MistinnItems.SALVAGE.forEach(output::accept);
 				output.accept(MistinnItems.SALT);
 				output.accept(MistinnItems.RUST_GOD_SALT);
 				output.accept(MistinnItems.LAMP_OIL);
