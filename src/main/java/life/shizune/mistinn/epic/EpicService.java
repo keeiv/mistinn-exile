@@ -114,6 +114,12 @@ public final class EpicService {
 			if (server.getTickCount() % 20 == 5) {
 				UdasruSites.tick(server);
 			}
+			// the people of Udasru call out as the hunter passes, as the station's do
+			if (server.getTickCount() % 5 == 2) {
+				for (ServerPlayer player : server.overworld().players()) {
+					life.shizune.mistinn.station.StationBarks.tick(server.overworld(), player);
+				}
+			}
 		});
 		UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
 			if (player instanceof ServerPlayer hunter && level.getBlockState(hit.getBlockPos()).is(Blocks.BELL) && active(level.getServer())) {
