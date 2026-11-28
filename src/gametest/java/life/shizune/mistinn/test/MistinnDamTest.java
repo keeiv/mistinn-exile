@@ -24,7 +24,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.FluidState;
@@ -97,11 +96,9 @@ public final class MistinnDamTest implements FabricClientGameTest {
 				fallen.kill(dam);
 				check(fallen.isDeadOrDying(), "an elite lizard, ticked a while, falls like any other");
 				for (BlockPos at : List.of(DamGround.CRATES.getFirst(), DamGround.LOCKERS.getFirst(), DamGround.SAFE, DamGround.HUT_BARREL)) {
-					if (!(dam.getBlockEntity(at) instanceof RandomizableContainerBlockEntity container)) {
-						throw new AssertionError("failed: no container at " + at);
-					}
-					container.unpackLootTable(null);
-					check(!container.isEmpty(), "something to be found at " + at);
+					life.shizune.mistinn.expedition.Cache cache = dam.getBlockEntity(at) == null ? null
+						: dam.getBlockEntity(at).getAttached(life.shizune.mistinn.expedition.Cache.CACHE);
+					check(cache != null && !cache.entries().isEmpty() && cache.next() == 0, "something to be found (by searching) at " + at);
 				}
 			});
 			context.waitTicks(100);

@@ -23,7 +23,6 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -136,14 +135,16 @@ public final class DamGround implements Layout {
 
 	@Override
 	public void stock(final ServerLevel level, final RandomSource random) {
+		// every container here is searched, not just opened: a crate is six by four, the hut's barrel five by three,
+		// a locker four by six, the safe four by four
 		for (BlockPos crate : CRATES) {
-			fill(level, crate, CRATE, random);
+			Cache.stock(level, crate, CRATE, 6, 4, random);
 		}
-		fill(level, HUT_BARREL, CRATE, random);
+		Cache.stock(level, HUT_BARREL, CRATE, 5, 3, random);
 		for (BlockPos locker : LOCKERS) {
-			fill(level, locker, LOCKER, random);
+			Cache.stock(level, locker, LOCKER, 4, 6, random);
 		}
-		fill(level, SAFE, STRONGBOX, random);
+		Cache.stock(level, SAFE, STRONGBOX, 4, 4, random);
 		for (BlockPos at : LIZARDS) {
 			lizard(level, at, random);
 		}
@@ -162,13 +163,6 @@ public final class DamGround implements Layout {
 				Expedition.harden(drake);
 				level.addFreshEntity(drake);
 			}
-		}
-	}
-
-	private static void fill(final ServerLevel level, final BlockPos at, final ResourceKey<LootTable> table, final RandomSource random) {
-		if (level.getBlockEntity(at) instanceof RandomizableContainerBlockEntity container) {
-			container.clearContent();
-			container.setLootTable(table, random.nextLong());
 		}
 	}
 

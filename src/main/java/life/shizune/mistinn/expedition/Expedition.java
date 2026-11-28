@@ -209,6 +209,7 @@ public final class Expedition {
 
 	public static void register() {
 		layout(Grounds.DAM, new DamGround());
+		SearchMenu.register();
 		ServerTickEvents.END_SERVER_TICK.register(Expedition::tick);
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> joined(handler.player));
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
