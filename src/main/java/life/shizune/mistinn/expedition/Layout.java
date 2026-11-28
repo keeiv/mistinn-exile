@@ -1,6 +1,7 @@
 package life.shizune.mistinn.expedition;
 
 import java.util.List;
+import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -19,8 +20,11 @@ public interface Layout {
 	 */
 	BoundingBox bounds();
 
-	/** Builds the facilities, once: the first time a party is sent. */
-	void build(ServerLevel level);
+	/**
+	 * The facilities, as the steps they are built by, in order, the first time a party is sent: each small enough to do
+	 * within a tick, and each safe to do again (a build cut short, by the server stopping, starts over).
+	 */
+	List<Consumer<ServerLevel>> plan();
 
 	/** Where a party comes in; each hunter of it is set down at the next one. */
 	List<BlockPos> starts();

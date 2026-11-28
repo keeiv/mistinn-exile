@@ -1240,6 +1240,7 @@
   "ground.mistinn.expedition_dam": "Terra Dam",
   "message.mistinn.expedition.muster": "%1$s is setting out for %2$s. Whoever is still by the hub in %3$s seconds goes too.",
   "message.mistinn.expedition.nobody": "When the time came, no one was by the hub.",
+  "message.mistinn.expedition.preparing": "%1$s is not ready yet; the party waits a little longer.",
   "message.mistinn.expedition.arrived": "You reach %1$s. Get out through a way out within %2$s minutes; whoever is still here when the time is up falls.",
   "message.mistinn.expedition.left.5": "Five minutes left.",
   "message.mistinn.expedition.left.1": "One minute left.",

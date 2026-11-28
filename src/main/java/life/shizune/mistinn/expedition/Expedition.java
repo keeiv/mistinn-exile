@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import life.shizune.mistinn.Mistinn;
 import life.shizune.mistinn.block.GravestoneBlockEntity;
 import life.shizune.mistinn.registry.MistinnAttachments;
@@ -23,6 +24,7 @@ import life.shizune.mistinn.terra.Settlements;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityLevelChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -163,7 +165,17 @@ public final class Expedition {
 	}
 
 	/** A party setting out: the one who called it, where to, from which hub, and the game time it goes. */
-	private record Muster(UUID leader, ResourceKey<Level> ground, GlobalPos hub, long departs) {
+	private record Muster(UUID leader, ResourceKey<Level> ground, GlobalPos hub, long departs, boolean waited) {
+	}
+
+	/** A ground being built: its plan, and the next step of it. */
+	private static final class Build {
+		private final List<Consumer<ServerLevel>> steps;
+		private int next;
+
+		Build(final List<Consumer<ServerLevel>> steps) {
+			this.steps = steps;
+		}
 	}
 
 	/** The waves at one exit: when the last came, and how many have. */
@@ -185,11 +197,18 @@ public final class Expedition {
 	private static final Map<String, Waves> WAVES = new HashMap<>();
 	/** The grounds whose chunks are held loaded, and until when. */
 	private static final Map<ResourceKey<Level>, Long> HELD = new HashMap<>();
+	/** The grounds being built, one build each. */
+	private static final Map<ResourceKey<Level>, Build> BUILDS = new LinkedHashMap<>();
+	/** How long the builds may take of each tick. */
+	private static final long BUDGET_NANOS = 20_000_000L;
+	/** A party waiting on its ground being built looks again this often. */
+	private static final int WAIT = 20;
 
 	private Expedition() {
 	}
 
 	public static void register() {
+		layout(Grounds.DAM, new DamGround());
 		ServerTickEvents.END_SERVER_TICK.register(Expedition::tick);
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> joined(handler.player));
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
@@ -203,8 +222,15 @@ public final class Expedition {
 				died(player);
 			}
 		});
+		ServerEntityLevelChangeEvents.AFTER_PLAYER_CHANGE_LEVEL.register((player, origin, destination) -> {
+			if (Grounds.is(origin) && !Grounds.is(destination)) {
+				// out of a ground by any way: free to build again
+				player.getAbilities().mayBuild = !player.gameMode().isBlockPlacingRestricted();
+			}
+		});
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			MUSTERS.clear();
+			BUILDS.clear();
 			WAVES.clear();
 			HELD.clear();
 		});
@@ -273,14 +299,10 @@ public final class Expedition {
 			}
 		}
 		long now = server.overworld().getGameTime();
-		Ground standing = ground(server, ground);
-		if (!standing.built()) {
-			layout.build(there);
-			set(server, ground, new Ground(true, standing.serial(), standing.inside(), standing.graved(), standing.stale()));
-		}
+		prepare(there, layout);
 		// the ground's chunks load while the party gathers, so what is in them can be swept when it goes
 		hold(there, layout, now + musterTicks + HOLD_AFTER);
-		MUSTERS.add(new Muster(leader.getUUID(), ground, hub, now + musterTicks));
+		MUSTERS.add(new Muster(leader.getUUID(), ground, hub, now + musterTicks, false));
 		Component word = Component.translatable("message.mistinn.expedition.muster", leader.getDisplayName(), name(ground),
 			Math.max(1, musterTicks / 20)).withStyle(ChatFormatting.AQUA);
 		for (ServerPlayer player : near(server.overworld(), hub.pos())) {
@@ -313,6 +335,19 @@ public final class Expedition {
 		if (server.overworld().getDifficulty() == Difficulty.PEACEFUL) {
 			if (leader != null) {
 				leader.sendSystemMessage(Component.translatable("message.mistinn.expedition.refused.peaceful").withStyle(ChatFormatting.GRAY));
+			}
+			return;
+		}
+		if (BUILDS.containsKey(muster.ground())) {
+			// the ground is not built yet: the party waits by the hub, and is told so once
+			long now = server.overworld().getGameTime();
+			hold(there, layout, now + WAIT + HOLD_AFTER);
+			MUSTERS.add(new Muster(muster.leader(), muster.ground(), muster.hub(), now + WAIT, true));
+			if (!muster.waited()) {
+				Component word = Component.translatable("message.mistinn.expedition.preparing", name(muster.ground())).withStyle(ChatFormatting.GRAY);
+				for (ServerPlayer player : near(from, muster.hub().pos())) {
+					player.sendSystemMessage(word);
+				}
 			}
 			return;
 		}
@@ -392,6 +427,41 @@ public final class Expedition {
 		}
 	}
 
+	/** Begins building a ground not built yet (once: a build already going goes on). */
+	private static void prepare(final ServerLevel level, final Layout layout) {
+		if (!ground(level.getServer(), level.dimension()).built() && !BUILDS.containsKey(level.dimension())) {
+			BUILDS.put(level.dimension(), new Build(layout.plan()));
+		}
+	}
+
+	/** Goes on with the builds for as much of this tick as they may take, keeping their chunks loaded meanwhile. */
+	private static void build(final MinecraftServer server, final long now) {
+		long until = System.nanoTime() + BUDGET_NANOS;
+		for (Iterator<Map.Entry<ResourceKey<Level>, Build>> it = BUILDS.entrySet().iterator(); it.hasNext();) {
+			Map.Entry<ResourceKey<Level>, Build> entry = it.next();
+			ServerLevel level = server.getLevel(entry.getKey());
+			Layout layout = LAYOUTS.get(entry.getKey());
+			if (level == null || layout == null) {
+				it.remove();
+				continue;
+			}
+			hold(level, layout, now + HOLD_AFTER);
+			Build build = entry.getValue();
+			while (build.next < build.steps.size() && System.nanoTime() < until) {
+				build.steps.get(build.next).accept(level);
+				build.next++;
+			}
+			if (build.next >= build.steps.size()) {
+				Ground standing = ground(server, entry.getKey());
+				set(server, entry.getKey(), new Ground(true, standing.serial(), standing.inside(), standing.graved(), standing.stale()));
+				it.remove();
+			}
+			if (System.nanoTime() >= until) {
+				return;
+			}
+		}
+	}
+
 	private static void hold(final ServerLevel level, final Layout layout, final long until) {
 		Long held = HELD.get(level.dimension());
 		if (held == null) {
@@ -439,7 +509,17 @@ public final class Expedition {
 				}
 			}
 		}
+		if (!BUILDS.isEmpty()) {
+			build(server, now);
+		}
 		if (server.getTickCount() % 5 == 0) {
+			for (ResourceKey<Level> key : Grounds.ALL) {
+				ServerLevel level = server.getLevel(key);
+				if (level != null) {
+					// anyone in a ground, sent or brought in some other way, builds nothing there
+					level.players().forEach(Expedition::protect);
+				}
+			}
 			for (ServerPlayer player : List.copyOf(server.getPlayerList().getPlayers())) {
 				Away away = player.getAttached(AWAY);
 				if (away != null) {
@@ -630,6 +710,31 @@ public final class Expedition {
 			Ground standing = ground(player.level().getServer(), away.ground());
 			set(player.level().getServer(), away.ground(), standing.in(player.getUUID(), ends));
 		}
+	}
+
+	/** For tests: builds {@code level}'s ground now, all of it at once (or only its first {@code steps} steps, built or not). */
+	public static void buildNow(final ServerLevel level, final int steps) {
+		Layout layout = LAYOUTS.get(level.dimension());
+		List<Consumer<ServerLevel>> plan = layout.plan();
+		for (int i = 0; i < Math.min(steps, plan.size()); i++) {
+			plan.get(i).accept(level);
+		}
+		if (steps >= plan.size()) {
+			BUILDS.remove(level.dimension());
+			Ground standing = ground(level.getServer(), level.dimension());
+			set(level.getServer(), level.dimension(), new Ground(true, standing.serial(), standing.inside(), standing.graved(), standing.stale()));
+		}
+	}
+
+	/** For tests: whether a ground is being built. */
+	public static boolean building(final ResourceKey<Level> ground) {
+		return BUILDS.containsKey(ground);
+	}
+
+	/** For tests: forgets that a ground was built, so the next party builds it again. */
+	public static void unbuild(final MinecraftServer server, final ResourceKey<Level> ground) {
+		Ground standing = ground(server, ground);
+		set(server, ground, new Ground(false, standing.serial(), standing.inside(), standing.graved(), standing.stale()));
 	}
 
 	/** For tests: whether a party is setting out. */
