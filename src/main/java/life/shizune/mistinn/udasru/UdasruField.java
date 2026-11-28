@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Interval;
+import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.levelgen.densityfunction.DensityBuffer;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
@@ -55,8 +56,9 @@ public record UdasruField(Channel channel) implements DensityFunction {
 		UdasruMap map = UdasruMap.get();
 		return switch (channel) {
 			case OFFSET -> clamp(channel, (map.height(x, z) - MIDDLE) / MIDDLE);
-			case FACTOR -> UdasruRegion.byId(map.region(x, z)).factor;
-			case JAGGEDNESS -> UdasruRegion.byId(map.region(x, z)).jaggedness;
+			// calm ground (towns, landmarks) keeps closely to the drawing, with no peaks
+			case FACTOR -> Mth.lerp(map.calm(x, z), UdasruRegion.byId(map.region(x, z)).factor, Channel.FACTOR.highest);
+			case JAGGEDNESS -> UdasruRegion.byId(map.region(x, z)).jaggedness * (1.0F - map.calm(x, z));
 			case CONTINENTS -> map.height(x, z) < 62.0F ? -0.6F : 0.3F;
 		};
 	}

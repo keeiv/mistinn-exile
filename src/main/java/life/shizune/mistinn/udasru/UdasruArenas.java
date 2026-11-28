@@ -62,6 +62,35 @@ public final class UdasruArenas {
 				}
 			}
 		}
+		// eight great columns under the deck, arched between, and a terrace round them on the water
+		for (int x = -10; x <= 10; x++) {
+			for (int z = -10; z <= 10; z++) {
+				double r = Math.hypot(x, z);
+				if (r <= 10.2 && r > 7.5) {
+					b.set(x, 1, z, r > 9.4 ? MistinnBlocks.UDASRU_STONE_BRICK_SLAB : STONE);
+				}
+			}
+		}
+		for (int k = 0; k < 8; k++) {
+			double a = k * Math.PI / 4.0 + Math.PI / 8.0;
+			int cx = (int) Math.round(Math.cos(a) * 6.5);
+			int cz = (int) Math.round(Math.sin(a) * 6.5);
+			for (int y = 1; y < deck; y++) {
+				for (int dx = 0; dx <= 1; dx++) {
+					for (int dz = 0; dz <= 1; dz++) {
+						b.set(cx + dx - (cx < 0 ? 1 : 0), y, cz + dz - (cz < 0 ? 1 : 0), y % 5 == 0 ? BRONZE : STONE);
+					}
+				}
+			}
+		}
+		for (int a = 0; a < 96; a++) {
+			double angle = a * Math.PI * 2.0 / 96.0;
+			int x = (int) Math.round(Math.cos(angle) * 6.8);
+			int z = (int) Math.round(Math.sin(angle) * 6.8);
+			b.set(x, deck - 1, z, STONE);
+			b.set(x, deck - 2, z, MistinnBlocks.UDASRU_STONE_BRICK_SLAB.defaultBlockState()
+				.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.SLAB_TYPE, net.minecraft.world.level.block.state.properties.SlabType.TOP));
+		}
 		// a ladder up the core, coming out on the deck
 		for (int y = 1; y <= deck; y++) {
 			b.facing(0, y, 2, Blocks.LADDER, Direction.NORTH);

@@ -53,6 +53,8 @@ public final class EpicScript {
 	public static final String HELM_DOWN = "epic_helm_down";
 	/** The name given: 3412 asks the hand to let go. */
 	public static final String LET_GO = "epic_let_go";
+	/** All twelve letters found. */
+	public static final String LETTERS_ALL = "epic_letters_all";
 
 	private EpicScript() {
 	}
@@ -86,5 +88,9 @@ public final class EpicScript {
 		StoryScript.add(HELM_RISES, List.of(HELM, HELM, HELM, APOSTLE, HELM, APOSTLE));
 		StoryScript.add(HELM_DOWN, List.of(HELM, HELM, APOSTLE));
 		StoryScript.add(LET_GO, List.of(CHRONICLER, APOSTLE, APOSTLE, APOSTLE));
+		for (int i = 0; i < UnsentLetterItem.LETTERS; i++) {
+			StoryScript.add("epic_letter_" + i, List.of(APOSTLE, APOSTLE));
+		}
+		StoryScript.add(LETTERS_ALL, List.of(NARRATION, APOSTLE, APOSTLE));
 	}
 }

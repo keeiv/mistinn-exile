@@ -324,6 +324,14 @@ public final class UdasruBuild {
 		b.settle();
 	}
 
+	/** A barrel with one of 3412's unsent letters in it, as Udasru keeps the letters the fog brings. */
+	public static void letter(final Builder b, final int x, final int y, final int z, final int number) {
+		b.set(x, y, z, Blocks.BARREL.defaultBlockState().setValue(net.minecraft.world.level.block.BarrelBlock.FACING, Direction.UP));
+		if (b.level().getBlockEntity(b.at(x, y, z)) instanceof net.minecraft.world.level.block.entity.BarrelBlockEntity barrel) {
+			barrel.setItem(13, life.shizune.mistinn.epic.UnsentLetterItem.letter(number));
+		}
+	}
+
 	/** One of Udasru's people, at home here, keeping within a few blocks of it. */
 	public static void person(final Builder b, final StaffRole role, final int x, final int y, final int z, final float yaw, final int roam) {
 		b.spawn(MistinnEntities.STATION_HAND, x, y, z, yaw, hand -> {

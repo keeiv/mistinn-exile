@@ -122,6 +122,15 @@ if (project.hasProperty("animSheet")) {
 	}
 }
 
+// Epic photos (-PepicPhotos): pictures of Udasru's buildings and land, to look at what was built.
+if (project.hasProperty("epicPhotos")) {
+	loom.runs.configureEach {
+		if (name == "clientGameTest") {
+			vmArg "-Dmistinn.epicphotos=true"
+		}
+	}
+}
+
 // Boss reel (-PbossReel): a minute of the Snuffer against a hunter played by key presses, frame by frame, for
 // the gameplay video (best with -PphotoMode for the shaders).
 if (project.hasProperty("bossReel")) {

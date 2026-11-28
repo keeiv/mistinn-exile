@@ -25,13 +25,16 @@ public final class UdasruMap {
 	public final int origin;
 	private final short[] height;
 	private final byte[] region;
+	/** How calm the ground is kept round towns and landmarks, 0 to 255 (none where the drawing has no such layer). */
+	private final byte[] calm;
 
-	private UdasruMap(final int size, final int step, final short[] height, final byte[] region) {
+	private UdasruMap(final int size, final int step, final short[] height, final byte[] region, final byte[] calm) {
 		this.size = size;
 		this.step = step;
 		this.origin = -size * step / 2;
 		this.height = height;
 		this.region = region;
+		this.calm = calm;
 	}
 
 	public static UdasruMap get() {
@@ -65,8 +68,14 @@ public final class UdasruMap {
 			}
 			byte[] region = new byte[size * size];
 			in.readFully(region);
+			byte[] calm = new byte[size * size];
+			try {
+				in.readFully(calm);
+			} catch (java.io.EOFException none) {
+				calm = new byte[size * size];
+			}
 			Mistinn.LOGGER.info("Udasru drawn: {} samples a side, {} blocks apart", size, step);
-			return new UdasruMap(size, step, height, region);
+			return new UdasruMap(size, step, height, region, calm);
 		} catch (IOException error) {
 			throw new IllegalStateException("could not read the map of Udasru", error);
 		}
@@ -100,6 +109,26 @@ public final class UdasruMap {
 
 	private static double smooth(final double t) {
 		return t * t * (3.0 - 2.0 * t);
+	}
+
+	/** How calm the ground is kept at a column, 0 to 1: towns and landmarks stand on calm ground. */
+	public float calm(final double x, final double z) {
+		double fx = (x - this.origin) / this.step;
+		double fz = (z - this.origin) / this.step;
+		int sx = Mth.floor(fx);
+		int sz = Mth.floor(fz);
+		double tx = fx - sx;
+		double tz = fz - sz;
+		double top = Mth.lerp(tx, this.calmAt(sx, sz), this.calmAt(sx + 1, sz));
+		double bottom = Mth.lerp(tx, this.calmAt(sx, sz + 1), this.calmAt(sx + 1, sz + 1));
+		return (float) Mth.lerp(tz, top, bottom);
+	}
+
+	private float calmAt(final int sx, final int sz) {
+		if (sx < 0 || sz < 0 || sx >= this.size || sz >= this.size) {
+			return 0.0F;
+		}
+		return (this.calm[sz * this.size + sx] & 0xFF) / 255.0F;
 	}
 
 	/** The region a column lies in: the drawn one nearest. */

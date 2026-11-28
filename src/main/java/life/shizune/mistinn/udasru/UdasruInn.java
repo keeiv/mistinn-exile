@@ -23,8 +23,8 @@ public final class UdasruInn {
 	/** Where 3412 wakes: their room upstairs. */
 	public static final BlockPos BED = new BlockPos(HX - 2, 6, -HZ + 2);
 
-	private static final Block WALL = MistinnBlocks.MIST_PINE_PLANKS;
-	private static final Block FRAME = MistinnBlocks.MIST_PINE_LOG;
+	private static final Block WALL = Blocks.SPRUCE_PLANKS;
+	private static final Block FRAME = Blocks.DARK_OAK_LOG;
 
 	private UdasruInn() {
 	}
@@ -79,9 +79,10 @@ public final class UdasruInn {
 				break;
 			}
 			for (int x = -HX - 1; x <= HX + 1; x++) {
-				Block stairs = b.chance(0.12F) ? Blocks.CUT_COPPER_STAIRS.waxed().weathered() : Blocks.SPRUCE_STAIRS;
+				Block stairs = b.chance(0.15F) ? Blocks.SPRUCE_STAIRS : b.chance(0.5F) ? Blocks.CUT_COPPER_STAIRS.waxed().oxidized()
+					: Blocks.CUT_COPPER_STAIRS.waxed().weathered();
 				if (zn == zs) {
-					b.set(x, 10 + i, zn, Blocks.SPRUCE_PLANKS);
+					b.set(x, 10 + i, zn, Blocks.CUT_COPPER.waxed().oxidized());
 				} else {
 					b.stairs(x, 10 + i, zn, stairs, Direction.SOUTH, false);
 					b.stairs(x, 10 + i, zs, stairs, Direction.NORTH, false);
@@ -94,8 +95,11 @@ public final class UdasruInn {
 				}
 			}
 		}
-		b.set(-HX + 2, 16, 0, Blocks.COBBLESTONE);
-		b.set(-HX + 2, 17, 0, Blocks.CAMPFIRE);
+		// the chimney over the hearth
+		for (int y = 1; y <= 18; y++) {
+			b.set(-HX - 1, y, 0, Blocks.STONE_BRICKS);
+		}
+		b.set(-HX - 1, 19, 0, Blocks.CAMPFIRE);
 
 		// the hearth on the west wall, the long table, the tag wall on the east
 		b.fill(-HX + 1, 1, -1, -HX + 1, 4, 1, Blocks.STONE_BRICKS);

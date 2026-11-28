@@ -114,6 +114,19 @@ public class HunterGuideScreen extends Screen {
 		return false;
 	}
 
+	@Override
+	protected void init() {
+		super.init();
+		// 史詩的行囊: in the epic once written, to seal it; elsewhere, while a pack waits, to take it out
+		life.shizune.mistinn.epic.EpicState epic = life.shizune.mistinn.client.epic.EpicClient.state(this.minecraft);
+		boolean seal = epic != null && epic.at() == life.shizune.mistinn.epic.EpicStep.ENDED;
+		if (seal || epic == null && !life.shizune.mistinn.client.epic.Legacy.pack().isEmpty()) {
+			this.addRenderableWidget(net.minecraft.client.gui.components.Button.builder(Component.translatable("epic.mistinn.legacy.title"),
+				b -> this.minecraft.gui.setScreen(new life.shizune.mistinn.client.epic.LegacyScreen(this)))
+				.bounds(this.width / 2 - 60, this.top() + H + 6, 120, 18).build());
+		}
+	}
+
 	public Tab tab() {
 		return this.tab;
 	}

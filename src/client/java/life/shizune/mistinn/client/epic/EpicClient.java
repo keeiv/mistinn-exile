@@ -39,6 +39,7 @@ public final class EpicClient {
 		ClientPlayNetworking.registerGlobalReceiver(EpicService.AskNamePayload.TYPE, (payload, context) -> askName = payload.ask());
 		ClientTickEvents.END_CLIENT_TICK.register(EpicClient::tick);
 		HudElementRegistry.addLast(Mistinn.id("epic"), new EpicHud());
+		Legacy.register();
 	}
 
 	/** The epic of the world this client is in, or null outside one. */
