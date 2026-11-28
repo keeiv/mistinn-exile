@@ -7,6 +7,7 @@ import life.shizune.mistinn.elite.EliteService;
 import life.shizune.mistinn.registry.MistinnEntities;
 import life.shizune.mistinn.terra.CrystalDrake;
 import life.shizune.mistinn.terra.CrystalLizard;
+import life.shizune.mistinn.terra.GateSentry;
 import life.shizune.mistinn.world.Builder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -126,6 +127,12 @@ public final class DamGround implements Layout {
 		new BlockPos(-30, 109, -8), new BlockPos(30, 109, -8), new BlockPos(0, 109, -42), new BlockPos(-2, 119, -47));
 	/** The control room's guards: elites. */
 	public static final List<BlockPos> GUARDS = List.of(new BlockPos(-4, 88, -6), new BlockPos(4, 88, -6));
+	/** The gate sentries' posts, kneeling: in the control room facing its east door, and in the intake tower facing the bridge. */
+	public static final List<BlockPos> SENTRIES = List.of(new BlockPos(0, 88, -6), new BlockPos(-2, 109, -45));
+	/** Which way each sentry faces at its post. */
+	public static final List<Float> SENTRY_YAWS = List.of(-90.0F, 0.0F);
+	/** The spillway's wave on which a sentry walks in. */
+	public static final int SENTRY_WAVE = 3;
 	/** The drakes keeping the crest, and where each comes back to. */
 	public static final List<BlockPos> DRAKES = List.of(new BlockPos(-20, 114, -8), new BlockPos(20, 114, -8));
 
@@ -155,6 +162,16 @@ public final class DamGround implements Layout {
 				guard.setHealth(guard.getMaxHealth());
 			}
 		}
+		for (int i = 0; i < SENTRIES.size(); i++) {
+			GateSentry sentry = MistinnEntities.GATE_SENTRY.create(level, EntitySpawnReason.STRUCTURE);
+			if (sentry != null) {
+				BlockPos at = SENTRIES.get(i);
+				sentry.snapTo(at.getX() + 0.5, at.getY(), at.getZ() + 0.5, SENTRY_YAWS.get(i), 0.0F);
+				Expedition.harden(sentry);
+				sentry.post(at, SENTRY_YAWS.get(i));
+				level.addFreshEntity(sentry);
+			}
+		}
 		for (BlockPos at : DRAKES) {
 			CrystalDrake drake = MistinnEntities.CRYSTAL_DRAKE.create(level, EntitySpawnReason.STRUCTURE);
 			if (drake != null) {
@@ -179,7 +196,8 @@ public final class DamGround implements Layout {
 
 	/**
 	 * A wave at a way out: two lizards and one more for every wave before (six at most) come up out of the ground a little
-	 * way off, at whoever holds it; from the third wave at the tower, a drake with them.
+	 * way off, at whoever holds it; on the spillway's fourth wave a gate sentry walks in with them, and from the third wave
+	 * at the tower, a drake.
 	 */
 	@Override
 	public void wave(final ServerLevel level, final Exit exit, final int wave, final RandomSource random) {
@@ -201,6 +219,16 @@ public final class DamGround implements Layout {
 				rise(level, lizard, holding);
 				level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.SMOOTH_STONE.defaultBlockState()),
 					at.getX() + 0.5, at.getY() + 0.3, at.getZ() + 0.5, 18, 0.4, 0.3, 0.4, 0.15);
+			}
+		}
+		if (exit.equals(SPILLWAY) && wave == SENTRY_WAVE) {
+			// the spillway's sentry, walking in out of the outlet
+			GateSentry sentry = MistinnEntities.GATE_SENTRY.create(level, EntitySpawnReason.EVENT);
+			if (sentry != null) {
+				Expedition.harden(sentry);
+				if (ground(level, exit, random, sentry) != null) {
+					rise(level, sentry, holding);
+				}
 			}
 		}
 		if (exit.equals(TOWER) && wave >= 2) {

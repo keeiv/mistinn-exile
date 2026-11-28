@@ -59,6 +59,7 @@ public final class Bestiary {
 		new Entry(MistinnEntities.RIFT_HERALD, true),
 		new Entry(MistinnEntities.CRYSTAL_LIZARD, false),
 		new Entry(MistinnEntities.CRYSTAL_DRAKE, false),
+		new Entry(MistinnEntities.GATE_SENTRY, true),
 		new Entry(MistinnEntities.CRYSTAL_ELDER, true),
 		new Entry(EntityTypes.ZOMBIE, false),
 		new Entry(EntityTypes.HUSK, false),
