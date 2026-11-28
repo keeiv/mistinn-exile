@@ -69,8 +69,14 @@ public final class MistinnEpicTest implements FabricClientGameTest {
 			// the pack, sealed now the epic is written, kept by the hunter's own game
 			world.getServer().runOnServer(server -> {
 				ServerPlayer player = server.getPlayerList().getPlayers().getFirst();
-				check(player.getInventory().contains(new net.minecraft.world.item.ItemStack(life.shizune.mistinn.registry.MistinnItems.LEGACY_SEAL)),
-					"the pack seal given at the end");
+				boolean seal = player.getInventory().contains(new net.minecraft.world.item.ItemStack(life.shizune.mistinn.registry.MistinnItems.LEGACY_SEAL));
+				var grid = life.shizune.mistinn.grid.GridService.get(player);
+				for (var area : life.shizune.mistinn.grid.GridService.ORDER) {
+					for (var placed : grid.items(area)) {
+						seal |= placed.stack().is(life.shizune.mistinn.registry.MistinnItems.LEGACY_SEAL);
+					}
+				}
+				check(seal, "the pack seal given at the end, into the pack as anything picked up");
 				life.shizune.mistinn.epic.LegacyService.seal(player);
 			});
 			context.waitTicks(10);

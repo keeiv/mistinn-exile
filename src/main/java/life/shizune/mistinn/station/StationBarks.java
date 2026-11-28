@@ -53,6 +53,12 @@ public final class StationBarks {
 		for (StationHand hand : level.getEntitiesOfClass(StationHand.class, hunter.getBoundingBox().inflate(64.0))) {
 			int id = hand.getId();
 			Long down = DOWN.get(id);
+			if (down == null && hand.isCustomNameVisible() && hand.getCustomName() != null
+				&& hand.getCustomName().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents said && said.getKey().contains(".bark.")) {
+				// a line still up from before the world was saved: its timer went with the old session
+				hand.setCustomName(Component.translatable(hand.role().key()));
+				hand.setCustomNameVisible(false);
+			}
 			if (down != null && now >= down) {
 				DOWN.remove(id);
 				hand.setCustomName(Component.translatable(hand.role().key()));
