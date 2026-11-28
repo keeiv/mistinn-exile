@@ -23,6 +23,8 @@ public final class CommissionScreen extends Screen {
 	private static final int PANEL = 0xE00C0E14;
 	private static final int EDGE = 0xFF3A6B6B;
 	private static final int TITLE = 0xFF9ED8D0;
+	/** An expedition's line: the colour of the forebears' crystal. */
+	private static final int AFAR = 0xFF9ED8D0;
 	private static final int TEXT = 0xFFEDE6D8;
 	private static final int DIM = 0xFF9A948A;
 	private static final int GOLD = 0xFFE0A050;
@@ -95,6 +97,12 @@ public final class CommissionScreen extends Screen {
 				this.addRenderableWidget(Button.builder(Component.translatable("gui.mistinn.commission.hand"), b -> ask("hand", ""))
 					.bounds(bx - 56, y + 12, 52, 20).build());
 			}
+			if (this.shown.commission().kind() == Commissions.Kind.EXPEDITION) {
+				this.addRenderableWidget(Button.builder(Component.translatable("gui.mistinn.commission.depart"), b -> {
+					ask("depart", "");
+					this.onClose();
+				}).bounds(bx - 56, y + 12, 52, 20).build());
+			}
 			this.addRenderableWidget(Button.builder(Component.translatable("gui.mistinn.commission.abandon"), b -> ask("abandon", ""))
 				.bounds(bx, y + 12, 52, 20).build());
 			y += 36;
@@ -150,7 +158,7 @@ public final class CommissionScreen extends Screen {
 		for (int i = 0; i < this.board.offers().size(); i++) {
 			Commissions.Commission each = this.board.offers().get(i);
 			int y = this.offerAt.get(i)[0];
-			g.text(font, fit(font, each.describe(), room), this.left + 10, y + 5, TEXT, false);
+			g.text(font, fit(font, each.describe(), room), this.left + 10, y + 5, each.kind() == Commissions.Kind.EXPEDITION ? AFAR : TEXT, false);
 			g.text(font, reward(each), this.left + 10, y + 17, GOLD, false);
 		}
 		if (this.board.offers().isEmpty()) {
