@@ -16,8 +16,12 @@ public final class SkillTree {
 	public static final String ROOT = "slide";
 	/** Minor nodes in each stat's branch. */
 	public static final int BRANCH = 5;
+	/** The major nodes closing rows: 久經沙場 (constitution), 裝備大師 (intellect), 初心本我 (speed). */
+	public static final String BATTLE_HARDENED = "battle_hardened";
+	public static final String GEAR_MASTER = "gear_master";
+	public static final String TRUE_SELF = "true_self";
 
-	/** One node: a major node has no stat; a minor node adds one point to its stat. */
+	/** One node: a minor node adds one point to its stat; a major node adds none (the root has no stat, the others close its row). */
 	public record Node(String id, boolean major, @Nullable Stat stat, @Nullable String parent) {
 	}
 
@@ -33,6 +37,10 @@ public final class SkillTree {
 				nodes.add(new Node(stat.id + "_" + i, false, stat, i == 1 ? ROOT : stat.id + "_" + (i - 1)));
 			}
 		}
+		// each closes its row, after the row's last minor node (its stat says which row; it adds no point to it)
+		nodes.add(new Node(TRUE_SELF, true, Stat.SPEED, Stat.SPEED.id + "_" + BRANCH));
+		nodes.add(new Node(BATTLE_HARDENED, true, Stat.CONSTITUTION, Stat.CONSTITUTION.id + "_" + BRANCH));
+		nodes.add(new Node(GEAR_MASTER, true, Stat.INTELLECT, Stat.INTELLECT.id + "_" + BRANCH));
 		NODES = List.copyOf(nodes);
 		for (Node node : NODES) {
 			BY_ID.put(node.id(), node);

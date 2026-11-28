@@ -29,6 +29,7 @@
 		"PlayerResidueMixin",
 		"PlayerVoiceMixin",
 		"PunchSoundMixin",
+		"RiposteMixin",
 		"SeizedBlowMixin",
 		"ServerExplosionMixin",
 		"SkeletonGapMixin",

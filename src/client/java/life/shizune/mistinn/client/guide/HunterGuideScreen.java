@@ -217,12 +217,22 @@ public class HunterGuideScreen extends Screen {
 	/** Top-left of a node's frame on the skills page, relative to the spread. */
 	private static int[] nodeAt(final SkillTree.Node node) {
 		if (node.major()) {
-			return new int[] {20, 84};
+			return node.stat() == null ? new int[] {20, 84} : reservedAt(node.stat().ordinal());
 		}
 		int row = node.stat().ordinal();
 		int col = Integer.parseInt(node.id().substring(node.id().lastIndexOf('_') + 1)) - 1;
 		int x = col < 3 ? 66 + col * 30 : 176 + (col - 3) * 30;
 		return new int[] {x, 22 + row * 42 + (MAJOR - MINOR) / 2};
+	}
+
+	/** The major node closing a stat's row, or null while that place is still kept for a later one. */
+	private static SkillTree.@Nullable Node closing(final Stat stat) {
+		for (SkillTree.Node node : SkillTree.NODES) {
+			if (node.major() && node.stat() == stat) {
+				return node;
+			}
+		}
+		return null;
 	}
 
 	/** Top-left of the locked major node that closes each row (a later keeper's skill). */
@@ -495,7 +505,7 @@ public class HunterGuideScreen extends Screen {
 		g.text(this.font, Component.translatable("gui.mistinn.guide.rust_salt", rustSalt(player)), rx + 20, ry + 4, INK, false);
 		ry += 28;
 		Skills skills = SkillService.get(player);
-		int total = SkillTree.NODES.size() - 1;
+		int total = (int) SkillTree.NODES.stream().filter(node -> !node.major()).count();
 		g.text(this.font, Component.translatable("gui.mistinn.guide.minor_count", skills.minorCount(), total), rx, ry, INK, false);
 		ry += 12;
 		if (skills.minorCount() < total) {
@@ -553,7 +563,8 @@ public class HunterGuideScreen extends Screen {
 				hLine(g, from, x + at[0], rowCy, on ? AMBER : LINE_DARK);
 			}
 			int[] last = nodeAt(SkillTree.node(stat.id + "_" + SkillTree.BRANCH));
-			hLine(g, x + last[0] + MINOR, x + reservedAt(stat.ordinal())[0], rowCy, LINE_DARK);
+			SkillTree.Node closing = closing(stat);
+			hLine(g, x + last[0] + MINOR, x + reservedAt(stat.ordinal())[0], rowCy, closing != null && skills.has(closing.id()) ? AMBER : LINE_DARK);
 		}
 		SkillTree.Node hovered = null;
 		for (SkillTree.Node node : SkillTree.NODES) {
@@ -568,7 +579,7 @@ public class HunterGuideScreen extends Screen {
 				state = 2;
 			}
 			g.blit(RenderPipelines.GUI_TEXTURED, node.major() ? NODE_MAJOR : NODE_MINOR, nx, ny, (float) (state * size), 0.0F, size, size, size * 3, size);
-			int icon = node.major() ? 0 : 1 + node.stat().ordinal();
+			int icon = node.stat() == null ? 0 : 1 + node.stat().ordinal();
 			icon(g, icon, nx + (size - 16) / 2, ny + (size - 16) / 2, has || open ? 0xFFFFFFFF : 0xFF707070);
 			if (node.id().equals(glowNode) && now - glowAt < 700) {
 				float k = 1.0F - (now - glowAt) / 700.0F;
@@ -580,6 +591,9 @@ public class HunterGuideScreen extends Screen {
 			}
 		}
 		for (int row = 0; row < Stat.values().length; row++) {
+			if (closing(Stat.values()[row]) != null) {
+				continue;
+			}
 			int[] at = reservedAt(row);
 			g.blit(RenderPipelines.GUI_TEXTURED, NODE_MAJOR, x + at[0], y + at[1], 0.0F, 0.0F, MAJOR, MAJOR, MAJOR * 3, MAJOR);
 			icon(g, 7, x + at[0] + 8, y + at[1] + 8, 0xFF909090);

@@ -40,7 +40,7 @@ public record Skills(Set<String> unlocked) {
 		int points = 0;
 		for (String id : this.unlocked) {
 			SkillTree.Node node = SkillTree.node(id);
-			if (node != null && node.stat() == stat) {
+			if (node != null && !node.major() && node.stat() == stat) {
 				points++;
 			}
 		}
